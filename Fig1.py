@@ -75,9 +75,10 @@ if response.status_code == 200:
             plt.text(bar.get_width(), bar.get_y() + bar.get_height() / 2, f'{bar.get_width():.2f}%',
                      va='center', ha='left', color=label_color, fontweight='bold')
 
-        plt.xlabel("Sales Tax (%)")
-        plt.title("Sales Tax on Period Products by State (2024)")
-        plt.gca().invert_yaxis()  # Invert the y-axis to display the highest at the top
+        plt.xlabel("Sales Tax")
+        plt.title("Period Taxation by State (2024)")
+        plt.gca().invert_yaxis()
+        plt.xlim(0,7.5)
         plt.xticks([])
 
         # Save the plot
