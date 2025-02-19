@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r Python/reqs/requirements.txt  # Install from the correct path
 
       - name: Run WeedMap script
         run: python Python/Chapter2/WeedMap.py
