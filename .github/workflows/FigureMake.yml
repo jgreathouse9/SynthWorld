@@ -19,17 +19,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # Ensure compatibility with your code
+          python-version: '3.8'  # Ensure compatibility with your code
 
       - name: Install dependencies
         run: |
           pip install -r Python/reqs/requirements.txt  # Install from the correct path
 
+      - name: Set PYTHONPATH to include 'Python'
+        run: echo "PYTHONPATH=$(pwd)/Python" >> $GITHUB_ENV  # Set the Python path for the utils folder
+
       - name: Run WeedMap script
         run: python Python/Chapter2/WeedMap.py
 
       - name: Upload generated map
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4  # Updated to v4
         with:
           name: WeedMap
           path: Python/Chapter2/WeedMap.png  # Ensure your script saves the map here
