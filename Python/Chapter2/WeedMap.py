@@ -6,4 +6,4 @@ import os
 file_path = os.path.join(os.getcwd(), 'PolicyData', 'Cannabis', 'CannabisLaws.xlsx')
 
 
-plot_policy_map(get_weed_policies(file_path), title="Legal Cannabis States", color="green", save_path="Chapter2/Figures/weed_map.png")
+plot_policy_map(get_weed_policies(file_path), title="Legal Cannabis States", color="green", fig_name="weed_map.png")
