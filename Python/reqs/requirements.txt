@@ -1,0 +1,5 @@
+pandas
+geopandas
+matplotlib
+requests
+openpyxl  # Required for reading Excel files
