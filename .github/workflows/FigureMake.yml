@@ -26,7 +26,7 @@ jobs:
           pip install -r Python/reqs/requirements.txt  # Install from the correct path
 
       - name: Set PYTHONPATH to include 'Python'
-        run: echo "PYTHONPATH=/home/runner/work/SynthWorld/SynthWorld/Python" >> $GITHUB_ENV  # Absolute path
+        run: echo "PYTHONPATH=/home/runner/work/SynthWorld/Python" >> $GITHUB_ENV  # Absolute path
 
       - name: Run WeedMap script
         run: python Python/Chapter2/WeedMap.py
