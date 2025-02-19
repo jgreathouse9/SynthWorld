@@ -7,6 +7,8 @@ import zipfile
 import os
 import matplotlib
 
+plot_policy_map(get_unique_policies(file_path), "States with Legal Cannabis", "#008000")
+
 def get_unique_policies(file_path, sheet_name="for stata"):
     # Load the Excel file
     df = pd.read_excel(file_path, sheet_name=sheet_name)
