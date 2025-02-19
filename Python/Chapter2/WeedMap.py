@@ -2,7 +2,7 @@ from utils.dataget import get_weed_policies
 #import utils.datadisp as datadisp
 
 # Path to the Excel file with cannabis policies
-file_path = r"../../PolicyData/CannabisLaws.xlsx"
+file_path = r"../../PolicyData/Cannabis/CannabisLaws.xlsx"
 
 # Get states where cannabis is legal
 cannabis_states = get_weed_policies(file_path)
