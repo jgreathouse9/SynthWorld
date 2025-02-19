@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'  # Ensure compatibility with your code
+          python-version: '3.9'  # Ensure compatibility with your code
 
       - name: Install dependencies
         run: |
