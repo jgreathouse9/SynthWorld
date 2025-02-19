@@ -33,7 +33,7 @@ jobs:
 
     # Set PYTHONPATH to include 'Python' folder for utils and scripts
     - name: Set PYTHONPATH to include 'Python'
-      run: echo "PYTHONPATH=/home/runner/work/SynthWorld/Python" >> $GITHUB_ENV  # Absolute path
+      run: echo "PYTHONPATH=$(pwd)/Python" >> $GITHUB_ENV  # Using $(pwd) to dynamically set the path
 
     # Install dependencies from requirements.txt
     - name: Install dependencies
