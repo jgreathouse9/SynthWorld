@@ -5,7 +5,5 @@ import os
 # Path to the Excel file with cannabis policies
 file_path = os.path.join(os.getcwd(), 'PolicyData', 'Cannabis', 'CannabisLaws.xlsx')
 
-# Get states where cannabis is legal
-cannabis_states = get_weed_policies(file_path)
 
-plot_policy_map(cannabis_states, "States with Legal Cannabis", "#008000")
+plot_policy_map(get_weed_policies(file_path), title="Legal Cannabis States", color="green", save_path="Chapter2/Figures/weed_map.png")
