@@ -1,5 +1,7 @@
 from utils.dataget import get_weed_policies
 #import utils.datadisp as datadisp
+import os
+print(f"Current working directory: {os.getcwd()}")
 
 # Path to the Excel file with cannabis policies
 file_path = r"../../PolicyData/Cannabis/CannabisLaws.xlsx"
