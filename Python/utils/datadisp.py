@@ -132,12 +132,7 @@ def plot_policy_map(treated_states, title, color):
 
         plt.show()
 
-
-# Example usage
-
-file_path = r"Policy Data\CannabisLaws.xlsx"
-
-plot_policy_map(get_unique_policies(file_path), "States with Legal Cannabis", "#008000")
+file_path = r"Policy Data\Cannabis\CannabisLaws.xlsx"
 
 policy_url = "https://datawrapper.dwcdn.net/Q43DW/150/dataset.csv"
 restricted_statuses = [
