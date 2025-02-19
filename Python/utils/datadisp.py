@@ -71,11 +71,12 @@ def plot_policy_map(treated_states, title, color, save_path=None):
         ax.set_title(title)
         ax.axis("off")  # Hide axis
 
-        if save_path:
+        if fig_name:
             # Ensure the directory exists before saving the plot
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            save_path = os.path.join("SynthWorld", "Figures", "Chapter2", fig_name)  # Full path
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)  # Create directories if needed
             # Save the plot to the specified path
             plt.savefig(save_path, bbox_inches="tight")
         else:
-            # Show the plot if no save path is specified
+            # Show the plot if no fig_name is specified
             plt.show()
