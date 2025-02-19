@@ -33,7 +33,7 @@ jobs:
 
     # Set PYTHONPATH to include 'Python' folder for utils and scripts
     - name: Set PYTHONPATH to include 'Python'
-      run: echo "PYTHONPATH=$(pwd)/Python" >> $GITHUB_ENV  # Using $(pwd) to dynamically set the path
+      run: echo "PYTHONPATH=/home/runner/work/SynthWorld/Python" >> $GITHUB_ENV  # Absolute path
 
     # Install dependencies from requirements.txt
     - name: Install dependencies
@@ -44,3 +44,17 @@ jobs:
     # Run the WeedMap script
     - name: Run WeedMap script
       run: python Python/Chapter2/WeedMap.py
+
+    # Pull and rebase the latest changes to avoid conflicts
+    - name: Pull and rebase changes
+      run: |
+        git pull --rebase origin main
+
+    # Commit the plot to the repository
+    - name: Commit plot to repository
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add Figures/Chapter2/weed_map.png
+        git commit -m "Add plot of cannabis policies map"
+        git push
