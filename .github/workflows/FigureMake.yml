@@ -1,0 +1,35 @@
+name: Generate Weed Map
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 12 * * 1'  # Runs every Monday at 12:00 UTC
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  run-weed-map:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'  # Ensure compatibility with your code
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run WeedMap script
+        run: python Python/Chapter2/WeedMap.py
+
+      - name: Upload generated map
+        uses: actions/upload-artifact@v3
+        with:
+          name: WeedMap
+          path: Python/Chapter2/WeedMap.png  # Ensure your script saves the map here
