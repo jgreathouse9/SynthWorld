@@ -1,3 +1,8 @@
+import pandas as pd
+import requests
+from io import StringIO
+
+
 def get_weed_policies(file_path, sheet_name="for stata"):
     df = pd.read_excel(file_path, sheet_name=sheet_name)
     df = df.drop(index=range(51, 57))  # Remove extra rows
