@@ -72,6 +72,8 @@ def plot_policy_map(treated_states, title, color, save_path=None):
         ax.axis("off")  # Hide axis
 
         if save_path:
+            # Ensure the directory exists before saving the plot
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             # Save the plot to the specified path
             plt.savefig(save_path, bbox_inches="tight")
         else:
