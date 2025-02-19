@@ -32,13 +32,14 @@ ZIP_URL = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.z
 
 def plot_policy_map(treated_states, title, color, save_path=None):
     """
-    Plots a U.S. map highlighting states with a specific policy and optionally saves it to a file.
+    Plots a U.S. map highlighting states with a specific policy and optionally saves it to a user-defined path.
 
     Parameters:
         treated_states (list): List of state abbreviations or full names based on dataset.
         title (str): Title for the map.
         color (str): Color for the treated states.
-        save_path (str, optional): Path to save the plot (including file name). If None, the plot is not saved.
+        save_path (str, optional): Full path (including filename) where the plot will be saved.
+                                  If None, the plot is not saved.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         # Download and extract the shapefile
@@ -71,12 +72,11 @@ def plot_policy_map(treated_states, title, color, save_path=None):
         ax.set_title(title)
         ax.axis("off")  # Hide axis
 
-        if fig_name:
+        if save_path:
             # Ensure the directory exists before saving the plot
-            save_path = os.path.join("SynthWorld", "Figures", "Chapter2", fig_name)  # Full path
             os.makedirs(os.path.dirname(save_path), exist_ok=True)  # Create directories if needed
             # Save the plot to the specified path
             plt.savefig(save_path, bbox_inches="tight")
         else:
-            # Show the plot if no fig_name is specified
+            # Show the plot if no save_path is specified
             plt.show()
