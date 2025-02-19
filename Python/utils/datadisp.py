@@ -30,14 +30,15 @@ matplotlib.rcParams.update(jared_theme)
 # U.S. shapefile URL
 ZIP_URL = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip"
 
-def plot_policy_map(treated_states, title, color):
+def plot_policy_map(treated_states, title, color, save_path=None):
     """
-    Plots a U.S. map highlighting states with a specific policy.
+    Plots a U.S. map highlighting states with a specific policy and optionally saves it to a file.
 
     Parameters:
         treated_states (list): List of state abbreviations or full names based on dataset.
         title (str): Title for the map.
         color (str): Color for the treated states.
+        save_path (str, optional): Path to save the plot (including file name). If None, the plot is not saved.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         # Download and extract the shapefile
@@ -70,4 +71,9 @@ def plot_policy_map(treated_states, title, color):
         ax.set_title(title)
         ax.axis("off")  # Hide axis
 
-        plt.show()
+        if save_path:
+            # Save the plot to the specified path
+            plt.savefig(save_path, bbox_inches="tight")
+        else:
+            # Show the plot if no save path is specified
+            plt.show()
