@@ -33,7 +33,7 @@ jobs:
 
     # Set PYTHONPATH to include 'Python' folder for utils and scripts
     - name: Set PYTHONPATH to include 'Python'
-      run: echo "PYTHONPATH=$(pwd)/Python" >> $GITHUB_ENV  # Using $(pwd) to dynamically set the path
+      run: echo "PYTHONPATH=$(pwd)/Python" >> $GITHUB_ENV
 
     # Install dependencies from requirements.txt
     - name: Install dependencies
@@ -50,11 +50,18 @@ jobs:
       run: |
         git pull --rebase origin main
 
-    # Commit the plot to the repository
+    # Commit the plot to the repository (only if changes exist)
     - name: Commit plot to repository
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
+        
         git add Figures/Chapter2/weed_map.png
-        git commit -m "Add plot of cannabis policies map"
-        git push
+        
+        # Check if there are staged changes before committing
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "Add plot of cannabis policies map"
+          git push
+        fi
