@@ -7,6 +7,6 @@ file_path = os.path.join(os.getcwd(), 'PolicyData', 'Cannabis', 'CannabisLaws.xl
 
 statelist = get_weed_policies(file_path)
 
-print("The number of control states is, " len(statelist))
+print(f"The number of control states is {len(statelist)}")
 
 plot_policy_map(statelist, title="Legal Cannabis States", color="green", save_path="Figures/Chapter2/weed_map.png")
