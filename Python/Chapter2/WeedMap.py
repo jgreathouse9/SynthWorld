@@ -29,7 +29,9 @@ file_path = os.path.join(os.getcwd(), 'PolicyData', 'Cannabis', 'CannabisLaws.xl
 
 statelist = get_weed_policies(file_path)
 
-remove_states = {"CA", "CO", "OR", "WA", "MA", "NV", "IL"}
+# MI: December 1, 2019
+
+remove_states = {"CA", "CO", "OR", "WA", "MA", "NV", "IL", "MI"}
 
 print(f"The number of pretreated states is {len(remove_states)}")
 
