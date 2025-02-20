@@ -12,8 +12,15 @@ purecontrols = list(set(statelist) - remove_states)
 
 # Dictionary of colors and state groups
 state_groups = {
-    "green": purecontrols,       # Pure control states
-    "lightgreen": remove_states  # Previously treated states
+    "green": purecontrols,       # Donor states
+    "lightgreen": remove_states  # Previously treated states (Shops Open)
 }
 
-plot_policy_map(state_groups, title="Legal Cannabis States", save_path="Figures/Chapter2/weed_map.png")
+# Custom legend labels
+legend_labels = {
+    "green": "Donor States",
+    "lightgreen": "Shops Open",
+    "lightgray": "No MML"
+}
+
+plot_policy_map(state_groups, title="Cannabis Legality", legend_labels=legend_labels, save_path="Figures/Chapter2/weed_map.png")
