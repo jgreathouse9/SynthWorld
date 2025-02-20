@@ -30,7 +30,12 @@ file_path = os.path.join(os.getcwd(), 'PolicyData', 'Cannabis', 'CannabisLaws.xl
 statelist = get_weed_policies(file_path)
 
 remove_states = {"CA", "CO", "OR", "WA", "MA", "NV", "IL"}
+
+print(f"The number of pretreated states is {len(remove_states)}")
+
 purecontrols = list(set(statelist) - remove_states)
+
+print(f"The number of donor states is {len(remove_states)-1}")
 
 # Dictionary of colors and state groups
 state_groups = {
