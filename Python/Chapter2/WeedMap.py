@@ -45,4 +45,4 @@ legend_labels = {
     "lightgray": "No MML"
 }
 
-plot_policy_map(state_groups, title="Cannabis Legality", legend_labels=legend_labels, save_path="Figures/Chapter2/weed_map.png")
+plot_policy_map(state_groups, title="Cannabis Legality", legend_labels=legend_labels, save_path="Figures/Chapter2/WeedLegalityStates.png")
