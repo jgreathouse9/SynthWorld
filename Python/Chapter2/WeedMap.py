@@ -8,7 +8,12 @@ file_path = os.path.join(os.getcwd(), 'PolicyData', 'Cannabis', 'CannabisLaws.xl
 statelist = get_weed_policies(file_path)
 
 remove_states = {"CA", "CO", "OR", "WA", "MA", "NV", "IL"}
-
 purecontrols = list(set(statelist) - remove_states)
 
-plot_policy_map(purecontrols, title="Legal Cannabis States", color="green", save_path="Figures/Chapter2/weed_map.png")
+# Dictionary of colors and state groups
+state_groups = {
+    "green": purecontrols,       # Pure control states
+    "lightgreen": remove_states  # Previously treated states
+}
+
+plot_policy_map(state_groups, title="Legal Cannabis States", save_path="Figures/Chapter2/weed_map.png")
