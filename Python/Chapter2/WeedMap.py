@@ -1,6 +1,28 @@
 from utils.dataget import get_weed_policies
 from utils.datadisp import plot_policy_map
 import os
+import matplotlib
+
+# Custom theme settings
+jared_theme = {
+    "axes.grid": False,
+    "grid.linestyle": "-",
+    "grid.color": "black",
+    "legend.framealpha": 1,
+    "legend.facecolor": "white",
+    "legend.shadow": True,
+    "legend.fontsize": 14,
+    "legend.title_fontsize": 16,
+    "xtick.labelsize": 11,
+    "ytick.labelsize": 14,
+    "axes.labelsize": 14,
+    "axes.titlesize": 20,
+    "figure.dpi": 120,
+    "axes.facecolor": "white",
+    "figure.figsize": (10, 6),
+}
+
+matplotlib.rcParams.update(jared_theme)
 
 # Path to the Excel file with cannabis policies
 file_path = os.path.join(os.getcwd(), 'PolicyData', 'Cannabis', 'CannabisLaws.xlsx')
