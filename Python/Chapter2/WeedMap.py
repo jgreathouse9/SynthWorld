@@ -5,5 +5,8 @@ import os
 # Path to the Excel file with cannabis policies
 file_path = os.path.join(os.getcwd(), 'PolicyData', 'Cannabis', 'CannabisLaws.xlsx')
 
+statelist = get_weed_policies(file_path)
 
-plot_policy_map(get_weed_policies(file_path), title="Legal Cannabis States", color="green", save_path="Figures/Chapter2/weed_map.png")
+print("The number of control states is, " len(statelist))
+
+plot_policy_map(statelist, title="Legal Cannabis States", color="green", save_path="Figures/Chapter2/weed_map.png")
