@@ -4,39 +4,19 @@ import tempfile
 import requests
 import zipfile
 import os
-import matplotlib
-
-# Custom theme settings
-jared_theme = {
-    "axes.grid": False,
-    "grid.linestyle": "-",
-    "grid.color": "black",
-    "legend.framealpha": 1,
-    "legend.facecolor": "white",
-    "legend.shadow": True,
-    "legend.fontsize": 14,
-    "legend.title_fontsize": 16,
-    "xtick.labelsize": 11,
-    "ytick.labelsize": 14,
-    "axes.labelsize": 14,
-    "axes.titlesize": 20,
-    "figure.dpi": 120,
-    "axes.facecolor": "white",
-    "figure.figsize": (10, 6),
-}
-
-matplotlib.rcParams.update(jared_theme)
+import matplotlib.patches as mpatches
 
 # U.S. shapefile URL
 ZIP_URL = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip"
 
-def plot_policy_map(state_groups, title, save_path=None):
+def plot_policy_map(state_groups, title, legend_labels, save_path=None):
     """
-    Plots a U.S. map highlighting states based on treatment status with different colors.
+    Plots a U.S. map highlighting states based on treatment status with different colors and adds a legend.
 
     Parameters:
         state_groups (dict): Dictionary where keys are colors and values are lists of states.
         title (str): Title for the map.
+        legend_labels (dict): Dictionary where keys are colors and values are legend descriptions.
         save_path (str, optional): Full path (including filename) where the plot will be saved.
                                   If None, the plot is not saved.
     """
@@ -66,7 +46,7 @@ def plot_policy_map(state_groups, title, save_path=None):
             for color, states in state_groups.items():
                 if state in states:
                     return color
-            return "white"  # Default for untreated states
+            return "lightgray"  # Default for untreated states
 
         gdf["color"] = gdf[key_col].apply(assign_color)
 
@@ -77,6 +57,12 @@ def plot_policy_map(state_groups, title, save_path=None):
         # Customize the plot
         ax.set_title(title)
         ax.axis("off")  # Hide axis
+
+        # Define legend items (user-defined)
+        legend_patches = [mpatches.Patch(color=color, label=label) for color, label in legend_labels.items()]
+        
+        # Add legend to the plot
+        ax.legend(handles=legend_patches, loc="lower left", frameon=True)
 
         if save_path:
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
