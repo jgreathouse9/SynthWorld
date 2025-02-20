@@ -59,18 +59,19 @@ jobs:
 
         git pull --rebase origin main
 
-    # Commit the plot to the repository (only if changes exist)
-    - name: Commit plot to repository
+    # Commit ANY .png plot inside Figures/Chapter2/
+    - name: Commit all plots to repository
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         
-        git add Figures/Chapter2/weed_map.png
+        # Add all PNG files in Figures/Chapter2/
+        git add Figures/Chapter2/*.png
         
         # Check if there are staged changes before committing
         if git diff --cached --quiet; then
           echo "No changes to commit."
         else
-          git commit -m "Add plot of cannabis policies map"
+          git commit -m "Add updated plots from WeedMap script"
           git push
         fi
