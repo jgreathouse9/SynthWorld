@@ -30,14 +30,13 @@ matplotlib.rcParams.update(jared_theme)
 # U.S. shapefile URL
 ZIP_URL = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip"
 
-def plot_policy_map(treated_states, title, color, save_path=None):
+def plot_policy_map(state_groups, title, save_path=None):
     """
-    Plots a U.S. map highlighting states with a specific policy and optionally saves it to a user-defined path.
+    Plots a U.S. map highlighting states based on treatment status with different colors.
 
     Parameters:
-        treated_states (list): List of state abbreviations or full names based on dataset.
+        state_groups (dict): Dictionary where keys are colors and values are lists of states.
         title (str): Title for the map.
-        color (str): Color for the treated states.
         save_path (str, optional): Full path (including filename) where the plot will be saved.
                                   If None, the plot is not saved.
     """
@@ -59,10 +58,17 @@ def plot_policy_map(treated_states, title, color, save_path=None):
         gdf = gdf[~gdf["STATEFP"].isin(["02", "15", "72"])]
 
         # Determine key column (abbreviation vs. full name)
-        key_col = "STUSPS" if len(treated_states[0]) == 2 else "NAME"
+        sample_state = next(iter(state_groups.values()))[0]  # Get an example state from the first group
+        key_col = "STUSPS" if len(sample_state) == 2 else "NAME"
 
         # Apply color mapping
-        gdf["color"] = gdf[key_col].apply(lambda x: color if x in treated_states else "lightgray")
+        def assign_color(state):
+            for color, states in state_groups.items():
+                if state in states:
+                    return color
+            return "lightgray"  # Default for untreated states
+
+        gdf["color"] = gdf[key_col].apply(assign_color)
 
         # Plot the map
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -73,10 +79,7 @@ def plot_policy_map(treated_states, title, color, save_path=None):
         ax.axis("off")  # Hide axis
 
         if save_path:
-            # Ensure the directory exists before saving the plot
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)  # Create directories if needed
-            # Save the plot to the specified path
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             plt.savefig(save_path, bbox_inches="tight")
         else:
-            # Show the plot if no save_path is specified
             plt.show()
