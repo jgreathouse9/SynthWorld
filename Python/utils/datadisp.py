@@ -66,7 +66,7 @@ def plot_policy_map(state_groups, title, save_path=None):
             for color, states in state_groups.items():
                 if state in states:
                     return color
-            return "lightgray"  # Default for untreated states
+            return "white"  # Default for untreated states
 
         gdf["color"] = gdf[key_col].apply(assign_color)
 
