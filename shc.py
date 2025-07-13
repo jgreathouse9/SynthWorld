@@ -60,7 +60,7 @@ def shc_estimator(y, m, T0, bandwidth=3, varsigma=1e-6, tol=1e-8):
     C2 = eigvecs[:, eigvals < tol]
     penalty = cp.norm(C2.T @ w, 2)**2 if C2.size > 0 else 0
     objective = cp.Minimize(cp.sum_squares(ell_eval - L_pre @ w) + varsigma)
-    constraints = [w >= 0]
+    constraints = [w >= 0, cp.sum(w)==1]
     cp.Problem(objective, constraints).solve()
 
     w_opt = w.value
