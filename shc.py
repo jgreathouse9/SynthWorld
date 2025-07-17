@@ -1,6 +1,8 @@
 import pandas as pd
 from mlsynth import SHC
 
+# https://masks4all.co/what-countries-require-masks-in-public/
+
 # Define the path (raw string recommended for Windows paths with backslashes)
 file_path = r"C:\The Shop\mlsynth\app\HawaiiData_Growth.xlsx"
 
