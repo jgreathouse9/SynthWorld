@@ -9,14 +9,12 @@ format:
     keep-tex: true
     fig-cap-location: bottom
     tbl-cap-location: top
-bibliography: pl.bib  # keep this, it's needed for \bibliography{pl}
-# link-citations: true  <-- disable this
-# csl: ectj.csl         <-- disable this
+    citation_package: natbib  # Enables \citet{} and \citep{}
+bibliography: pl.bib  # For use with \bibliography{pl}
+cls: ectj.cls
+# link-citations: true   # Disabled to avoid CSL styling
+# csl: ectj.csl           # Disabled since using .bst via natbib
 ---
-
-
-
-
 
 # Introduction
 
