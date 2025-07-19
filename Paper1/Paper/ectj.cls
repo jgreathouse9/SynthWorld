@@ -784,7 +784,7 @@ Malden, MA, 02148, USA.}
  \space\number\day, \number\year}
 \pagestyle{ectj}
 \pagenumbering{arabic}
-\AtBeginDocument{\NAT@numbersfalse}
+%\AtBeginDocument{\NAT@numbersfalse}
 \frenchspacing
 \RequirePackage[authoryear]{natbib}
 
