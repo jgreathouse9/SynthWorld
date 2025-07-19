@@ -52,11 +52,11 @@ The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be 
 
 Define the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$ as a collection of $N$ overlapping length-$m$ subvectors extracted from the smoothed pre-treatment series. Each column is a contiguous subvector of the form $\widetilde{\mathbf{y}}_{[i, i+m-1]}$, with $i$ ranging over eligible start points in $\mathcal{T}_1$ that precede the evaluation window. The precise construction is given in Section~\ref{shc_estimator}.
 
-##Synthetic Historical Control Method
+## Synthetic Historical Control Method
 
 \textbf{Potential Outcomes} Following the Rubin potential outcomes framework, let $y_t^1$ and $y_t^0$ denote the potential outcomes for the treated unit at time $t \in \mathcal{T}$, corresponding to the outcomes under treatment and no treatment, respectively. The observed outcome at time $t$ is $y_t = d_t y_t^1 + (1 - d_t) y_t^0,$ where $d_t = \mathbf{1}\{t > T_0\}.$
 
-The fundamental problem of causal inference is that for $t > T_0$, we observe only the treated potential outcome $y_t^1 = y_t$, while the untreated potential outcome $y_t^0$ remains unobserved. Let the SHC estimator for $y_t^0$ be denoted $\widehat{y}_t^0 \coloneqq y_t^{\text{SHC}}$ for all $t \in \mathcal{T}_2$. Define the observed post-treatment outcome vector as $\mathbf{y}_{\text{post}} \mathrel{\mathop:}= (y_t^1)_{t \in \mathcal{T}_2}$ and the estimated counterfactual vector as $\mathbf{y}^0_{\text{post}} \mathrel{\mathop:}= (\widehat{y}_t^0)_{t \in \mathcal{T}_2}$. The out-of-sample treatment effect is
+The fundamental problem of causal inference is that for $t > T_0$, we observe only the treated potential outcome $y_t^1 = y_t$, while the untreated potential outcome $y_t^0$ remains unobserved. Let the SHC estimator for $y_t^0$ be denoted $\widehat{y}_t^0 \mathrel{\mathop:}= y_t^{\text{SHC}}$ for all $t \in \mathcal{T}_2$. Define the observed post-treatment outcome vector as $\mathbf{y}_{\text{post}} \mathrel{\mathop:}= (y_t^1)_{t \in \mathcal{T}_2}$ and the estimated counterfactual vector as $\mathbf{y}^0_{\text{post}} \mathrel{\mathop:}= (\widehat{y}_t^0)_{t \in \mathcal{T}_2}$. The out-of-sample treatment effect is
 \begin{equation}
 \label{eq:treatment_vector}
 \alpha_t \mathrel{\mathop:}= y_t^1 - y_t^0, \quad \text{for } t \in \mathcal{T}_2,
