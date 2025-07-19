@@ -111,7 +111,7 @@ with local intercept $a_t \in \mathbb{R}$ and slope $b_t \in \mathbb{R}$. Define
 \label{eq:kernel_matrix}
 \mathbf{W}_t = \operatorname{diag}(w_{1t}, w_{2t}, \ldots, w_{T_0 t}), \quad w_{jt} \propto \exp\left(-\frac{1}{2} \left(\frac{j - t}{h}\right)^2\right),
 \end{equation}
-where$(h > 0$ is a bandwidth parameter governing smoothness. The local coefficients $\boldsymbol{\beta}_t = (a_t, b_t)^\top$ solve quadratic programming problem that is strictly convex
+where $(h > 0$ is a bandwidth parameter governing smoothness. The local coefficients $\boldsymbol{\beta}_t = (a_t, b_t)^\top$ solve quadratic programming problem that is strictly convex
 \begin{equation}
 \label{eq:llr_objective}
 \boldsymbol{\beta}_t = \underset{\boldsymbol{\beta} \in \mathbb{R}^2}{\operatorname*{argmin}} \left\| \mathbf{W}_t^{1/2} \left( \mathbf{y}_{\text{pre}} - \mathbf{X}_t \boldsymbol{\beta} \right) \right\|_2^2.
@@ -123,13 +123,10 @@ Fortunately, this optimization admits a closed-form solution for the coefficient
 \end{equation}
 The smoothed outcome at time $t$ is $\widetilde{y}_t = a_t = \mathbf{e}_1^\top \boldsymbol{\beta}_t$, where $\mathbf{e}_1 = (1, 0)^\top$. Let $\widetilde{\mathbf{y}} = (\widetilde{y}_1, \ldots, \widetilde{y}_{T_0})^\top \in \mathbb{R}^{T_0}$ denote the full smoothed series. After we have smoothed over the pre-treatment period before the evaluation period, we build our donor matrix of historical control segments/units.
 
-In the second step, SHC constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \coloneqq \begin{bmatrix} \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} \end{bmatrix} \in \mathbb{R}^{m \times N}.$
+In the second step, SHC constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \defeq \begin{bmatrix} \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} \end{bmatrix} \in \mathbb{R}^{m \times N}.$
 
 \begin{example}[Constructing $\widetilde{\mathbf{Y}}_{\text{pre}}$]
-Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months in order to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is:
-$$
-N = T_0 - m - n + 1 = 60 - 12 - 6 + 1 = 43.
-$$
+Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months in order to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is: $N = T_0 - m - n + 1 = 60 - 12 - 6 + 1 = 43.$
 
 Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
 \end{example}
