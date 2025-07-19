@@ -33,3 +33,7 @@ Methodologically, this is the first applied paper (aside from the original SHC p
 
 The remainder of the paper is structured as follows. Section 2 introduces the empirical methodology. Section 3 describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
 
+```{=latex}
+\bibliographystyle{chicago}
+\bibliography{pl}
+```
