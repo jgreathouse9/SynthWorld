@@ -16,6 +16,9 @@ format:
       \usepackage{float}
       \usepackage{booktabs}
 
+      % Manual definition of \coloneqq if not provided by mathtools
+      \providecommand{\coloneqq}{\mathrel{\mathop:}=}
+
       \newtheorem{theorem}{Theorem}
       \newtheorem{assumption}{Assumption}
       \newtheorem{proposition}{Proposition}
@@ -48,6 +51,7 @@ format:
       \bibliographystyle{chicago}
 bibliography: pl.bib
 ---
+
 
 
 
