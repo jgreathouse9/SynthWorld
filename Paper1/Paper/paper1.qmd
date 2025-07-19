@@ -10,6 +10,7 @@ format:
     keep-tex: true
     fig-cap-location: bottom
     tbl-cap-location: top
+    citation_package: natbib
     include-in-header: |
       \usepackage{amsfonts,amssymb,graphics,epsfig,verbatim,bm,latexsym,amsmath,url,amsbsy,mathtools}
       \usepackage{float}
@@ -46,6 +47,7 @@ format:
                   T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
       \bibliographystyle{chicago}
+bibliography: pl.bib
 ---
 
 \begin{abstract}
