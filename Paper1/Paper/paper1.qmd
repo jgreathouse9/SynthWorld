@@ -93,6 +93,48 @@ Or the mean of the residuals is 0 in expectation. This fairly standard assumptio
 The latent trend $\widetilde{y}(t)$ is $(H+1)$ times differentiable for some integer $H \geq 3$, with derivative bounded as $\left| \widetilde{y}^{(H+1)}(t) \right| < \varepsilon$ uniformly over $t \in \mathcal{T}_1$. There exists a convex weight vector $\mathbf{w}^\ast \in \Delta^{N-1}$ such that the evaluation subvector $\mathbf{y}_{\text{eval}}$ can be exactly matched by a convex combination of donor segments: $\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast$.
 \end{assumption}
 
+Assumption (a) allows us to approximate the post-treatment latent component using a local linear extrapolation of pre-treatment values. Assumption (b) ensures that a synthetic match exists within the donor pool for the evaluation window, much as \citet{Abadie2010} assume.
+
+\begin{assumption}[Estimation Feasibility and Numerical Regularity]
+\label{assump:estimation}
+The estimated evaluation window $\mathbf{y}_{\text{eval}}$ is exactly matched by the estimated donor matrix: $\widehat{\mathbf{y}}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}$ for some $\mathbf{w} \in \Delta^{N-1}$. The estimated weights $\mathbf{w}$ have sparse support: the number of non-zero entries is bounded above by a constant $s \ll N$. The submatrix of selected donors $\widetilde{\mathbf{Y}}_{\text{pre}}^{(s)}$ satisfies that its Gram matrix is positive definite: $\left( \widetilde{\mathbf{Y}}_{\text{pre}}^{(s)} \right)^\top \widetilde{\mathbf{Y}}_{\text{pre}}^{(s)} \succ 0.$
+\end{assumption}
+These sample-level assumptions ensure that the SHC weights are identifiable, sparse, and numerically stable. Much as with SCM, we prefer that a sparse subset of historical controls can approximate the final evaluation period, as is discussed by \citet{Abadie2021}. \par
+
+The first step of the SHC smooths $\mathbf{y}_{\text{pre}}$ using local linear regression, where we fit the regression model:
+\begin{equation}
+\label{eq:local_model}
+y_j \approx a_t + b_t (j - t), \quad \text{for } j = 1, \dots, T_0,
+\end{equation}
+with local intercept $a_t \in \mathbb{R}% and slope $b_t \in \mathbb{R}$. Define the centered time vector $\mathbf{s}_t = (1 - t, 2 - t, \ldots, T_0 - t)^\top \in \mathbb{R}^{T_0}$, and the design matrix $\mathbf{X}_t = [\mathbf{1} \ \mathbf{s}_t] \in \mathbb{R}^{T_0 \times 2}$. The diagonal kernel weight matrix is:
+\begin{equation}
+\label{eq:kernel_matrix}
+\mathbf{W}_t = \operatorname{diag}(w_{1t}, w_{2t}, \ldots, w_{T_0 t}), \quad w_{jt} \propto \exp\left(-\frac{1}{2} \left(\frac{j - t}{h}\right)^2\right),
+\end{equation}
+where$(h > 0$ is a bandwidth parameter governing smoothness. The local coefficients $\boldsymbol{\beta}_t = (a_t, b_t)^\top$ solve quadratic programming problem that is strictly convex
+\begin{equation}
+\label{eq:llr_objective}
+\boldsymbol{\beta}_t = \underset{\boldsymbol{\beta} \in \mathbb{R}^2}{\operatorname*{argmin}} \left\| \mathbf{W}_t^{1/2} \left( \mathbf{y}_{\text{pre}} - \mathbf{X}_t \boldsymbol{\beta} \right) \right\|_2^2.
+\end{equation}
+Fortunately, this optimization admits a closed-form solution for the coefficients:
+\begin{equation}
+\label{eq:llr_closed_form}
+\boldsymbol{\beta}_t = \left( \mathbf{X}_t^\top \mathbf{W}_t \mathbf{X}_t \right)^{-1} \mathbf{X}_t^\top \mathbf{W}_t \mathbf{y}_{\text{pre}}.
+\end{equation}
+The smoothed outcome at time $t$ is $\widetilde{y}_t = a_t = \mathbf{e}_1^\top \boldsymbol{\beta}_t$, where $\mathbf{e}_1 = (1, 0)^\top$. Let $\widetilde{\mathbf{y}} = (\widetilde{y}_1, \ldots, \widetilde{y}_{T_0})^\top \in \mathbb{R}^{T_0}$ denote the full smoothed series. After we have smoothed over the pre-treatment period before the evaluation period, we build our donor matrix of historical control segments/units.
+
+In the second step, SHC constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \coloneqq \begin{bmatrix} \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} \end{bmatrix} \in \mathbb{R}^{m \times N}.$
+
+\begin{example}[Constructing $\widetilde{\mathbf{Y}}_{\text{pre}}$]
+Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months in order to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is:
+$$
+N = T_0 - m - n + 1 = 60 - 12 - 6 + 1 = 43.
+$$
+
+Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
+\end{example}
+
+In the third step, we solve the following program to obtain the optimal weights:
 
 
 ```{=latex}
