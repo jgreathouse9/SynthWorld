@@ -106,7 +106,7 @@ The first step of the SHC smooths $\mathbf{y}_{\text{pre}}$ using local linear r
 \label{eq:local_model}
 y_j \approx a_t + b_t (j - t), \quad \text{for } j = 1, \dots, T_0,
 \end{equation}
-with local intercept $a_t \in \mathbb{R}% and slope $b_t \in \mathbb{R}$. Define the centered time vector $\mathbf{s}_t = (1 - t, 2 - t, \ldots, T_0 - t)^\top \in \mathbb{R}^{T_0}$, and the design matrix $\mathbf{X}_t = [\mathbf{1} \ \mathbf{s}_t] \in \mathbb{R}^{T_0 \times 2}$. The diagonal kernel weight matrix is:
+with local intercept $a_t \in \mathbb{R}$ and slope $b_t \in \mathbb{R}$. Define the centered time vector $\mathbf{s}_t = (1 - t, 2 - t, \ldots, T_0 - t)^\top \in \mathbb{R}^{T_0}$, and the design matrix $\mathbf{X}_t = [\mathbf{1} \ \mathbf{s}_t] \in \mathbb{R}^{T_0 \times 2}$. The diagonal kernel weight matrix is:
 \begin{equation}
 \label{eq:kernel_matrix}
 \mathbf{W}_t = \operatorname{diag}(w_{1t}, w_{2t}, \ldots, w_{T_0 t}), \quad w_{jt} \propto \exp\left(-\frac{1}{2} \left(\frac{j - t}{h}\right)^2\right),
