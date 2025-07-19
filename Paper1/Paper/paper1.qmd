@@ -10,7 +10,7 @@ format:
     keep-tex: true
     fig-cap-location: bottom
     tbl-cap-location: top
-    citation_package: natbib
+    citation-package: natbib   # keep this, but do NOT load natbib yourself
     include-in-header: |
       \usepackage{amsfonts,amssymb,graphics,epsfig,verbatim,bm,latexsym,amsmath,url,amsbsy,mathtools}
       \usepackage{float}
@@ -45,9 +45,9 @@ format:
       \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
                   T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
-      \bibliographystyle{plainnat}
 bibliography: pl.bib
 ---
+
 
 \begin{abstract}
 This paper uses a novel causal time series method to estimate the causal impact of Hawaii's quarantine policy to combat the spread of COVID-19 on Hawaii's tourism industry.
