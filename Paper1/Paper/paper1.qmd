@@ -1,4 +1,6 @@
 ---
+title: "Poke"
+author: "Jared"
 date: "2025"
 format:
   pdf:
