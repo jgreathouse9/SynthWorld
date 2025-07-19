@@ -6,7 +6,6 @@ format:
     include-in-header: preamble.tex
     number-sections: true
     pdf-engine: pdflatex
-    biblatex: false
     keep-tex: true
     fig-cap-location: bottom
     tbl-cap-location: top
