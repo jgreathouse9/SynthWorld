@@ -1,5 +1,4 @@
 ---
-title: "Paradise Lost? Using Synthetic Historical Controls to Quantify Hawaii's Mandatory Quarantine on Tourism"
 date: "2025"
 format:
   pdf:
