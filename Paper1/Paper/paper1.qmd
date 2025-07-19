@@ -6,6 +6,7 @@ format:
     include-in-header: preamble.tex
     number-sections: true
     pdf-engine: pdflatex
+    natbib: true             # ← Add this line
     keep-tex: true
     fig-cap-location: bottom
     tbl-cap-location: top
@@ -13,6 +14,7 @@ bibliography: pl.bib
 csl: chicago-author-date.csl
 editor: source
 ---
+
 
 # Intro
 
