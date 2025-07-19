@@ -6,15 +6,11 @@ format:
     pdf-engine: pdflatex
     number-sections: true
     keep-tex: true
-    fig-cap-location: bottom
-    tbl-cap-location: top
     citation-package: natbib
     include-in-header: |
       \usepackage{amsfonts,amssymb,graphics,epsfig,verbatim,bm,latexsym,amsmath,url,amsbsy}
       \usepackage{float}
       \usepackage{booktabs}
-
-      \newcommand{\defeq}{\mathrel{\mathop:}=}
 
       \newtheorem{theorem}{Theorem}
       \newtheorem{assumption}{Assumption}
@@ -36,18 +32,11 @@ format:
 
       \setcounter{page}{1}
 
-      \title[Paradise Lost?]{Paradise Lost? Using Synthetic Historical Controls to Quantify Hawaii's Mandatory Quarantine on Tourism}
-      \author[J.~Greathouse]{Jared~Greathouse$^\dagger$}
-      \address{$^\dagger$Department of Policy and Management, Georgia State University}
-      \email{jgreathouse3@student.gsu.edu}
+    include-before-body: preamble.tex
 
-      \def\AmSTeX{$\cal A$\kern-.1667em\lower.5ex\hbox{$\cal M$}\kern-.125em$\cal S$-\TeX}
-      \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
-                  T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
-
-      \bibliographystyle{chicago}
 bibliography: pl.bib
 ---
+
 
 
 
