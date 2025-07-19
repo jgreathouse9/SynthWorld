@@ -33,7 +33,7 @@ format:
 
       \setcounter{page}{1}
 
-    include-before-body: preamble.tex
+    include-in-header: preamble.tex
 
 bibliography: pl.bib
 ---
