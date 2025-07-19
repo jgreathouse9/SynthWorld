@@ -10,7 +10,6 @@ format:
     fig-cap-location: bottom
     tbl-cap-location: top
 bibliography: pl.bib
-citation-style: null
 ---
 
 
