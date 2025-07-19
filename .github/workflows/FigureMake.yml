@@ -83,7 +83,16 @@ jobs:
 
           (cd "$dir" && quarto render "$(basename "$qmd_file")")
 
-          rm -f "$dir"/*.aux "$dir"/*.bbl "$dir"/*.blg "$dir"/*.log
+          # Remove auxiliary files but keep .log for debugging
+          rm -f "$dir"/*.aux "$dir"/*.bbl "$dir"/*.blg
+          # rm -f "$dir"/*.log  # keep .log files
+
+      - name: Upload LaTeX log files for debugging
+        if: failure() || always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: latex-logs
+          path: '**/*.log'
 
       - name: Commit rendered outputs
         run: |
