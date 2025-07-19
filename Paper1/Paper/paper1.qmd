@@ -22,7 +22,7 @@ bibliography: pl.bib
 
 
 
-\section{Introduction}
+# Introduction
 
 Unlike other regions where economic contraction from COVID-19 emerged organically, through fear, voluntary distancing, or inconsistent mandates, Hawaii’s economic/tourism collapse was the direct and intended consequence of state policy. On March 26 2020, the government took the extraordinary step of effectively sealing the state's borders, mandating a 14-day quarantine for all arrivals regardless of origin. In doing so, Hawaii enacted one of the few truly conscious economic shutdowns during the pandemic: a policy designed not just to mitigate risk, but to actively suppress travel and commerce. \cite{ivanova2020unemployment} documents that a third of Hawaii's labor force was unemployed within a month following the border closure, suggesting immediate economic impact. \par
 
@@ -38,7 +38,7 @@ Methodologically, this is the first applied paper (aside from the original SHC p
 The remainder of the paper is structured as follows. Section 2 introduces the empirical methodology. Section 3 describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
 
 
-\section{Methodology}
+# Methodology
 We know what happened given that Hawaii mandated two-week quarantines. We do not know what would have happened had they not done this. Given its novelty and radical deviation from SCM, this section summarizes the SHC method by \cite{SHC}. For a comprehensive treatment of the method, including the theoretical proofs and asymptotic properties, readers are referred to \cite{SHC}.
 
 \paragraph{Notation}
@@ -52,7 +52,7 @@ Let \(\mathcal{T} = \{1, 2, \dots, T\}\) index time at a monthly frequency. Defi
 
 Let \(\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T\) denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector \(\mathbf{y}_{\text{pre}} \coloneqq \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}\), the evaluation subvector \(\mathbf{y}_{\text{eval}} \coloneqq \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m\), and the post-treatment outcome vector \(\mathbf{y}_{\text{post}} \coloneqq \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n\). The evaluation subvector \(\mathbf{y}_{\text{eval}}\) is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period. To reconstruct the evaluation window, we compare it against earlier segments of the treated unit’s own pre-treatment trajectory. Define the donor matrix \(\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}\) as a collection of \(N\) overlapping length-\(m\) subvectors extracted from the smoothed pre-treatment series. Each column is a contiguous subvector of the form \(\widetilde{\mathbf{y}}_{[i, i+m-1]}\), with \(i\) ranging over eligible start points in \(\mathcal{T}_1\) that precede the evaluation window. The precise construction is given in Section~\ref{shc_estimator}.
 
-\subsection{Synthetic Historical Control Method}
+## Synthetic Historical Control Method
 
 \paragraph{Potential Outcomes}
 
@@ -76,7 +76,7 @@ The average treatment effect on the treated (ATT) is then given by:
 \end{equation}
 where $\mathbf{1} \in \mathbb{R}^n$ is a vector of ones.
 
-\subsection{The Model}\label{shc_estimator}
+## The Model 
 
 The SHC method introduced by \citet{SHC} constructs a counterfactual using the treated unit's own pre-treatment time series.\footnote{SCM estimates the counterfactual by solving:
 \begin{equation}
@@ -244,7 +244,7 @@ This approach allows finite-sample valid coverage under the assumption that the 
 
 These prediction intervals reflect uncertainty in the estimated counterfactual. Hence, if the observed outcome falls far outside the prediction interval, this is interpreted as evidence of a treatment effect. Unlike traditional confidence intervals around treatment effect estimates (e.g., using standard errors), the conformal intervals here do not assume a data-generating model. I use a default coverage level of $90\%$ (i.e., $\alpha = 0.1$) in all applications.
 
-\section{Data}
+# Data
 
 To assess the impact of Hawaii’s COVID-19 border closure on its tourism economy, I use monthly time series outcomes that span different economic margins of Hawaii’s economy. I focus the primary analysis on four outcomes, two from the labor market and two from the tourism sector. All outcomes are transformed to annualized year-over-year (YoY) growth rates to address concerns about persistent trend dynamics. These are computed like
 \[
@@ -267,7 +267,7 @@ D_t \coloneqq \mathbf{1}\{t \geq 362\},
 so that \( d_t = 1 \) for months following the implementation of the policy, and \( d_t = 0 \) otherwise. The final pre-treatment observation is thus February 2020, yielding a pre-treatment sample of \( T_0 = 361 \) months.
 
 
-\section{Results}
+# Results
 
 In Figure \ref{fig:outcome} we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest  precipitously dropped when the mandatory quarantine policy was implemented.
 
@@ -279,7 +279,3 @@ In Figure \ref{fig:outcome} we visualize the outcomes of interest over time from
 \end{figure}
 
 
-\bibliography{bibliography}
-
-
-\end{document}
