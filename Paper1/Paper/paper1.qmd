@@ -10,7 +10,7 @@ format:
     fig-cap-location: bottom
     tbl-cap-location: top
 bibliography: pl.bib
-csl: chicago-author-date.csl  # <-- you just downloaded this
+csl: chicago-author-date.csl
 ---
 
 
