@@ -1,77 +1,103 @@
-name: Run WeedMap
+name: Render Quarto Report
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    paths:
+      - '**.qmd'
+      - '**/requirements.txt'
+  workflow_dispatch:
+    inputs:
+      target_qmd:
+        description: 'Path to a specific .qmd file to render (e.g., Docs/Report/writeup.qmd)'
+        required: false
 
 jobs:
-  weed_map:
+  render:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the repository
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Check out repository (full history)
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    # Debug: Print the current working directory
-    - name: Print current working directory
-      run: pwd
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.13'
 
-    # Debug: List contents of PolicyData/Cannabis directory
-    - name: Assert that the Excel file exists
-      run: |
-        echo "Listing contents of PolicyData/Cannabis directory"
-        ls -l PolicyData/Cannabis
-        if [ ! -f "PolicyData/Cannabis/CannabisLaws.xlsx" ]; then
-          echo "ERROR: Excel file not found!"
-          exit 1
-        fi
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: "1.7.8"
 
-    # Set PYTHONPATH to include 'Python' folder for utils and scripts
-    - name: Set PYTHONPATH to include 'Python'
-      run: echo "PYTHONPATH=$(pwd)/Python" >> $GITHUB_ENV
+      - name: Install TinyTeX
+        run: |
+          quarto install tinytex
 
-    # Install dependencies from requirements.txt
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r Python/reqs/requirements.txt
+      - name: Determine target .qmd file
+        id: select_qmd
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.target_qmd }}" ]; then
+            echo "Using manually specified .qmd: ${{ github.event.inputs.target_qmd }}"
+            echo "target_qmd=${{ github.event.inputs.target_qmd }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "Selecting last modified .qmd file from recent commits..."
+            last_qmd=$(git diff --name-only origin/main...HEAD | grep '\.qmd$' | tail -n 1)
+            if [ -z "$last_qmd" ]; then
+              echo "No changes from origin/main...HEAD — falling back to HEAD~1"
+              last_qmd=$(git diff --name-only HEAD~1 | grep '\.qmd$' | tail -n 1)
+            fi
 
-    # Run the WeedMap script
-    - name: Run WeedMap script
-      run: python Python/Chapter2/WeedMap.py
+            if [ -z "$last_qmd" ]; then
+              echo "No .qmd file changes detected. Exiting."
+              exit 1
+            fi
 
-    # Commit unstaged changes and rebase
-    - name: Commit unstaged changes and rebase
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
+            echo "Found modified .qmd file: $last_qmd"
+            echo "target_qmd=$last_qmd" >> "$GITHUB_OUTPUT"
+          fi
 
-        # Check for unstaged changes and commit them
-        if ! git diff --quiet; then
-          git add .
-          git commit -m "Auto-commit unstaged changes before rebase"
-        fi
+      - name: Install requirements one level below .qmd file
+        run: |
+          qmd_file="${{ steps.select_qmd.outputs.target_qmd }}"
+          qmd_dir=$(dirname "$qmd_file")
 
-        git pull --rebase origin main
+          req_file=$(find "$qmd_dir" -mindepth 1 -maxdepth 2 -type f -name "requirements.txt" | head -n 1)
 
-    # Commit ANY .png plot inside Figures/Chapter2/
-    - name: Commit all plots to repository
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        
-        # Add all PNG files in Figures/Chapter2/
-        git add Figures/Chapter2/*.png
-        
-        # Check if there are staged changes before committing
-        if git diff --cached --quiet; then
-          echo "No changes to commit."
-        else
-          git commit -m "Add updated plots from WeedMap script"
+          if [ -n "$req_file" ]; then
+            echo "Installing dependencies from $req_file"
+            pip install -r "$req_file"
+          else
+            echo "No requirements.txt found below $qmd_dir"
+          fi
+
+      - name: Render selected .qmd file
+        run: |
+          qmd_file="${{ steps.select_qmd.outputs.target_qmd }}"
+          dir=$(dirname "$qmd_file")
+          echo "Rendering $qmd_file in $dir"
+
+          (cd "$dir" && quarto render "$(basename "$qmd_file")")
+
+          rm -f "$dir"/*.aux "$dir"/*.bbl "$dir"/*.blg "$dir"/*.log
+
+      - name: Commit rendered outputs
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add **/*.pdf || echo "No PDFs to add"
+          git commit -m "Rendered PDF from GitHub Actions" || echo "No changes to commit"
           git push
-        fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload rendered PDFs (for verification)
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-pdf
+          path: '**/*.pdf'
+
+permissions:
+  contents: write
+  pull-requests: write
