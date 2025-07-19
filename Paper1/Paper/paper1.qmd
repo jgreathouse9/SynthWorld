@@ -1,6 +1,5 @@
 ---
 title: "Paradise Lost? Using Synthetic Historical Controls to Quantify Hawaii's Mandatory Quarantine on Tourism"
-author: "Jared Greathouse"
 date: "2025"
 format:
   pdf:
