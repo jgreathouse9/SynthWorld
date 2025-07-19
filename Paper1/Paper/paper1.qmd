@@ -16,7 +16,8 @@ format:
       \usepackage{float}
       \usepackage{booktabs}
 
-      \newcommand{\defeq}{:=}
+      \newcommand{\defeq}{\mathrel{\mathop:}=}
+
 
       \newtheorem{theorem}{Theorem}
       \newtheorem{assumption}{Assumption}
