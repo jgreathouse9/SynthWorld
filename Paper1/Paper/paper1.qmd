@@ -14,7 +14,7 @@ bibliography: pl.bib
 ---
 
 
-Unlike regions where economic contraction from COVID-19 emerged organically through fear, voluntary distancing, or inconsistent mandates, Hawaii’s economic and tourism collapse was the direct and intended consequence of state policy. On March 26, 2020, the government took the extraordinary step of effectively sealing the state's borders, mandating a 14-day quarantine for all arrivals regardless of origin. In doing so, Hawaii enacted one of the few truly conscious economic shutdowns during the pandemic: a policy designed not just to mitigate risk, but to actively suppress travel and commerce. \cite{Abadie2015} 
+Unlike some regions where economic contraction from COVID-19 emerged organically through fear, voluntary distancing, or inconsistent mandates, Hawaii’s economic and tourism collapse was the direct and intended consequence of state policy. On March 26, 2020, the government took the extraordinary step of effectively sealing the state's borders, mandating a 14-day quarantine for all arrivals regardless of origin. In doing so, Hawaii enacted one of the few truly conscious economic shutdowns during the pandemic: a policy designed not just to mitigate risk, but to actively suppress travel and commerce. \cite{Abadie2015} 
 
 
 ::: {.latex}
