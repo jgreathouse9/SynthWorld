@@ -22,12 +22,9 @@ Despite this, researchers have applied SCM to study the effects of non-pharmaceu
 
 This paper makes both substantive and methodological contributions. Substantively, it contributes to the growing literature on the broader economic consequences of lockdown-style policies, beyond their direct effects on infection and mortality. Even if another pandemic does not occur soon, understanding the economic tradeoffs of extreme containment measures—such as mandatory quarantines and border closures—can help inform future policy, especially in tourism-dependent economies. Moreover, since most existing work has focused on interventions in mainland states (e.g., @pamscmcali; @penlt; @Gius13092024; @cohn2022effect; @sturgis; @dave2022political), the Hawaiian case offers a unique and underexplored setting.
 
-Methodologically, this is the **first applied paper** (aside from the original SHC proposal) to implement the SHC method in a real-world setting. In doing so, it demonstrates the feasibility and value of SHC as a tool for policy evaluation when long time series are available but suitable donor units are unavailable or compromised.
+Methodologically, this is the first applied paper (aside from the original SHC proposal) to implement the SHC method in a real-world setting. In doing so, it demonstrates the feasibility and value of SHC as a tool for policy evaluation when long time series are available but suitable donor units are unavailable or compromised.
 
 The remainder of the paper is structured as follows: Section 2 introduces the empirical methodology. Section 3 describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
 
 
-```{=latex}
-\bibliographystyle{chicago}
-\bibliography{pl}
-```
+# References
