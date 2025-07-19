@@ -15,9 +15,9 @@ format:
     keep-tex: true
     fig-cap-location: bottom
     tbl-cap-location: top
-    citation-package: natbib
-    biblio-style: econ
 bibliography: pl.bib
+csl: ectj.csl
+link-citations: true
 ---
 
 
