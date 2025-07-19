@@ -145,7 +145,7 @@ In the third step, we solve the following program to obtain the optimal weights:
 \end{equation}
 
 
-\citet{SHC} note that in the general case when we have more donor units than we do the length of the segments ($N>m$), the optimization becomes an ill-posed problem. The regularization term stabilizes the optimization by penalizing weight allocations along directions of low variance in the donor pool, reducing sensitivity to collinear segments. Formally, $\mathbf{C}_0$ contains the eigenvectors of the Grammian matrix $\mathbf{G} \in \mathbb{R}^{N \times N}$. $\mathbf{C}_0$ corresponds to the eigenvalues less than $\tau > 0$. These directions capture low-variance combinations of donor segments, and the penalty shrinks weights in those directions.\footnote{The $\varsigma$ (sigma) term is a small positive constant used to stabilize the solution in cases of near multicollinearity.}. The corresponding weight vector \( \mathbf{w}^\ast \) is used to compute the counterfactual by applying it to the shifted donor segments:
+\citet{SHC} note that in the general case when we have more donor units than we do the length of the segments ($N>m$), the optimization becomes an ill-posed problem. The regularization term stabilizes the optimization by penalizing weight allocations along directions of low variance in the donor pool, reducing sensitivity to collinear segments. Formally, $\mathbf{C}_0$ contains the eigenvectors of the Grammian matrix $\mathbf{G} \in \mathbb{R}^{N \times N}$. $\mathbf{C}_0$ corresponds to the eigenvalues less than $\tau > 0$. These directions capture low-variance combinations of donor segments, and the penalty shrinks weights in those directions.\footnote{The $\varsigma$ (sigma) term is a small positive constant used to stabilize the solution in cases of near multicollinearity.}. The corresponding weight vector $\mathbf{w}^\ast$ is used to compute the counterfactual by applying it to the shifted donor segments:
 \begin{equation}
 \label{eq:post_matrix}
 \widetilde{\mathbf{Y}}_{\text{post}} = \begin{bmatrix} \widetilde{\mathbf{y}}_{[1 + m, m + n]} & \widetilde{\mathbf{y}}_{[2 + m, m + n + 1]} & \cdots & \widetilde{\mathbf{y}}_{[N + m, N + m + n - 1]} \end{bmatrix} \in \mathbb{R}^{n \times N}.
@@ -153,9 +153,7 @@ In the third step, we solve the following program to obtain the optimal weights:
 This yields in-sample and out-of-sample predictions for the SHC estimator. The full counterfactual vector is then:
 $\mathbf{y}^{0}=\widetilde{\mathbf{Y}} \mathbf{w}^\ast \in \mathbb{R}^{m+n}.$
 
-\paragraph{Bandwidth Selection via Cross-Validation}
-
-To select the bandwidth parameter $h$ used in local linear smoothing of $\mathbf{y}_{\text{pre}}$, I implement a \textit{leave-one-out cross-validation} (LOOCV) procedure over a grid of candidate values $h \in [h_{\min}, h_{\max}] \subset \mathbb{R}_{> 0}$. This procedure chooses the bandwidth that minimizes out-of-sample prediction error for the smoothed pre-treatment series $\widetilde{\mathbf{y}} \in \mathbb{R}^{T_0}$, as defined in Equation~\eqref{eq:llr_closed_form}.
+\textbf{Bandwidth Selection via Cross-Validation} To select the bandwidth parameter $h$ used in local linear smoothing of $\mathbf{y}_{\text{pre}}$, I implement a \textit{leave-one-out cross-validation} (LOOCV) procedure over a grid of candidate values $h \in [h_{\min}, h_{\max}] \subset \mathbb{R}_{> 0}$. This procedure chooses the bandwidth that minimizes out-of-sample prediction error for the smoothed pre-treatment series $\widetilde{\mathbf{y}} \in \mathbb{R}^{T_0}$, as defined in Equation~\eqref{eq:llr_closed_form}.
 
 For each candidate $h$, and for each time point $t \in \mathcal{T}_1$, define Gaussian kernel weights
 $$
@@ -176,64 +174,60 @@ h^\ast = \underset{h \in [h_{\min}, h_{\max}]}{\operatorname*{argmin}} \left\{ \
 
 Once selected, the optimal bandwidth $h^\ast$ is used to construct the full smoothed pre-treatment series.
 
-\paragraph{Control Group Selection}
+\textbf{Control Group Selection} \cite{SHC} note that we should have a parsimonious approach to which historical controls we use, rather than choosing all of them. In their examples, SHC typically requires less than 28 controls. They advocate for a forward selection procedure to choose the optimal control group. I implement a slightly modified variant of this method to choose the ideal number of historical controls. Let $\mathcal{N} = \{1, 2, \dots, N\}$ index the full set of donor segments in the pre-treatment matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$. At each step the algorithm selects the donor index $i_j \in \mathcal{N} \setminus \mathcal{S}_{j-1}$ that, when added to the current donor set $\mathcal{S}_{j-1}$, minimizes the in-sample mean squared error (MSE) between the evaluation window and in-sample fit:
 
-\cite{SHC} note that we should have a parsimonious approach to which historical controls we use, rather than choosing all of them. In their examples, SHC typically requires less than 28 controls. They advocate for a forward selection procedure to choose the optimal control group. I implement a slightly modified variant of this method to choose the ideal number of historical controls. Let $\mathcal{N} = \{1, 2, \dots, N\}$ index the full set of donor segments in the pre-treatment matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$. At each step the algorithm selects the donor index $i_j \in \mathcal{N} \setminus \mathcal{S}_{j-1}$ that, when added to the current donor set $\mathcal{S}_{j-1}$, minimizes the in-sample mean squared error (MSE) between the evaluation window and in-sample fit:
-
-\[
+$$
 \mathcal{S}_j = \mathcal{S}_{j-1} \cup \left\{ \underset{i \in \mathcal{N} \setminus \mathcal{S}_{j-1}}{\operatorname*{argmin}} \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}}^{(\mathcal{S}_{j-1} \cup \{i\})} \mathbf{w}^{(j)} \right\|_2^2  + \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \right\}, \quad \mathcal{S}_0 = \emptyset,
-\]
+$$
 
 where $\widetilde{\mathbf{Y}}_{\text{pre}}^{(\mathcal{S})}$ denotes the submatrix of $\widetilde{\mathbf{Y}}_{\text{pre}}$ with columns indexed by $\mathcal{S}$, and the weights $\mathbf{w}^{(j)} \in \Delta^{j}$ are the optimal simplex-constrained weights for the selected donor set $\mathcal{S}_j$. This procedure greedily expands the donor set one segment at a time, always choosing the segment that yields the greatest marginal reduction in in-sample error.
 
 To avoid overfitting, \citet{SHC} manually choose the number of donors the forward selection procedure should choose. In their case, they experiment with the single best historical segment (which rarely does well), the best 15, 20, and 27 historical control units. However, this is a subjective decision that will yield different results depending on what we select. To mitigate researcher degrees of freedom, I view the number of historical segments as a tuning parameter. I employ a forward selection-based algorithm to choose the number of controls. For my implementation of SHC, I employ an early stopping rule based on a modified Bayesian information criterion (BIC), borrowing inspiration from \citet{SHI2023512}. For each donor set size $j$, I compute:
 
-\[
+$$
 \text{BIC}(j) = m \cdot \log\left( \text{MSE}_j \right) + \lambda j,
-\]
+$$
 
 where $\text{MSE}_j$ is the in-sample error using donor set $\mathcal{S}_j$, and $\lambda = \log(m)$ penalizes the inclusion of too many donors. The selection procedure terminates when $\text{BIC}(j)$ increases for two consecutive steps. The final donor set $\mathcal{S}^\ast$ is then taken to be $\mathcal{S}_{j^\ast}$, where:
 
-\[
+$$
 j^\ast = \underset{j}{\operatorname*{argmin}} \ \text{BIC}(j).
-\]
+$$
 
 This approach adaptively selects a sparse donor subset that closely matches the treated unit’s pre-intervention trajectory. The selected donor set $\mathcal{S}^\ast$ is used to compute the SHC model predictions. I would like to mention that this forward selection method holds much in common with recently proposed methods from the literature. For example, \cite{SHI2023512} propose the forward selected panel data approach which selects the comparison group for the panel data approach by \cite{pdap1} using an aggressive forward selection procedure. \citet{FDID}, correcting for overfitting in the former, proposed the forward Difference-in-Differences estimator, where a forward selection approach is used to select the donor pool for the Difference-in-Differences model. Similar advances have been made for the synthetic control method, as developed by \citet{cerulli2024optimal}, where a similar selection mechanism is used to estimate the treatment effect. It would be interesting, but is far outside the scope of this work, to compare these estimators to one another and see when their in-sample fits and point estimates agree with one another.
 
-\paragraph{Inference}
-
-Quantifying uncertainty around the counterfactual predictions is essential for valid inference. \citet{SHC} do not provide any inferential method to use aside from in-time placebos. Following recent work in post-modeling inference by \cite{cattaneo2025scpi}, I construct agnostic conformal prediction intervals around the counterfactual series. These intervals are distribution-free, require no parametric assumptions, and are valid under exchangeability of residuals between the pre- and post-treatment periods (or, good in-sample fit).
+\textbf{Inference} Quantifying uncertainty around the counterfactual predictions is essential for valid inference. \citet{SHC} do not provide any inferential method to use aside from in-time placebos. Following recent work in post-modeling inference by \cite{cattaneo2025scpi}, I construct agnostic conformal prediction intervals around the counterfactual series. These intervals are distribution-free, require no parametric assumptions, and are valid under exchangeability of residuals between the pre- and post-treatment periods (or, good in-sample fit).
 
 Let $\mathbf{y}^{0}_{\text{eval}} \in \mathbb{R}^{m}$ denote the SHC-fitted values during the evaluation period and define the residuals as:
 
-\[
+$$
 \boldsymbol{\varepsilon}_{\text{eval}} \defeq \mathbf{y}_{\text{eval}} - \mathbf{y}^{0}_{\text{eval}}.
-\]
+$$
 
 I then compute the sample mean $\bar{\varepsilon}$ and variance $\widehat{\sigma}^2$ of these residuals:
 
-\[
+$$
 \bar{\varepsilon} = m^{-1} \sum_{t \in \mathcal{T}_{\text{eval}}} \varepsilon_t, \quad \widehat{\sigma}^2 = (m - 1)^{-1} \sum_{t \in \mathcal{T}_{\text{eval}}} (\varepsilon_t - \bar{\varepsilon})^2.
-\]
+$$
 
 To construct prediction intervals for the post-treatment counterfactual $\mathbf{y}^0_{\text{post}} \in \mathbb{R}^n$, I assume the residuals are sub-Gaussian and apply a conformal bound based on Hoeffding-type concentration inequalities. For a miscoverage rate $\alpha \in (0,1)$, the interval half-width is given by:
 
-\[
+$$
 c_\alpha = \sqrt{2 \widehat{\sigma}^2 \log \left( \frac{2}{\alpha} \right)}.
-\]
+$$
 
 Then, the agnostic $(1 - \alpha)$ prediction interval for each $t \in \mathcal{T}_2$ is given by:
 
-\[
+$$
 \left[ \widehat{y}_t^0 + \bar{\varepsilon} - c_\alpha, \ \widehat{y}_t^0 + \bar{\varepsilon} + c_\alpha \right].
-\]
+$$
 
 Stacking these yields lower and upper bound vectors:
 
-\[
+$$
 \mathbf{L} \defeq \mathbf{y}^0_{\text{post}} + \bar{\varepsilon} \cdot \mathbf{1} - c_\alpha \cdot \mathbf{1}, \quad
 \mathbf{U} \defeq \mathbf{y}^0_{\text{post}} + \bar{\varepsilon} \cdot \mathbf{1} + c_\alpha \cdot \mathbf{1},
-\]
+$$
 
 which define the conformal confidence band around the counterfactual trajectory.
 
