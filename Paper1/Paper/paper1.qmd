@@ -10,6 +10,7 @@ format:
     fig-cap-location: bottom
     tbl-cap-location: top
     natbib: true
+editor: source
 bibliography: pl.bib
 ---
 
