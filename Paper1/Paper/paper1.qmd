@@ -11,7 +11,6 @@ format:
     fig-cap-location: bottom
     tbl-cap-location: top
 bibliography: pl.bib
-csl: chicago-author-date.csl
 editor: source
 ---
 
