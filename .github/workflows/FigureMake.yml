@@ -36,7 +36,7 @@ jobs:
 
       - name: Install BibTeX and LaTeX extras
         run: |
-          tlmgr install collection-bibtexextra collection-latexextra
+          tlmgr install bibtex
 
       - name: Determine target .qmd file
         id: select_qmd
