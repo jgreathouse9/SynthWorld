@@ -46,14 +46,11 @@ $$
 \mathcal{T}_{\text{eval}} \mathrel{\mathop:}= \{T_0 - m + 1, \dots, T_0\} \subset \mathcal{T}_1.
 $$
 
-Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector $\mathbf{y}_{\text{pre}} \coloneqq \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}$, the evaluation subvector $\mathbf{y}_{\text{eval}} \mathrel{\mathop:}= \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector $\mathbf{y}_{\text{post}} \mathrel{\mathop:}= \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$. 
+Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector $\mathbf{y}_{\text{pre}} \mathrel{\mathop:}= \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}$, the evaluation subvector $\mathbf{y}_{\text{eval}} \mathrel{\mathop:}= \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector $\mathbf{y}_{\text{post}} \mathrel{\mathop:}= \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$. 
 
 The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period. To reconstruct the evaluation window, we compare it against earlier segments of the treated unit’s own pre-treatment trajectory. 
 
 Define the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$ as a collection of $N$ overlapping length-$m$ subvectors extracted from the smoothed pre-treatment series. Each column is a contiguous subvector of the form $\widetilde{\mathbf{y}}_{[i, i+m-1]}$, with $i$ ranging over eligible start points in $\mathcal{T}_1$ that precede the evaluation window. The precise construction is given in Section~\ref{shc_estimator}.
-
-
-# References
 
 ```{=latex}
 \bibliography{pl}
