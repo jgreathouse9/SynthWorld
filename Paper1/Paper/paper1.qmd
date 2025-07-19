@@ -2,7 +2,7 @@
 title: "Paradise Lost? Using Synthetic Historical Controls to Quantify Hawaii's Mandatory Quarantine on Tourism"
 author:
   - name: Jared Greathouse
-    affiliation: Department of Policy and Management, Georgia State University
+    affiliation: Department of Policy and Management, Georgia State
     email: jgreathouse3@student.gsu.edu
 date: "2025"
 format:
