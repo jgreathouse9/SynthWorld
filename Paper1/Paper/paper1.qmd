@@ -1,21 +1,61 @@
 ---
-date: "2026"
+title: "Paradise Lost? Using Synthetic Historical Controls to Quantify Hawaii's Mandatory Quarantine on Tourism"
+author: "Jared Greathouse"
+date: "2025"
 format:
   pdf:
     documentclass: ectj
-    include-in-header: preamble.tex
-    number-sections: true
     pdf-engine: pdflatex
-    natbib: true             # ← Add this line
+    number-sections: true
     keep-tex: true
     fig-cap-location: bottom
     tbl-cap-location: top
-bibliography: pl.bib
-editor: source
+    include-in-header: |
+      \usepackage{amsfonts,amssymb,graphics,epsfig,verbatim,bm,latexsym,amsmath,url,amsbsy,mathtools}
+      \usepackage{float}
+      \usepackage{booktabs}
+      \usepackage{natbib}
+
+      \newtheorem{theorem}{Theorem}
+      \newtheorem{assumption}{Assumption}
+      \newtheorem{proposition}{Proposition}
+      \newtheorem{corollary}{Corollary}
+      \newtheorem{lemma}{Lemma}
+      \newtheorem{example}{Example}
+      \newtheorem{remark}{Remark}
+
+      \renewcommand{\thesection}{\arabic{section}}
+      \renewcommand{\theequation}{\arabic{section}.\arabic{equation}}
+      \renewcommand{\thetheorem}{\arabic{section}.\arabic{theorem}}
+      \renewcommand{\theassumption}{\arabic{section}.\arabic{assumption}}
+      \renewcommand{\theproposition}{\arabic{section}.\arabic{proposition}}
+      \renewcommand{\thecorollary}{\arabic{section}.\arabic{corollary}}
+      \renewcommand{\thelemma}{\arabic{section}.\arabic{lemma}}
+      \renewcommand{\theexample}{\arabic{section}.\arabic{example}}
+      \renewcommand{\theremark}{\arabic{section}.\arabic{remark}}
+
+      \setcounter{page}{1}
+
+      \title[Paradise Lost?]{Paradise Lost? Using Synthetic Historical Controls to Quantify Hawaii's Mandatory Quarantine on Tourism}
+      \author[J.~Greathouse]{Jared~Greathouse$^\dagger$}
+      \address{$^\dagger$Department of Policy and Management, Georgia State University}
+      \email{jgreathouse3@student.gsu.edu}
+
+      \def\AmSTeX{$\cal A$\kern-.1667em\lower.5ex\hbox{$\cal M$}\kern-.125em$\cal S$-\TeX}
+      \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+                  T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+      \bibliographystyle{chicago}
 ---
 
+\begin{abstract}
+This paper uses a novel causal time series method to estimate the causal impact of Hawaii closing its borders to combat the spread of COVID-19 on Hawaii's tourism industry.
 
-# Intro
+\keywords{Synthetic Controls, Policy Evaluation, COVID-19}
+\end{abstract}
 
-Unlike most regions where economic contraction from COVID-19's outbreak emerged organically through fear, voluntary distancing, or inconsistent policy mandates, Hawaii’s economic and tourism collapse was the direct and intended consequence of state policy. On March 26, 2020, the government took the extraordinary step of effectively sealing the state's borders, mandating a 14-day quarantine for all arrivals regardless of origin. In doing so, Hawaii enacted one of the few truly conscious economic shutdowns during the pandemic: a policy designed not just to mitigate risk, but to actively suppress travel and commerce [@Abadie2015].
+# Introduction
 
+Unlike other regions where economic contraction from COVID-19 emerged organically, through fear, voluntary distancing, or inconsistent mandates, Hawaii’s economic/tourism collapse was the direct and intended consequence of state policy. On March 26 2020, the government took the extraordinary step of effectively sealing the state's borders, mandating a 14-day quarantine for all arrivals regardless of origin. In doing so, Hawaii enacted one of the few truly conscious economic shutdowns during the pandemic: a policy designed not just to mitigate risk, but to actively suppress travel and commerce. \cite{ivanova2020unemployment} documents that a third of Hawaii's labor force was unemployed within a month following the border closure, suggesting immediate economic impact.
+
+# References
