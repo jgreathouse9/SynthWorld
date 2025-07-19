@@ -1,5 +1,5 @@
 ---
-date: "2025"
+date: "2026"
 format:
   pdf:
     documentclass: ectj
