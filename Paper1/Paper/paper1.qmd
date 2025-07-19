@@ -11,7 +11,7 @@ format:
     tbl-cap-location: top
 bibliography: pl.bib  # For use with \bibliography{pl}
 link-citations: true   # Disabled to avoid CSL styling
-csl: ectj.csl           # Disabled since using .bst via natbib
+cls: ectj.cls           # Disabled since using .bst via natbib
 ---
 
 # Introduction
