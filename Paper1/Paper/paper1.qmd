@@ -133,6 +133,46 @@ Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes
 
 In the third step, we solve the following program to obtain the optimal weights:
 
+\begin{equation}
+\label{eq:weight_qp_explicit}
+\begin{aligned}
+\mathbf{w}^\ast = \ & \underset{\mathbf{w} \in \mathbb{R}^N}{\operatorname*{argmin}} 
+& & \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
++ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \\
+& \text{subject to}
+& & \mathbf{w} \geq \mathbf{0}, \quad \mathbf{1}^\top \mathbf{w} = 1
+\end{aligned}
+\end{equation}
+
+
+\citet{SHC} note that in the general case when we have more donor units than we do the length of the segments ($N>m$), the optimization becomes an ill-posed problem. The regularization term stabilizes the optimization by penalizing weight allocations along directions of low variance in the donor pool, reducing sensitivity to collinear segments. Formally, $\mathbf{C}_0$ contains the eigenvectors of the Grammian matrix $\mathbf{G} \in \mathbb{R}^{N \times N}$. $\mathbf{C}_0$ corresponds to the eigenvalues less than $\tau > 0$. These directions capture low-variance combinations of donor segments, and the penalty shrinks weights in those directions.\footnote{The $\varsigma$ (sigma) term is a small positive constant used to stabilize the solution in cases of near multicollinearity.}. The corresponding weight vector \( \mathbf{w}^\ast \) is used to compute the counterfactual by applying it to the shifted donor segments:
+\begin{equation}
+\label{eq:post_matrix}
+\widetilde{\mathbf{Y}}_{\text{post}} = \begin{bmatrix} \widetilde{\mathbf{y}}_{[1 + m, m + n]} & \widetilde{\mathbf{y}}_{[2 + m, m + n + 1]} & \cdots & \widetilde{\mathbf{y}}_{[N + m, N + m + n - 1]} \end{bmatrix} \in \mathbb{R}^{n \times N}.
+\end{equation}
+This yields in-sample and out-of-sample predictions for the SHC estimator. The full counterfactual vector is then:
+$\mathbf{y}^{0}=\widetilde{\mathbf{Y}} \mathbf{w}^\ast \in \mathbb{R}^{m+n}.$
+
+\paragraph{Bandwidth Selection via Cross-Validation}
+
+To select the bandwidth parameter $h$ used in local linear smoothing of $\mathbf{y}_{\text{pre}}$, I implement a \textit{leave-one-out cross-validation} (LOOCV) procedure over a grid of candidate values $h \in [h_{\min}, h_{\max}] \subset \mathbb{R}_{> 0}$. This procedure chooses the bandwidth that minimizes out-of-sample prediction error for the smoothed pre-treatment series $\widetilde{\mathbf{y}} \in \mathbb{R}^{T_0}$, as defined in Equation~\eqref{eq:llr_closed_form}.
+
+For each candidate $h$, and for each time point $t \in \mathcal{T}_1$, define Gaussian kernel weights
+$$
+w_{\tau t}^{(h)} = \exp\left( -\frac{1}{2} \left( \frac{\tau - t}{h} \right)^2 \right), \quad \tau \in \mathcal{T}_1 \setminus \{t\},
+$$
+used to construct the diagonal matrix $\mathbf{W}_t^{(-t)} \in \mathbb{R}^{(T_0 - 1) \times (T_0 - 1)}$, omitting the index $t$. Let $\mathbf{X}_t^{(-t)} \in \mathbb{R}^{(T_0 - 1) \times 2}$ and $\mathbf{y}_{\text{pre}}^{(-t)} \in \mathbb{R}^{T_0 - 1}$ denote the design matrix and response vector with time $t$ excluded.
+
+Then the local linear coefficients $\boldsymbol{\beta}_t^{(-t)} = (a_t^{(-t)}, b_t^{(-t)})^\top $ are obtained by solving Equation~\eqref{eq:llr_objective}. The leave-one-out smoothed value at time $t$ is then:
+$$
+\widetilde{y}_t^{(-t)} = a_t^{(-t)} = \mathbf{e}_1^\top \boldsymbol{\beta}_t^{(-t)}, \quad \text{where } \mathbf{e}_1 = (1, 0)^\top.
+$$
+To pick the ideal bandwidth, we minimize:
+
+\begin{equation}
+\label{eq:bw_selection}
+h^\ast = \underset{h \in [h_{\min}, h_{\max}]}{\operatorname*{argmin}} \left\{ \text{CV}(h) \defeq \frac{1}{T_0} \sum_{t = 1}^{T_0} \left( y_t - \widetilde{y}_t^{(-t)} \right)^2 \right\}.
+\end{equation}
 
 ```{=latex}
 \bibliography{pl}
