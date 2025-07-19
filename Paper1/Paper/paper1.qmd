@@ -43,7 +43,7 @@ Let $\mathbb{R}$ denote the set of real numbers, and let $\|\cdot\|_1$ denote th
 Let $\mathcal{T} = \{1, 2, \dots, T\}$ index time at a monthly frequency. Define the pre-treatment period as $\mathcal{T}_1 \mathrel{\mathop:}= \{t \in \mathcal{T} : t \leq T_0\}$ and the post-treatment period as $\mathcal{T}_2 \mathrel{\mathop:}= \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$. Let $m \in \mathbb{N}$ denote the evaluation window length, i.e., the number of periods used to construct the SHC match. Define the evaluation period as the final $m$ months of the pre-treatment period:
 
 $$
-\mathcal{T}_{\text{eval}} \coloneqq \{T_0 - m + 1, \dots, T_0\} \subset \mathcal{T}_1.
+\mathcal{T}_{\text{eval}} \mathrel{\mathop:}= \{T_0 - m + 1, \dots, T_0\} \subset \mathcal{T}_1.
 $$
 
 Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector $\mathbf{y}_{\text{pre}} \coloneqq \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}$, the evaluation subvector $\mathbf{y}_{\text{eval}} \mathrel{\mathop:}= \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector $\mathbf{y}_{\text{post}} \mathrel{\mathop:}= \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$. 
