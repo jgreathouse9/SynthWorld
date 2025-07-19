@@ -161,7 +161,7 @@ w_{\tau t}^{(h)} = \exp\left( -\frac{1}{2} \left( \frac{\tau - t}{h} \right)^2 \
 $$
 used to construct the diagonal matrix $\mathbf{W}_t^{(-t)} \in \mathbb{R}^{(T_0 - 1) \times (T_0 - 1)}$, omitting the index $t$. Let $\mathbf{X}_t^{(-t)} \in \mathbb{R}^{(T_0 - 1) \times 2}$ and $\mathbf{y}_{\text{pre}}^{(-t)} \in \mathbb{R}^{T_0 - 1}$ denote the design matrix and response vector with time $t$ excluded.
 
-Then the local linear coefficients $\boldsymbol{\beta}_t^{(-t)} = (a_t^{(-t)}, b_t^{(-t)})^\top $ are obtained by solving Equation~\eqref{eq:llr_objective}. The leave-one-out smoothed value at time $t$ is then:
+Then the local linear coefficients $\boldsymbol{\beta}_t^{(-t)} = (a_t^{(-t)}, b_t^{(-t)})^\top$ are obtained by solving Equation~\eqref{eq:llr_objective}. The leave-one-out smoothed value at time $t$ is then:
 $$
 \widetilde{y}_t^{(-t)} = a_t^{(-t)} = \mathbf{e}_1^\top \boldsymbol{\beta}_t^{(-t)}, \quad \text{where } \mathbf{e}_1 = (1, 0)^\top.
 $$
