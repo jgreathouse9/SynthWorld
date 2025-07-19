@@ -10,9 +10,11 @@ format:
     keep-tex: true
     fig-cap-location: bottom
     tbl-cap-location: top
-    link-citations: true
-bibliography: pl.bib
+bibliography: pl.bib  # keep this, it's needed for \bibliography{pl}
+# link-citations: true  <-- disable this
+# csl: ectj.csl         <-- disable this
 ---
+
 
 
 
