@@ -10,7 +10,7 @@ format:
     fig-cap-location: bottom
     tbl-cap-location: top
 bibliography: pl.bib
-csl: ectj.csl  # Optional: use this only if you want proper citation style
+cls: ectj.cls  # Optional: use this only if you want proper citation style
 link-citations: true
 ---
 
