@@ -52,6 +52,51 @@ The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be 
 
 Define the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$ as a collection of $N$ overlapping length-$m$ subvectors extracted from the smoothed pre-treatment series. Each column is a contiguous subvector of the form $\widetilde{\mathbf{y}}_{[i, i+m-1]}$, with $i$ ranging over eligible start points in $\mathcal{T}_1$ that precede the evaluation window. The precise construction is given in Section~\ref{shc_estimator}.
 
+##Synthetic Historical Control Method
+
+\textbf{Potential Outcomes} Following the Rubin potential outcomes framework, let $y_t^1$ and $y_t^0$ denote the potential outcomes for the treated unit at time $t \in \mathcal{T}$, corresponding to the outcomes under treatment and no treatment, respectively. The observed outcome at time $t$ is $y_t = d_t y_t^1 + (1 - d_t) y_t^0,$ where $d_t = \mathbf{1}\{t > T_0\}.$
+
+The fundamental problem of causal inference is that for $t > T_0$, we observe only the treated potential outcome $y_t^1 = y_t$, while the untreated potential outcome $y_t^0$ remains unobserved. Let the SHC estimator for $y_t^0$ be denoted $\widehat{y}_t^0 \coloneqq y_t^{\text{SHC}}$ for all $t \in \mathcal{T}_2$. Define the observed post-treatment outcome vector as $\mathbf{y}_{\text{post}} \mathrel{\mathop:}= (y_t^1)_{t \in \mathcal{T}_2}$ and the estimated counterfactual vector as $\mathbf{y}^0_{\text{post}} \mathrel{\mathop:}= (\widehat{y}_t^0)_{t \in \mathcal{T}_2}$. The out-of-sample treatment effect is
+\begin{equation}
+\label{eq:treatment_vector}
+\alpha_t \mathrel{\mathop:}= y_t^1 - y_t^0, \quad \text{for } t \in \mathcal{T}_2,
+\end{equation}
+with estimator $\widehat{\alpha}_t \mathrel{\mathop:}= y_t - \widehat{y}_t^0$. Stacking over $t \in \mathcal{T}_2$ yields:
+
+$$
+\widehat{\boldsymbol{\alpha}} \mathrel{\mathop:}= \mathbf{y}_{\text{post}} - \mathbf{y}^0_{\text{post}}.
+$$
+
+The average treatment effect on the treated (ATT) is then given by:
+\begin{equation}
+\label{eq:att_vector}
+\widehat{\text{ATT}} \mathrel{\mathop:}= \frac{1}{n} \sum_{t = T_0 + 1}^{T_0 + n} \left( y_t - \widehat{y}_t^0 \right) = \frac{1}{n} \mathbf{1}^\top \widehat{\boldsymbol{\alpha}},
+\end{equation}
+where $\mathbf{1} \in \mathbb{R}^n$ is a vector of ones.
+
+## The Model
+
+The SHC method introduced by \citet{SHC} constructs a counterfactual using the treated unit's own pre-treatment time series.\footnote{SCM estimates the counterfactual by solving:
+\begin{equation}
+\label{eq:scm_objective}
+\mathbf{w}^\ast = \underset{\mathbf{w} \in \Delta^{N_0}}{\operatorname*{argmin}} \left\| \mathbf{y}_1 - \mathbf{Y}_0 \mathbf{w} \right\|_2^2, \quad \forall t \in \mathcal{T}_1,
+\end{equation}
+where $\mathbf{Y}_0 \in \mathbb{R}^{T_0 \times N_0}$ is the donor matrix of unexposed units and $\Delta^{N_0} = \left\{ \mathbf{w} \in \mathbb{R}_{\geq 0}^{N_0} : \|\mathbf{w}\|_1 = 1 \right\}$ is the probability simplex.} SHC requires a few assumptions:
+
+\begin{assumption}[Error Properties and Regressor Independence]
+\label{assump:errors}
+The error term satisfies $\mathbb{E}[\varepsilon_t] = 0$ and $\mathbb{E}[\varepsilon_t^2] < \infty$ for all \(t \in \mathcal{T}\).
+\end{assumption}
+
+Or the mean of the residuals is 0 in expectation. This fairly standard assumption says any unmodeled fluctuations or noise in the outcome data are purely random and do not systematically bias the estimation of the counterfactual.
+
+\begin{assumption}[Latent Component Smoothness and Matching Condition]
+\label{assump:matching}
+The latent trend $\widetilde{y}(t)$ is $(H+1)$ times differentiable for some integer $H \geq 3$, with derivative bounded as $\left| \widetilde{y}^{(H+1)}(t) \right| < \varepsilon$ uniformly over $t \in \mathcal{T}_1$. There exists a convex weight vector $\mathbf{w}^\ast \in \Delta^{N-1}$ such that the evaluation subvector $\mathbf{y}_{\text{eval}}$ can be exactly matched by a convex combination of donor segments: $\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast$.
+\end{assumption}
+
+
+
 ```{=latex}
 \bibliography{pl}
 ```
