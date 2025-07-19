@@ -34,9 +34,9 @@ jobs:
       - name: Install TinyTeX
         uses: r-lib/actions/setup-tinytex@v2
 
-      - name: Install BibTeX and LaTeX extras
+      - name: Install LaTeX tools (BibTeX and extras)
         run: |
-          tlmgr install bibtex
+          tlmgr install bibtex natbib etoolbox booktabs
 
       - name: Determine target .qmd file
         id: select_qmd
@@ -75,17 +75,38 @@ jobs:
             echo "No requirements.txt found below $qmd_dir"
           fi
 
-      - name: Render selected .qmd file
+      - name: Render selected .qmd file with Quarto
         run: |
           qmd_file="${{ steps.select_qmd.outputs.target_qmd }}"
           dir=$(dirname "$qmd_file")
           echo "Rendering $qmd_file in $dir"
 
-          (cd "$dir" && quarto render "$(basename "$qmd_file")")
+          (cd "$dir" && quarto render "$(basename "$qmd_file")" --to pdf)
 
-          # Remove auxiliary files but keep .log for debugging
+      - name: Manually compile LaTeX with BibTeX (to resolve citations)
+        run: |
+          qmd_file="${{ steps.select_qmd.outputs.target_qmd }}"
+          dir=$(dirname "$qmd_file")
+          base=$(basename "$qmd_file" .qmd)
+
+          cd "$dir"
+
+          # Compile 1st time to generate .aux
+          pdflatex "$base.tex"
+
+          # Run bibtex to generate .bbl
+          bibtex "$base"
+
+          # Compile 2 more times to resolve citations
+          pdflatex "$base.tex"
+          pdflatex "$base.tex"
+
+      - name: Clean up auxiliary files (keep logs)
+        run: |
+          qmd_file="${{ steps.select_qmd.outputs.target_qmd }}"
+          dir=$(dirname "$qmd_file")
           rm -f "$dir"/*.aux "$dir"/*.bbl "$dir"/*.blg
-          # rm -f "$dir"/*.log  # keep .log files
+          # rm -f "$dir"/*.log  # optionally delete .log
 
       - name: Upload LaTeX log files for debugging
         if: failure() || always()
