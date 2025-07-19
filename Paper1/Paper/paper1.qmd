@@ -15,7 +15,7 @@ format:
     fig-cap-location: bottom
     tbl-cap-location: top
 bibliography: pl.bib
-csl: ectj.cls
+cls: ectj.cls
 link-citations: true
 ---
 
