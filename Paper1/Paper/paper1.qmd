@@ -1,6 +1,5 @@
 ---
 date: "2025"
-author: " "  # Empty, since you're defining it in preamble.tex
 format:
   pdf:
     documentclass: ectj
