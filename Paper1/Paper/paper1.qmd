@@ -10,7 +10,7 @@ format:
     include-in-header: preamble.tex
 bibliography: pl.bib
 ---
-\vspace*{-2em}
+\vspace*{-6em}
 \begin{abstract}
 This paper uses a novel causal time series method to estimate the causal impact of Hawaii's quarantine policy to combat the spread of COVID-19 on Hawaii's tourism industry.
 \keywords{Synthetic Controls, Policy Evaluation, COVID-19}
