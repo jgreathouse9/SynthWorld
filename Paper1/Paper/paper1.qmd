@@ -237,7 +237,7 @@ so that $d_t = 1$ for all months after the policy’s implementation and $d_t = 
 
 \section{Results}
 
-In Figure we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest  precipitously dropped when the mandatory quarantine policy was implemented.
+In Figure we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest precipitously dropped when the mandatory quarantine policy was implemented (aside from unemployment claims). The plot also suggests that \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} and \hyperref[assump:matching]{Assumption~\ref*{assump:matching}} may be valid.
 
 ```{python}
 #| echo: false
