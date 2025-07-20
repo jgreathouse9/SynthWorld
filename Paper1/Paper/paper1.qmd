@@ -221,23 +221,19 @@ These prediction intervals reflect uncertainty in the estimated counterfactual. 
 # Data
 \label{sec:data}
 
-To assess the impact of Hawaii’s COVID-19 border closure on its tourism economy, I use monthly time series outcomes that span different economic margins of Hawaii’s economy. I focus the primary analysis on four outcomes, two from the labor market and two from the tourism sector. All outcomes are transformed to annualized year-over-year (YoY) growth rates. I do not use levels because \citet{SHC} note that the SHC estimator is invalid with outcomes that have a time trend. In addition, annualized growth mean that the treatment effect can be read directly as percentage point changes.
+To evaluate the impact of Hawaii’s COVID-19 border closure on its tourism economy, I use monthly time series spanning various economic margins, focusing on four primary outcomes: two from the labor market and two from the tourism sector. All outcomes are transformed into annualized year-over-year (YoY) growth rates. This transformation not only mitigates time trends—essential for the validity of the SHC estimator \citep{SHC}—but also allows treatment effects to be interpreted directly as percentage point changes.
 
-The first two outcomes assess the general economic fallout of Hawaii’s quarantine policy. These span from January 1991 to December 2020 and are obtained from the Federal Reserve Economic Data (FRED). The first is the number of employees in the Leisure and Hospitality sector in Hawaii (series ID: `HILEIHN`). While not a direct measure of tourism demand, employment in leisure and hospitality is highly sensitive to fluctuations in visitor activity and thus allows us to see how businesses responded to the mandated quarantine.
+The labor market outcomes, sourced from the Federal Reserve Economic Data (FRED), cover January 1991 to December 2020. The first is employment in Hawaii’s Leisure and Hospitality sector (`HILEIHN`), a proxy for tourism activity given its sensitivity to visitor demand. The second is initial unemployment insurance claims (`HIICLAIMS`), capturing monthly inflows into unemployment across the broader economy. Together, these outcomes provide complementary views of the economic fallout: `HILEIHN` reflects the stock of employed workers in a tourism-dependent sector, while `HIICLAIMS` captures more immediate disruptions to labor market flows.
 
-The second is initial unemployment insurance claims in Hawaii (series ID: `HIICLAIMS`), which reflects the volume of new unemployment filings each month. Whereas `HILEIHN` reflects the stock of employed workers in a key sector, initial claims capture short-run flows into unemployment across the broader economy.
+The tourism-sector outcomes come from Hawaii’s Department of Business, Economic Development & Tourism (DBEDT), accessed via their public API, and span January 1990 to December 2020. The first is *visitor arrival days*, the total number of person-days spent by visitors each month. This variable integrates both the volume of arrivals and length of stay, making it a direct proxy for aggregate tourism demand. The second is the *hotel occupancy rate*, defined as the share of hotel rooms sold per night—a clean, interpretable measure of capacity utilization that reflects realized demand.
 
-The remaining two outcomes are sourced from Hawaii’s Department of Business, Economic Development & Tourism (DBEDT), accessed via their public API. These data also span January 1990 to December 2020 and capture core demand- and supply-side dimensions of the tourism sector. The first is *visitor arrival days*, defined as the total number of visitor-days per month (person-days). This variable serves as a direct proxy for aggregate tourism demand, incorporating both the volume of arrivals and their length of stay. It is particularly well-suited for evaluating the impact of travel restrictions, as it captures the extent to which the policy curtailed inflows of potential consumers.
+Hawaii’s quarantine policy took effect in late March 2020. I define the intervention to begin in March 2020, corresponding to time $t = 362$, and formalize the treatment indicator as:
 
-The second is the *hotel occupancy rate*, defined as the share of hotel rooms sold per night. Occupancy reflects realized demand from inbound travelers and serves as a clean, interpretable indicator of capacity utilization in the tourism sector. It also captures firm-level responses to travel demand shocks, as hotel operators adjust to reduced volume.
-
-The quarantine policy was passed at the end of March 2020. I therefore define the intervention to begin in March 2020, corresponding to time $t = 362$, to reflect the onset of Hawaii’s COVID-19 border closure and mandatory two-week quarantine. Formally, I define:
-
-\begin{equation*}
+$$
 d_t \defeq \mathbf{1}\{t \geq 362\},
-\end{equation*}
+$$
 
-so that $d_t = 1$ for months following the implementation of the policy, and $d_t = 0$ otherwise. The final pre-treatment observation is thus February 2020, yielding a pre-treatment sample of $T_0 = 361$ months.
+so that $d_t = 1$ for all months after the policy’s implementation and $d_t = 0$ otherwise. The final pre-treatment period is February 2020, yielding a pre-treatment sample of $T_0 = 361$ months.
 
 \section{Results}
 
