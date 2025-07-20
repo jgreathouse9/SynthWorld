@@ -53,10 +53,9 @@ The fundamental problem of causal inference is that for $t > T_0$, we observe on
 \alpha_t \defeq y_t^1 - y_t^0, \quad \text{for } t \in \mathcal{T}_2,
 \end{equation}
 with estimator $\widehat{\alpha}_t \defeq y_t - \widehat{y}_t^0$. Stacking over $t \in \mathcal{T}_2$ yields:
-
-$$
+\begin{equation}
 \widehat{\boldsymbol{\alpha}} \defeq \mathbf{y}_{\text{post}} - \mathbf{y}^0_{\text{post}}.
-$$
+\end{equation}
 
 The average treatment effect on the treated (ATT) is then given by:
 \begin{equation}
@@ -78,21 +77,18 @@ where $\mathbf{Y}_0 \in \mathbb{R}^{T_0 \times N_0}$ is the donor matrix of unex
 \label{assump:errors}
 The error term satisfies $\mathbb{E}[\varepsilon_t] = 0$ and $\mathbb{E}[\varepsilon_t^2] < \infty$ for all \(t \in \mathcal{T}\).
 \end{assumption}
-
 Or the mean of the residuals is 0 in expectation. This fairly standard assumption says any unmodeled fluctuations or noise in the outcome data are purely random and do not systematically bias the estimation of the counterfactual.
-
 \begin{assumption}[Latent Component Smoothness and Matching Condition]
 \label{assump:matching}
 The latent trend $\widetilde{y}(t)$ is $(H+1)$ times differentiable for some integer $H \geq 3$, with derivative bounded as $\left| \widetilde{y}^{(H+1)}(t) \right| < \varepsilon$ uniformly over $t \in \mathcal{T}_1$. There exists a convex weight vector $\mathbf{w}^\ast \in \Delta^{N-1}$ such that the evaluation subvector $\mathbf{y}_{\text{eval}}$ can be exactly matched by a convex combination of donor segments: $\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast$.
 \end{assumption}
-
 Assumption (a) allows us to approximate the post-treatment latent component using a local linear extrapolation of pre-treatment values. Assumption (b) ensures that a synthetic match exists within the donor pool for the evaluation window, much as \citet{Abadie2010} assume.
 
 \begin{assumption}[Estimation Feasibility and Numerical Regularity]
 \label{assump:estimation}
 The estimated evaluation window $\mathbf{y}_{\text{eval}}$ is exactly matched by the estimated donor matrix: $\widehat{\mathbf{y}}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}$ for some $\mathbf{w} \in \Delta^{N-1}$. The estimated weights $\mathbf{w}$ have sparse support: the number of non-zero entries is bounded above by a constant $s \ll N$. The submatrix of selected donors $\widetilde{\mathbf{Y}}_{\text{pre}}^{(s)}$ satisfies that its Gram matrix is positive definite: $\left( \widetilde{\mathbf{Y}}_{\text{pre}}^{(s)} \right)^\top \widetilde{\mathbf{Y}}_{\text{pre}}^{(s)} \succ 0.$
 \end{assumption}
-These sample-level assumptions ensure that the SHC weights are identifiable, sparse, and numerically stable. Much as with SCM, we prefer that a sparse subset of historical controls can approximate the final evaluation period, as is discussed by \citet{Abadie2021}. \par
+These sample-level assumptions ensure that the SHC weights are identifiable, sparse, and numerically stable. Much as with SCM, we prefer that a sparse subset of historical controls can approximate the final evaluation period, as is discussed by \citet{Abadie2021}.
 
 The first step of the SHC smooths $\mathbf{y}_{\text{pre}}$ using local linear regression, where we fit the regression model:
 \begin{equation}
@@ -119,11 +115,8 @@ The smoothed outcome at time $t$ is $\widetilde{y}_t = a_t = \mathbf{e}_1^\top \
 In the second step, SHC constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \defeq \begin{bmatrix} \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} \end{bmatrix} \in \mathbb{R}^{m \times N}.$
 
 \begin{example}[Constructing $\widetilde{\mathbf{Y}}_{\text{pre}}$]
-Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months in order to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is: $N = T_0 - m - n + 1 = 60 - 12 - 6 + 1 = 43.$
-
-Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
+Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months in order to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is: $N = T_0 - m - n + 1 = 60 - 12 - 6 + 1 = 43.$ Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
 \end{example}
-
 In the third step, we solve the following program to obtain the optimal weights:
 
 \begin{equation}
@@ -137,7 +130,6 @@ In the third step, we solve the following program to obtain the optimal weights:
 \end{aligned}
 \end{equation}
 
-
 \citet{SHC} note that in the general case when we have more donor units than we do the length of the segments ($N>m$), the optimization becomes an ill-posed problem. The regularization term stabilizes the optimization by penalizing weight allocations along directions of low variance in the donor pool, reducing sensitivity to collinear segments. Formally, $\mathbf{C}_0$ contains the eigenvectors of the Grammian matrix $\mathbf{G} \in \mathbb{R}^{N \times N}$. $\mathbf{C}_0$ corresponds to the eigenvalues less than $\tau > 0$. These directions capture low-variance combinations of donor segments, and the penalty shrinks weights in those directions.\footnote{The $\varsigma$ (sigma) term is a small positive constant used to stabilize the solution in cases of near multicollinearity.}. The corresponding weight vector $\mathbf{w}^\ast$ is used to compute the counterfactual by applying it to the shifted donor segments:
 \begin{equation}
 \label{eq:post_matrix}
@@ -149,15 +141,15 @@ $\mathbf{y}^{0}=\widetilde{\mathbf{Y}} \mathbf{w}^\ast \in \mathbb{R}^{m+n}.$
 \textbf{Bandwidth Selection via Cross-Validation} To select the bandwidth parameter $h$ used in local linear smoothing of $\mathbf{y}_{\text{pre}}$, I implement a \textit{leave-one-out cross-validation} (LOOCV) procedure over a grid of candidate values $h \in [h_{\min}, h_{\max}] \subset \mathbb{R}_{> 0}$. This procedure chooses the bandwidth that minimizes out-of-sample prediction error for the smoothed pre-treatment series $\widetilde{\mathbf{y}} \in \mathbb{R}^{T_0}$, as defined in Equation~\eqref{eq:llr_closed_form}.
 
 For each candidate $h$, and for each time point $t \in \mathcal{T}_1$, define Gaussian kernel weights
-$$
+\begin{equation}
 w_{\tau t}^{(h)} = \exp\left( -\frac{1}{2} \left( \frac{\tau - t}{h} \right)^2 \right), \quad \tau \in \mathcal{T}_1 \setminus \{t\},
-$$
+\end{equation}
 used to construct the diagonal matrix $\mathbf{W}_t^{(-t)} \in \mathbb{R}^{(T_0 - 1) \times (T_0 - 1)}$, omitting the index $t$. Let $\mathbf{X}_t^{(-t)} \in \mathbb{R}^{(T_0 - 1) \times 2}$ and $\mathbf{y}_{\text{pre}}^{(-t)} \in \mathbb{R}^{T_0 - 1}$ denote the design matrix and response vector with time $t$ excluded.
 
 Then the local linear coefficients $\boldsymbol{\beta}_t^{(-t)} = (a_t^{(-t)}, b_t^{(-t)})^\top$ are obtained by solving Equation~\eqref{eq:llr_objective}. The leave-one-out smoothed value at time $t$ is then:
-$$
+\begin{equation}
 \widetilde{y}_t^{(-t)} = a_t^{(-t)} = \mathbf{e}_1^\top \boldsymbol{\beta}_t^{(-t)}, \quad \text{where } \mathbf{e}_1 = (1, 0)^\top.
-$$
+\end{equation}
 To pick the ideal bandwidth, we minimize:
 
 \begin{equation}
@@ -168,24 +160,20 @@ h^\ast = \underset{h \in [h_{\min}, h_{\max}]}{\operatorname*{argmin}} \left\{ \
 Once selected, the optimal bandwidth $h^\ast$ is used to construct the full smoothed pre-treatment series.
 
 \textbf{Control Group Selection} \cite{SHC} note that we should have a parsimonious approach to which historical controls we use, rather than choosing all of them. In their examples, SHC typically requires less than 28 controls. They advocate for a forward selection procedure to choose the optimal control group. I implement a slightly modified variant of this method to choose the ideal number of historical controls. Let $\mathcal{N} = \{1, 2, \dots, N\}$ index the full set of donor segments in the pre-treatment matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$. At each step the algorithm selects the donor index $i_j \in \mathcal{N} \setminus \mathcal{S}_{j-1}$ that, when added to the current donor set $\mathcal{S}_{j-1}$, minimizes the in-sample mean squared error (MSE) between the evaluation window and in-sample fit:
-
-$$
+\begin{equation}
 \mathcal{S}_j = \mathcal{S}_{j-1} \cup \left\{ \underset{i \in \mathcal{N} \setminus \mathcal{S}_{j-1}}{\operatorname*{argmin}} \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}}^{(\mathcal{S}_{j-1} \cup \{i\})} \mathbf{w}^{(j)} \right\|_2^2  + \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \right\}, \quad \mathcal{S}_0 = \emptyset,
-$$
-
+\end{equation}
 where $\widetilde{\mathbf{Y}}_{\text{pre}}^{(\mathcal{S})}$ denotes the submatrix of $\widetilde{\mathbf{Y}}_{\text{pre}}$ with columns indexed by $\mathcal{S}$, and the weights $\mathbf{w}^{(j)} \in \Delta^{j}$ are the optimal simplex-constrained weights for the selected donor set $\mathcal{S}_j$. This procedure greedily expands the donor set one segment at a time, always choosing the segment that yields the greatest marginal reduction in in-sample error.
 
 To avoid overfitting, \citet{SHC} manually choose the number of donors the forward selection procedure should choose. In their case, they experiment with the single best historical segment (which rarely does well), the best 15, 20, and 27 historical control units. However, this is a subjective decision that will yield different results depending on what we select. To mitigate researcher degrees of freedom, I view the number of historical segments as a tuning parameter. I employ a forward selection-based algorithm to choose the number of controls. For my implementation of SHC, I employ an early stopping rule based on a modified Bayesian information criterion (BIC), borrowing inspiration from \citet{SHI2023512}. For each donor set size $j$, I compute:
-
-$$
+\begin{equation}
 \text{BIC}(j) = m \cdot \log\left( \text{MSE}_j \right) + \lambda j,
-$$
+\end{equation}
 
 where $\text{MSE}_j$ is the in-sample error using donor set $\mathcal{S}_j$, and $\lambda = \log(m)$ penalizes the inclusion of too many donors. The selection procedure terminates when $\text{BIC}(j)$ increases for two consecutive steps. The final donor set $\mathcal{S}^\ast$ is then taken to be $\mathcal{S}_{j^\ast}$, where:
-
-$$
+\begin{equation}
 j^\ast = \underset{j}{\operatorname*{argmin}} \ \text{BIC}(j).
-$$
+\end{equation}
 
 This approach adaptively selects a sparse donor subset that closely matches the treated unit’s pre-intervention trajectory. The selected donor set $\mathcal{S}^\ast$ is used to compute the SHC model predictions. I would like to mention that this forward selection method holds much in common with recently proposed methods from the literature. For example, \cite{SHI2023512} propose the forward selected panel data approach which selects the comparison group for the panel data approach by \cite{pdap1} using an aggressive forward selection procedure. \citet{FDID}, correcting for overfitting in the former, proposed the forward Difference-in-Differences estimator, where a forward selection approach is used to select the donor pool for the Difference-in-Differences model. Similar advances have been made for the synthetic control method, as developed by \citet{cerulli2024optimal}, where a similar selection mechanism is used to estimate the treatment effect. It would be interesting, but is far outside the scope of this work, to compare these estimators to one another and see when their in-sample fits and point estimates agree with one another.
 
