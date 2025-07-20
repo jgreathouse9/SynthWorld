@@ -3,7 +3,7 @@ name: Update Hawaii Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 * * 1'  # Every Monday at 12:00 UTC
+    - cron: '0 12 * * 1'
 
 jobs:
   update-data:
@@ -20,16 +20,16 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-        working-directory: Paper/Code/Python
+        working-directory: Paper1/Paper/Code/Python
 
       - name: Run data generation script
         run: python getdata.py
-        working-directory: Paper/Code/Python
+        working-directory: Paper1/Paper/Code/Python
 
       - name: Commit and push updated dataset
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Paper/Data/HawaiiData.xlsx
+          git add Paper1/Paper/Data/HawaiiData.xlsx
           git commit -m "Update HawaiiData.xlsx [auto]" || echo "No changes to commit"
           git push
