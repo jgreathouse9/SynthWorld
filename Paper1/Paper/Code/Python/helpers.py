@@ -7,7 +7,7 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
         "Hotels": "https://api.uhero.hawaii.edu/dvw/series/hotel?i=VH103,VH102sa,VH101sa&c=PVA11&f=M",
         "Tourism": "https://api.uhero.hawaii.edu/dvw/series/trend?i=VV101sa,VV102sa&m=MM102&d=DI10&f=M",
         "FRED_LHE": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=HILEIHN&cosd=1990-01-01&coed=2020-12-31&fq=Monthly&fam=avg&transformation=pc1",
-        "FRED_UI":  "https://fred.stlouisfed.org/graph/fredgraph.csv?id=HIICLAIMS&cosd=1991-01-01&coed=2020-12-31&fq=Monthly&fam=avg&transformation=pc1"
+        "FRED_UI":  "https://fred.stlouisfed.org/graph/fredgraph.csv?id=HIICLAIMS&cosd=1990-01-01&coed=2020-12-31&fq=Monthly&fam=avg&transformation=pc1"
     }
 
     dfs = {}
