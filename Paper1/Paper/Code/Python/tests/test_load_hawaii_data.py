@@ -3,13 +3,32 @@ import os
 import pytest
 import pandas as pd
 from datetime import datetime
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from unittest.mock import patch, MagicMock
+
+# Add parent directory to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from helpers import load_hawaii_data
+
+# -----------------------
+# Fixtures and Mocks
+# -----------------------
 
 @pytest.fixture(scope="module")
 def hawaii_data():
     return load_hawaii_data(save_excel=False)
+
+@pytest.fixture
+def dummy_growth_df():
+    return pd.DataFrame({
+        "Occupancy (Seasonally Adjusted)": [70, 75],
+        "Mean Daily Rate (Seasonally Adjusted)": [200, 210],
+        "Revenue per Available Room": [140, 157.5]
+    }, index=pd.to_datetime(["2020-01-01", "2020-02-01"]))
+
+# -----------------------
+# Tests on Real Data (no mocks)
+# -----------------------
 
 def test_keys_present(hawaii_data):
     assert "Hotels" in hawaii_data
@@ -62,51 +81,30 @@ def test_quarantine_flag_is_binary(hawaii_data):
     for name, df in hawaii_data.items():
         assert set(df["Mandatory Quarantine"].unique()).issubset({0, 1}), f"Non-binary quarantine flag in {name}"
 
-# Mock compute_annualized_growth so it just returns the input
-@pytest.fixture
-def mock_growth():
-    with patch("helpers.compute_annualized_growth", side_effect=lambda df, lag=12: df) as mock:
-        yield mock
+# -----------------------
+# Mocked Tests
+# -----------------------
 
-# Mock pd.ExcelWriter to avoid actual file writing
-@pytest.fixture
-def mock_excel_writer():
-    with patch("pandas.ExcelWriter") as mock_writer:
-        mock_instance = MagicMock()
-        mock_writer.return_value.__enter__.return_value = mock_instance
-        yield mock_instance
-
-def test_load_hawaii_data_with_mocks(mock_growth, mock_excel_writer):
-    dfs = load_hawaii_data(save_excel=True)
-
-    # Ensure compute_annualized_growth was called
-    assert mock_growth.called, "compute_annualized_growth was not called"
-
-    # Ensure Excel writing was attempted
-    assert mock_excel_writer.to_excel.call_count > 0, "Excel to_excel was not called"
-
-    # Sanity check on returned data
-    assert isinstance(dfs, dict)
-    assert set(dfs.keys()) == {"Hotels", "Tourism", "FRED"}
-    for df in dfs.values():
-        assert not df.empty
-
-@patch("helpers.compute_annualized_growth", return_value=MagicMock())
+@patch("helpers.compute_annualized_growth")
 @patch("pandas.ExcelWriter")
-def test_load_hawaii_data_with_mocks(mock_excel_writer_class, mock_growth):
+def test_load_hawaii_data_with_mocks(mock_excel_writer_class, mock_growth, dummy_growth_df):
+    # Use dummy DataFrame instead of MagicMock to avoid comparison errors
+    mock_growth.return_value = dummy_growth_df
+
+    # Setup mock ExcelWriter context manager
     mock_writer_instance = MagicMock()
     mock_excel_writer_class.return_value.__enter__.return_value = mock_writer_instance
 
-    # Run function with save_excel=True to trigger the Excel writing
+    # Run the function
     dfs = load_hawaii_data(save_excel=True)
 
-    # Check that ExcelWriter was called (you can also check the filename if needed)
-    mock_excel_writer_class.assert_called_once()
-    # Check that `to_excel` was called on each DataFrame
-    assert mock_writer_instance.method_calls  # Just to confirm it was used
+    # Validate function behavior
+    assert isinstance(dfs, dict)
+    assert set(dfs.keys()) == {"Hotels", "Tourism", "FRED"}
 
-    # Optional: Check individual calls to .to_excel
-    for sheet in dfs:
-        df = dfs[sheet]
-        df.to_excel(mock_writer_instance, sheet_name=sheet, index=False)
-        mock_writer_instance.__getattr__('to_excel').assert_called()  # crude but okay
+    # Ensure compute_annualized_growth was called
+    assert mock_growth.called
+
+    # Ensure ExcelWriter and to_excel were called
+    mock_excel_writer_class.assert_called_once()
+    assert mock_writer_instance.method_calls  # basic smoke check
