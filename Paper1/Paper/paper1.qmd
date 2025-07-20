@@ -79,25 +79,30 @@ The SHC method introduced by \citet{SHC} constructs a counterfactual using the t
 \label{eq:scm_objective}
 \mathbf{w}^\ast = \underset{\mathbf{w} \in \Delta^{N_0}}{\operatorname*{argmin}} \left\| \mathbf{y}_1 - \mathbf{Y}_0 \mathbf{w} \right\|_2^2, \quad \forall t \in \mathcal{T}_1,
 \end{equation}
-where $\mathbf{Y}_0 \in \mathbb{R}^{T_0 \times N_0}$ is the donor matrix of unexposed units and $\Delta^{N_0} = \left\{ \mathbf{w} \in \mathbb{R}_{\geq 0}^{N_0} : \|\mathbf{w}\|_1 = 1 \right\}$ is the probability simplex.} SHC requires a few assumptions:
+where $\mathbf{Y}_0 \in \mathbb{R}^{T_0 \times N_0}$ is the donor matrix of unexposed units and $\Delta^{N_0} = \left\{ \mathbf{w} \in \mathbb{R}_{\geq 0}^{N_0} : \|\mathbf{w}\|_1 = 1 \right\}$ is the probability simplex.} SHC requires a few assumptions: \hyperref[assump:errors]{Assumption~\ref*{assump:errors}}, \hyperref[assump:matching]{Assumption~\ref*{assump:matching}}, and \hyperref[assump:estimation]{Assumption~\ref*{assump:estimation}}.
 
 \begin{assumption}[Error Properties]
 \label{assump:errors}
 The error term satisfies $\mathbb{E}[\varepsilon_t] = 0$ and $\mathbb{E}[\varepsilon_t^2] < \infty$ for all \(t \in \mathcal{T}\).
 \end{assumption}
-This fairly standard assumption says any unmodeled fluctuations or noise in the outcome data are purely random.
+
+\hyperref[assump:errors]{Assumption~\ref*{assump:errors}} says any unmodeled fluctuations or noise in the outcome data are purely random.
+
 \begin{assumption}[Latent Component Smoothness and Matching Condition]
 \label{assump:matching}
 The latent trend $\widetilde{y}(t)$ is $(H+1)$ times differentiable for some integer $H \geq 3$, with derivative bounded as $\left| \widetilde{y}^{(H+1)}(t) \right| < \varepsilon$ uniformly over $t \in \mathcal{T}_1$. There exists a convex weight vector $\mathbf{w}^\ast \in \Delta^{N-1}$ such that the evaluation subvector $\mathbf{y}_{\text{eval}}$ can be exactly matched by a convex combination of donor segments: $\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast$.
 \end{assumption}
-Assumption (a) allows us to approximate the post-treatment latent component using a local linear extrapolation of pre-treatment values. Assumption (b) ensures that a synthetic match exists within the donor pool for the evaluation window, much as \citet{Abadie2010} assume.
+
+\hyperref[assump:matching]{Assumption~\ref*{assump:matching}} allows us to approximate the post-treatment latent component using a local linear extrapolation of pre-treatment values and ensures that a synthetic match exists within the donor pool for the evaluation window, much as \citet{Abadie2010} assume.
 
 \begin{assumption}[Feasibility]
 \label{assump:estimation}
 There exists a weight vector $\mathbf{w} \in \Delta^{N-1}$ such that $\widehat{\mathbf{y}}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}$, with $\|\mathbf{w}\|_0 \leq s \ll N$. Let $\widetilde{\mathbf{Y}}_{\text{pre}}^{(s)}$ denote the submatrix formed by the active columns of $\widetilde{\mathbf{Y}}_{\text{pre}}$ indexed by $\operatorname{supp}(\mathbf{w})$; then its Gram matrix satisfies $\left( \widetilde{\mathbf{Y}}_{\text{pre}}^{(s)} \right)^\top \widetilde{\mathbf{Y}}_{\text{pre}}^{(s)} \succ 0$.
 \end{assumption}
 
-These sample-level assumptions ensure that the SHC weights are identifiable, sparse, and numerically stable. Much as with SCM, we prefer that a sparse subset of historical controls can approximate the final evaluation period, as is discussed by \citet{Abadie2021}.
+\hyperref[assump:estimation]{Assumption~\ref*{assump:estimation}} ensures that the SHC weights are identifiable, sparse, and numerically stable. Much as with SCM, we prefer that a sparse subset of historical controls can approximate the final evaluation period, as is discussed by \citet{Abadie2021}.
+
+
 
 The first step of the SHC smooths $\mathbf{y}_{\text{pre}}$ using local linear regression, where we fit the regression model:
 \begin{equation}
