@@ -256,22 +256,20 @@ In Figure we visualize the outcomes of interest over time from January of 1991 t
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Load the Excel file
-data_path = "../../Data/HawaiiData.xlsx"
+# Corrected relative path
+data_path = "../Data/HawaiiData.xlsx"
 sheets_to_load = ["Tourism", "Hotels", "FRED"]
 data = {sheet: pd.read_excel(data_path, sheet_name=sheet) for sheet in sheets_to_load}
 
-# Define what to plot from each dataset
+# Plot config
 plot_columns = {
-    "Tourism": ["Visitor Days (Seasonally Adjusted)"],  # ,"Visitor Arrivals (Seasonally Adjusted)"
-    "Hotels": ["Occupancy (Seasonally Adjusted)"],      # ,"Mean Daily Rate (Seasonally Adjusted)", "Revenue per Available Room"
+    "Tourism": ["Visitor Days (Seasonally Adjusted)"],
+    "Hotels": ["Occupancy (Seasonally Adjusted)"],
     "FRED": ["Leisure and Hospitality Employment YoY", "Initial Unemployment Claims YoY"]
 }
 
-# Create subplots: 2 rows × 2 columns
-fig, axes = plt.subplots(2, 2, figsize=(10, 10), sharex=False)
+fig, axes = plt.subplots(2, 2, figsize=(10, 10))
 axes = axes.flatten()
-
 plot_idx = 0
 for category, cols in plot_columns.items():
     df = data[category]
@@ -284,14 +282,14 @@ for category, cols in plot_columns.items():
         ax.grid(True, linestyle="--", alpha=0.4)
         plot_idx += 1
 
-# Remove unused subplots (if fewer than 4 plots)
+# Clean up unused plots
 for i in range(plot_idx, len(axes)):
     fig.delaxes(axes[i])
 
 plt.tight_layout(h_pad=5)
+plt.show()
 
-# Save or show the plot
-plt.show()  # Uncomment this if running interactively
+
 ```
 
 
