@@ -257,7 +257,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Corrected relative path
-data_path = "../Data/HawaiiData.xlsx"
+data_path = "Data/HawaiiData.xlsx"
 sheets_to_load = ["Tourism", "Hotels", "FRED"]
 data = {sheet: pd.read_excel(data_path, sheet_name=sheet) for sheet in sheets_to_load}
 
