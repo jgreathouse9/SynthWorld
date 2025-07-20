@@ -2,6 +2,12 @@ import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 
+def compute_annualized_growth(df, lag=12):
+    numeric_cols = df.select_dtypes(include='number').columns
+    growth_df = df.copy()
+    growth_df[numeric_cols] = (df[numeric_cols] / df[numeric_cols].shift(lag)) - 1
+    return growth_df
+
 def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growth=True):
     urls = {
         "Hotels": "https://api.uhero.hawaii.edu/dvw/series/hotel?i=VH103,VH102sa,VH101sa&c=PVA11&f=M",
@@ -11,12 +17,6 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
     }
 
     dfs = {}
-
-    def compute_annualized_growth(df, lag=12):
-        numeric_cols = df.select_dtypes(include='number').columns
-        growth_df = df.copy()
-        growth_df[numeric_cols] = (df[numeric_cols] / df[numeric_cols].shift(lag)) - 1
-        return growth_df
 
     # --- Load Hotels data ---
     response_hotel = requests.get(urls["Hotels"])
