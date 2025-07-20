@@ -14,9 +14,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: List repo files for debugging
-        run: ls -R
-
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
@@ -28,5 +25,5 @@ jobs:
           pip install pytest pandas requests matplotlib
 
       - name: Run tests
-        working-directory: Paper/Code/Python/tests
+        working-directory: Paper1/Paper/Code/Python/tests
         run: pytest --maxfail=1 --disable-warnings -q
