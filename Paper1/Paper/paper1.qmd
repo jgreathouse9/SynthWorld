@@ -249,6 +249,51 @@ so that $d_t = 1$ for months following the implementation of the policy, and $d_
 
 In Figure we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest  precipitously dropped when the mandatory quarantine policy was implemented.
 
+```{python}
+#| echo: false
+#| fig-align: center
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the Excel file
+data_path = "../../Data/HawaiiData.xlsx"
+sheets_to_load = ["Tourism", "Hotels", "FRED"]
+data = {sheet: pd.read_excel(data_path, sheet_name=sheet) for sheet in sheets_to_load}
+
+# Define what to plot from each dataset
+plot_columns = {
+    "Tourism": ["Visitor Days (Seasonally Adjusted)"],  # ,"Visitor Arrivals (Seasonally Adjusted)"
+    "Hotels": ["Occupancy (Seasonally Adjusted)"],      # ,"Mean Daily Rate (Seasonally Adjusted)", "Revenue per Available Room"
+    "FRED": ["Leisure and Hospitality Employment YoY", "Initial Unemployment Claims YoY"]
+}
+
+# Create subplots: 2 rows × 2 columns
+fig, axes = plt.subplots(2, 2, figsize=(10, 10), sharex=False)
+axes = axes.flatten()
+
+plot_idx = 0
+for category, cols in plot_columns.items():
+    df = data[category]
+    for col in cols:
+        ax = axes[plot_idx]
+        ax.plot(df["Date"], df[col], color="black")
+        ax.axvline(pd.to_datetime("2020-03-01"), color="red", linestyle="--", label="Mandatory Quarantine")
+        ax.set_title(col, fontsize=14)
+        ax.legend(loc="lower left", fontsize=12)
+        ax.grid(True, linestyle="--", alpha=0.4)
+        plot_idx += 1
+
+# Remove unused subplots (if fewer than 4 plots)
+for i in range(plot_idx, len(axes)):
+    fig.delaxes(axes[i])
+
+plt.tight_layout(h_pad=5)
+
+# Save or show the plot
+plt.show()  # Uncomment this if running interactively
+```
+
 
 ```{=latex}
 \bibliography{pl}
