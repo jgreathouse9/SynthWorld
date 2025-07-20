@@ -30,7 +30,7 @@ This paper contributes to the literature on the broader economic consequences of
 
 Methodologically, this is the first paper (aside from \citet{SHC}) to implement the SHC approach in a real-world policy evaluation. This demonstrates the method’s usefulness in settings where traditional synthetic control or DiD estimators fail due to the lack of credible donor units. More broadly, the combination of a novel method and a rare, underexplored policy environment informs the literature on crisis response, the economic consequences of non-pharmaceutical interventions, and the design of policy in high-risk, tourism-dependent regions.
 
-The remainder of the paper is structured as follows. Section \ref{sec:methods} introduces the empirical methodology. Section 3 describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
+The remainder of the paper is structured as follows. Section \ref{sec:methods} introduces the empirical methodology. Section \ref{sec:data} describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
 
 
 # Methodology {#sec-methods}
@@ -220,7 +220,7 @@ These prediction intervals reflect uncertainty in the estimated counterfactual. 
 To assess the impact of Hawaii’s COVID-19 border closure on its tourism economy, I use monthly time series outcomes that span different economic margins of Hawaii’s economy. I focus the primary analysis on four outcomes, two from the labor market and two from the tourism sector. All outcomes are transformed to annualized year-over-year (YoY) growth rates to address concerns about persistent trend dynamics. These are computed like
 
 \begin{equation}
-y_t \coloneqq \frac{x_t - x_{t-12}}{x_{t-12}}, \quad \text{for } t \in \mathcal{T},
+y_t \defeq \frac{x_t - x_{t-12}}{x_{t-12}}, \quad \text{for } t \in \mathcal{T},
 \end{equation}
 
 where $x_t$ denotes the raw outcome level at time $t$. This concern was highlighted by \citet{SHC}, who caution against using the SHC estimator with outcomes that have a time trend. In principle, we cannot construct a convex combination for contemporary trends from previous trends. By using the growth rate, this effectively detrends the observed outcomes, focusing on relative changes from the same time in the previous year. With annualized growth rates, the estimated treatment effects can be read directly as percentage point changes in annual growth.
