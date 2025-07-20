@@ -48,7 +48,7 @@ Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the obser
 
 The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period. To reconstruct the evaluation window, we compare it against earlier segments of the treated unit’s own pre-treatment trajectory. 
 
-Define the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$ as a collection of $N$ overlapping length-$m$ subvectors extracted from the smoothed pre-treatment series. Each column is a contiguous subvector of the form $\widetilde{\mathbf{y}}_{[i, i+m-1]}$, with $i$ ranging over eligible start points in $\mathcal{T}_1$ that precede the evaluation window. The precise construction is given in Section~\ref{shc_estimator}.
+Define the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$ as a collection of $N$ overlapping length-$m$ subvectors extracted from the smoothed pre-treatment series. Each column is a contiguous subvector of the form $\widetilde{\mathbf{y}}_{[i, i+m-1]}$, with $i$ ranging over eligible start points in $\mathcal{T}_1$ that precede the evaluation window. The precise construction is given in \hyperref[sec:shc]{Section~\ref*{sec:shc}}.
 
 ## Synthetic Historical Control Method
 
@@ -72,6 +72,7 @@ The average treatment effect on the treated (ATT) is then given by:
 where $\mathbf{1} \in \mathbb{R}^n$ is a vector of ones.
 
 ## The Model
+\label{sec:shc}
 
 The SHC method introduced by \citet{SHC} constructs a counterfactual using the treated unit's own pre-treatment time series.\footnote{SCM estimates the counterfactual by solving:
 \begin{equation}
