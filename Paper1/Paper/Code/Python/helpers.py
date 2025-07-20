@@ -16,7 +16,7 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
         "Hotels": "https://api.uhero.hawaii.edu/dvw/series/hotel?i=VH103,VH102sa,VH101sa&c=PVA11&f=M",
         "Tourism": "https://api.uhero.hawaii.edu/dvw/series/trend?i=VV101sa,VV102sa&m=MM102&d=DI10&f=M",
         "FRED_LHE": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=HILEIHN&cosd=1990-01-01&coed=2020-12-31&fq=Monthly&fam=avg&transformation=pc1",
-        "FRED_UI":  "https://fred.stlouisfed.org/graph/fredgraph.csv?id=HIICLAIMS&cosd=1990-01-01&coed=2020-12-31&fq=Monthly&fam=avg&transformation=pc1"
+        "FRED_UI":  "https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23ebf3fb&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1320&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=HIICLAIMS&scale=left&cosd=1991-01-01&coed=2020-12-31&line_color=%230073e6&link_values=false&line_style=solid&mark_type=none&mw=3&lw=3&ost=-99999&oet=99999&mma=0&fml=a&fq=Monthly&fam=avg&fgst=lin&fgsnd=2020-02-01&line_index=1&transformation=pc1&vintage_date=2025-07-20&revision_date=2025-07-20&nd=1985-04-06"
     }
 
     dfs = {}
