@@ -9,6 +9,9 @@ def compute_annualized_growth(df, lag=12):
     return growth_df
 
 def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growth=True):
+    quarantine_start = pd.Timestamp("2020-03-01")
+    cutoff_date = pd.Timestamp("2021-01-01")
+
     urls = {
         "Hotels": "https://api.uhero.hawaii.edu/dvw/series/hotel?i=VH103,VH102sa,VH101sa&c=PVA11&f=M",
         "Tourism": "https://api.uhero.hawaii.edu/dvw/series/trend?i=VV101sa,VV102sa&m=MM102&d=DI10&f=M",
@@ -32,13 +35,13 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
         "VH102sa": "Mean Daily Rate (Seasonally Adjusted)",
         "VH103": "Revenue per Available Room"
     }, inplace=True)
-    df_hotels = df_hotels.loc[df_hotels.index < "2021-01-01"].copy()
+    df_hotels = df_hotels.loc[df_hotels.index < cutoff_date].copy()
     df_hotels["Unit"] = "Hawaii"
-    df_hotels["Mandatory Quarantine"] = (df_hotels.index >= "2020-03-01").astype(int)
+    df_hotels["Mandatory Quarantine"] = (df_hotels.index >= quarantine_start).astype(int)
 
     if compute_growth:
         df_hotels = compute_annualized_growth(df_hotels)
-        df_hotels["Mandatory Quarantine"] = (df_hotels.index >= "2020-03-01").astype(int)
+        df_hotels["Mandatory Quarantine"] = (df_hotels.index >= quarantine_start).astype(int)
         df_hotels["Unit"] = "Hawaii"
         df_hotels.dropna(inplace=True)
 
@@ -59,13 +62,13 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
         "VV101sa": "Visitor Arrivals (Seasonally Adjusted)",
         "VV102sa": "Visitor Days (Seasonally Adjusted)",
     }, inplace=True)
-    df_tourism = df_tourism.loc[df_tourism.index < "2021-01-01"].copy()
+    df_tourism = df_tourism.loc[df_tourism.index < cutoff_date].copy()
     df_tourism["Unit"] = "Hawaii"
-    df_tourism["Mandatory Quarantine"] = (df_tourism.index >= "2020-03-01").astype(int)
+    df_tourism["Mandatory Quarantine"] = (df_tourism.index >= quarantine_start).astype(int)
 
     if compute_growth:
         df_tourism = compute_annualized_growth(df_tourism)
-        df_tourism["Mandatory Quarantine"] = (df_tourism.index >= "2020-03-01").astype(int)
+        df_tourism["Mandatory Quarantine"] = (df_tourism.index >= quarantine_start).astype(int)
         df_tourism["Unit"] = "Hawaii"
         df_tourism.dropna(inplace=True)
 
@@ -74,29 +77,25 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
     dfs["Tourism"] = df_tourism
 
     # --- Load and merge FRED data ---
-    # Leisure & Hospitality Employment
     df_lhe = pd.read_csv(urls["FRED_LHE"])
     df_lhe.columns = ["Date", "Leisure and Hospitality Employment YoY"]
     df_lhe["Date"] = pd.to_datetime(df_lhe["Date"])
 
-    # Initial Unemployment Claims
     df_ui = pd.read_csv(urls["FRED_UI"])
     df_ui.columns = ["Date", "Initial Unemployment Claims YoY"]
     df_ui["Date"] = pd.to_datetime(df_ui["Date"])
 
-    # Merge on Date
     df_fred = pd.merge(df_lhe, df_ui, on="Date", how="outer")
-    df_fred = df_fred[df_fred["Date"] < "2021-01-01"].copy()
+    df_fred = df_fred[df_fred["Date"] < cutoff_date].copy()
     df_fred.sort_values("Date", inplace=True)
     df_fred.set_index("Date", inplace=True)
     df_fred["Unit"] = "Hawaii"
-    df_fred["Mandatory Quarantine"] = (df_fred.index >= "2020-03-01").astype(int)
+    df_fred["Mandatory Quarantine"] = (df_fred.index >= quarantine_start).astype(int)
     df_fred.dropna(inplace=True)
     df_fred.reset_index(inplace=True)
 
     dfs["FRED"] = df_fred
 
-    # --- Save to Excel ---
     if save_excel:
         with pd.ExcelWriter(filename) as writer:
             for sheet, df in dfs.items():
