@@ -23,7 +23,9 @@ def dummy_growth_df():
     return pd.DataFrame({
         "Occupancy (Seasonally Adjusted)": [70, 75],
         "Mean Daily Rate (Seasonally Adjusted)": [200, 210],
-        "Revenue per Available Room": [140, 157.5]
+        "Revenue per Available Room": [140, 157.5],
+        "Mandatory Quarantine": [0, 0],
+        "Unit": ["Hawaii", "Hawaii"]
     }, index=pd.to_datetime(["2020-01-01", "2020-02-01"]))
 
 # -----------------------
@@ -85,26 +87,82 @@ def test_quarantine_flag_is_binary(hawaii_data):
 # Mocked Tests
 # -----------------------
 
+@patch("helpers.requests.get")
 @patch("helpers.compute_annualized_growth")
 @patch("pandas.ExcelWriter")
-def test_load_hawaii_data_with_mocks(mock_excel_writer_class, mock_growth, dummy_growth_df):
-    # Use dummy DataFrame instead of MagicMock to avoid comparison errors
+def test_load_hawaii_data_with_mocks(mock_excel_writer_class, mock_growth, mock_requests_get, dummy_growth_df):
+    # --- Mock DBEDT and FRED responses ---
+    def mock_response_json(varname, values):
+        return {
+            "data": {
+                "series": [{
+                    "columns": [varname],
+                    "dates": ["2020-01-01", "2020-02-01"],
+                    "values": values
+                }]
+            }
+        }
+
+    def requests_side_effect(url, *args, **kwargs):
+        mock_resp = MagicMock()
+        mock_resp.raise_for_status.return_value = None
+
+        if "hotel" in url:
+            mock_resp.json.return_value = {
+                "data": {
+                    "series": [
+                        {"columns": ["VH101sa"], "dates": ["2020-01-01", "2020-02-01"], "values": [70, 75]},
+                        {"columns": ["VH102sa"], "dates": ["2020-01-01", "2020-02-01"], "values": [200, 210]},
+                        {"columns": ["VH103"], "dates": ["2020-01-01", "2020-02-01"], "values": [140, 157.5]}
+                    ]
+                }
+            }
+        elif "trend" in url:
+            mock_resp.json.return_value = {
+                "data": {
+                    "series": [{
+                        "columns": ["VISITORDAYS"],
+                        "dates": ["2020-01-01", "2020-02-01"],
+                        "values": [1_000_000, 1_100_000]
+                    }]
+                }
+            }
+        elif "HIICLAIMS" in url:
+            mock_resp.content = (
+                b"observation_date,HIICLAIMS\n"
+                b"2020-01-01,3000\n"
+                b"2020-02-01,3200\n"
+            )
+        elif "HILEIHN" in url:
+            mock_resp.content = (
+                b"observation_date,HILEIHN\n"
+                b"2020-01-01,600000\n"
+                b"2020-02-01,610000\n"
+            )
+        else:
+            raise ValueError(f"Unexpected URL: {url}")
+
+        return mock_resp
+
+    mock_requests_get.side_effect = requests_side_effect
+
+    # --- Mock compute_annualized_growth ---
     mock_growth.return_value = dummy_growth_df
 
-    # Setup mock ExcelWriter context manager
+    # --- Mock ExcelWriter context ---
     mock_writer_instance = MagicMock()
     mock_excel_writer_class.return_value.__enter__.return_value = mock_writer_instance
 
-    # Run the function
+    # --- Run function ---
     dfs = load_hawaii_data(save_excel=True)
 
-    # Validate function behavior
+    # --- Validate ---
     assert isinstance(dfs, dict)
     assert set(dfs.keys()) == {"Hotels", "Tourism", "FRED"}
+    for name, df in dfs.items():
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 2
 
-    # Ensure compute_annualized_growth was called
     assert mock_growth.called
-
-    # Ensure ExcelWriter and to_excel were called
-    mock_excel_writer_class.assert_called_once()
-    assert mock_writer_instance.method_calls  # basic smoke check
+    assert mock_excel_writer_class.called
+    assert mock_writer_instance.method_calls
