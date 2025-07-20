@@ -235,9 +235,9 @@ The second is the *hotel occupancy rate*, defined as the share of hotel rooms so
 
 The quarantine policy was passed at the end of March 2020. I therefore define the intervention to begin in March 2020, corresponding to time $t = 362$, to reflect the onset of Hawaii’s COVID-19 border closure and mandatory two-week quarantine. Formally, I define:
 
-\begin{equation}
-D_t \coloneqq \mathbf{1}\{t \geq 362\},
-\end{equation}
+\begin*{equation}
+d_t \defeq \mathbf{1}\{t \geq 362\},
+\end*{equation}
 
 so that $d_t = 1$ for months following the implementation of the policy, and $d_t = 0$ otherwise. The final pre-treatment observation is thus February 2020, yielding a pre-treatment sample of $T_0 = 361$ months.
 
