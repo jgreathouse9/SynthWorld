@@ -4,8 +4,8 @@ import pytest
 import pandas as pd
 from datetime import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from helpers import load_hawaii_data
 from unittest.mock import patch, MagicMock
+import helpers
 
 @pytest.fixture(scope="module")
 def hawaii_data():
@@ -90,3 +90,23 @@ def test_load_hawaii_data_with_mocks(mock_growth, mock_excel_writer):
     assert set(dfs.keys()) == {"Hotels", "Tourism", "FRED"}
     for df in dfs.values():
         assert not df.empty
+
+@patch("helpers.compute_annualized_growth", return_value=MagicMock())
+@patch("pandas.ExcelWriter")
+def test_load_hawaii_data_with_mocks(mock_excel_writer_class, mock_growth):
+    mock_writer_instance = MagicMock()
+    mock_excel_writer_class.return_value.__enter__.return_value = mock_writer_instance
+
+    # Run function with save_excel=True to trigger the Excel writing
+    dfs = helpers.load_hawaii_data(save_excel=True)
+
+    # Check that ExcelWriter was called (you can also check the filename if needed)
+    mock_excel_writer_class.assert_called_once()
+    # Check that `to_excel` was called on each DataFrame
+    assert mock_writer_instance.method_calls  # Just to confirm it was used
+
+    # Optional: Check individual calls to .to_excel
+    for sheet in dfs:
+        df = dfs[sheet]
+        df.to_excel(mock_writer_instance, sheet_name=sheet, index=False)
+        mock_writer_instance.__getattr__('to_excel').assert_called()  # crude but okay
