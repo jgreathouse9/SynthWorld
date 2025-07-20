@@ -268,9 +268,8 @@ for category, cols in plot_columns.items():
         ax.plot(df["Date"], df[col], color="black")
         ax.axvline(pd.to_datetime("2020-03-01"), color="red", linestyle="--", label="Mandatory Quarantine")
         ax.set_title(col, fontsize=14)
-        ax.legend(loc="lower left", fontsize=12)
-        ax.grid(True, linestyle="--", alpha=0.4)
-        ax.set_ylim(top=1)
+        ax.legend(loc="lower left", fontsize=13)
+        ax.grid(True, linestyle="-", alpha=0.3)
         plot_idx += 1
 
 # Clean up unused plots
