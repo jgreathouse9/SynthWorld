@@ -33,7 +33,8 @@ Methodologically, this is the first paper (aside from \citet{SHC}) to implement 
 The remainder of the paper is structured as follows. Section~\ref{sec:methods} introduces the empirical methodology. Section~\ref{sec:data} describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
 
 
-# Methodology {#sec-methods}
+# Methodology
+\label{sec:methods}
 
 
 We know what happened given that Hawaii mandated two-week quarantines. We do not know what would have happened had they not done this. Given its novelty and radical deviation from SCM, this section summarizes the SHC method by \cite{SHC}. For a comprehensive treatment of the method, including the theoretical proofs and asymptotic properties, readers are referred to \cite{SHC}.
@@ -215,7 +216,8 @@ This approach allows finite-sample valid coverage under the assumption that the 
 
 These prediction intervals reflect uncertainty in the estimated counterfactual. Hence, if the observed outcome falls far outside the prediction interval, this is interpreted as evidence of a treatment effect. Unlike traditional confidence intervals around treatment effect estimates (e.g., using standard errors), the conformal intervals here do not assume a data-generating model. I use a default coverage level of $90\%$ (i.e., $\alpha = 0.1$) in all applications.
 
-# Data {#sec-data}
+# Data
+\label{sec:data}
 
 To assess the impact of Hawaii’s COVID-19 border closure on its tourism economy, I use monthly time series outcomes that span different economic margins of Hawaii’s economy. I focus the primary analysis on four outcomes, two from the labor market and two from the tourism sector. All outcomes are transformed to annualized year-over-year (YoY) growth rates to address concerns about persistent trend dynamics. These are computed like
 
