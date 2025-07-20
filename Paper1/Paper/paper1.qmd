@@ -30,7 +30,7 @@ This paper contributes to the literature on the broader economic consequences of
 
 Methodologically, this is the first paper (aside from \citet{SHC}) to implement the SHC approach in a real-world policy evaluation. This demonstrates the method’s usefulness in settings where traditional synthetic control or DiD estimators fail due to the lack of credible donor units. More broadly, the combination of a novel method and a rare, underexplored policy environment informs the literature on crisis response, the economic consequences of non-pharmaceutical interventions, and the design of policy in high-risk, tourism-dependent regions.
 
-The remainder of the paper is structured as follows. Section \ref{sec:methods} introduces the empirical methodology. Section \ref{sec:data} describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
+The remainder of the paper is structured as follows. Section~\ref{sec:methods} introduces the empirical methodology. Section~\ref{sec:data} describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
 
 
 # Methodology {#sec-methods}
