@@ -329,7 +329,7 @@ for sheet_name, outcome_list in plot_columns.items():
 
         model = SHC(config)
         result = model.fit()
-        key = f"{sheet_name} - {outcome_var}"
+        key = f"{outcome_var}"
         results[key] = result
 
         att = result.effects.att  # e.g., -0.868
@@ -389,7 +389,7 @@ for i, (key, data_dict) in enumerate(plot_data.items()):
                     lower_ci[valid_mask],
                     upper_ci[valid_mask],
                     color="grey",
-                    alpha=0.7,
+                    alpha=0.25,
                     label="Conformal 90% Prediction Interval"
                 )
 
@@ -398,11 +398,12 @@ for i, (key, data_dict) in enumerate(plot_data.items()):
     att = result.effects.att
     rmse_pre = result.fit_diagnostics.rmse_pre
 
-    ax.set_title(f"{key}: ATT = {att:.3f}, Evaluation RMSE = {rmse_pre:.3f}", fontsize=11)
+    ax.set_title(f"ATT = {att:.3f}, Evaluation RMSE = {rmse_pre:.3f}", fontsize=11)
 
     ax.grid(True, linestyle="--", alpha=0.3)
     ax.legend(fontsize=9)
     ax.set_xlabel("Time")
+    ax.set_ylabel(key, fontsize=10)
 
 # Remove unused axes (if < 4 panels)
 for j in range(i + 1, len(axes)):
