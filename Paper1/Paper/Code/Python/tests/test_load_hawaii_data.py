@@ -1,7 +1,8 @@
 import pytest
 import pandas as pd
 from datetime import datetime
-from .helpers import load_hawaii_data  # Replace with your actual module name
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from helpers import load_hawaii_data
 
 @pytest.fixture(scope="module")
 def hawaii_data():
