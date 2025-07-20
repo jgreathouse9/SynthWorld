@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from datetime import datetime
-from your_module import load_hawaii_data  # Replace with your actual module name
+from .helpers import load_hawaii_data  # Replace with your actual module name
 
 @pytest.fixture(scope="module")
 def hawaii_data():
