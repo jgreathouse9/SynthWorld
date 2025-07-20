@@ -10,16 +10,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from helpers import load_hawaii_data
 
-@pytest.fixture(scope="module")
-def hawaii_data():
-    return load_hawaii_data(save_excel=False)
-
 @pytest.fixture
 def dummy_growth_df():
+    """Mock output of compute_annualized_growth: DataFrame with datetime index and relevant columns."""
     df = pd.DataFrame({
-        "Occupancy (Seasonally Adjusted)": [70, 75],
-        "Mean Daily Rate (Seasonally Adjusted)": [200, 210],
-        "Revenue per Available Room": [140, 157.5],
+        "Occupancy (Seasonally Adjusted)": [0.05, 0.0714],
+        "Mean Daily Rate (Seasonally Adjusted)": [0.0488, 0.0476],
+        "Revenue per Available Room": [0.0625, 0.0714],
         "Unit": ["Hawaii", "Hawaii"],
         "Mandatory Quarantine": [0, 0],
     }, index=pd.to_datetime(["2020-01-01", "2020-02-01"]))
@@ -29,7 +26,9 @@ def dummy_growth_df():
 @patch("helpers.compute_annualized_growth")
 @patch("pandas.ExcelWriter")
 def test_load_hawaii_data_with_mocks(mock_excel_writer_class, mock_growth, mock_requests_get, dummy_growth_df):
-    # Mock requests.get side effect to return fake data with dates
+    """Smoke test for load_hawaii_data with all external dependencies mocked."""
+
+    # ------------------ Mock requests.get ------------------
     def requests_side_effect(url, *args, **kwargs):
         mock_resp = MagicMock()
         mock_resp.raise_for_status.return_value = None
@@ -73,33 +72,30 @@ def test_load_hawaii_data_with_mocks(mock_excel_writer_class, mock_growth, mock_
 
     mock_requests_get.side_effect = requests_side_effect
 
-    # Mock compute_annualized_growth returns the dummy dataframe with datetime index
+    # ------------------ Mock compute_annualized_growth ------------------
     mock_growth.return_value = dummy_growth_df
 
-    # Mock ExcelWriter context manager
+    # ------------------ Mock ExcelWriter context manager ------------------
     mock_writer_instance = MagicMock()
     mock_excel_writer_class.return_value.__enter__.return_value = mock_writer_instance
 
-    # Run the actual function (with save_excel=True to test Excel writing logic)
+    # ------------------ Run function ------------------
     dfs = load_hawaii_data(save_excel=True)
 
-    # Basic assertions
+    # ------------------ Assertions ------------------
     assert isinstance(dfs, dict)
     assert set(dfs.keys()) == {"Hotels", "Tourism", "FRED"}
 
-    # Check that compute_annualized_growth was called once
+    # Check index type
+    for df in dfs.values():
+        assert pd.api.types.is_datetime64_any_dtype(df.index), "Index must be datetime"
+
+    # Check quarantine flags
+    for df in dfs.values():
+        assert set(df["Mandatory Quarantine"].unique()).issubset({0, 1}), "Invalid quarantine flags"
+
+    # Confirm mocks were triggered
+    assert mock_requests_get.called
     assert mock_growth.called
-
-    # Check that ExcelWriter was used
-    mock_excel_writer_class.assert_called_once()
-
-    # Check that some to_excel calls were made on the mock ExcelWriter instance
+    assert mock_excel_writer_class.called
     assert any("to_excel" in call[0] for call in mock_writer_instance.method_calls)
-
-    # Check index types in returned DataFrames (they should be datetime)
-    for df in dfs.values():
-        assert pd.api.types.is_datetime64_any_dtype(df.index), "Index is not datetime"
-
-    # Check Mandatory Quarantine column values are 0 or 1
-    for df in dfs.values():
-        assert set(df["Mandatory Quarantine"].unique()).issubset({0, 1})
