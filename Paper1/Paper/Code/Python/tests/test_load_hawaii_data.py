@@ -98,7 +98,7 @@ def test_load_hawaii_data_with_mocks(mock_excel_writer_class, mock_growth):
     mock_excel_writer_class.return_value.__enter__.return_value = mock_writer_instance
 
     # Run function with save_excel=True to trigger the Excel writing
-    dfs = helpers.load_hawaii_data(save_excel=True)
+    dfs = load_hawaii_data(save_excel=True)
 
     # Check that ExcelWriter was called (you can also check the filename if needed)
     mock_excel_writer_class.assert_called_once()
