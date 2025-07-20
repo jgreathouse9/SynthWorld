@@ -270,6 +270,7 @@ for category, cols in plot_columns.items():
         ax.set_title(col, fontsize=14)
         ax.legend(loc="lower left", fontsize=12)
         ax.grid(True, linestyle="--", alpha=0.4)
+        ax.set_ylim(top=1)
         plot_idx += 1
 
 # Clean up unused plots
