@@ -18,7 +18,7 @@ This paper uses a novel causal time series method to estimate the causal impact 
 
 # Introduction
 
-Many of the most pressing policy questions in economics concern one-time, systemic shocks: What would the United States' economy have looked like absent the revolution? What would have happened to unemployment in Great Britain without Brexit? In such cases, credible untreated units often do not exist, making standard causal inference tools, like difference-in-differences (DiD) and synthetic control (SCM), difficult or impossible to apply.
+Many of the most pressing policy questions in economics concern one-time, systemic shocks: What would the United States' economy have looked like absent the revolution? What would have happened to unemployment in Great Britain without Brexit? In these cases, credible untreated units often do not exist, making standard causal inference tools, like difference-in-differences (DiD) and synthetic control (SCM), difficult or impossible to apply.
 
 This paper takes up one such case: Hawaii’s near-total quarantine in March 2020. While most regions experienced economic contraction from COVID-19 through voluntary distancing, fear, or uneven mandates, Hawaii implemented one of the few deliberate shutdowns in the U.S.: a policy aimed not merely at mitigation of the virus by agreement, but by actively suppressing travel and commerce. On March 26, 2020, the state imposed a 14-day quarantine on all arrivals, effectively sealing its borders. Hawaii’s economic and tourism collapse was thus, in part, an intended consequence. Within a month, a third of the state’s labor force was unemployed \citep{ivanova2020unemployment}.
 
