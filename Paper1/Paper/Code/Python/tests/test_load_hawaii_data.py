@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from unittest.mock import patch, MagicMock
-import helpers
+from helpers import load_hawaii_data
 
 @pytest.fixture(scope="module")
 def hawaii_data():
