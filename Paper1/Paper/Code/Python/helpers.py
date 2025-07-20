@@ -30,6 +30,11 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
         df = pd.DataFrame(s["values"], index=pd.to_datetime(s["dates"]), columns=[s["columns"][0]])
         dfs_hotel.append(df)
     df_hotels = pd.concat(dfs_hotel, axis=1)
+
+    # Ensure datetime index after concat
+    if not pd.api.types.is_datetime64_any_dtype(df_hotels.index):
+        df_hotels.index = pd.to_datetime(df_hotels.index)
+
     df_hotels.rename(columns={
         "VH101sa": "Occupancy (Seasonally Adjusted)",
         "VH102sa": "Mean Daily Rate (Seasonally Adjusted)",
@@ -41,6 +46,7 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
 
     if compute_growth:
         df_hotels = compute_annualized_growth(df_hotels)
+        # Re-assign after growth since index is unchanged
         df_hotels["Mandatory Quarantine"] = (df_hotels.index >= quarantine_start).astype(int)
         df_hotels["Unit"] = "Hawaii"
         df_hotels.dropna(inplace=True)
@@ -58,6 +64,11 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
         df = pd.DataFrame(s["values"], index=pd.to_datetime(s["dates"]), columns=[s["columns"][0]])
         dfs_tourism.append(df)
     df_tourism = pd.concat(dfs_tourism, axis=1)
+
+    # Ensure datetime index after concat
+    if not pd.api.types.is_datetime64_any_dtype(df_tourism.index):
+        df_tourism.index = pd.to_datetime(df_tourism.index)
+
     df_tourism.rename(columns={
         "VV101sa": "Visitor Arrivals (Seasonally Adjusted)",
         "VV102sa": "Visitor Days (Seasonally Adjusted)",
