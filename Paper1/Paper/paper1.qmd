@@ -30,10 +30,12 @@ This paper contributes to the literature on the broader economic consequences of
 
 Methodologically, this is the first paper (aside from \citet{SHC}) to implement the SHC approach in a real-world policy evaluation. This demonstrates the method’s usefulness in settings where traditional synthetic control or DiD estimators fail due to the lack of credible donor units. More broadly, the combination of a novel method and a rare, underexplored policy environment informs the literature on crisis response, the economic consequences of non-pharmaceutical interventions, and the design of policy in high-risk, tourism-dependent regions.
 
-The remainder of the paper is structured as follows. Section 2 introduces the empirical methodology. Section 3 describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
+The remainder of the paper is structured as follows. Section \ref{sec:methods} introduces the empirical methodology. Section 3 describes the data. Section 4 presents the main findings. Section 5 concludes and discusses limitations.
 
 
-\section{Methodology}
+# Methodology {#sec-methods}
+
+
 We know what happened given that Hawaii mandated two-week quarantines. We do not know what would have happened had they not done this. Given its novelty and radical deviation from SCM, this section summarizes the SHC method by \cite{SHC}. For a comprehensive treatment of the method, including the theoretical proofs and asymptotic properties, readers are referred to \cite{SHC}.
 
 \textbf{Notation} Let $\mathbb{R}$ denote the set of real numbers, and let $\|\cdot\|_1$ denote the usual $\ell_1$ vector norm. Throughout, I denote sets using calligraphic letters (e.g., $\mathcal{T}, \mathcal{S}, \mathcal{N}$) for clarity. Scalars are represented using plain lowercase letters (e.g., $h, t, n, m$), and matrices are denoted by bold uppercase letters (e.g., $\mathbf{X}, \mathbf{W}, \mathbf{Y}$). Given a vector $\mathbf{x} = (x_1, x_2, \dots, x_T)^\top \in \mathbb{R}^T$ and an index set $\mathcal{I} \subseteq \{1, \dots, T\}$, I write $\mathbf{x}_{\mathcal{I}} \defeq (x_t)_{t \in \mathcal{I}} \in \mathbb{R}^{|\mathcal{I}|}$ to denote the subvector of $\mathbf{x}$ corresponding to indices in $\mathcal{I}$, preserving their original order.
@@ -212,6 +214,32 @@ which define the conformal confidence band around the counterfactual trajectory.
 This approach allows finite-sample valid coverage under the assumption that the pre- and post-treatment residuals are exchangeable. Intuitively, if the SHC model fits the pre-treatment series well (i.e., residuals are small and centered), then its extrapolations into the post-treatment period are expected to carry similarly bounded uncertainty. In this sense, the residual distribution learned from the evaluation window is used to calibrate uncertainty for the out-of-sample outcomes.
 
 These prediction intervals reflect uncertainty in the estimated counterfactual. Hence, if the observed outcome falls far outside the prediction interval, this is interpreted as evidence of a treatment effect. Unlike traditional confidence intervals around treatment effect estimates (e.g., using standard errors), the conformal intervals here do not assume a data-generating model. I use a default coverage level of $90\%$ (i.e., $\alpha = 0.1$) in all applications.
+
+# Data {#sec-data}
+
+To assess the impact of Hawaii’s COVID-19 border closure on its tourism economy, I use monthly time series outcomes that span different economic margins of Hawaii’s economy. I focus the primary analysis on four outcomes, two from the labor market and two from the tourism sector. All outcomes are transformed to annualized year-over-year (YoY) growth rates to address concerns about persistent trend dynamics. These are computed like
+
+\begin{equation}
+y_t \coloneqq \frac{x_t - x_{t-12}}{x_{t-12}}, \quad \text{for } t \in \mathcal{T},
+\end{equation}
+
+where $x_t$ denotes the raw outcome level at time $t$. This concern was highlighted by \citet{SHC}, who caution against using the SHC estimator with outcomes that have a time trend. In principle, we cannot construct a convex combination for contemporary trends from previous trends. By using the growth rate, this effectively detrends the observed outcomes, focusing on relative changes from the same time in the previous year. With annualized growth rates, the estimated treatment effects can be read directly as percentage point changes in annual growth.
+
+The first two outcomes assess the general economic fallout of Hawaii’s quarantine policy. These span from January 1991 to December 2020 and are obtained from the Federal Reserve Economic Data (FRED). The first is the number of employees in the Leisure and Hospitality sector in Hawaii (series ID: `HILEIHN`). While not a direct measure of tourism demand, employment in leisure and hospitality is highly sensitive to fluctuations in visitor activity and thus allows us to see how businesses responded to the mandated quarantine.
+
+The second is initial unemployment insurance claims in Hawaii (series ID: `HIICLAIMS`), which reflects the volume of new unemployment filings each month. Whereas `HILEIHN` reflects the stock of employed workers in a key sector, initial claims capture short-run flows into unemployment across the broader economy.
+
+The remaining two outcomes are sourced from Hawaii’s Department of Business, Economic Development & Tourism (DBEDT), accessed via their public API. These data also span January 1990 to December 2020 and capture core demand- and supply-side dimensions of the tourism sector. The first is *visitor arrival days*, defined as the total number of visitor-days per month (person-days). This variable serves as a direct proxy for aggregate tourism demand, incorporating both the volume of arrivals and their length of stay. It is particularly well-suited for evaluating the impact of travel restrictions, as it captures the extent to which the policy curtailed inflows of potential consumers.
+
+The second is the *hotel occupancy rate*, defined as the share of hotel rooms sold per night. Occupancy reflects realized demand from inbound travelers and serves as a clean, interpretable indicator of capacity utilization in the tourism sector. It also captures firm-level responses to travel demand shocks, as hotel operators adjust to reduced volume.
+
+The quarantine policy was passed at the end of March 2020. I therefore define the intervention to begin in March 2020, corresponding to time $t = 362$, to reflect the onset of Hawaii’s COVID-19 border closure and mandatory two-week quarantine. Formally, I define:
+
+\begin{equation}
+D_t \coloneqq \mathbf{1}\{t \geq 362\},
+\end{equation}
+
+so that $d_t = 1$ for months following the implementation of the policy, and $d_t = 0$ otherwise. The final pre-treatment observation is thus February 2020, yielding a pre-treatment sample of $T_0 = 361$ months.
 
 
 ```{=latex}
