@@ -282,6 +282,139 @@ plt.show()
 
 ```
 
+Here are the initial econometric results. For these results, $m=119$.
+
+```{python}
+
+#| echo: false
+#| fig-align: center
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from mlsynth import SHC
+import numpy as np
+
+# Load data
+data_path = "Data/HawaiiData.xlsx"
+sheets_to_load = ["Tourism", "Hotels", "FRED"]
+data = {sheet: pd.read_excel(data_path, sheet_name=sheet) for sheet in sheets_to_load}
+
+# Define which columns to model
+plot_columns = {
+    "Tourism": ["Visitor Days (Seasonally Adjusted)"],
+    "Hotels": ["Occupancy (Seasonally Adjusted)"],
+    "FRED": ["Leisure and Hospitality Employment YoY", "Initial Unemployment Claims YoY"]
+}
+
+# SHC results and plot data
+results = {}
+plot_data = {}
+
+# Estimation loop
+for sheet_name, outcome_list in plot_columns.items():
+    df = data[sheet_name].copy()
+
+    for outcome_var in outcome_list:
+        config = {
+            "df": df,
+            "outcome": outcome_var,
+            "treat": "Mandatory Quarantine",
+            "unitid": "Unit",
+            "time": "Date",
+            "display_graphs": False,
+            "save": False,
+            "counterfactual_color": ["red"],
+            "m": 12*7
+        }
+
+        model = SHC(config)
+        result = model.fit()
+        key = f"{sheet_name} - {outcome_var}"
+        results[key] = result
+
+        att = result.effects.att  # e.g., -0.868
+        rmse_pre = result.fit_diagnostics.rmse_pre  # e.g., 0.015
+
+        # Extract observed/counterfactual/time
+        vectors = result.raw_results["Vectors"]
+        observed = vectors["Observed Unit"]
+        counterfactual = vectors["Counterfactual"]
+        time_relative = vectors["Gap"][:, 1]  # Relative time, with 0 = treatment point
+
+        time_labels = result.time_series.time_periods  # e.g. numpy array of Timestamps or strings
+
+        # Get only the last len(observed) values
+        time_labels_for_plot = time_labels[-len(observed):]
+
+        plot_data[key] = {
+            "time": time_relative,
+            "observed": observed,
+            "counterfactual": counterfactual
+        }
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+axes = axes.flatten()
+
+for i, (key, data_dict) in enumerate(plot_data.items()):
+    observed = data_dict["observed"]
+    counterfactual = data_dict["counterfactual"]
+    original_time = data_dict["time"]
+
+    T = len(observed)
+    time = np.arange(1, T + 1)  # 1-based indexing for x-axis
+
+    # Determine treatment time index (where original time == 0)
+    treatment_index = np.where(original_time == 0)[0][0] + 1  # shift to match 1-based indexing
+    time_points_numeric = np.arange(len(observed))
+    ax = axes[i]
+    ax.plot(time_points_numeric, observed, label="Observed", color="black")
+    ax.plot(time_points_numeric, counterfactual, label="Counterfactual", color="blue", linestyle="--")
+    ax.axvline(treatment_index, color="gray", linestyle="--", label="March 2020")
+
+
+    inference = results[key].inference  # however you access your result object
+    if inference and inference.details:
+        full_interval = inference.details.get("full_interval")
+        if full_interval is not None and full_interval.size > 0:
+            # full_interval shape (T, 2) columns: [lower, upper]
+            lower_ci = np.array(full_interval[:, 0])
+            upper_ci = np.array(full_interval[:, 1])
+
+            # Filter out NaNs, only plot valid intervals
+            valid_mask = ~(np.isnan(lower_ci) | np.isnan(upper_ci))
+
+            if np.any(valid_mask):
+                ax.fill_between(
+                    time[valid_mask],
+                    lower_ci[valid_mask],
+                    upper_ci[valid_mask],
+                    color="grey",
+                    alpha=0.7,
+                    label="Conformal 90% Prediction Interval"
+                )
+
+
+    result = results[key]
+    att = result.effects.att
+    rmse_pre = result.fit_diagnostics.rmse_pre
+
+    ax.set_title(f"{key}: ATT = {att:.3f}, Evaluation RMSE = {rmse_pre:.3f}", fontsize=11)
+
+    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.legend(fontsize=9)
+    ax.set_xlabel("Time")
+
+# Remove unused axes (if < 4 panels)
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.tight_layout(h_pad=3)
+plt.show()
+
+
+
+```
+
 
 ```{=latex}
 \bibliography{pl}
