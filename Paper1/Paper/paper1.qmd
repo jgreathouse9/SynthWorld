@@ -245,6 +245,10 @@ d_t \defeq \mathbf{1}\{t \geq 362\},
 
 so that $d_t = 1$ for months following the implementation of the policy, and $d_t = 0$ otherwise. The final pre-treatment observation is thus February 2020, yielding a pre-treatment sample of $T_0 = 361$ months.
 
+\section{Results}
+
+In Figure we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest  precipitously dropped when the mandatory quarantine policy was implemented.
+
 
 ```{=latex}
 \bibliography{pl}
