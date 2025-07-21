@@ -41,15 +41,15 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
         )
         df = pd.read_csv(fred_url)
         df = df.rename(columns={"observation_date": "Date"})
-        df = df.rename(columns={
-            "observation_date": "Date",
-            "HILEIHN": "All Leisure Employment",
-            "HIUR": "Unemployment",
-            "LBSSA15": "LForce Participation",
-            "SMU15000007072100001SA": "Accomodation Employment"
-        })
         df["Date"] = pd.to_datetime(df["Date"])
         df = df[df["Date"] >= start_date]
+        df = df.rename(columns={
+            "observation_date": "Date",
+            "HILEIHN_PC1": "Total Leisure eMP",
+            "HIUR_PC1": "Unemp Rate",
+            "LBSSA15_PC1": "LFP",
+            "SMU15000007072100001SA_PC1": "Accomodation Emp"
+        })
         df = df.set_index("Date")
         df = df.reindex(full_index)
         return df
@@ -105,5 +105,3 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
         print(f"Saved cleaned data to {filename}")
 
     return combined
-
-
