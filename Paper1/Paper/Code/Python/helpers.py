@@ -45,7 +45,7 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
         df = df[df["Date"] >= start_date]
         df = df.rename(columns={
             "observation_date": "Date",
-            "HILEIHN_PC1": "Total Leisure eMP",
+            "HILEIHN_PC1": "Total Leisure Emp",
             "HIUR_PC1": "Unemp Rate",
             "LBSSA15_PC1": "LFP",
             "SMU15000007072100001SA_PC1": "Accommodation Emp",
