@@ -456,7 +456,7 @@ results = {}
 plot_data = {}
 
 # Define placebo treatment date
-placebo_date = pd.to_datetime("2018-03-01")
+placebo_date = pd.to_datetime("2019-03-01")
 cutoff_date = pd.to_datetime("2020-01-01")
 
 # Estimation loop
@@ -479,7 +479,7 @@ for sheet_name, outcome_list in plot_columns.items():
             "display_graphs": False,
             "save": False,
             "counterfactual_color": ["red"],
-            "m": 12*6  # evaluation window
+            "m": 12*5  # evaluation window
         }
 
         model = SHC(config)
@@ -520,7 +520,7 @@ for i, (key, data_dict) in enumerate(plot_data.items()):
     ax = axes[i]
     ax.plot(time_points_numeric, observed, label="Observed", color="black")
     ax.plot(time_points_numeric, counterfactual, label="Counterfactual", color="blue", linestyle="--")
-    ax.axvline(treatment_index, color="gray", linestyle="--", label="Placebo: March 2018")
+    ax.axvline(treatment_index, color="gray", linestyle="--", label="Placebo: March 2019")
 
     inference = results[key].inference
     if inference and inference.details:
