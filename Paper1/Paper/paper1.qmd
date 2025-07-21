@@ -276,7 +276,7 @@ plt.show()
 
 ```
 
-Here are the initial SHC results. For these results, $m=36$ (3 years of evaluation data), but the results remain robust up until 8 years of evaluation data.
+Here are the initial SHC results. For these results, $m=60$ (5 years of evaluation data), but the results remain robust up until 8 years of evaluation data.
 
 ```{python}
 
@@ -374,17 +374,15 @@ plt.show()
 
 ```
 
-The plot reports the ATT and pre-treatment RMSE for each outcome of interest. Between March and December 2020, Hawaii experienced an 86.1 percentage point decline in the annualized growth rate of visitor days, relative to its synthetic historical control. This estimate reflects a near-complete collapse in tourism activity and far exceeds typical year-over-year fluctuations (pre-treatment RMSE = 1.1%).
+Across all four primary outcomes, I find large and precisely estimated negative effects of Hawaii’s border closure.
 
-Hotel occupancy rates declined by 76.7 percentage points in annualized growth, indicating a severe contraction in the hotel sector. Given the relative stability of pre-treatment occupancy rates, this represents a highly atypical deviation, unlikely to be explained by seasonal or cyclical variation.
+Tourism demand was severely impacted. Visitor Days declined by an average of 85.4 percentage points (ATT = –0.854), with the SHC model achieving a tight pre-treatment fit (RMSE = 0.012). Hotel Occupancy dropped by 75.8 percentage points (ATT = –0.758; RMSE = 0.011). These effects represent near-complete collapses in aggregate visitor presence and hotel room utilization, consistent with the near-total shutdown of tourism activity.
 
-Employment in the leisure and hospitality sector fell by 48.5 percentage points in year-over-year growth terms. While labor market indicators are typically more volatile, the pre-treatment RMSE of 0.4% underscores the magnitude of this decline. These job losses were concentrated in a sector that comprises a substantial share of Hawaii’s economy, reinforcing the interpretation of the border closure as an intentional economic suspension.
-
-Initial unemployment claims rose by 762.5 percentage points year-over-year, relative to expected levels. That is, claims were more than eight times higher than would be predicted under the counterfactual. This represents a sudden and extreme labor market shock, and the stability of this ATT across more extended evaluation windows (up to eight years) provides further evidence that the effect is both robust and attributable to the policy.
+Labor market outcomes also show pronounced effects. Accommodation Employment fell by an average of 60.7 percentage points (ATT = –60.691; RMSE = 0.739), while the broader Economic Activity Index dropped by 27.7 percentage points (ATT = –27.706; RMSE = 0.303). These results reflect both the direct impact on tourism-facing sectors and the wider economic slowdown induced by the closure.
 
 Even accounting for finite-sample prediction uncertainty, the observed collapse in tourism is extreme relative to the synthetic historical distribution. The observed values fall far outside of the 90\% conformal prediction intervals, suggesting that the results are far outside of what we'd expect under a no-quarantine scenario.
 
-Next we do in-time placebos. I backdate the treatment to June of 2019, and predict until December 2019.
+Next we do in-time placebos. I backdate the treatment to September of 2019, and predict until February of 2020.
 
 ```{python}
 #| echo: false
@@ -487,11 +485,11 @@ plt.show()
 
 ```
 
-To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of June 2019 and evaluating outcomes through December 2019. Because this window well predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. Across all outcomes, estimated effects are indeed close to zero. For Visitor Days, the ATT is –0.000 with an RMSE of 0.014. Hotel Occupancy shows an ATT of 0.030 and an RMSE of 0.011. For Leisure and Hospitality Employment, the ATT is –1.282 with an RMSE of 0.504. Initial Unemployment Claims yield an ATT of –5.46 and an RMSE of 5.8. 
+To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. 
 
-These placebo estimates support the model’s internal validity. The tourism variables, in particular, show excellent pre-treatment fit and effectively zero estimated impact during the placebo period, as expected. The labor market outcomes, by contrast, exhibit noisier placebo effects and visibly weaker pre-treatment fit. This limitation stems from the fact that the SHC estimator relies on interpolation in principle: it can only construct counterfactuals within the convex hull of past time segments. As such, if the evaluation window lacks similar past dynamics, predictive accuracy may suffer.
+The placebo results are reassuring. Across all four outcomes, the placebo ATTs are small relative to the true post-COVID estimates and comparable in magnitude to their pre-treatment RMSEs. For example, the placebo ATT for Visitor Days is –0.017, with an RMSE of 0.014—two orders of magnitude smaller than the true ATT of –0.854. Similarly, for Hotel Occupancy, the placebo ATT is 0.026 (RMSE = 0.013), compared to the actual treatment effect of –0.758. The labor market outcomes exhibit the same pattern: the placebo ATT for Accommodation Employment is 1.121 (versus –60.691 post-COVID), and for the Economic Activity Index, it is 0.147 (versus –27.706). In all cases, the true treatment effects dwarf any signal that emerges under a false intervention.
 
-Even so, the conformal prediction intervals for this placebo test largely cover the observed outcomes. This suggests that any discrepancies between prediction and the observed values lie within expected model error. Altogether, the results of this falsification test reinforce confidence in the causal interpretation of the main findings.
+These results offer two key takeaways. First, the SHC model does not erroneously detect treatment effects when none exist—it exhibits strong temporal specificity. Second, even in cases where placebo ATTs are slightly nonzero, they fall within normal forecast uncertainty. This is confirmed by the conformal prediction intervals, which entirely cover the observed outcomes during the placebo window. That is, any apparent deviation between predicted and realized values is consistent with random variation under no treatment. These placebo checks strengthen the case for a causal interpretation of the post-March 2020 findings: the observed deviations are not artifacts of overfitting or model instability, but genuine responses to Hawaii’s border closure.
 
 
 ```{=latex}
