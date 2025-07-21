@@ -424,6 +424,8 @@ Employment in the leisure and hospitality sector fell by 48.5 percentage points 
 
 Initial unemployment claims rose by 762.5 percentage points year-over-year, relative to expected levels. That is, claims were more than eight times higher than would be predicted under the counterfactual. This represents a sudden and extreme labor market shock, and the stability of this ATT across more extended evaluation windows (up to eight years) provides further evidence that the effect is both robust and attributable to the policy.
 
+Even accounting for finite-sample prediction uncertainty, the observed collapse in tourism is extreme relative to the synthetic historical distribution. The observed values fall far outside of the 90\% conformal prediction intervals, suggesting that the results are far outside of what we'd expect under a no-quarantine scenario.
+
 
 ```{=latex}
 \bibliography{pl}
