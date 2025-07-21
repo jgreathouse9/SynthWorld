@@ -388,9 +388,6 @@ Next we do in-time placebos. I backdate the treatment to June of 2019, and predi
 #| echo: false
 #| fig-align: center
 
-# Outcomes to estimate
-outcomes = ["Visitor Days", "Occupancy", "Accomodation Emp", "Econ Activity Index"]
-
 # Results container
 results = {}
 plot_data = {}
