@@ -12,7 +12,7 @@ bibliography: pl.bib
 ---
 \vspace*{-4em}
 \begin{abstract}
-This paper estimates the causal impact of Hawaii's March 2020 mandatory quarantine on its tourism industry and labor market using the Synthetic Historical Control method. Analyzing visitor days, hotel occupancy, leisure/hospitality employment, and unemployment claims (all in annualized year-over-year growth rates), the study reveals substantial negative impacts from the quarantine. Observed outcomes fall significantly outside 90\% conformal out-of-sample prediction intervals, indicating a clear treatment effect. Placebo tests further validate the model's internal credibility. This research demonstrates the method's utility and informs the broader debate on economic impacts of anti-COVID policy.
+This paper estimates the causal impact of Hawaii's March 2020 mandatory quarantine on its tourism industry and labor market using the Synthetic Historical Control method. Analyzing visitor days, hotel occupancy, accommodations employment, and the Coincident Economic Activity Index (all in annualized year-over-year growth rates), the study reveals substantial negative impacts from the quarantine. Observed outcomes fall significantly outside 90\% conformal out-of-sample prediction intervals, indicating a clear treatment effect. Placebo tests further validate the model's internal credibility. This research demonstrates the method's utility and informs the broader debate on economic impacts of anti-COVID policy.
 \keywords{Synthetic Controls, Policy Evaluation, COVID-19}
 \end{abstract}
 
@@ -237,7 +237,7 @@ so that $d_t = 1$ for all months after the policy’s implementation and $d_t = 
 
 \section{Results}
 
-In Figure we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest precipitously dropped when the mandatory quarantine policy was implemented (aside from unemployment claims). The plot also suggests that \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} and \hyperref[assump:matching]{Assumption~\ref*{assump:matching}} may be valid.
+In Figure we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest precipitously dropped when the mandatory quarantine policy was implemented (aside from unemployment claims). The plot also suggests that \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} and \hyperref[assump:matching]{Assumption~\ref*{assump:matching}} may be valid. For example, for \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} to be violated, we would need a situation where the outcome had extremely high variance. While we see seasonality across all outcomes, the time series seemed smooth enough to be approximated by pre-treatment observations.
 
 ```{python}
 #| echo: false
@@ -276,7 +276,7 @@ plt.show()
 
 ```
 
-Here are the initial SHC results. For these results, $m=60$ (5 years of evaluation data), but the results remain robust up until 8 years of evaluation data.
+Here are the initial SHC results. For these results, $m=60$ (5 years of evaluation data), but the main results remain robust up until 8 years of evaluation data, with slight deviations in uncertainty.
 
 ```{python}
 
@@ -369,14 +369,9 @@ for j in range(i + 1, len(axes)):
 plt.tight_layout(h_pad=3)
 plt.show()
 
-
-
-
 ```
 
-Across all four primary outcomes, I find large and precisely estimated negative effects of Hawaii’s border closure.
-
-Tourism demand was severely impacted. Visitor Days declined by an average of 85.4 percentage points (ATT = –0.854), with the SHC model achieving a tight pre-treatment fit (RMSE = 0.012). Hotel Occupancy dropped by 75.8 percentage points (ATT = –0.758; RMSE = 0.011). These effects represent near-complete collapses in aggregate visitor presence and hotel room utilization, consistent with the near-total shutdown of tourism activity.
+Across all four primary outcomes, I find large and precisely estimated negative effects of Hawaii’s border closure. Tourism demand was severely impacted. Visitor Days declined by an average of 85.4 percentage points, with the SHC model achieving a tight pre-treatment fit (RMSE = 1.2). Hotel Occupancy dropped by 75.8 percentage points (ATT = –0.758; RMSE = 0.011). These effects represent near-complete collapses in aggregate visitor presence and hotel room utilization, consistent with the near-total shutdown of tourism activity.
 
 Labor market outcomes also show pronounced effects. Accommodation Employment fell by an average of 60.7 percentage points (ATT = –60.691; RMSE = 0.739), while the broader Economic Activity Index dropped by 27.7 percentage points (ATT = –27.706; RMSE = 0.303). These results reflect both the direct impact on tourism-facing sectors and the wider economic slowdown induced by the closure.
 
