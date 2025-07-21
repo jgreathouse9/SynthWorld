@@ -371,13 +371,12 @@ plt.show()
 
 ```
 
-Across all four primary outcomes, I find large and precisely estimated negative effects of Hawaii’s border closure. Tourism demand was severely impacted. Visitor Days declined by an average of 85.4 percentage points, with the SHC model achieving a tight pre-treatment fit (RMSE = 1.2). Hotel Occupancy dropped by 75.8 percentage points (ATT = –0.758; RMSE = 0.011). These effects represent near-complete collapses in aggregate visitor presence and hotel room utilization, consistent with the near-total shutdown of tourism activity.
-
-Labor market outcomes also show pronounced effects. Accommodation Employment fell by an average of 60.7 percentage points (ATT = –60.691; RMSE = 0.739), while the broader Economic Activity Index dropped by 27.7 percentage points (ATT = –27.706; RMSE = 0.303). These results reflect both the direct impact on tourism-facing sectors and the wider economic slowdown induced by the closure.
+Across all four primary outcomes, I find large and precisely estimated negative effects of Hawaii’s border closure. Tourism demand was severely impacted. Visitor Days declined by an average of 85.4 percentage points, with the SHC model achieving a tight pre-treatment fit (RMSE = 1.17). Hotel Occupancy dropped by 75.8 percentage points (RMSE = 1.097). These effects represent near-complete collapses in aggregate visitor presence and hotel room utilization, consistent with the near-total shutdown of tourism activity. Labor market outcomes also show pronounced effects. Accommodation Employment fell by an average of 60.7 percentage points (ATT = –60.691; RMSE = 0.739), while the broader Economic Activity Index dropped by 27.7 percentage points (ATT = –27.706; RMSE = 0.303). These results reflect both the direct impact on tourism-facing sectors and the wider economic slowdown induced by the closure.
 
 Even accounting for finite-sample prediction uncertainty, the observed collapse in tourism is extreme relative to the synthetic historical distribution. The observed values fall far outside of the 90\% conformal prediction intervals, suggesting that the results are far outside of what we'd expect under a no-quarantine scenario.
 
-Next we do in-time placebos. I backdate the treatment to September of 2019, and predict until February of 2020.
+To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. 
+
 
 ```{python}
 #| echo: false
@@ -480,9 +479,7 @@ plt.show()
 
 ```
 
-To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. 
-
-The placebo results are reassuring. Across all four outcomes, the placebo ATTs are small relative to the true post-COVID estimates and comparable in magnitude to their pre-treatment RMSEs. For example, the placebo ATT for Visitor Days is –0.017, with an RMSE of 0.014—two orders of magnitude smaller than the true ATT of –0.854. Similarly, for Hotel Occupancy, the placebo ATT is 0.026 (RMSE = 0.013), compared to the actual treatment effect of –0.758. The labor market outcomes exhibit the same pattern: the placebo ATT for Accommodation Employment is 1.121 (versus –60.691 post-COVID), and for the Economic Activity Index, it is 0.147 (versus –27.706). In all cases, the true treatment effects dwarf any signal that emerges under a false intervention.
+The placebo results are reassuring. Across all four outcomes, the placebo ATTs are small relative to the true post-COVID estimates and comparable in magnitude to their pre-treatment RMSEs. For example, the placebo ATT for Visitor Days is –1.701, with an RMSE of 1.433, which are orders of magnitude smaller than the estimated ATT. Similarly, for Hotel Occupancy, the placebo ATT is 2.645 with a RMSE = 1.312, compared to the estimated treatment effect of 75. The labor market outcomes exhibit the same pattern: the placebo ATT for Accommodation Employment is 1.121 (versus –60.691 post-COVID), and for the Economic Activity Index, it is 0.147 (versus –27.706). In all cases, the true treatment effects dwarf any signal that emerges under a false intervention.
 
 These results offer two key takeaways. First, the SHC model does not erroneously detect treatment effects when none exist—it exhibits strong temporal specificity. Second, even in cases where placebo ATTs are slightly nonzero, they fall within normal forecast uncertainty. This is confirmed by the conformal prediction intervals, which entirely cover the observed outcomes during the placebo window. That is, any apparent deviation between predicted and realized values is consistent with random variation under no treatment. These placebo checks strengthen the case for a causal interpretation of the post-March 2020 findings: the observed deviations are not artifacts of overfitting or model instability, but genuine responses to Hawaii’s border closure.
 
