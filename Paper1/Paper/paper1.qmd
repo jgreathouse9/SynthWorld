@@ -249,6 +249,7 @@ import matplotlib.pyplot as plt
 # Corrected relative path
 df = "Data/HawaiiData.xlsx"
 
+
 # Choose the 4 key variables
 plot_columns = [
     "Occupancy",
@@ -272,7 +273,6 @@ for i, col in enumerate(plot_columns):
 # Clean up layout
 plt.tight_layout(h_pad=4)
 plt.show()
-
 
 ```
 
@@ -370,6 +370,8 @@ plt.tight_layout(h_pad=3)
 plt.show()
 
 
+
+
 ```
 
 The plot reports the ATT and pre-treatment RMSE for each outcome of interest. Between March and December 2020, Hawaii experienced an 86.1 percentage point decline in the annualized growth rate of visitor days, relative to its synthetic historical control. This estimate reflects a near-complete collapse in tourism activity and far exceeds typical year-over-year fluctuations (pre-treatment RMSE = 1.1%).
@@ -387,6 +389,13 @@ Next we do in-time placebos. I backdate the treatment to June of 2019, and predi
 ```{python}
 #| echo: false
 #| fig-align: center
+
+
+# Load cleaned data (from your final function)
+df = pd.read_excel("HawaiiData.xlsx")  # or use load_hawaii_data(...)
+
+# Outcomes to estimate
+outcomes = ["Visitor Days", "Occupancy", "Accommodation Emp", "Econ Activity Index"]
 
 # Results container
 results = {}
@@ -474,6 +483,7 @@ for j in range(i + 1, len(axes)):
 
 plt.tight_layout(h_pad=3)
 plt.show()
+
 
 ```
 
