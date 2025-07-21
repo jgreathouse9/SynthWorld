@@ -48,7 +48,7 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
             "HILEIHN_PC1": "Total Leisure eMP",
             "HIUR_PC1": "Unemp Rate",
             "LBSSA15_PC1": "LFP",
-            "SMU15000007072100001SA_PC1": "Accomodation Emp",
+            "SMU15000007072100001SA_PC1": "Accommodation Emp",
             "HIPHCI_PC1": "Econ Activity Index"
         })
         df = df.set_index("Date")
