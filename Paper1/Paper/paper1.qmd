@@ -293,6 +293,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from mlsynth import SHC
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
+
 
 # Load data
 data_path = "Data/HawaiiData.xlsx"
