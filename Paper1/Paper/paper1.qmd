@@ -247,7 +247,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Corrected relative path
-df = "Data/HawaiiData.xlsx"
+df = pd.read_excel("Data/HawaiiData.xlsx")
 
 
 # Choose the 4 key variables
@@ -290,7 +290,7 @@ warnings.filterwarnings("ignore")
 
 
 # Load data
-df = "Data/HawaiiData.xlsx"
+df = pd.read_excel("Data/HawaiiData.xlsx")
 
 # Outcomes to estimate
 outcomes = ["Visitor Days", "Occupancy", "Accommodation Emp", "Econ Activity Index"]
@@ -392,7 +392,7 @@ Next we do in-time placebos. I backdate the treatment to June of 2019, and predi
 
 
 # Load cleaned data (from your final function)
-df = pd.read_excel("HawaiiData.xlsx")  # or use load_hawaii_data(...)
+df = pd.read_excel("Data/HawaiiData.xlsx")  # or use load_hawaii_data(...)
 
 # Outcomes to estimate
 outcomes = ["Visitor Days", "Occupancy", "Accommodation Emp", "Econ Activity Index"]
