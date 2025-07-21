@@ -282,7 +282,7 @@ plt.show()
 
 ```
 
-Here are the initial SHC results. For these results, $m=48$, but the results remain robust up until 10 years of evaluation period data.
+Here are the initial SHC results. For these results, $m=36$ (3 years of evaluation data), but the results remain robust up until 8 years of evaluation data.
 
 ```{python}
 
@@ -324,7 +324,7 @@ for sheet_name, outcome_list in plot_columns.items():
             "display_graphs": False,
             "save": False,
             "counterfactual_color": ["red"],
-            "m": 12*4
+            "m": 12*3
         }
 
         model = SHC(config)
