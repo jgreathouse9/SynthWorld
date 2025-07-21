@@ -1,6 +1,5 @@
 import requests
 import pandas as pd
-import matplotlib.pyplot as plt
 
 def compute_annualized_growth(df, lag=12):
     numeric_cols = df.select_dtypes(include='number').columns
@@ -15,8 +14,22 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
     urls = {
         "Hotels": "https://api.uhero.hawaii.edu/dvw/series/hotel?i=VH103,VH102sa,VH101sa&c=PVA11&f=M",
         "Tourism": "https://api.uhero.hawaii.edu/dvw/series/trend?i=VV101sa,VV102sa&m=MM102&d=DI10&f=M",
-        "FRED_LHE": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=HILEIHN&cosd=1990-01-01&coed=2020-12-31&fq=Monthly&fam=avg&transformation=pc1",
-        "FRED_UI":  "https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23ebf3fb&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1320&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=HIICLAIMS&scale=left&cosd=1991-01-01&coed=2020-12-31&line_color=%230073e6&link_values=false&line_style=solid&mark_type=none&mw=3&lw=3&ost=-99999&oet=99999&mma=0&fml=a&fq=Monthly&fam=avg&fgst=lin&fgsnd=2020-02-01&line_index=1&transformation=pc1&vintage_date=2025-07-20&revision_date=2025-07-20&nd=1985-04-06"
+        
+        # Combined Monthly FRED variables including Accommodation Employment
+        "FRED_Monthly": (
+            "https://fred.stlouisfed.org/graph/fredgraph.csv?"
+            "id=HILEIHN,HIUR,LBSSA15,HIICLAIMS,SMU15000007072100001SA&"
+            "cosd=1990-01-01&coed=2020-12-31&"
+            "fq=Monthly&fam=avg&transformation=pc1&"
+            "line_index=1,2,3,4,5"
+        ),
+
+        # Quarterly retail earnings data
+        "FRED_Quarterly": (
+            "https://fred.stlouisfed.org/graph/fredgraph.csv?"
+            "id=HIERET&cosd=1998-01-01&coed=2020-12-31&"
+            "fq=Quarterly&fam=avg&transformation=pc1"
+        ),
     }
 
     dfs = {}
@@ -31,7 +44,6 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
         dfs_hotel.append(df)
     df_hotels = pd.concat(dfs_hotel, axis=1)
 
-    # Ensure datetime index after concat
     if not pd.api.types.is_datetime64_any_dtype(df_hotels.index):
         df_hotels.index = pd.to_datetime(df_hotels.index)
 
@@ -46,7 +58,6 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
 
     if compute_growth:
         df_hotels = compute_annualized_growth(df_hotels)
-        # Re-assign after growth since index is unchanged
         df_hotels["Mandatory Quarantine"] = (df_hotels.index >= quarantine_start).astype(int)
         df_hotels["Unit"] = "Hawaii"
         df_hotels.dropna(inplace=True)
@@ -65,7 +76,6 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
         dfs_tourism.append(df)
     df_tourism = pd.concat(dfs_tourism, axis=1)
 
-    # Ensure datetime index after concat
     if not pd.api.types.is_datetime64_any_dtype(df_tourism.index):
         df_tourism.index = pd.to_datetime(df_tourism.index)
 
@@ -87,25 +97,34 @@ def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growt
     df_tourism.rename(columns={"index": "Date"}, inplace=True)
     dfs["Tourism"] = df_tourism
 
-    # --- Load and merge FRED data ---
-    df_lhe = pd.read_csv(urls["FRED_LHE"])
-    df_lhe.columns = ["Date", "Leisure and Hospitality Employment YoY"]
-    df_lhe["Date"] = pd.to_datetime(df_lhe["Date"])
+    # --- Load Monthly FRED combined data ---
+    df_fred_monthly = pd.read_csv(urls["FRED_Monthly"])
+    df_fred_monthly.columns = [
+        "Date",
+        "Leisure and Hospitality Employment YoY",
+        "Unemployment Rate YoY",
+        "Labor Force Participation YoY (Hawaii)",
+        "Initial Unemployment Claims YoY",
+        "Accommodation Employment YoY"
+    ]
+    df_fred_monthly["Date"] = pd.to_datetime(df_fred_monthly["Date"])
+    df_fred_monthly = df_fred_monthly[df_fred_monthly["Date"] < cutoff_date].copy()
+    df_fred_monthly.sort_values("Date", inplace=True)
+    df_fred_monthly["Unit"] = "Hawaii"
+    df_fred_monthly["Mandatory Quarantine"] = (df_fred_monthly["Date"] >= quarantine_start).astype(int)
+    df_fred_monthly.dropna(inplace=True)
+    dfs["FRED_Monthly"] = df_fred_monthly
 
-    df_ui = pd.read_csv(urls["FRED_UI"])
-    df_ui.columns = ["Date", "Initial Unemployment Claims YoY"]
-    df_ui["Date"] = pd.to_datetime(df_ui["Date"])
-
-    df_fred = pd.merge(df_lhe, df_ui, on="Date", how="outer")
-    df_fred = df_fred[df_fred["Date"] < cutoff_date].copy()
-    df_fred.sort_values("Date", inplace=True)
-    df_fred.set_index("Date", inplace=True)
-    df_fred["Unit"] = "Hawaii"
-    df_fred["Mandatory Quarantine"] = (df_fred.index >= quarantine_start).astype(int)
-    df_fred.dropna(inplace=True)
-    df_fred.reset_index(inplace=True)
-
-    dfs["FRED"] = df_fred
+    # --- Load Quarterly FRED data (Retail Earnings) ---
+    df_fred_quarterly = pd.read_csv(urls["FRED_Quarterly"])
+    df_fred_quarterly.columns = ["Date", "Retail Earnings YoY"]
+    df_fred_quarterly["Date"] = pd.to_datetime(df_fred_quarterly["Date"])
+    df_fred_quarterly = df_fred_quarterly[df_fred_quarterly["Date"] < cutoff_date].copy()
+    df_fred_quarterly.sort_values("Date", inplace=True)
+    df_fred_quarterly["Unit"] = "Hawaii"
+    df_fred_quarterly["Mandatory Quarantine"] = (df_fred_quarterly["Date"] >= quarantine_start).astype(int)
+    df_fred_quarterly.dropna(inplace=True)
+    dfs["FRED_Quarterly"] = df_fred_quarterly
 
     if save_excel:
         with pd.ExcelWriter(filename) as writer:
