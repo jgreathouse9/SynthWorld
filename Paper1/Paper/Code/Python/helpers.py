@@ -28,7 +28,7 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
     def compute_annualized_growth(df, lag=12):
         numeric_cols = df.select_dtypes(include='number').columns
         growth_df = df.copy()
-        growth_df[numeric_cols] = (df[numeric_cols] / df[numeric_cols].shift(lag)) - 1
+        growth_df[numeric_cols] = ((df[numeric_cols] / df[numeric_cols].shift(lag)) - 1)*100
         return growth_df
 
     # --- FRED data (simplified) ---
@@ -63,9 +63,6 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
         dfs = []
         for s in data["data"]["series"]:
             df = pd.DataFrame(s["values"], index=pd.to_datetime(s["dates"]), columns=[s["columns"][0]])
-            # If this is a variable in visitor days, scale *before* computing growth
-            if s["columns"][0] in ["VV102sa"]:  # or use a more flexible mapping
-                df /= 1_000_000  # convert to millions of visitor days
             if compute_growth:
                 df = compute_annualized_growth(df)
             dfs.append(df)
