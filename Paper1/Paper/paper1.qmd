@@ -426,7 +426,7 @@ Initial unemployment claims rose by 762.5 percentage points year-over-year, rela
 
 Even accounting for finite-sample prediction uncertainty, the observed collapse in tourism is extreme relative to the synthetic historical distribution. The observed values fall far outside of the 90\% conformal prediction intervals, suggesting that the results are far outside of what we'd expect under a no-quarantine scenario.
 
-Next we do in-time placebos.
+Next we do in-time placebos. I backdate the treatment to June of 2019, and predict until December 2019.
 
 ```{python}
 #| echo: false
@@ -559,7 +559,11 @@ plt.show()
 
 ```
 
-Here are the results.
+To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of June 2019 and evaluating outcomes through December 2019. Because this window well predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. Across all outcomes, estimated effects are indeed close to zero. For Visitor Days, the ATT is –0.000 with an RMSE of 0.014. Hotel Occupancy shows an ATT of 0.030 and an RMSE of 0.011. For Leisure and Hospitality Employment, the ATT is –1.282 with an RMSE of 0.504. Initial Unemployment Claims yield an ATT of –5.46 and an RMSE of 5.8. 
+
+These placebo estimates support the model’s internal validity. The tourism variables, in particular, show excellent pre-treatment fit and effectively zero estimated impact during the placebo period, as expected. The labor market outcomes, by contrast, exhibit noisier placebo effects and visibly weaker pre-treatment fit. This limitation stems from the fact that the SHC estimator relies on interpolation in principle: it can only construct counterfactuals within the convex hull of past time segments. As such, if the evaluation window lacks similar past dynamics, predictive accuracy may suffer.
+
+Even so, the conformal prediction intervals for this placebo test largely cover the observed outcomes. This suggests that any discrepancies between prediction and the observed values lie within expected model error. Altogether, the results of this falsification test reinforce confidence in the causal interpretation of the main findings.
 
 
 ```{=latex}
