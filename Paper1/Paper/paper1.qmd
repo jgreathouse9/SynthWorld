@@ -416,7 +416,14 @@ plt.tight_layout(h_pad=3)
 plt.show()
 ```
 
-The plot lists the ATT and RMSE for the outcome of interest.
+The plot reports the ATT and pre-treatment RMSE for each outcome of interest. Between March and December 2020, Hawaii experienced an 86.1 percentage point decline in the annualized growth rate of visitor days, relative to its synthetic historical control. This estimate reflects a near-complete collapse in tourism activity and far exceeds typical year-over-year fluctuations (pre-treatment RMSE = 1.1%).
+
+Hotel occupancy rates declined by 76.7 percentage points in annualized growth, indicating a severe contraction in the hotel sector. Given the relative stability of pre-treatment occupancy rates, this represents a highly atypical deviation, unlikely to be explained by seasonal or cyclical variation.
+
+Employment in the leisure and hospitality sector fell by 48.5 percentage points in year-over-year growth terms. While labor market indicators are typically more volatile, the pre-treatment RMSE of 0.4% underscores the magnitude of this decline. These job losses were concentrated in a sector that comprises a substantial share of Hawaii’s economy, reinforcing the interpretation of the border closure as an intentional economic suspension.
+
+Initial unemployment claims rose by 762.5 percentage points year-over-year, relative to expected levels. That is, claims were more than eight times higher than would be predicted under the counterfactual. This represents a sudden and extreme labor market shock, and the stability of this ATT across more extended evaluation windows (up to eight years) provides further evidence that the effect is both robust and attributable to the policy.
+
 
 ```{=latex}
 \bibliography{pl}
