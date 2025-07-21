@@ -1,134 +1,108 @@
 import requests
 import pandas as pd
+import zipfile
+import io
 
-def compute_annualized_growth(df, lag=12):
-    numeric_cols = df.select_dtypes(include='number').columns
-    growth_df = df.copy()
-    growth_df[numeric_cols] = (df[numeric_cols] / df[numeric_cols].shift(lag)) - 1
-    return growth_df
+def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_data.xlsx") -> pd.DataFrame:
+    """
+    Returns a wide-format DataFrame with 360 rows (one per month from 1991-01 to 2020-12)
+    and 9 outcome variables (2 tourism + 3 hotel + 4 FRED), plus Unit, Date, and Mandatory Quarantine.
 
-def load_hawaii_data(save_excel=True, filename="hawaii_data.xlsx", compute_growth=True):
+    Parameters
+    ----------
+    compute_growth : bool
+        Whether to compute 12-month annualized growth rates for UHERO data.
+    save_excel : bool
+        Whether to save the resulting dataset to Excel.
+    filename : str
+        Path to Excel file (if saving).
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame with shape (360, 12) containing outcomes and metadata.
+    """
     quarantine_start = pd.Timestamp("2020-03-01")
-    cutoff_date = pd.Timestamp("2021-01-01")
+    start_date = pd.Timestamp("1991-01-01")
+    end_date = pd.Timestamp("2020-12-01")
+    full_index = pd.date_range(start=start_date, end=end_date, freq='MS')
 
-    urls = {
-        "Hotels": "https://api.uhero.hawaii.edu/dvw/series/hotel?i=VH103,VH102sa,VH101sa&c=PVA11&f=M",
-        "Tourism": "https://api.uhero.hawaii.edu/dvw/series/trend?i=VV101sa,VV102sa&m=MM102&d=DI10&f=M",
-        
-        # Combined Monthly FRED variables including Accommodation Employment
-        "FRED_Monthly": (
-            "https://fred.stlouisfed.org/graph/fredgraph.csv?"
-            "id=HILEIHN,HIUR,LBSSA15,HIICLAIMS,SMU15000007072100001SA&"
-            "cosd=1990-01-01&coed=2020-12-31&"
-            "fq=Monthly&fam=avg&transformation=pc1&"
-            "line_index=1,2,3,4,5"
-        ),
+    def compute_annualized_growth(df, lag=12):
+        numeric_cols = df.select_dtypes(include='number').columns
+        growth_df = df.copy()
+        growth_df[numeric_cols] = (df[numeric_cols] / df[numeric_cols].shift(lag)) - 1
+        return growth_df
 
-        # Quarterly retail earnings data
-        "FRED_Quarterly": (
+    # --- FRED data ---
+    def load_fred():
+        url = (
             "https://fred.stlouisfed.org/graph/fredgraph.csv?"
-            "id=HIERET&cosd=1998-01-01&coed=2020-12-31&"
-            "fq=Quarterly&fam=avg&transformation=pc1"
-        ),
+            "id=HILEIHN,HIUR,LBSSA15,HIICLAIMS"
+            "&cosd=1989-01-01&coed=2020-12-31"
+            "&fq=Monthly&fam=avg&transformation=pc1&line_index=1,2,3,4"
+        )
+        response = requests.get(url)
+        response.raise_for_status()
+        with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+            with z.open('monthly.csv') as f:
+                df = pd.read_csv(f)
+
+        df.columns = [col.replace('_PC1', '') for col in df.columns]
+        df = df.rename(columns={'observation_date': 'Date'})
+        df['Date'] = pd.to_datetime(df['Date'])
+        df = df[df['Date'] >= pd.Timestamp('1991-01-01')]
+        df = df.set_index('Date')
+        df = df.reindex(full_index)
+        return df
+
+    # --- UHERO data (tourism or hotels) ---
+    def load_uhero_json(url: str, rename_dict: dict) -> pd.DataFrame:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        dfs = []
+        for s in data["data"]["series"]:
+            df = pd.DataFrame(s["values"], index=pd.to_datetime(s["dates"]), columns=[s["columns"][0]])
+            dfs.append(compute_annualized_growth(df))
+        df = pd.concat(dfs, axis=1)
+        df.rename(columns=rename_dict, inplace=True)
+        df = df.reindex(full_index)
+        return df
+
+    # Load everything
+    tourism_rename = {
+        "VV101sa": "Visitor Arrivals", #  (Seasonally Adjusted)
+        "VV102sa": "Visitor Days" #  (Seasonally Adjusted)
     }
-
-    dfs = {}
-
-    # --- Load Hotels data ---
-    response_hotel = requests.get(urls["Hotels"])
-    response_hotel.raise_for_status()
-    data_hotel = response_hotel.json()
-    dfs_hotel = []
-    for s in data_hotel["data"]["series"]:
-        df = pd.DataFrame(s["values"], index=pd.to_datetime(s["dates"]), columns=[s["columns"][0]])
-        dfs_hotel.append(df)
-    df_hotels = pd.concat(dfs_hotel, axis=1)
-
-    if not pd.api.types.is_datetime64_any_dtype(df_hotels.index):
-        df_hotels.index = pd.to_datetime(df_hotels.index)
-
-    df_hotels.rename(columns={
-        "VH101sa": "Occupancy (Seasonally Adjusted)",
-        "VH102sa": "Mean Daily Rate (Seasonally Adjusted)",
+    hotel_rename = {
+        "VH101sa": "Occupancy", # (Seasonally Adjusted)
+        "VH102sa": "Mean Daily Rate", #  (Seasonally Adjusted)
         "VH103": "Revenue per Available Room"
-    }, inplace=True)
-    df_hotels = df_hotels.loc[df_hotels.index < cutoff_date].copy()
-    df_hotels["Unit"] = "Hawaii"
-    df_hotels["Mandatory Quarantine"] = (df_hotels.index >= quarantine_start).astype(int)
+    }
+    tourism_url = "https://api.uhero.hawaii.edu/dvw/series/trend?i=VV101sa,VV102sa&m=MM102&d=DI10&f=M"
+    hotel_url = "https://api.uhero.hawaii.edu/dvw/series/hotel?i=VH103,VH102sa,VH101sa&c=PVA11&f=M"
 
-    if compute_growth:
-        df_hotels = compute_annualized_growth(df_hotels)
-        df_hotels["Mandatory Quarantine"] = (df_hotels.index >= quarantine_start).astype(int)
-        df_hotels["Unit"] = "Hawaii"
-        df_hotels.dropna(inplace=True)
+    tourism_df, hotel_df = load_uhero_json(tourism_url, tourism_rename), load_uhero_json(hotel_url, hotel_rename)
+    fred_df = load_fred()
 
-    df_hotels.reset_index(inplace=True)
-    df_hotels.rename(columns={"index": "Date"}, inplace=True)
-    dfs["Hotels"] = df_hotels
+    # Combine all outcomes
+    combined = pd.concat([tourism_df, hotel_df, fred_df], axis=1)
 
-    # --- Load Tourism data ---
-    response_tourism = requests.get(urls["Tourism"])
-    response_tourism.raise_for_status()
-    data_tourism = response_tourism.json()
-    dfs_tourism = []
-    for s in data_tourism["data"]["series"]:
-        df = pd.DataFrame(s["values"], index=pd.to_datetime(s["dates"]), columns=[s["columns"][0]])
-        dfs_tourism.append(df)
-    df_tourism = pd.concat(dfs_tourism, axis=1)
+    # Final structure
+    combined = combined.loc[full_index].copy()
+    combined.reset_index(inplace=True)
+    combined.rename(columns={'index': 'Date'}, inplace=True)
+    combined['Unit'] = "Hawaii"
+    combined['Mandatory Quarantine'] = (combined['Date'] >= quarantine_start).astype(int)
 
-    if not pd.api.types.is_datetime64_any_dtype(df_tourism.index):
-        df_tourism.index = pd.to_datetime(df_tourism.index)
+    # Drop rows with any NA (e.g., due to lag)
+    combined.dropna(inplace=True)
 
-    df_tourism.rename(columns={
-        "VV101sa": "Visitor Arrivals (Seasonally Adjusted)",
-        "VV102sa": "Visitor Days (Seasonally Adjusted)",
-    }, inplace=True)
-    df_tourism = df_tourism.loc[df_tourism.index < cutoff_date].copy()
-    df_tourism["Unit"] = "Hawaii"
-    df_tourism["Mandatory Quarantine"] = (df_tourism.index >= quarantine_start).astype(int)
-
-    if compute_growth:
-        df_tourism = compute_annualized_growth(df_tourism)
-        df_tourism["Mandatory Quarantine"] = (df_tourism.index >= quarantine_start).astype(int)
-        df_tourism["Unit"] = "Hawaii"
-        df_tourism.dropna(inplace=True)
-
-    df_tourism.reset_index(inplace=True)
-    df_tourism.rename(columns={"index": "Date"}, inplace=True)
-    dfs["Tourism"] = df_tourism
-
-    # --- Load Monthly FRED combined data ---
-    df_fred_monthly = pd.read_csv(urls["FRED_Monthly"])
-    df_fred_monthly.columns = [
-        "Date",
-        "Leisure and Hospitality Employment YoY",
-        "Unemployment Rate YoY",
-        "Labor Force Participation YoY (Hawaii)",
-        "Initial Unemployment Claims YoY",
-        "Accommodation Employment YoY"
-    ]
-    df_fred_monthly["Date"] = pd.to_datetime(df_fred_monthly["Date"])
-    df_fred_monthly = df_fred_monthly[df_fred_monthly["Date"] < cutoff_date].copy()
-    df_fred_monthly.sort_values("Date", inplace=True)
-    df_fred_monthly["Unit"] = "Hawaii"
-    df_fred_monthly["Mandatory Quarantine"] = (df_fred_monthly["Date"] >= quarantine_start).astype(int)
-    df_fred_monthly.dropna(inplace=True)
-    dfs["FRED_Monthly"] = df_fred_monthly
-
-    # --- Load Quarterly FRED data (Retail Earnings) ---
-    df_fred_quarterly = pd.read_csv(urls["FRED_Quarterly"])
-    df_fred_quarterly.columns = ["Date", "Retail Earnings YoY"]
-    df_fred_quarterly["Date"] = pd.to_datetime(df_fred_quarterly["Date"])
-    df_fred_quarterly = df_fred_quarterly[df_fred_quarterly["Date"] < cutoff_date].copy()
-    df_fred_quarterly.sort_values("Date", inplace=True)
-    df_fred_quarterly["Unit"] = "Hawaii"
-    df_fred_quarterly["Mandatory Quarantine"] = (df_fred_quarterly["Date"] >= quarantine_start).astype(int)
-    df_fred_quarterly.dropna(inplace=True)
-    dfs["FRED_Quarterly"] = df_fred_quarterly
+    # Reorder columns
+    columns = ['Date'] + [col for col in combined.columns if col not in {'Date', 'Unit', 'Mandatory Quarantine'}] + ['Unit', 'Mandatory Quarantine']
+    combined = combined[columns]
 
     if save_excel:
-        with pd.ExcelWriter(filename) as writer:
-            for sheet, df in dfs.items():
-                df.to_excel(writer, sheet_name=sheet, index=False)
+        combined.to_excel(filename, index=False)
 
-    return dfs
+    return combined
