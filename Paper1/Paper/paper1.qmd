@@ -247,36 +247,30 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Corrected relative path
-data_path = "Data/HawaiiData.xlsx"
-sheets_to_load = ["Tourism", "Hotels", "FRED"]
-data = {sheet: pd.read_excel(data_path, sheet_name=sheet) for sheet in sheets_to_load}
+df = "Data/HawaiiData.xlsx"
 
-# Plot config
-plot_columns = {
-    "Tourism": ["Visitor Days (Seasonally Adjusted)"],
-    "Hotels": ["Occupancy (Seasonally Adjusted)"],
-    "FRED": ["Leisure and Hospitality Employment YoY", "Initial Unemployment Claims YoY"]
-}
+# Choose the 4 key variables
+plot_columns = [
+    "Occupancy",
+    "Visitor Days",
+    "Accommodation Emp",  # or "Accommodation Emp" if you fixed spelling
+    "Econ Activity Index"
+]
 
-fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+# Set up 2x2 plot
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 axes = axes.flatten()
-plot_idx = 0
-for category, cols in plot_columns.items():
-    df = data[category]
-    for col in cols:
-        ax = axes[plot_idx]
-        ax.plot(df["Date"], df[col], color="black")
-        ax.axvline(pd.to_datetime("2020-03-01"), color="red", linestyle="--", label="Mandatory Quarantine")
-        ax.set_title(col, fontsize=14)
-        ax.legend(loc="lower left", fontsize=13)
-        ax.grid(True, linestyle="-", alpha=0.3)
-        plot_idx += 1
 
-# Clean up unused plots
-for i in range(plot_idx, len(axes)):
-    fig.delaxes(axes[i])
+for i, col in enumerate(plot_columns):
+    ax = axes[i]
+    ax.plot(df["Date"], df[col], color="black")
+    ax.axvline(pd.to_datetime("2020-03-01"), color="red", linestyle="--", label="Mandatory Quarantine")
+    ax.set_ylabel(col, fontsize=13)
+    ax.legend(loc="lower left", fontsize=12)
+    ax.grid(True, linestyle="-", alpha=0.3)
 
-plt.tight_layout(h_pad=5)
+# Clean up layout
+plt.tight_layout(h_pad=4)
 plt.show()
 
 
@@ -289,8 +283,6 @@ Here are the initial SHC results. For these results, $m=36$ (3 years of evaluati
 #| echo: false
 #| fig-align: center
 
-import pandas as pd
-import matplotlib.pyplot as plt
 from mlsynth import SHC
 import numpy as np
 import warnings
@@ -298,122 +290,86 @@ warnings.filterwarnings("ignore")
 
 
 # Load data
-data_path = "Data/HawaiiData.xlsx"
-sheets_to_load = ["Tourism", "Hotels", "FRED"]
-data = {sheet: pd.read_excel(data_path, sheet_name=sheet) for sheet in sheets_to_load}
+df = "Data/HawaiiData.xlsx"
 
-# Define which columns to model
-plot_columns = {
-    "Tourism": ["Visitor Days (Seasonally Adjusted)"],
-    "Hotels": ["Occupancy (Seasonally Adjusted)"],
-    "FRED": ["Leisure and Hospitality Employment YoY", "Initial Unemployment Claims YoY"]
-}
+# Outcomes to estimate
+outcomes = ["Visitor Days", "Occupancy", "Accommodation Emp", "Econ Activity Index"]
 
-# SHC results and plot data
+# Results container
 results = {}
 plot_data = {}
 
-# Estimation loop
-for sheet_name, outcome_list in plot_columns.items():
-    df = data[sheet_name].copy()
+# Run SHC for each outcome
+for outcome in outcomes:
+    config = {
+        "df": df,
+        "outcome": outcome,
+        "treat": "Mandatory Quarantine",
+        "unitid": "Unit",
+        "time": "Date",
+        "display_graphs": False,
+        "save": False,
+        "counterfactual_color": ["red"],
+        "m": 12*5
+    }
 
-    for outcome_var in outcome_list:
-        config = {
-            "df": df,
-            "outcome": outcome_var,
-            "treat": "Mandatory Quarantine",
-            "unitid": "Unit",
-            "time": "Date",
-            "display_graphs": False,
-            "save": False,
-            "counterfactual_color": ["red"],
-            "m": 12*3
-        }
+    model = SHC(config)
+    result = model.fit()
+    results[outcome] = result
 
-        model = SHC(config)
-        result = model.fit()
-        key = f"{outcome_var}"
-        results[key] = result
+    # Extract vectors
+    vectors = result.raw_results["Vectors"]
+    observed = vectors["Observed Unit"]
+    counterfactual = vectors["Counterfactual"]
+    gap = vectors["Gap"][:, 1]
 
-        att = result.effects.att  # e.g., -0.868
-        rmse_pre = result.fit_diagnostics.rmse_pre  # e.g., 0.015
+    plot_data[outcome] = {
+        "time": gap,
+        "observed": observed,
+        "counterfactual": counterfactual
+    }
 
-        # Extract observed/counterfactual/time
-        vectors = result.raw_results["Vectors"]
-        observed = vectors["Observed Unit"]
-        counterfactual = vectors["Counterfactual"]
-        time_relative = vectors["Gap"][:, 1]  # Relative time, with 0 = treatment point
-
-        time_labels = result.time_series.time_periods  # e.g. numpy array of Timestamps or strings
-
-        # Get only the last len(observed) values
-        time_labels_for_plot = time_labels[-len(observed):]
-
-        plot_data[key] = {
-            "time": time_relative,
-            "observed": observed,
-            "counterfactual": counterfactual
-        }
-
+# Plotting
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 axes = axes.flatten()
 
-for i, (key, data_dict) in enumerate(plot_data.items()):
-    observed = data_dict["observed"]
-    counterfactual = data_dict["counterfactual"]
-    original_time = data_dict["time"]
-
-    T = len(observed)
-    time = np.arange(1, T + 1)  # 1-based indexing for x-axis
-
-    # Determine treatment time index (where original time == 0)
-    treatment_index = np.where(original_time == 0)[0][0] + 1  # shift to match 1-based indexing
-    time_points_numeric = np.arange(len(observed))
+for i, (outcome, data_dict) in enumerate(plot_data.items()):
     ax = axes[i]
-    ax.plot(time_points_numeric, observed, label="Observed", color="black")
-    ax.plot(time_points_numeric, counterfactual, label="Counterfactual", color="blue", linestyle="--")
+    time = np.arange(len(data_dict["observed"]))
+    treatment_index = np.where(data_dict["time"] == 0)[0][0]
+
+    ax.plot(time, data_dict["observed"], label="Observed", color="black")
+    ax.plot(time, data_dict["counterfactual"], label="Counterfactual", color="blue", linestyle="--")
     ax.axvline(treatment_index, color="gray", linestyle="--", label="March 2020")
 
-
-    inference = results[key].inference  # however you access your result object
+    # Add prediction interval if available
+    inference = results[outcome].inference
     if inference and inference.details:
-        full_interval = inference.details.get("full_interval")
-        if full_interval is not None and full_interval.size > 0:
-            # full_interval shape (T, 2) columns: [lower, upper]
-            lower_ci = np.array(full_interval[:, 0])
-            upper_ci = np.array(full_interval[:, 1])
+        interval = inference.details.get("full_interval")
+        if interval is not None and interval.size > 0:
+            lower, upper = interval[:, 0], interval[:, 1]
+            valid = ~(np.isnan(lower) | np.isnan(upper))
+            if np.any(valid):
+                ax.fill_between(time[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
+                                label="Conformal 90% Interval")
 
-            # Filter out NaNs, only plot valid intervals
-            valid_mask = ~(np.isnan(lower_ci) | np.isnan(upper_ci))
-
-            if np.any(valid_mask):
-                ax.fill_between(
-                    time[valid_mask],
-                    lower_ci[valid_mask],
-                    upper_ci[valid_mask],
-                    color="grey",
-                    alpha=0.25,
-                    label="Conformal 90% Prediction Interval"
-                )
-
-
-    result = results[key]
-    att = result.effects.att
-    rmse_pre = result.fit_diagnostics.rmse_pre
-
-    ax.set_title(f"ATT = {att:.3f}, Evaluation RMSE = {rmse_pre:.3f}", fontsize=11)
-
-    ax.grid(True, linestyle="--", alpha=0.3)
-    ax.legend(fontsize=9)
+    # Title and labels
+    att = results[outcome].effects.att
+    rmse = results[outcome].fit_diagnostics.rmse_pre
+    ax.set_title(f"ATT = {att:.3f}, RMSE = {rmse:.3f}", fontsize=11)
+    ax.set_ylabel(outcome, fontsize=11)
     ax.set_xlabel("Time")
-    ax.set_ylabel(key, fontsize=10)
+    ax.legend(fontsize=9)
+    ax.grid(True, linestyle="--", alpha=0.3)
 
-# Remove unused axes (if < 4 panels)
+# Remove any unused axes
 for j in range(i + 1, len(axes)):
     fig.delaxes(axes[j])
 
 plt.tight_layout(h_pad=3)
 plt.show()
+
+
 ```
 
 The plot reports the ATT and pre-treatment RMSE for each outcome of interest. Between March and December 2020, Hawaii experienced an 86.1 percentage point decline in the annualized growth rate of visitor days, relative to its synthetic historical control. This estimate reflects a near-complete collapse in tourism activity and far exceeds typical year-over-year fluctuations (pre-treatment RMSE = 1.1%).
@@ -432,125 +388,90 @@ Next we do in-time placebos. I backdate the treatment to June of 2019, and predi
 #| echo: false
 #| fig-align: center
 
-import pandas as pd
-import matplotlib.pyplot as plt
-from mlsynth import SHC
-import numpy as np
-import warnings
-warnings.filterwarnings("ignore")
+# Outcomes to estimate
+outcomes = ["Visitor Days", "Occupancy", "Accomodation Emp", "Econ Activity Index"]
 
-# Load data
-data_path = "Data/HawaiiData.xlsx"
-sheets_to_load = ["Tourism", "Hotels", "FRED"]
-data = {sheet: pd.read_excel(data_path, sheet_name=sheet) for sheet in sheets_to_load}
-
-# Define which columns to model
-plot_columns = {
-    "Tourism": ["Visitor Days (Seasonally Adjusted)"],
-    "Hotels": ["Occupancy (Seasonally Adjusted)"],
-    "FRED": ["Leisure and Hospitality Employment YoY", "Initial Unemployment Claims YoY"]
-}
-
-# SHC results and plot data
+# Results container
 results = {}
 plot_data = {}
 
 # Define placebo treatment date
-placebo_date = pd.to_datetime("2019-06-01")
-cutoff_date = pd.to_datetime("2020-01-01")
+placebo_date = pd.to_datetime("2019-09-01")
+cutoff_date = pd.to_datetime("2020-02-01")
 
-# Estimation loop
-for sheet_name, outcome_list in plot_columns.items():
-    df = data[sheet_name].copy()
+
+# Run SHC for each outcome
+for outcome in outcomes:
+    dfpla = df.copy()
 
     # Create placebo treatment indicator
-    df["Placebo_Treatment"] = np.where(df["Date"] >= placebo_date, 1, 0)
+    dfpla["Placebo"] = np.where(dfpla["Date"] >= placebo_date, 1, 0)
 
     # Restrict to data before COVID
-    df = df[df["Date"] < cutoff_date].copy()
+    dfpla = dfpla[dfpla["Date"] < cutoff_date].copy()
 
-    for outcome_var in outcome_list:
-        config = {
-            "df": df,
-            "outcome": outcome_var,
-            "treat": "Placebo_Treatment",
-            "unitid": "Unit",
-            "time": "Date",
-            "display_graphs": False,
-            "save": False,
-            "counterfactual_color": ["red"],
-            "m": 12*5  # evaluation window
-        }
+    config = {
+        "df": dfpla,
+        "outcome": outcome,
+        "treat": "Placebo",
+        "unitid": "Unit",
+        "time": "Date",
+        "display_graphs": False,
+        "save": False,
+        "counterfactual_color": ["red"],
+        "m": 12*5
+    }
 
-        model = SHC(config)
-        result = model.fit()
-        key = f"{outcome_var}"
-        results[key] = result
+    model = SHC(config)
+    result = model.fit()
+    results[outcome] = result
 
-        # Extract observed/counterfactual/time
-        vectors = result.raw_results["Vectors"]
-        observed = vectors["Observed Unit"]
-        counterfactual = vectors["Counterfactual"]
-        time_relative = vectors["Gap"][:, 1]
+    # Extract vectors
+    vectors = result.raw_results["Vectors"]
+    observed = vectors["Observed Unit"]
+    counterfactual = vectors["Counterfactual"]
+    gap = vectors["Gap"][:, 1]
 
-        time_labels = result.time_series.time_periods
-        time_labels_for_plot = time_labels[-len(observed):]
-
-        plot_data[key] = {
-            "time": time_relative,
-            "observed": observed,
-            "counterfactual": counterfactual
-        }
+    plot_data[outcome] = {
+        "time": gap,
+        "observed": observed,
+        "counterfactual": counterfactual
+    }
 
 # Plotting
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 axes = axes.flatten()
 
-for i, (key, data_dict) in enumerate(plot_data.items()):
-    observed = data_dict["observed"]
-    counterfactual = data_dict["counterfactual"]
-    original_time = data_dict["time"]
-
-    T = len(observed)
-    time = np.arange(1, T + 1)
-
-    # Determine treatment index
-    treatment_index = np.where(original_time == 0)[0][0] + 1
-    time_points_numeric = np.arange(len(observed))
+for i, (outcome, data_dict) in enumerate(plot_data.items()):
     ax = axes[i]
-    ax.plot(time_points_numeric, observed, label="Observed", color="black")
-    ax.plot(time_points_numeric, counterfactual, label="Counterfactual", color="blue", linestyle="--")
-    ax.axvline(treatment_index, color="gray", linestyle="--", label="Placebo: June 2019")
+    time = np.arange(len(data_dict["observed"]))
+    treatment_index = np.where(data_dict["time"] == 0)[0][0]
 
-    inference = results[key].inference
+    ax.plot(time, data_dict["observed"], label="Observed", color="black")
+    ax.plot(time, data_dict["counterfactual"], label="Counterfactual", color="blue", linestyle="--")
+    ax.axvline(treatment_index, color="gray", linestyle="--", label="September 2019")
+
+    # Add prediction interval if available
+    inference = results[outcome].inference
     if inference and inference.details:
-        full_interval = inference.details.get("full_interval")
-        if full_interval is not None and full_interval.size > 0:
-            lower_ci = np.array(full_interval[:, 0])
-            upper_ci = np.array(full_interval[:, 1])
-            valid_mask = ~(np.isnan(lower_ci) | np.isnan(upper_ci))
+        interval = inference.details.get("full_interval")
+        if interval is not None and interval.size > 0:
+            lower, upper = interval[:, 0], interval[:, 1]
+            valid = ~(np.isnan(lower) | np.isnan(upper))
+            if np.any(valid):
+                ax.fill_between(time[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
+                                label="Conformal 90% Interval")
 
-            if np.any(valid_mask):
-                ax.fill_between(
-                    time[valid_mask],
-                    lower_ci[valid_mask],
-                    upper_ci[valid_mask],
-                    color="grey",
-                    alpha=0.25,
-                    label="Conformal 90% Prediction Interval"
-                )
-
-    result = results[key]
-    att = result.effects.att
-    rmse_pre = result.fit_diagnostics.rmse_pre
-
-    ax.set_title(f"ATT = {att:.3f}, Evaluation RMSE = {rmse_pre:.3f}", fontsize=11)
-    ax.grid(True, linestyle="--", alpha=0.3)
-    ax.legend(fontsize=9)
+    # Title and labels
+    att = results[outcome].effects.att
+    rmse = results[outcome].fit_diagnostics.rmse_pre
+    ax.set_title(f"ATT = {att:.3f}, RMSE = {rmse:.3f}", fontsize=11)
+    ax.set_ylabel(outcome, fontsize=11)
     ax.set_xlabel("Time")
-    ax.set_ylabel(key, fontsize=10)
+    ax.legend(fontsize=9)
+    ax.grid(True, linestyle="--", alpha=0.3)
 
-# Remove unused axes
+# Remove any unused axes
 for j in range(i + 1, len(axes)):
     fig.delaxes(axes[j])
 
