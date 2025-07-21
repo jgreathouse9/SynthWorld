@@ -282,7 +282,7 @@ plt.show()
 
 ```
 
-Here are the initial econometric results. For these results, $m=119$.
+Here are the initial SHC results. For these results, $m=48$, but the results remain robust up until 10 years of evaluation period data.
 
 ```{python}
 
@@ -324,7 +324,7 @@ for sheet_name, outcome_list in plot_columns.items():
             "display_graphs": False,
             "save": False,
             "counterfactual_color": ["red"],
-            "m": 12*7
+            "m": 12*4
         }
 
         model = SHC(config)
@@ -411,11 +411,9 @@ for j in range(i + 1, len(axes)):
 
 plt.tight_layout(h_pad=3)
 plt.show()
-
-
-
 ```
 
+The plot lists the ATT and RMSE for the outcome of interest.
 
 ```{=latex}
 \bibliography{pl}
