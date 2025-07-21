@@ -87,7 +87,10 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
     tourism_df = load_uhero_json(tourism_url, tourism_rename)
     hotel_df = load_uhero_json(hotel_url, hotel_rename)
     fred_df = load_fred()
-
+    # Scale Visitor Days to millions
+    if "Visitor Days" in tourism_df.columns:
+        tourism_df["Visitor Days"] = tourism_df["Visitor Days"] / 1_000_000
+    
     combined = pd.concat([tourism_df, hotel_df, fred_df], axis=1)
     combined = combined.loc[full_index].copy()
     combined.reset_index(inplace=True)
