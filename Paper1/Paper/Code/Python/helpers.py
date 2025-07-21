@@ -35,7 +35,7 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
     def load_fred():
         fred_url = (
             "https://fred.stlouisfed.org/graph/fredgraph.csv?"
-            "id=HILEIHN,HIUR,LBSSA15,SMU15000007072100001SA"
+            "id=HILEIHN,HIUR,LBSSA15,SMU15000007072100001SA,HICOINC"
             "&cosd=1990-01-01&coed=2020-12-31"
             "&fq=Monthly&fam=avg&transformation=pc1&line_index=1,2,3,4"
         )
@@ -48,7 +48,8 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
             "HILEIHN_PC1": "Total Leisure eMP",
             "HIUR_PC1": "Unemp Rate",
             "LBSSA15_PC1": "LFP",
-            "SMU15000007072100001SA_PC1": "Accomodation Emp"
+            "SMU15000007072100001SA_PC1": "Accomodation Emp",
+            "HICOINC": "Econ Activity Index"
         })
         df = df.set_index("Date")
         df = df.reindex(full_index)
