@@ -426,6 +426,141 @@ Initial unemployment claims rose by 762.5 percentage points year-over-year, rela
 
 Even accounting for finite-sample prediction uncertainty, the observed collapse in tourism is extreme relative to the synthetic historical distribution. The observed values fall far outside of the 90\% conformal prediction intervals, suggesting that the results are far outside of what we'd expect under a no-quarantine scenario.
 
+Next we do in-time placebos.
+
+```{python}
+#| echo: false
+#| fig-align: center
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from mlsynth import SHC
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
+
+# Load data
+data_path = "Data/HawaiiData.xlsx"
+sheets_to_load = ["Tourism", "Hotels", "FRED"]
+data = {sheet: pd.read_excel(data_path, sheet_name=sheet) for sheet in sheets_to_load}
+
+# Define which columns to model
+plot_columns = {
+    "Tourism": ["Visitor Days (Seasonally Adjusted)"],
+    "Hotels": ["Occupancy (Seasonally Adjusted)"],
+    "FRED": ["Leisure and Hospitality Employment YoY", "Initial Unemployment Claims YoY"]
+}
+
+# SHC results and plot data
+results = {}
+plot_data = {}
+
+# Define placebo treatment date
+placebo_date = pd.to_datetime("2018-03-01")
+cutoff_date = pd.to_datetime("2020-01-01")
+
+# Estimation loop
+for sheet_name, outcome_list in plot_columns.items():
+    df = data[sheet_name].copy()
+
+    # Create placebo treatment indicator
+    df["Placebo_Treatment"] = np.where(df["Date"] >= placebo_date, 1, 0)
+
+    # Restrict to data before COVID
+    df = df[df["Date"] < cutoff_date].copy()
+
+    for outcome_var in outcome_list:
+        config = {
+            "df": df,
+            "outcome": outcome_var,
+            "treat": "Placebo_Treatment",
+            "unitid": "Unit",
+            "time": "Date",
+            "display_graphs": False,
+            "save": False,
+            "counterfactual_color": ["red"],
+            "m": 12 * 3  # evaluation window
+        }
+
+        model = SHC(config)
+        result = model.fit()
+        key = f"{outcome_var}"
+        results[key] = result
+
+        # Extract observed/counterfactual/time
+        vectors = result.raw_results["Vectors"]
+        observed = vectors["Observed Unit"]
+        counterfactual = vectors["Counterfactual"]
+        time_relative = vectors["Gap"][:, 1]
+
+        time_labels = result.time_series.time_periods
+        time_labels_for_plot = time_labels[-len(observed):]
+
+        plot_data[key] = {
+            "time": time_relative,
+            "observed": observed,
+            "counterfactual": counterfactual
+        }
+
+# Plotting
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+axes = axes.flatten()
+
+for i, (key, data_dict) in enumerate(plot_data.items()):
+    observed = data_dict["observed"]
+    counterfactual = data_dict["counterfactual"]
+    original_time = data_dict["time"]
+
+    T = len(observed)
+    time = np.arange(1, T + 1)
+
+    # Determine treatment index
+    treatment_index = np.where(original_time == 0)[0][0] + 1
+    time_points_numeric = np.arange(len(observed))
+    ax = axes[i]
+    ax.plot(time_points_numeric, observed, label="Observed", color="black")
+    ax.plot(time_points_numeric, counterfactual, label="Counterfactual", color="blue", linestyle="--")
+    ax.axvline(treatment_index, color="gray", linestyle="--", label="Placebo: March 2018")
+
+    inference = results[key].inference
+    if inference and inference.details:
+        full_interval = inference.details.get("full_interval")
+        if full_interval is not None and full_interval.size > 0:
+            lower_ci = np.array(full_interval[:, 0])
+            upper_ci = np.array(full_interval[:, 1])
+            valid_mask = ~(np.isnan(lower_ci) | np.isnan(upper_ci))
+
+            if np.any(valid_mask):
+                ax.fill_between(
+                    time[valid_mask],
+                    lower_ci[valid_mask],
+                    upper_ci[valid_mask],
+                    color="grey",
+                    alpha=0.25,
+                    label="Conformal 90% Prediction Interval"
+                )
+
+    result = results[key]
+    att = result.effects.att
+    rmse_pre = result.fit_diagnostics.rmse_pre
+
+    ax.set_title(f"ATT = {att:.3f}, Evaluation RMSE = {rmse_pre:.3f}", fontsize=11)
+    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.legend(fontsize=9)
+    ax.set_xlabel("Time")
+    ax.set_ylabel(key, fontsize=10)
+
+# Remove unused axes
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.tight_layout(h_pad=3)
+plt.show()
+
+```
+
+Here are the results.
+
 
 ```{=latex}
 \bibliography{pl}
