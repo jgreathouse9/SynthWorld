@@ -479,7 +479,7 @@ for sheet_name, outcome_list in plot_columns.items():
             "display_graphs": False,
             "save": False,
             "counterfactual_color": ["red"],
-            "m": 12 * 3  # evaluation window
+            "m": 12*6  # evaluation window
         }
 
         model = SHC(config)
