@@ -106,3 +106,67 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
         print(f"Saved cleaned data to {filename}")
 
     return combined
+
+
+
+def get_taxdata( save_excel=False, filename="HawaiiTaxData.xlsx"):
+    # Common headers
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Authorization": "Bearer -VI_yuv0UzZNy4av1SM5vQlkfPK_JKnpGfMzuJR7d0M=",
+        "Origin": "https://data.uhero.hawaii.edu",
+        "Referer": "https://data.uhero.hawaii.edu/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+    }
+
+    base_url = "https://api.uhero.hawaii.edu/v1/measurement/series"
+
+    def extract_state_monthly_dataframe(data, dataset_name):
+        try:
+            for i, series in enumerate(data['data']):
+                if (series.get('geography', {}).get('handle') == 'HI' and
+                        series.get('frequencyShort') == 'M'):
+                    values = series['seriesObservations']['transformationResults'][0]['values']
+                    dates = series['seriesObservations']['transformationResults'][0]['dates']
+                    df = pd.DataFrame({
+                        'Date': pd.to_datetime(dates),
+                        dataset_name: [float(v) * 1000 for v in values]  # Multiply by 1000 here
+                    })
+                    df = df[(df['Date'] >= '1990-01-01') & (df['Date'] < '2021-01-01')].reset_index(drop=True)
+                    return df
+            return None
+        except Exception as e:
+            print(f"{dataset_name}: Error extracting series – {str(e)}")
+            return None
+
+    # Request for GET (id=163887)
+    response_get = requests.get(base_url, params={"id": 163887, "expand": "true"}, headers=headers)
+    get_df = extract_state_monthly_dataframe(response_get.json(), "GET Taxes") if response_get.ok else None
+
+    # Request for TAT (id=163872)
+    response_tat = requests.get(base_url, params={"id": 163872, "expand": "true"}, headers=headers)
+    tat_df = extract_state_monthly_dataframe(response_tat.json(), "TAT Taxes") if response_tat.ok else None
+
+    if get_df is not None and tat_df is not None:
+        df = pd.merge(get_df, tat_df, on="Date", how="inner")
+
+        # Compute 12-month percent change
+        df["GET YoY"] = df["GET Taxes"].pct_change(periods=12) * 100
+        df["TAT YoY"] = df["TAT Taxes"].pct_change(periods=12) * 100
+
+        # Drop rows with missing values
+        df = df.dropna().reset_index(drop=True)
+        # Add "Mandatory Quarantine" column
+        df["Mandatory Quarantine"] = df["Date"] >= pd.to_datetime("2020-03-01")
+
+        # Add "Unit" column
+        df["Unit"] = "Hawaii"
+        if save_excel:
+            combined.to_excel(filename, index=False)
+            print(f"Saved cleaned data to {filename}")
+        return df
+    else:
+        print("Failed to retrieve one or both datasets.")
+        return None
+
+
