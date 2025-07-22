@@ -583,9 +583,13 @@ plt.tight_layout(h_pad=3)
 plt.show()
 ```
 
+# Results
+
 While some of Hawaii’s economic contraction likely reflects reduced demand from risk-averse travelers, comparison to Florida helps isolate the role of policy design. In Q2 of 2020, Hawaii’s accommodation and food services earnings fell by 60% year-over-year — compared to a 38% decline in Florida, a state that avoided strict lockdowns or travel restrictions.
 
 This 22 percentage point difference is striking, especially in light of the public health outcomes. In 2020, Hawaii recorded just 16.8 COVID-19 deaths per 100,000 residents, the second-lowest in the country, while Florida recorded 56.4, placing 11th highest. In 2021, Hawaii maintained its position as the second-lowest at 36.5 COVID-19 deaths per 100,000, whereas Florida's death rate ballooned to 111.7 (33rd overall). These numbers highlight the tradeoff at the heart of aggressive containment policy: Hawaii’s border quarantine imposed a heavy short-run economic cost, but delivered substantial reductions in pandemic mortality.
+
+A recent paper by \citet{bondsmith2022effects} contextualizes these findings even more. Providing a detailed descriptive analysis of Hawaii’s economic contraction and sluggish employment recovery, they note that as of 2022, total non-farm employment remained nearly 10% below pre-pandemic levels, with potential longer-run "scarring" effects from sustained unemployment, out-migration, and educational disruption. However, they also acknowledge that “Hawaii experienced very few cases of COVID-19 relative to the rest of the US until the Delta and Omicron waves” in late 2021 and 2022. This reflects the protective success of early interventions such as the mandatory quarantine policy. The present paper complements their descriptive account by providing causal estimates of the short-run economic costs of this policy. While the ATTs I estimate suggest the economic contraction was substantial, it was also purposeful. If the collapse in tourism preserved thousands of lives by delaying the pandemic’s full epidemiological force, that tradeoff is not only measurable, but arguably defensible. Economic recovery, while uneven, is possible. The loss of life is not reversible.
 
 
 ```{=latex}
