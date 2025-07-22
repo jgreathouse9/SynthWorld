@@ -33,6 +33,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Paper1/Paper/Data/HawaiiData.xlsx
+          git add Paper1/Paper/Data/**/*.xlsx
           git commit -m "Update HawaiiData.xlsx [auto]" || echo "No changes to commit"
           git push
