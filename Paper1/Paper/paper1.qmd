@@ -521,7 +521,7 @@ for outcome in outcomes:
         "display_graphs": False,
         "save": False,
         "counterfactual_color": ["red"],
-        "m": 12*5
+        "m": 12*10
     }
 
     model = SHC(config)
