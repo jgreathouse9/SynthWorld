@@ -583,10 +583,9 @@ plt.tight_layout(h_pad=3)
 plt.show()
 ```
 
-While some portion of the observed collapse in Hawaii’s tourism and labor market indicators is likely attributable to demand-side contraction — as seen in most of the U.S. — Hawaii’s policy intervention mechanically induced an additional layer of suppression. The mandatory 14-day quarantine made leisure travel effectively infeasible for non-residents, reducing effective demand even among those still willing to travel during the pandemic.
+While some of Hawaii’s economic contraction likely reflects reduced demand from risk-averse travelers, comparison to Florida helps isolate the role of policy design. In Q2 of 2020, Hawaii’s accommodation and food services earnings fell by 60% year-over-year — compared to a 38% decline in Florida, a state that avoided strict lockdowns or travel restrictions.
 
-By contrast, states like Florida, which did not implement stringent quarantine policies, experienced a much shallower decline in key economic indicators and a quicker recovery. For example, accommodation employment in Florida hit its nadir in April 2020, immediately after the national onset of the pandemic, and rebounded substantially by mid-summer. In Hawaii, the decline was deeper and more prolonged, with a trough occurring months later in September of 2020. Even when we compare Hawaii and Florida's accommodation and food services earnings, in Quarter 2 of 2020 Hawaii has declined by 60\% YoY, whereas Florida's declined at 38\% YoY. This divergence underscores the unique economic shock induced not just by the pandemic itself, but by the specific policy mechanism of enforced quarantine. 
-
+This 22 percentage point difference is striking, especially in light of the public health outcomes. In 2020, Hawaii recorded just 16.8 COVID-19 deaths per 100,000 residents, the second-lowest in the country, while Florida recorded 56.4, placing 11th highest. In 2021, Hawaii maintained its position as the second-lowest at 36.5 COVID-19 deaths per 100,000, whereas Florida's death rate ballooned to 111.7 (33rd overall). These numbers highlight the tradeoff at the heart of aggressive containment policy: Hawaii’s border quarantine imposed a heavy short-run economic cost, but delivered substantial reductions in pandemic mortality.
 
 
 ```{=latex}
