@@ -486,6 +486,105 @@ The placebo results are reassuring. Across all four outcomes, the placebo ATTs a
 These results offer two key takeaways. First, the SHC model does not erroneously detect treatment effects when none exist—it exhibits strong temporal specificity. Second, even in cases where placebo ATTs are slightly nonzero, they fall within normal forecast uncertainty. This is confirmed by the conformal prediction intervals, which entirely cover the observed outcomes during the placebo window. That is, any apparent deviation between predicted and realized values is consistent with random variation under no treatment. These placebo checks strengthen the case for a causal interpretation of the post-March 2020 findings: the observed deviations are not artifacts of overfitting or model instability, but genuine responses to Hawaii’s border closure.
 
 
+Now for additional outcomes.
+
+
+```{python}
+
+#| echo: false
+#| fig-align: center
+
+from mlsynth import SHC
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
+
+
+# Load data
+df = pd.read_excel("Data/HawaiiTaxData.xlsx")
+
+# Outcomes to estimate
+outcomes = ["GET YoY", "TAT YoY"]
+
+# Results container
+results = {}
+plot_data = {}
+
+# Run SHC for each outcome
+for outcome in outcomes:
+    config = {
+        "df": df,
+        "outcome": outcome,
+        "treat": "Mandatory Quarantine",
+        "unitid": "Unit",
+        "time": "Date",
+        "display_graphs": False,
+        "save": False,
+        "counterfactual_color": ["red"],
+        "m": 12*5
+    }
+
+    model = SHC(config)
+    result = model.fit()
+    results[outcome] = result
+
+    # Extract vectors
+    vectors = result.raw_results["Vectors"]
+    observed = vectors["Observed Unit"]
+    counterfactual = vectors["Counterfactual"]
+    gap = vectors["Gap"][:, 1]
+
+    plot_data[outcome] = {
+        "time": gap,
+        "observed": observed,
+        "counterfactual": counterfactual
+    }
+
+# Plotting
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+axes = axes.flatten()
+
+for i, (outcome, data_dict) in enumerate(plot_data.items()):
+    ax = axes[i]
+    time = np.arange(len(data_dict["observed"]))
+    treatment_index = np.where(data_dict["time"] == 0)[0][0]
+
+    ax.plot(time, data_dict["observed"], label="Observed", color="black")
+    ax.plot(time, data_dict["counterfactual"], label="Counterfactual", color="blue", linestyle="--")
+    ax.axvline(treatment_index, color="gray", linestyle="--", label="March 2020")
+
+    # Add prediction interval if available
+    inference = results[outcome].inference
+    if inference and inference.details:
+        interval = inference.details.get("full_interval")
+        if interval is not None and interval.size > 0:
+            lower, upper = interval[:, 0], interval[:, 1]
+            valid = ~(np.isnan(lower) | np.isnan(upper))
+            if np.any(valid):
+                ax.fill_between(time[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
+                                label="Conformal 90% Interval")
+
+    # Title and labels
+    att = results[outcome].effects.att
+    rmse = results[outcome].fit_diagnostics.rmse_pre
+    ax.set_title(f"ATT = {att:.3f}, RMSE = {rmse:.3f}", fontsize=11)
+    ax.set_ylabel(outcome, fontsize=11)
+    ax.set_xlabel("Time")
+    ax.legend(fontsize=9)
+    ax.grid(True, linestyle="--", alpha=0.3)
+
+# Remove any unused axes
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.tight_layout(h_pad=3)
+plt.show()
+```
+
+Here are the additional analyses.
+
+
+
 ```{=latex}
 \bibliography{pl}
 ```
