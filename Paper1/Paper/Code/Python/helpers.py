@@ -162,7 +162,7 @@ def get_taxdata( save_excel=False, filename="HawaiiTaxData.xlsx"):
         # Add "Unit" column
         df["Unit"] = "Hawaii"
         if save_excel:
-            combined.to_excel(filename, index=False)
+            df.to_excel(filename, index=False)
             print(f"Saved cleaned data to {filename}")
         return df
     else:
