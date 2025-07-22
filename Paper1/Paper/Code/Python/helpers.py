@@ -108,65 +108,73 @@ def load_hawaii_data(compute_growth=True, save_excel=False, filename="hawaii_dat
     return combined
 
 
-
-def get_taxdata( save_excel=False, filename="HawaiiTaxData.xlsx"):
+def get_taxdata(verbose=False, save_excel=False, filename="HawaiiTaxData.xlsx"):
     # Common headers
     headers = {
         "Accept": "application/json, text/plain, */*",
         "Authorization": "Bearer -VI_yuv0UzZNy4av1SM5vQlkfPK_JKnpGfMzuJR7d0M=",
         "Origin": "https://data.uhero.hawaii.edu",
         "Referer": "https://data.uhero.hawaii.edu/",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0"
     }
 
     base_url = "https://api.uhero.hawaii.edu/v1/measurement/series"
+    series_info = {
+        "GET Taxes": 163887,
+        "TAT Taxes": 163872
+    }
 
-    def extract_state_monthly_dataframe(data, dataset_name):
+    def fetch_series(series_id, label):
         try:
-            for i, series in enumerate(data['data']):
-                if (series.get('geography', {}).get('handle') == 'HI' and
-                        series.get('frequencyShort') == 'M'):
-                    values = series['seriesObservations']['transformationResults'][0]['values']
-                    dates = series['seriesObservations']['transformationResults'][0]['dates']
-                    df = pd.DataFrame({
-                        'Date': pd.to_datetime(dates),
-                        dataset_name: [float(v) * 1000 for v in values]  # Multiply by 1000 here
-                    })
-                    df = df[(df['Date'] >= '1990-01-01') & (df['Date'] < '2021-01-01')].reset_index(drop=True)
-                    return df
-            return None
+            response = requests.get(
+                base_url,
+                params={"id": series_id, "expand": "true", "geo": "HI", "freq": "M"},
+                headers=headers
+            )
+            response.raise_for_status()
+            series = response.json()['data'][0]
+            tr = series['seriesObservations']['transformationResults'][0]
+            df = pd.DataFrame({
+                "Date": pd.to_datetime(tr['dates']),
+                label: [float(v) * 1000 for v in tr['values']]  # Convert to actual dollars
+            })
+            df = df[(df["Date"] >= "1990-01-01") & (df["Date"] < "2021-01-01")].reset_index(drop=True)
+            if verbose:
+                print(f"{label}: Loaded {len(df)} rows.")
+                print(df.head())
+            return df
         except Exception as e:
-            print(f"{dataset_name}: Error extracting series – {str(e)}")
+            print(f"{label}: Failed to load data – {e}")
             return None
 
-    # Request for GET (id=163887)
-    response_get = requests.get(base_url, params={"id": 163887, "expand": "true"}, headers=headers)
-    get_df = extract_state_monthly_dataframe(response_get.json(), "GET Taxes") if response_get.ok else None
+    # Fetch both series
+    dfs = [fetch_series(series_id, label) for label, series_id in series_info.items()]
 
-    # Request for TAT (id=163872)
-    response_tat = requests.get(base_url, params={"id": 163872, "expand": "true"}, headers=headers)
-    tat_df = extract_state_monthly_dataframe(response_tat.json(), "TAT Taxes") if response_tat.ok else None
-
-    if get_df is not None and tat_df is not None:
-        df = pd.merge(get_df, tat_df, on="Date", how="inner")
+    # Merge if both succeeded
+    if all(df is not None for df in dfs):
+        df = pd.merge(dfs[0], dfs[1], on="Date", how="inner")
 
         # Compute 12-month percent change
         df["GET YoY"] = df["GET Taxes"].pct_change(periods=12) * 100
         df["TAT YoY"] = df["TAT Taxes"].pct_change(periods=12) * 100
 
-        # Drop rows with missing values
-        df = df.dropna().reset_index(drop=True)
-        # Add "Mandatory Quarantine" column
-        df["Mandatory Quarantine"] = df["Date"] >= pd.to_datetime("2020-03-01")
+        # Add quarantine dummy (1 if March 2020 or after)
+        df["Mandatory Quarantine"] = (df["Date"] >= "2020-03-01").astype(int)
 
-        # Add "Unit" column
+        # Add Unit column
         df["Unit"] = "Hawaii"
+
+        # Drop missing values (due to YoY lag)
+        df = df.dropna().reset_index(drop=True)
+
+        if verbose:
+            print("Final DataFrame preview:")
+            print(df.head())
         if save_excel:
             df.to_excel(filename, index=False)
             print(f"Saved cleaned data to {filename}")
+
         return df
     else:
-        print("Failed to retrieve one or both datasets.")
+        print("Failed to fetch one or more series.")
         return None
-
-
