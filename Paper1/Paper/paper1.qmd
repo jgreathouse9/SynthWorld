@@ -583,7 +583,9 @@ plt.tight_layout(h_pad=3)
 plt.show()
 ```
 
-Here are the additional analyses.
+While some portion of the observed collapse in Hawaii’s tourism and labor market indicators is likely attributable to demand-side contraction — as seen in most of the U.S. — Hawaii’s policy intervention mechanically induced an additional layer of suppression. The mandatory 14-day quarantine made leisure travel effectively infeasible for non-residents, reducing effective demand even among those still willing to travel during the pandemic.
+
+By contrast, states like Florida, which did not implement stringent quarantine policies, experienced a much shallower decline in key economic indicators and a quicker recovery. For example, accommodation employment in Florida hit its nadir in April 2020, immediately after the national onset of the pandemic, and rebounded substantially by mid-summer. In Hawaii, the decline was deeper and more prolonged, with a trough occurring months later in September of 2020. Even when we compare Hawaii and Florida's accommodation and food services earnings, in Quarter 2 of 2020 Hawaii has declined by 60\% YoY, whereas Florida's declined at 38\% YoY. This divergence underscores the unique economic shock induced not just by the pandemic itself, but by the specific policy mechanism of enforced quarantine. 
 
 
 
