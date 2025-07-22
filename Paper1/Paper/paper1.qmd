@@ -486,7 +486,9 @@ The placebo results are reassuring. Across all four outcomes, the placebo ATTs a
 These results offer two key takeaways. First, the SHC model does not erroneously detect treatment effects when none exist—it exhibits strong temporal specificity. Second, even in cases where placebo ATTs are slightly nonzero, they fall within normal forecast uncertainty. This is confirmed by the conformal prediction intervals, which entirely cover the observed outcomes during the placebo window. That is, any apparent deviation between predicted and realized values is consistent with random variation under no treatment. These placebo checks strengthen the case for a causal interpretation of the post-March 2020 findings: the observed deviations are not artifacts of overfitting or model instability, but genuine responses to Hawaii’s border closure.
 
 
-Now for additional outcomes.
+Now for additional outcomes. To estimate the impact of the mandatory quarantine on fiscal losses, I collect data on taxes generated from Hawaii's General Excise tax for the hotel industry and overall transient accommodations, using quarterly revenue data from 2010 to 2019 (with the pre-treatment period being from 1991 to the end of 2009).
+
+I estimate that Hawaii’s General Excise Tax revenue from hotels fell by 88.3 percentage points after the March 2020 quarantine. Similarly, Transient Accommodations Tax receipts dropped by 91.7 percentage points. While quarterly data exhibit greater volatility and correspondingly higher prediction error (RMSEs = 6.85 and 8.6, respectively), the sheer magnitude of these effects supports the conclusion that the policy triggered a sharp fiscal contraction. These results provide a direct estimate of the policy’s revenue impact on the state budget.
 
 
 ```{python}
