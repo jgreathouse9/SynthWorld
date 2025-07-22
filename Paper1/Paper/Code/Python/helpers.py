@@ -128,7 +128,7 @@ def get_taxdata(verbose=False, save_excel=False, filename="HawaiiTaxData.xlsx"):
         try:
             response = requests.get(
                 base_url,
-                params={"id": series_id, "expand": "true", "geo": "HI", "freq": "M"},
+                params={"id": series_id, "expand": "true", "geo": "HI", "freq": "Q"},
                 headers=headers
             )
             response.raise_for_status()
@@ -155,8 +155,8 @@ def get_taxdata(verbose=False, save_excel=False, filename="HawaiiTaxData.xlsx"):
         df = pd.merge(dfs[0], dfs[1], on="Date", how="inner")
 
         # Compute 12-month percent change
-        df["GET YoY"] = df["GET Taxes"].pct_change(periods=12) * 100
-        df["TAT YoY"] = df["TAT Taxes"].pct_change(periods=12) * 100
+        df["GET YoY"] = df["GET Taxes"].pct_change(periods=4) * 100
+        df["TAT YoY"] = df["TAT Taxes"].pct_change(periods=4) * 100
 
         # Add quarantine dummy (1 if March 2020 or after)
         df["Mandatory Quarantine"] = (df["Date"] >= "2020-03-01").astype(int)
