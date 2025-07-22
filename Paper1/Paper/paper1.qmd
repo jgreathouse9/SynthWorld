@@ -585,11 +585,75 @@ plt.show()
 
 # Discussion
 
-While some of Hawaii’s economic contraction likely reflects reduced demand from risk-averse travelers, comparison to Florida helps isolate the role of policy design. In Q2 of 2020, Hawaii’s accommodation and food services earnings fell by 60% year-over-year — compared to a 38% decline in Florida, a state that avoided strict lockdowns or travel restrictions.
+Now, I discuss the broader interpretations of these results. One central question is the causal mechanism at work — some may reasonably ask: How do we know these treatment effects aren't simply the result of people traveling less during the pandemic more generally?
 
-This 22 percentage point difference is striking, especially in light of the public health outcomes. In 2020, Hawaii recorded just 16.8 COVID-19 deaths per 100,000 residents, the second-lowest in the country, while Florida recorded 56.4, placing 11th highest. In 2021, Hawaii maintained its position as the second-lowest at 36.5 COVID-19 deaths per 100,000, whereas Florida's death rate ballooned to 111.7 (33rd overall). These numbers highlight the tradeoff at the heart of aggressive containment policy: Hawaii’s border quarantine imposed a heavy short-run economic cost, but delivered substantial reductions in pandemic mortality.
+This is a fair concern. While some portion of Hawaii’s economic contraction likely reflects reduced demand from risk-averse travelers, the magnitude and persistence of the effect suggest that policy played a primary role. Comparison to Florida helps isolate the role of policy design. In Q2 of 2020, Hawaii’s accommodation and food services earnings fell by 60% year-over-year, compared to a 38% decline in Florida, a state that avoided strict lockdowns and travel restrictions altogether.
 
-A recent paper by \citet{bondsmith2022effects} contextualizes these findings even more. Providing a detailed descriptive analysis of Hawaii’s economic contraction and sluggish employment recovery, they note that as of 2022, total non-farm employment remained nearly 10% below pre-pandemic levels, with potential longer-run "scarring" effects from sustained unemployment, out-migration, and educational disruption. However, they also acknowledge that “Hawaii experienced very few cases of COVID-19 relative to the rest of the US until the Delta and Omicron waves” in late 2021 and 2022. This reflects the protective success of early interventions such as the mandatory quarantine policy. The present paper complements their descriptive account by providing causal estimates of the short-run economic costs of this policy. While the ATTs I estimate suggest the economic contraction was substantial, it was also purposeful. If the collapse in tourism preserved thousands of lives by delaying the pandemic’s full epidemiological force, that tradeoff is not only measurable, but arguably defensible. Economic recovery, while uneven, is possible. The loss of life is not reversible.
+Both Hawaii and Florida are tourism-heavy states. But while Hawaii shut down inbound travel with a strict quarantine policy, Florida remained open. The fact that Florida did not experience a comparable collapse — despite a similar economic structure — implies that quarantine policy, not just falling demand, drove the bulk of Hawaii’s losses. This interpretation is further supported by the recovery pattern: in Q1 of 2021, Hawaii’s year-over-year growth rate in earnings reached approximately 117%, compared to Florida’s 91%. This rebound suggests that the structure of Hawaii’s tourism economy remained intact — the losses were sharp, but temporary.
+
+```{python}
+
+#| echo: false
+#| fig-align: center
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the CSV from FRED
+url = "https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23ebf3fb&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1320&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=HIEACC,FLEACC&scale=left,left&cosd=1998-01-01,1998-01-01&coed=2025-01-01,2025-01-01&line_color=%230073e6,%2310847c&link_values=false,false&line_style=solid,dot&mark_type=none,none&mw=3,3&lw=3,3&ost=-99999,-99999&oet=99999,99999&mma=0,0&fml=a,a&fq=Quarterly,Quarterly&fam=avg,avg&fgst=lin,lin&fgsnd=2020-02-01,2020-02-01&line_index=1,2&transformation=pc1,pc1&vintage_date=2025-07-22,2025-07-22&revision_date=2025-07-22,2025-07-22&nd=1998-01-01,1998-01-01"
+df = pd.read_csv(url)
+
+# Convert date column to datetime
+df['DATE'] = pd.to_datetime(df['observation_date'])
+
+# Filter: only dates before 2022-09-01
+df = df[df['DATE'] < '2022-09-01']
+
+# Split data for zoomed subplot (from 2018 onward)
+df_zoom = df[df['DATE'] >= '2018-01-01']
+
+# Set up subplots
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(14, 6), sharex=False)
+
+# --- Full range plot (left) ---
+axes[0].plot(df['DATE'], df['HIEACC_PC1'], label='Hawaii', linewidth=2, color='black')
+axes[0].plot(df['DATE'], df['FLEACC_PC1'], label='Florida', linewidth=2, color='gray')
+axes[0].axvline(pd.Timestamp('2020-01-01'), color='black', linestyle='--', linewidth=1)
+axes[0].set_title("Leisure/Employment Year-over-Year")
+axes[0].set_ylabel("YoY Change (%)")
+axes[0].legend()
+axes[0].grid(True)
+
+# --- Zoomed-in plot with markers and value labels (right) ---
+axes[1].plot(df_zoom['DATE'], df_zoom['HIEACC_PC1'], label='Hawaii', linewidth=2, color='black', marker='o')
+axes[1].plot(df_zoom['DATE'], df_zoom['FLEACC_PC1'], label='Florida', linewidth=2, color='gray', marker='o')
+axes[1].axvline(pd.Timestamp('2020-01-01'), color='black', linestyle='--', linewidth=1)
+axes[1].set_title("Leisure/Employment YoY")
+axes[1].set_ylabel("YoY Change (%)")
+axes[1].set_xlabel("Date")
+axes[1].legend()
+axes[1].grid(True)
+
+# --- Add value labels ---
+for i, row in df_zoom.iterrows():
+    # Label for Hawaii
+    axes[1].text(row['DATE'], row['HIEACC_PC1'] + 1, f"{row['HIEACC_PC1']:.1f}",
+                 color='black', fontsize=8, ha='center')
+
+    # Label for Florida
+    axes[1].text(row['DATE'], row['FLEACC_PC1'] - 1, f"{row['FLEACC_PC1']:.1f}",
+                 color='gray', fontsize=8, ha='center')
+
+# Layout adjustment
+plt.tight_layout()
+plt.show()
+```
+
+The economic differences are even more striking in light of the public health outcomes. In 2020, Hawaii recorded just 16.8 COVID-19 deaths per 100,000 residents, the second-lowest in the country, while Florida recorded 56.4, ranking 11th highest. In 2021, Hawaii maintained its second-place position with 36.5 deaths per 100,000, while Florida’s rate more than doubled to 111.7, placing 33rd overall. These numbers highlight the tradeoff at the heart of aggressive containment policy: Hawaii’s border quarantine imposed a heavy short-run economic cost, but delivered substantial reductions in mortality.
+
+A recent paper by \citet{bondsmith2022effects} further contextualizes these findings. In a detailed descriptive analysis of Hawaii’s economic contraction and sluggish employment recovery, they report that, as of 2022, non-farm employment remained nearly 10% below pre-pandemic levels, raising concerns of long-run “scarring” through persistent unemployment, out-migration, and educational disruption. However, they also note that “Hawaii experienced very few cases of COVID-19 relative to the rest of the US until the Delta and Omicron waves” in late 2021 and 2022. This reflects the protective success of early interventions such as the quarantine policy, as is similarly noted by \citet{hubeipda}.
+
+The present paper complements that descriptive account by providing causal estimates of the short-run economic costs of Hawaii’s quarantine. While the estimated ATTs reveal a sharp and deliberate collapse in tourism-related activity, that collapse was not simply a pandemic inevitability, it was the direct consequence of policy designed to mitigate the spread of the virus. But if the policy prevented thousands of deaths by delaying widespread viral transmission, then that cost is not just measurable,  it is arguably justifiable. Economic recovery, while uneven, is possible. The loss of life is not reversible.
 
 
 ```{=latex}
