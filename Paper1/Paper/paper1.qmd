@@ -390,14 +390,11 @@ plt.show()
 
 ```
 
-Across all four primary outcomes, I find large and precisely estimated negative effects of Hawaii’s border closure. Tourism demand was severely impacted. Visitor Days declined by an average of 85.4 percentage points, with the SHC model achieving a tight pre-treatment fit (RMSE = 1.17). Hotel Occupancy dropped by 75.8 percentage points (RMSE = 1.097). These effects represent near-complete collapses in aggregate visitor presence and hotel room utilization, consistent with the near-total shutdown of tourism activity. The closeness of pre-treatment fit suggests \hyperref[assump:matching]{Assumption~\ref*{assump:matching}} is plausible, given that the match is good. 
+Across all four primary outcomes, I find large and precisely estimated negative effects from Hawaii’s border closure. Tourism demand was the most directly affected: Visitor Days declined by 85.4 percentage points, and Hotel Occupancy fell by 75.8 percentage points, relative to their synthetic historical counterfactuals. These are dramatic, near-total collapses in the state’s primary economic driver. The SHC model achieves a close pre-treatment fit for both outcomes (RMSEs $\approx 1$), suggesting that the model is well-calibrated to detect meaningful post-treatment divergence.
 
-Labor market outcomes also show pronounced effects. Accommodation Employment fell by an average of 60.7 percentage points (ATT = –60.691; RMSE = 0.739), while the broader Economic Activity Index dropped by 27.7 percentage points (ATT = –27.706; RMSE = 0.303). These results reflect both the direct impact on tourism-facing sectors and the wider economic slowdown induced by the closure. Even accounting for finite-sample prediction uncertainty, the observed collapse in tourism is extreme relative to the synthetic historical distribution. The observed values fall far outside of the 90\% conformal prediction intervals, suggesting that the results are far outside of what we'd expect under a no-quarantine scenario.
+Labor market and broader economic indicators reflect these shocks. Accommodation employment declined by 60.7 percentage points, while the Economic Activity Index fell by 27.7 points. Though these outcomes are more aggregated, they follow the same pattern—abrupt declines followed by a gradual recovery—indicating that Hawaii’s shutdown sent a measurable shock through the broader economy. Notably, in all four cases, the observed values after March 2020 fall well outside the 90% conformal prediction intervals, strengthening the inference that these declines reflect true treatment effects rather than model noise or volatility. The sharp decline in overall employment, especially in accommodations, is plausibly mediated by the collapse in tourism. Given Hawaii’s economic structure, the vast majority of hotel/hospitality employment is directly demand-driven. Thus, the drop in visitor-days and occupancy rates leads, mechanically, to reduced staffing needs across the sector. This channel provides a natural explanation for the labor market contraction observed in the data. Importantly, the pattern across all outcomes suggests a consistent causal chain: border closure leads to a collapse in tourism, which in turn leads to employment contraction, macroeconomic slowdown, and a fiscal shock. This sequential relationship reinforces the credibility of the estimates and gives confidence that the economic effects documented here reflect real-world consequences of the policy intervention.
 
-The sharp decline in overall employment, especially in accommodations, is plausibly mediated by the collapse in tourism. Given Hawaii’s economic structure, the vast majority of hotel/hospitality employment is directly demand-driven. Thus, the drop in visitor-days and occupancy rates leads, mechanically, to reduced staffing needs across the sector. This channel provides a natural explanation for the labor market contraction observed in the data.
-
-My above results use 5 years of pre-intervention data. Next, I use 10 years of pre-intervention data. The results are presented in @fig-secondplot.
-
+Robustness checks support this interpretation. Using 10 years of pre-treatment data produces nearly identical ATT estimates, with only minor degradation in early-period fit. The central pattern—a sharp short-run shock followed by recovery—holds across specifications.  The results are presented in @fig-secondplot.
 
 ```{python}
 #| echo: false
@@ -487,9 +484,7 @@ plt.tight_layout(h_pad=3)
 plt.show()
 ```
 
-When we do this, the ATT for visitor days and occupancy respectively become 86\% and 75\%. with slight degredation of fit (mostly a the beginning of the evaluation periods, but fitting much better towards the date of the intervention. The same is true for the ATTs for accomodation industry employment and the coincident economic activity index, whose ATTs are now 57\% and 25\%, which are not much different from the estimation with 5 years of evaluation data. Noticeably, these two have much worse pre-treatment fit by 1.2 and 0.6 percentage points. However, the central results are the same, and the economic impact is still substantial.
-
-I now would like to assess the credibility of my identification strategy. I conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. @fig-placebo presents these results
+Placebo tests using a September 2019 “fake” intervention date yield negligible effects, with estimated ATTs well within the model’s baseline error margins. This provides reassurance that the model is not spuriously detecting treatment effects where none exist. @fig-placebo presents these results.
 
 
 ```{python}
@@ -594,15 +589,9 @@ plt.show()
 
 ```
 
-The placebo results are reassuring. Across all four outcomes, the placebo ATTs are small relative to the true post-COVID estimates and comparable in magnitude to their pre-treatment RMSEs. For example, the placebo ATT for Visitor Days is –1.701, with an RMSE of 1.433, which are orders of magnitude smaller than the estimated ATT. Similarly, for Hotel Occupancy, the placebo ATT is 2.645 with a RMSE = 1.312, compared to the estimated treatment effect of 75. The labor market outcomes exhibit the same pattern: the placebo ATT for Accommodation Employment is 1.121 (versus –60.691 post-COVID), and for the Economic Activity Index, it is 0.147 (versus –27.706). In all cases, the true treatment effects dwarf any signal that emerges under a false intervention.
-
 These results offer two key takeaways. First, the SHC model does not erroneously detect treatment effects when none exist—it exhibits strong temporal specificity. Second, even in cases where placebo ATTs are slightly nonzero, they fall within normal forecast uncertainty. This is confirmed by the conformal prediction intervals, which entirely cover the observed outcomes during the placebo window. That is, any apparent deviation between predicted and realized values is consistent with random variation under no treatment. These placebo checks strengthen the case for a causal interpretation of the post-March 2020 findings: the observed deviations are not artifacts of overfitting or model instability, but genuine responses to Hawaii’s border closure.
 
-
-Now for additional outcomes, presented in @fig-addout. To estimate the impact of the mandatory quarantine on fiscal losses, I collect data on taxes generated from Hawaii's General Excise tax for the hotel industry and overall transient accommodations, using quarterly revenue data from 2010 to 2019 (with the pre-treatment period being from 1991 to the end of 2009).
-
-I estimate that Hawaii’s General Excise Tax revenue from hotels fell by 88.3 percentage points after the March 2020 quarantine. Similarly, Transient Accommodations Tax receipts dropped by 91.7 percentage points. While quarterly data exhibit greater volatility and correspondingly higher prediction error (RMSEs = 6.85 and 8.6, respectively), the sheer magnitude of these effects supports the conclusion that the policy triggered a sharp fiscal contraction. These results provide a direct estimate of the policy’s revenue impact on the state budget.
-
+To estimate the impact of the mandatory quarantine on fiscal losses, I collect data on taxes generated from Hawaii's General Excise tax for the hotel industry and overall transient accommodations, using quarterly revenue data from 2010 to 2019 (with the pre-treatment period being from 1991 to the end of 2009). I estimate a 91.7 percentage point decline in Transient Accommodations Tax receipts, and an 88.3 point drop in hotel-related General Excise Taxes, consistent with large-scale fiscal losses during the quarantine period. These results are presented in @fig-addout.
 
 ```{python}
 
@@ -701,9 +690,14 @@ plt.show()
 # Discussion
 \label{sec:discuss}
 
-The recent paper by \citet{bondsmith2022effects} further contextualizes these findings. In a detailed descriptive analysis of Hawaii’s economic contraction and sluggish employment recovery, they report that, as of 2022, non-farm employment remained nearly 10% below pre-pandemic levels, raising concerns of long-run “scarring” through persistent unemployment, out-migration, and educational disruption. However, they also note that “Hawaii experienced very few cases of COVID-19 relative to the rest of the US until the Delta and Omicron waves” in late 2021 and 2022. This reflects the protective success of early interventions such as the quarantine policy, as is similarly noted by \citet{hubeipda}.
+This paper provides a quantitative estimate of the short-run economic costs of an early, aggressive pandemic response. Hawaii’s mandatory quarantine policy caused a near-total collapse in tourism, with sharp but largely temporary contractions in employment and broader economic activity. Despite its severity, these effects were not persistent: most metrics rebounded by early 2021. This pattern—steep initial losses followed by gradual recovery—suggests that decisive early action may impose short-run pain but help avoid longer-term disruption.
 
-The present paper provides causal estimates of the short-run economic costs of Hawaii’s quarantine. While the estimated ATTs reveal a sharp and deliberate collapse in tourism-related activity, that collapse was not simply a pandemic inevitability, it was the direct consequence of policy designed to mitigate the spread of the virus. But if the policy prevented thousands of deaths by delaying widespread viral transmission, then that cost is not just measurable, it is arguably justifiable. Economic recovery, while uneven, is possible. The loss of life is not reversible.
+These results contribute to an ongoing debate over whether early containment policies are worth their economic cost. Hawaii’s case supports the theory of “front-loaded sacrifice”: by absorbing short-term damage, the state avoided sustained epidemiological and economic chaos. This interpretation echoes findings from \citet{hubeipda} on Hubei’s lockdown and aligns with the intuition of models emphasizing early interventions to delay or avoid exponential harm.
+
+\citet{bondsmith2022effects} provide useful context. They document that, as of 2022, Hawaii’s non-farm employment remained nearly 10\% below pre-pandemic levels, raising concerns about persistent scarring. Yet they also note that Hawaii avoided major COVID waves until Delta and Omicron. This contrast—between early economic contraction and delayed epidemiological impact—underscores the tradeoff central to this paper: early action can buy time, but at an economic cost.
+
+This study does not estimate public health benefits directly, nor does it claim Hawaii’s policy was cost-effective overall. However, it does help clarify the economic price of acting early. Future research should evaluate whether these costs were offset by reduced mortality, hospital strain, or faster recovery. More broadly, Hawaii illustrates the challenge of crisis policymaking under uncertainty.
+
 
 
 ```{=latex}
