@@ -18,11 +18,11 @@ This article estimates the causal impact of Hawaii's March 2020 mandatory quaran
 
 # Introduction
 
-This paper studies Hawaii’s mandatory quarantine to prevent the spread of COVID-19 \citep[]{Yan01022022}. On March 26, 2020, the state imposed a mandatory 14-day quarantine on all arrivals, effectively sealing its borders. Within a month, \citep{ivanova2020unemployment} documents a third of Hawaii’s labor force was unemployed. Unlike most regions that experienced economic contraction from COVID-19 through voluntary distancing, fear, or uneven mandates, Hawaii implemented one of the few deliberate and centralized shutdowns in the United States. This policy was aimed not merely at mitigating the virus, but at suppressing travel and commerce altogether.
+This paper studies Hawaii’s mandatory quarantine to prevent the spread of COVID-19 \citep[]{Yan01022022}. Unlike most regions that experienced economic contraction from COVID-19 through voluntary distancing, fear, or uneven mandates, Hawaii implemented one of the few deliberate and centralized shutdowns in the United States. This policy was aimed not merely at mitigating the virus, but at suppressing travel and commerce altogether. On March 26, 2020, the state imposed a mandatory 14-day quarantine on all arrivals, effectively sealing its borders.
 
-At the heart of this paper is a core policy question: What are the short-term economic costs of decisive early action in the face of an uncertain crisis? While much has been written about the epidemiological and social effects of pandemic interventions (say, on COVID-19 cases), less is known about their economic toll. This is especially true in cases where policymakers opted for maximal containment. The most famous case was Wuhan's January 2020 lockdown, as studied by \cite{hubeipda}. However, work outside of this context is rare. Understanding these costs is essential not just for pandemic preparedness, but for future crises, such as climate shocks or geopolitical disruptions, where early intervention may again carry significant short-run economic risks in exchange for long-term societal benefits.
+This paper addresses a core policy question: What are the economic costs of decisive early action in the face of an uncertain crisis? While much has been written about the epidemiological and social effects of COVID-19 interventions, less is known about their economic toll. This is especially true in cases where policymakers opted for maximal containment. The most famous case was Wuhan's January 2020 lockdown, as studied by \cite{hubeipda}. However, work outside of this context is rare. Understanding these costs is essential not just for pandemic preparedness, but for future crises, such as climate shocks or geopolitical disruptions, where early intervention may again carry significant short-run economic risks in exchange for long-term societal benefits \citep[]{newman2023global}.
 
-Hawaii offers a compelling empirical case. Its geographic isolation and economic dependence on tourism allowed it to pursue a form of near-total border control that was logistically and politically infeasible in most mainland states. As such, Hawaii provides a rare glimpse into a ``zero-COVID'' strategy implemented within a U.S. federal context. Given how thoroughly it shut itself off from the outside world, much like Wuhan in early 2020, the strategy might be called ``The Great Isolation with Aloha characteristics.''
+Hawaii offers a compelling empirical case. Its geographic isolation and economic dependence on tourism allowed it to pursue a form of near-total border control that was logistically and politically infeasible in most mainland states. As such, Hawaii provides a rare glimpse into a "zero-COVID" strategy implemented within a U.S. federal context. Given how thoroughly it shut itself off from the outside world, much like Wuhan in early 2020, the strategy might be called "The Great Isolation with Aloha characteristics."
 
 Despite its policy distinctiveness and the strength of its intervention relative to the mainland, Hawaii has been largely excluded from existing empirical evaluations. This is partly due to the context of the policy, given the lack of suitable control units to draw comparisons from. Many of the most pressing policy questions in public policy and economics concern one-time, systemic shocks: What would the United States' economy have looked like absent the American revolution? What would have happened to unemployment in Great Britain without Brexit? In these cases, credible untreated units often do not exist, making standard causal inference tools, like difference-in-differences (DiD) and synthetic control (SCM), difficult or impossible to apply. To compensate for this, I employ the Synthetic Historical Control (SHC) method by \cite{SHC}. This method constructs a counterfactual using the treated unit’s own pre-intervention history using non-parametric regression based methods. Empirically, I find that Hawaii experienced substantial—but mostly short-lived—economic losses across the tourism and labor sectors, easing by early 2021.
 
@@ -37,7 +37,7 @@ Few comparisons illustrate these stakes more clearly than Hawaii and Florida. Bo
 
 ```{python}
 #| label: fig-hawaii-florida
-#| fig-cap: "Year-over-Year Economic Changes."
+#| fig-cap: "Year-over-Year Accommodation Employment Changes."
 #| echo: false
 #| fig-align: center
 
@@ -45,88 +45,52 @@ Few comparisons illustrate these stakes more clearly than Hawaii and Florida. Bo
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Load EACC and GDP CSVs using your provided URLs
-url_eacc = "https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23ebf3fb&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1320&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=HIEACC,FLEACC&scale=left,left&cosd=1998-01-01,1998-01-01&coed=2025-01-01,2025-01-01&line_color=%230073e6,%2310847c&link_values=false,false&line_style=solid,dot&mark_type=none,none&mw=3,3&lw=3,3&ost=-99999,-99999&oet=99999,99999&mma=0,0&fml=a,a&fq=Quarterly,Quarterly&fam=avg,avg&fgst=lin,lin&fgsnd=2020-02-01,2020-02-01&line_index=1,2&transformation=pc1,pc1&vintage_date=2025-07-22,2025-07-22&revision_date=2025-07-22,2025-07-22&nd=1998-01-01,1998-01-01"
+# Load the CSV from FRED
+url = "https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23ebf3fb&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1320&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=HIEACC,FLEACC&scale=left,left&cosd=1998-01-01,1998-01-01&coed=2025-01-01,2025-01-01&line_color=%230073e6,%2310847c&link_values=false,false&line_style=solid,dot&mark_type=none,none&mw=3,3&lw=3,3&ost=-99999,-99999&oet=99999,99999&mma=0,0&fml=a,a&fq=Quarterly,Quarterly&fam=avg,avg&fgst=lin,lin&fgsnd=2020-02-01,2020-02-01&line_index=1,2&transformation=pc1,pc1&vintage_date=2025-07-22,2025-07-22&revision_date=2025-07-22,2025-07-22&nd=1998-01-01,1998-01-01"
+df = pd.read_csv(url)
 
-url_gdp = "https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23ebf3fb&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1320&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=HIRQGSP,FLRQGSP&scale=left,left&cosd=2005-01-01,2005-01-01&coed=2025-01-01,2025-01-01&line_color=%230073e6,%2310847c&link_values=false,false&line_style=solid,dot&mark_type=none,none&mw=3,3&lw=3,3&ost=-99999,-99999&oet=99999,99999&mma=0,0&fml=a,a&fq=Quarterly,Quarterly&fam=avg,avg&fgst=lin,lin&fgsnd=2020-02-01,2020-02-01&line_index=1,2&transformation=pc1,pc1&vintage_date=2025-07-23,2025-07-23&revision_date=2025-07-23,2025-07-23&nd=2005-01-01,2005-01-01"
+# Convert date column to datetime
+df['DATE'] = pd.to_datetime(df['observation_date'])
 
-# Read both CSVs
-df_eacc = pd.read_csv(url_eacc)
-df_gdp = pd.read_csv(url_gdp)
+# Filter: only dates before 2022-09-01
+df = df[df['DATE'] < '2022-09-01']
 
-# Rename GDP columns for clarity
-df_gdp.rename(columns={'HIRQGSP_PC1': 'HIGDP_PC1', 'FLRQGSP_PC1': 'FLGDP_PC1'}, inplace=True)
-
-# Convert date columns
-df_eacc['DATE'] = pd.to_datetime(df_eacc['observation_date'])
-df_gdp['DATE'] = pd.to_datetime(df_gdp['observation_date'])
-
-# Filter both datasets
-df_eacc = df_eacc[df_eacc['DATE'] < '2022-09-01']
-df_gdp = df_gdp[df_gdp['DATE'] < '2022-09-01']
-
-# Merge on date
-df = pd.merge(
-    df_eacc[['DATE', 'HIEACC_PC1', 'FLEACC_PC1']],
-    df_gdp[['DATE', 'HIGDP_PC1', 'FLGDP_PC1']],
-    on='DATE'
-)
-
-# Zoomed-in subset
+# Split data for zoomed subplot (from 2018 onward)
 df_zoom = df[df['DATE'] >= '2018-01-01']
 
-# Create 2x2 subplots (EACC and GDP)
-fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(14, 10), sharex=False)
+# Set up subplots
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(14, 6), sharex=False)
 
-# ---- Row 1: EACC (Accommodations) ----
-axes[0, 0].plot(df['DATE'], df['HIEACC_PC1'], label='Hawaii', color='black', linewidth=2)
-axes[0, 0].plot(df['DATE'], df['FLEACC_PC1'], label='Florida', color='gray', linewidth=2)
-axes[0, 0].axvline(pd.Timestamp('2020-01-01'), linestyle='--', color='black')
-axes[0, 0].set_title("Accommodation/Food Earnings YoY (Full)")
-axes[0, 0].set_ylabel("YoY Change (%)")
-axes[0, 0].legend()
-axes[0, 0].grid(True)
+# --- Full range plot (left) ---
+axes[0].plot(df['DATE'], df['HIEACC_PC1'], label='Hawaii', linewidth=2, color='black')
+axes[0].plot(df['DATE'], df['FLEACC_PC1'], label='Florida', linewidth=2, color='gray')
+axes[0].axvline(pd.Timestamp('2020-01-01'), color='black', linestyle='--', linewidth=1)
+axes[0].set_title("Leisure/Employment Year-over-Year")
+axes[0].set_ylabel("YoY Change (%)")
+axes[0].legend()
+axes[0].grid(True)
 
-axes[0, 1].plot(df_zoom['DATE'], df_zoom['HIEACC_PC1'], label='Hawaii', color='black', marker='o', linewidth=2)
-axes[0, 1].plot(df_zoom['DATE'], df_zoom['FLEACC_PC1'], label='Florida', color='gray', marker='o', linewidth=2)
-axes[0, 1].axvline(pd.Timestamp('2020-01-01'), linestyle='--', color='black')
-axes[0, 1].set_title("Accommodation/Food Earnings YoY (2018–2022)")
-axes[0, 1].set_ylabel("YoY Change (%)")
-axes[0, 1].legend()
-axes[0, 1].grid(True)
+# --- Zoomed-in plot with markers and value labels (right) ---
+axes[1].plot(df_zoom['DATE'], df_zoom['HIEACC_PC1'], label='Hawaii', linewidth=2, color='black', marker='o')
+axes[1].plot(df_zoom['DATE'], df_zoom['FLEACC_PC1'], label='Florida', linewidth=2, color='gray', marker='o')
+axes[1].axvline(pd.Timestamp('2020-01-01'), color='black', linestyle='--', linewidth=1)
+axes[1].set_title("Leisure/Employment YoY")
+axes[1].set_ylabel("YoY Change (%)")
+axes[1].set_xlabel("Date")
+axes[1].legend()
+axes[1].grid(True)
 
-# Add value labels for zoomed-in EACC
+# --- Add value labels ---
 for i, row in df_zoom.iterrows():
-    axes[0, 1].text(row['DATE'], row['HIEACC_PC1'] + 1, f"{row['HIEACC_PC1']:.1f}",
-                    color='black', fontsize=8, ha='center')
-    axes[0, 1].text(row['DATE'], row['FLEACC_PC1'] - 1, f"{row['FLEACC_PC1']:.1f}",
-                    color='gray', fontsize=8, ha='center')
+    # Label for Hawaii
+    axes[1].text(row['DATE'], row['HIEACC_PC1'] + 1, f"{row['HIEACC_PC1']:.1f}",
+                 color='black', fontsize=8, ha='center')
 
-# ---- Row 2: Real GDP ----
-axes[1, 0].plot(df['DATE'], df['HIGDP_PC1'], label='Hawaii', color='black', linewidth=2)
-axes[1, 0].plot(df['DATE'], df['FLGDP_PC1'], label='Florida', color='gray', linewidth=2)
-axes[1, 0].axvline(pd.Timestamp('2020-01-01'), linestyle='--', color='black')
-axes[1, 0].set_title("Real GDP YoY (Full)")
-axes[1, 0].set_ylabel("YoY Change (%)")
-axes[1, 0].legend()
-axes[1, 0].grid(True)
+    # Label for Florida
+    axes[1].text(row['DATE'], row['FLEACC_PC1'] - 1, f"{row['FLEACC_PC1']:.1f}",
+                 color='gray', fontsize=8, ha='center')
 
-axes[1, 1].plot(df_zoom['DATE'], df_zoom['HIGDP_PC1'], label='Hawaii', color='black', marker='o', linewidth=2)
-axes[1, 1].plot(df_zoom['DATE'], df_zoom['FLGDP_PC1'], label='Florida', color='gray', marker='o', linewidth=2)
-axes[1, 1].axvline(pd.Timestamp('2020-01-01'), linestyle='--', color='black')
-axes[1, 1].set_title("Real GDP YoY (2018–2022)")
-axes[1, 1].set_ylabel("YoY Change (%)")
-axes[1, 1].set_xlabel("Date")
-axes[1, 1].legend()
-axes[1, 1].grid(True)
-
-# Add value labels for zoomed-in GDP
-for i, row in df_zoom.iterrows():
-    axes[1, 1].text(row['DATE'], row['HIGDP_PC1'] + 1, f"{row['HIGDP_PC1']:.1f}",
-                    color='black', fontsize=8, ha='center')
-    axes[1, 1].text(row['DATE'], row['FLGDP_PC1'] - 1, f"{row['FLGDP_PC1']:.1f}",
-                    color='gray', fontsize=8, ha='center')
-
+# Layout adjustment
 plt.tight_layout()
 plt.show()
 
