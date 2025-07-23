@@ -41,7 +41,6 @@ Few comparisons illustrate these stakes more clearly than Hawaii and Florida. Bo
 #| echo: false
 #| fig-align: center
 
-
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -93,11 +92,6 @@ for i, row in df_zoom.iterrows():
 # Layout adjustment
 plt.tight_layout()
 plt.show()
-
-
-
-
-
 
 ```
 
@@ -311,23 +305,19 @@ The first two outcomes capture the demand side of Hawaii’s tourism sector. Vis
 
 The remaining outcomes capture economic effects, one sector-specific and one broader in scope. *Accommodation Employment* tracks the number of employees in Hawaii’s accommodation industry, a labor-intensive sector directly tied to tourism activity. *The Coincident Economic Activity Index* summarizes statewide macroeconomic conditions based on four indicators: nonfarm payroll employment, the unemployment rate, average weekly hours worked in manufacturing, and wage and salary disbursements. This index is benchmarked to match the trend of gross state product, making it a comprehensive indicator of the state's economic health. Both economic indicators are sourced from the Federal Reserve Economic Data (FRED) system and cover January 1991 to December 2020.
 
-Hawaii’s mandatory quarantine policy took effect in late March 2020. I define the intervention to begin in March 2020, corresponding to time $t = 362$, and formalize the treatment indicator as:
-
-$$
-d_t \defeq \mathbf{1}\{t \geq 362\},
-$$
-
-so that $d_t = 1$ for all months after the policy’s implementation and $d_t = 0$ otherwise. The final pre-treatment period is February 2020, yielding a pre-treatment sample of $T_0 = 361$ months.
+Hawaii’s mandatory quarantine policy took effect in late March 2020. I define the intervention to begin in March 2020, corresponding to time $t = 362$, and formalize the treatment indicator as $d_t \defeq \mathbf{1}\{t \geq 362\},$ so that $d_t = 1$ for all months after the policy’s implementation and $d_t = 0$ otherwise. The final pre-treatment period is February 2020, yielding a pre-treatment sample of $T_0 = 361$ months.
 
 \section{Results}
 \label{sec:results}
 
 
-In Figure we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest precipitously dropped when the mandatory quarantine policy was implemented. The plot also suggests that \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} and \hyperref[assump:matching]{Assumption~\ref*{assump:matching}} may be valid. For example, for \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} to be violated, we would need a situation where the outcome had extremely high variance. While we see seasonality across all outcomes, the time series seemed smooth enough to be approximated by pre-treatment observations.
+In Figure \ref{fig:outcomeplot} we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest precipitously dropped when the mandatory quarantine policy was implemented. The plot also suggests that \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} and \hyperref[assump:matching]{Assumption~\ref*{assump:matching}} may be valid. For example, for \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} to be violated, we would need a situation where the outcome had extremely high variance. While we see seasonality across all outcomes, the time series seemed smooth enough to be approximated by pre-treatment observations.
 
 ```{python}
 #| echo: false
 #| fig-align: center
+#| label: outcomeplot
+#| fig-cap: "Outcome Trends."
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -362,12 +352,14 @@ plt.show()
 
 ```
 
-Here are the initial SHC results. For these results, $m=60$ (5 years of evaluation data), but the main results remain robust up until 8 years of evaluation data, with slight deviations in uncertainty.
+Figure \ref{fig:firstplot} presents the initial SHC results. For these results, $m=60$ (5 years of evaluation data), but the main results remain robust up until 8 years of evaluation data, with slight deviations in uncertainty.
 
 ```{python}
 
 #| echo: false
 #| fig-align: center
+#| label: firstplot
+#| fig-cap: "SHC Analysis."
 
 from mlsynth import SHC
 import numpy as np
@@ -463,13 +455,14 @@ Labor market outcomes also show pronounced effects. Accommodation Employment fel
 
 The sharp decline in overall employment, especially in accommodations, is plausibly mediated by the collapse in tourism. Given Hawaii’s economic structure, the vast majority of hotel/hospitality employment is directly demand-driven. Thus, the drop in visitor-days and occupancy rates leads, mechanically, to reduced staffing needs across the sector. This channel provides a natural explanation for the labor market contraction observed in the data.
 
-To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. 
+To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. Figure \ref{fig:placebo} presents these results
 
 
 ```{python}
 #| echo: false
 #| fig-align: center
-
+#| label: placebo
+#| fig-cap: "Placebo Studies."
 
 # Load cleaned data (from your final function)
 df = pd.read_excel("Data/HawaiiData.xlsx")  # or use load_hawaii_data(...)
@@ -572,7 +565,7 @@ The placebo results are reassuring. Across all four outcomes, the placebo ATTs a
 These results offer two key takeaways. First, the SHC model does not erroneously detect treatment effects when none exist—it exhibits strong temporal specificity. Second, even in cases where placebo ATTs are slightly nonzero, they fall within normal forecast uncertainty. This is confirmed by the conformal prediction intervals, which entirely cover the observed outcomes during the placebo window. That is, any apparent deviation between predicted and realized values is consistent with random variation under no treatment. These placebo checks strengthen the case for a causal interpretation of the post-March 2020 findings: the observed deviations are not artifacts of overfitting or model instability, but genuine responses to Hawaii’s border closure.
 
 
-Now for additional outcomes. To estimate the impact of the mandatory quarantine on fiscal losses, I collect data on taxes generated from Hawaii's General Excise tax for the hotel industry and overall transient accommodations, using quarterly revenue data from 2010 to 2019 (with the pre-treatment period being from 1991 to the end of 2009).
+Now for additional outcomes, presented in Figure \ref{fig:addout}. To estimate the impact of the mandatory quarantine on fiscal losses, I collect data on taxes generated from Hawaii's General Excise tax for the hotel industry and overall transient accommodations, using quarterly revenue data from 2010 to 2019 (with the pre-treatment period being from 1991 to the end of 2009).
 
 I estimate that Hawaii’s General Excise Tax revenue from hotels fell by 88.3 percentage points after the March 2020 quarantine. Similarly, Transient Accommodations Tax receipts dropped by 91.7 percentage points. While quarterly data exhibit greater volatility and correspondingly higher prediction error (RMSEs = 6.85 and 8.6, respectively), the sheer magnitude of these effects supports the conclusion that the policy triggered a sharp fiscal contraction. These results provide a direct estimate of the policy’s revenue impact on the state budget.
 
@@ -581,6 +574,8 @@ I estimate that Hawaii’s General Excise Tax revenue from hotels fell by 88.3 p
 
 #| echo: false
 #| fig-align: center
+#| label: addout
+#| fig-cap: "Additional Outcomes."
 
 from mlsynth import SHC
 import numpy as np
