@@ -33,6 +33,76 @@ The remainder of the paper proceeds as follows. Section \ref{sec:bgresearch} rev
 # Background
 \label{sec:bgresearch}
 
+Much of the debate around pandemic-era policy centers around stopping the spread of the virus via public policy that is implemented early on. As a consequence of this, though, come tradeoffs between economic impacts of those same policies, and marginal public health benefits.
+
+Few comparisons illustrate the stakes more clearly than Hawaii and Florida. Both states rely heavily on tourism, yet took radically different policy paths in March 2020. Hawaii, discussed above, implemented a strict 14-day quarantine on all arrivals, effectively sealing its borders. Florida, by contrast, imposed minimal restrictions and kept its economy largely open.
+
+
+```{python}
+#| label: fig-hawaii-florida
+#| fig-cap: "Year-over-Year Earnings Change in Accommodation & Food Services for Hawaii vs. Florida."
+#| echo: false
+#| fig-align: center
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the CSV from FRED
+url = "https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23ebf3fb&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1320&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=HIEACC,FLEACC&scale=left,left&cosd=1998-01-01,1998-01-01&coed=2025-01-01,2025-01-01&line_color=%230073e6,%2310847c&link_values=false,false&line_style=solid,dot&mark_type=none,none&mw=3,3&lw=3,3&ost=-99999,-99999&oet=99999,99999&mma=0,0&fml=a,a&fq=Quarterly,Quarterly&fam=avg,avg&fgst=lin,lin&fgsnd=2020-02-01,2020-02-01&line_index=1,2&transformation=pc1,pc1&vintage_date=2025-07-22,2025-07-22&revision_date=2025-07-22,2025-07-22&nd=1998-01-01,1998-01-01"
+df = pd.read_csv(url)
+
+# Convert date column to datetime
+df['DATE'] = pd.to_datetime(df['observation_date'])
+
+# Filter: only dates before 2022-09-01
+df = df[df['DATE'] < '2022-09-01']
+
+# Split data for zoomed subplot (from 2018 onward)
+df_zoom = df[df['DATE'] >= '2018-01-01']
+
+# Set up subplots
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(14, 6), sharex=False)
+
+# --- Full range plot (left) ---
+axes[0].plot(df['DATE'], df['HIEACC_PC1'], label='Hawaii', linewidth=2, color='black')
+axes[0].plot(df['DATE'], df['FLEACC_PC1'], label='Florida', linewidth=2, color='gray')
+axes[0].axvline(pd.Timestamp('2020-01-01'), color='black', linestyle='--', linewidth=1)
+axes[0].set_title("Leisure/Employment Year-over-Year")
+axes[0].set_ylabel("YoY Change (%)")
+axes[0].legend()
+axes[0].grid(True)
+
+# --- Zoomed-in plot with markers and value labels (right) ---
+axes[1].plot(df_zoom['DATE'], df_zoom['HIEACC_PC1'], label='Hawaii', linewidth=2, color='black', marker='o')
+axes[1].plot(df_zoom['DATE'], df_zoom['FLEACC_PC1'], label='Florida', linewidth=2, color='gray', marker='o')
+axes[1].axvline(pd.Timestamp('2020-01-01'), color='black', linestyle='--', linewidth=1)
+axes[1].set_title("Leisure/Employment YoY")
+axes[1].set_ylabel("YoY Change (%)")
+axes[1].set_xlabel("Date")
+axes[1].legend()
+axes[1].grid(True)
+
+# --- Add value labels ---
+for i, row in df_zoom.iterrows():
+    # Label for Hawaii
+    axes[1].text(row['DATE'], row['HIEACC_PC1'] + 1, f"{row['HIEACC_PC1']:.1f}",
+                 color='black', fontsize=8, ha='center')
+
+    # Label for Florida
+    axes[1].text(row['DATE'], row['FLEACC_PC1'] - 1, f"{row['FLEACC_PC1']:.1f}",
+                 color='gray', fontsize=8, ha='center')
+
+# Layout adjustment
+plt.tight_layout()
+plt.show()
+```
+
+The economic effects were immediate. In Q2 of 2020, Hawaii’s accommodation and food services earnings fell by 60\% year-over-year. Florida's declined by only 38\%. But the gap soon narrowed. By Q1 of 2021, Hawaii’s year-over-year growth rate had surged to 117\%, compared to Florida’s 91\%, suggesting a rapid and robust rebound.
+
+Meanwhile, the public health effects diverged even more sharply. Hawaii recorded 16.8 COVID-19 deaths per 100,000 residents in 2020 — the second-lowest in the U.S. Florida recorded 56.4, ranking among the highest. These patterns persisted in 2021.
+
+This contrast poses a vital policy question: Were the short-run economic costs of early containment offset by long-run health and economic benefits? More broadly, when — if ever — should governments shut down major sectors of the economy in service of public health?
+
 ## Previous Work
 \label{sec:litrev}
 
@@ -621,64 +691,6 @@ Now, I discuss the broader interpretations of these results. One central questio
 This is a fair concern. While some portion of Hawaii’s economic contraction likely reflects reduced demand from risk-averse travelers, the magnitude and persistence of the effect suggest that policy played a primary role. Comparison to Florida helps isolate the role of policy design. In Q2 of 2020, Hawaii’s accommodation and food services earnings fell by 60% year-over-year, compared to a 38% decline in Florida, a state that avoided strict lockdowns and travel restrictions altogether.
 
 Both Hawaii and Florida are tourism-heavy states. But while Hawaii shut down inbound travel with a strict quarantine policy, Florida remained open. The fact that Florida did not experience a comparable collapse — despite a similar economic structure — implies that quarantine policy, not just falling demand, drove the bulk of Hawaii’s losses. This interpretation is further supported by the recovery pattern: in Q1 of 2021, Hawaii’s year-over-year growth rate in earnings reached approximately 117%, compared to Florida’s 91%. This rebound suggests that the structure of Hawaii’s tourism economy remained intact — the losses were sharp, but temporary.
-
-```{python}
-
-#| echo: false
-#| fig-align: center
-
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# Load the CSV from FRED
-url = "https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23ebf3fb&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1320&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=HIEACC,FLEACC&scale=left,left&cosd=1998-01-01,1998-01-01&coed=2025-01-01,2025-01-01&line_color=%230073e6,%2310847c&link_values=false,false&line_style=solid,dot&mark_type=none,none&mw=3,3&lw=3,3&ost=-99999,-99999&oet=99999,99999&mma=0,0&fml=a,a&fq=Quarterly,Quarterly&fam=avg,avg&fgst=lin,lin&fgsnd=2020-02-01,2020-02-01&line_index=1,2&transformation=pc1,pc1&vintage_date=2025-07-22,2025-07-22&revision_date=2025-07-22,2025-07-22&nd=1998-01-01,1998-01-01"
-df = pd.read_csv(url)
-
-# Convert date column to datetime
-df['DATE'] = pd.to_datetime(df['observation_date'])
-
-# Filter: only dates before 2022-09-01
-df = df[df['DATE'] < '2022-09-01']
-
-# Split data for zoomed subplot (from 2018 onward)
-df_zoom = df[df['DATE'] >= '2018-01-01']
-
-# Set up subplots
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(14, 6), sharex=False)
-
-# --- Full range plot (left) ---
-axes[0].plot(df['DATE'], df['HIEACC_PC1'], label='Hawaii', linewidth=2, color='black')
-axes[0].plot(df['DATE'], df['FLEACC_PC1'], label='Florida', linewidth=2, color='gray')
-axes[0].axvline(pd.Timestamp('2020-01-01'), color='black', linestyle='--', linewidth=1)
-axes[0].set_title("Leisure/Employment Year-over-Year")
-axes[0].set_ylabel("YoY Change (%)")
-axes[0].legend()
-axes[0].grid(True)
-
-# --- Zoomed-in plot with markers and value labels (right) ---
-axes[1].plot(df_zoom['DATE'], df_zoom['HIEACC_PC1'], label='Hawaii', linewidth=2, color='black', marker='o')
-axes[1].plot(df_zoom['DATE'], df_zoom['FLEACC_PC1'], label='Florida', linewidth=2, color='gray', marker='o')
-axes[1].axvline(pd.Timestamp('2020-01-01'), color='black', linestyle='--', linewidth=1)
-axes[1].set_title("Leisure/Employment YoY")
-axes[1].set_ylabel("YoY Change (%)")
-axes[1].set_xlabel("Date")
-axes[1].legend()
-axes[1].grid(True)
-
-# --- Add value labels ---
-for i, row in df_zoom.iterrows():
-    # Label for Hawaii
-    axes[1].text(row['DATE'], row['HIEACC_PC1'] + 1, f"{row['HIEACC_PC1']:.1f}",
-                 color='black', fontsize=8, ha='center')
-
-    # Label for Florida
-    axes[1].text(row['DATE'], row['FLEACC_PC1'] - 1, f"{row['FLEACC_PC1']:.1f}",
-                 color='gray', fontsize=8, ha='center')
-
-# Layout adjustment
-plt.tight_layout()
-plt.show()
-```
 
 A recent paper by \citet{bondsmith2022effects} further contextualizes these findings. In a detailed descriptive analysis of Hawaii’s economic contraction and sluggish employment recovery, they report that, as of 2022, non-farm employment remained nearly 10% below pre-pandemic levels, raising concerns of long-run “scarring” through persistent unemployment, out-migration, and educational disruption. However, they also note that “Hawaii experienced very few cases of COVID-19 relative to the rest of the US until the Delta and Omicron waves” in late 2021 and 2022. This reflects the protective success of early interventions such as the quarantine policy, as is similarly noted by \citet{hubeipda}.
 
