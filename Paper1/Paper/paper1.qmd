@@ -33,7 +33,7 @@ The remainder of the paper proceeds as follows. Section \ref{sec:bgresearch} rev
 
 Much of the early policy discourse around COVID-19 focused on stopping the spread of the virus through non-pharmaceutical interventions (NPIs). A consistent theme emerged: the earlier and more decisive the intervention, the greater its potential to delay transmission and buy time for public health officials. Yet with these aggressive measures came a central concern—how to balance short-term economic pain caused by these interventions against long-term public health gain. This perceived tradeoff (economic ruin versus viral containment) framed many of the political and policy debates in 2020. But how real is this tradeoff? Are large-scale economic losses an unavoidable consequence of early containment, or can they be short-lived and ultimately outweighed by public health benefits?
 
-Few comparisons illustrate these stakes more clearly than Hawaii and Florida. Both states rely heavily on tourism, yet took radically different approaches at the outset of the pandemic. Unlike Hawaii, Florida, kept its economy largely open and imposed minimal restrictions. As I show below, the consequences of these divergent strategies offer a window into the real costs—and possible benefits—of early, aggressive containment.
+Few comparisons illustrate these stakes more clearly than Hawaii and Florida. Both states rely heavily on tourism, yet took radically different approaches at the outset of the pandemic. @fig-hawaii-florida provides an example. Unlike Hawaii, Florida, kept its economy largely open and imposed minimal restrictions. As I show below, the consequences of these divergent strategies offer a window into the real costs—and possible benefits—of early, aggressive containment.
 
 ```{python}
 #| label: fig-hawaii-florida
@@ -95,7 +95,7 @@ plt.show()
 
 ```
 
-The economic effects of the mandatory quarantine/pandemic were immediate. In Q2 of 2020, Hawaii’s accommodation and food services earnings fell by 60\% year-over-year. Florida's declined by only 38\%. But the gap soon narrowed. By Q1 of 2021, Hawaii’s year-over-year growth rate had surged to 117\%, compared to Florida’s 91\%, suggesting a rapid and robust rebound. Meanwhile, the public health effects diverged even more sharply. Hawaii recorded 16.8 COVID-19 deaths per 100,000 residents in 2020, the second-lowest in the U.S. Florida recorded 56.4 \citep[]{cdc2023covid}. These patterns persisted in 2021. This contrast poses a vital policy question: Were the short-run economic costs of Hawaii's early containment offset by long-run health and economic benefits?
+The economic effects of the mandatory quarantine/pandemic were immediate. In Q2 of 2020, Hawaii’s accommodation and food services earnings fell by 60\% year-over-year. Florida's declined by only 38\%. While Hawaii's were clearly more severe due to the decreased tourism, the gap between the two states soon narrowed. By Q1 of 2021, Hawaii’s year-over-year growth rate had surged to 117\%, compared to Florida’s 91\%, suggesting a rapid and robust rebound. Meanwhile, the public health effects diverged even more sharply. Hawaii recorded 16.8 COVID-19 deaths per 100,000 residents in 2020, the second-lowest in the U.S. Florida recorded 56.4 \citep[]{cdc2023covid}. These patterns persisted in 2021. This contrast poses a vital policy question: Were the short-run economic costs of Hawaii's early containment offset by long-run health and economic benefits?
 
 ## Literature Review
 \label{sec:litrev}
@@ -311,12 +311,12 @@ Hawaii’s mandatory quarantine policy took effect in late March 2020. I define 
 \label{sec:results}
 
 
-In Figure \ref{fig:outcomeplot} we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest precipitously dropped when the mandatory quarantine policy was implemented. The plot also suggests that \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} and \hyperref[assump:matching]{Assumption~\ref*{assump:matching}} may be valid. For example, for \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} to be violated, we would need a situation where the outcome had extremely high variance. While we see seasonality across all outcomes, the time series seemed smooth enough to be approximated by pre-treatment observations.
+In @fig-outcomeplot we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest precipitously dropped when the mandatory quarantine policy was implemented. The plot also suggests that \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} and \hyperref[assump:matching]{Assumption~\ref*{assump:matching}} may be valid. For example, for \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} to be violated, we would need a situation where the outcome had extremely high variance. While we see seasonality across all outcomes, the time series seemed smooth enough to be approximated by pre-treatment observations.
 
 ```{python}
 #| echo: false
 #| fig-align: center
-#| label: outcomeplot
+#| label: fig-outcomeplot
 #| fig-cap: "Outcome Trends."
 
 import pandas as pd
@@ -352,13 +352,13 @@ plt.show()
 
 ```
 
-Figure \ref{fig:firstplot} presents the initial SHC results. For these results, $m=60$ (5 years of evaluation data), but the main results remain robust up until 8 years of evaluation data, with slight deviations in uncertainty.
+@fig-firstplot presents the initial SHC results. For these results, $m=60$ (5 years of evaluation data), but the main results remain robust up until 8 years of evaluation data, with slight deviations in uncertainty.
 
 ```{python}
 
 #| echo: false
 #| fig-align: center
-#| label: firstplot
+#| label: fig-firstplot
 #| fig-cap: "SHC Analysis."
 
 from mlsynth import SHC
@@ -455,13 +455,13 @@ Labor market outcomes also show pronounced effects. Accommodation Employment fel
 
 The sharp decline in overall employment, especially in accommodations, is plausibly mediated by the collapse in tourism. Given Hawaii’s economic structure, the vast majority of hotel/hospitality employment is directly demand-driven. Thus, the drop in visitor-days and occupancy rates leads, mechanically, to reduced staffing needs across the sector. This channel provides a natural explanation for the labor market contraction observed in the data.
 
-To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. Figure \ref{fig:placebo} presents these results
+To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. @fig-placebo presents these results
 
 
 ```{python}
 #| echo: false
 #| fig-align: center
-#| label: placebo
+#| label: fig-placebo
 #| fig-cap: "Placebo Studies."
 
 # Load cleaned data (from your final function)
@@ -565,7 +565,7 @@ The placebo results are reassuring. Across all four outcomes, the placebo ATTs a
 These results offer two key takeaways. First, the SHC model does not erroneously detect treatment effects when none exist—it exhibits strong temporal specificity. Second, even in cases where placebo ATTs are slightly nonzero, they fall within normal forecast uncertainty. This is confirmed by the conformal prediction intervals, which entirely cover the observed outcomes during the placebo window. That is, any apparent deviation between predicted and realized values is consistent with random variation under no treatment. These placebo checks strengthen the case for a causal interpretation of the post-March 2020 findings: the observed deviations are not artifacts of overfitting or model instability, but genuine responses to Hawaii’s border closure.
 
 
-Now for additional outcomes, presented in Figure \ref{fig:addout}. To estimate the impact of the mandatory quarantine on fiscal losses, I collect data on taxes generated from Hawaii's General Excise tax for the hotel industry and overall transient accommodations, using quarterly revenue data from 2010 to 2019 (with the pre-treatment period being from 1991 to the end of 2009).
+Now for additional outcomes, presented in @fig-addout. To estimate the impact of the mandatory quarantine on fiscal losses, I collect data on taxes generated from Hawaii's General Excise tax for the hotel industry and overall transient accommodations, using quarterly revenue data from 2010 to 2019 (with the pre-treatment period being from 1991 to the end of 2009).
 
 I estimate that Hawaii’s General Excise Tax revenue from hotels fell by 88.3 percentage points after the March 2020 quarantine. Similarly, Transient Accommodations Tax receipts dropped by 91.7 percentage points. While quarterly data exhibit greater volatility and correspondingly higher prediction error (RMSEs = 6.85 and 8.6, respectively), the sheer magnitude of these effects supports the conclusion that the policy triggered a sharp fiscal contraction. These results provide a direct estimate of the policy’s revenue impact on the state budget.
 
@@ -574,7 +574,7 @@ I estimate that Hawaii’s General Excise Tax revenue from hotels fell by 88.3 p
 
 #| echo: false
 #| fig-align: center
-#| label: addout
+#| label: fig-addout
 #| fig-cap: "Additional Outcomes."
 
 from mlsynth import SHC
