@@ -33,10 +33,13 @@ The remainder of the paper proceeds as follows. Section \ref{sec:bgresearch} rev
 # Background
 \label{sec:bgresearch}
 
-Much of the debate around pandemic-era policy centers around stopping the spread of the virus via public policy that is implemented early on. As a consequence of this, though, come tradeoffs between economic impacts of those same policies, and marginal public health benefits.
+Much of the early policy discourse around COVID-19 focused on stopping the spread of the virus through non-pharmaceutical interventions (NPIs). A consistent theme emerged: the earlier and more decisive the intervention, the greater its potential to delay transmission and buy time. Yet with these aggressive measures came a central concern—how to balance short-term economic pain against long-term public health gain.
 
-Few comparisons illustrate the stakes more clearly than Hawaii and Florida. Both states rely heavily on tourism, yet took radically different policy paths in March 2020. Hawaii, discussed above, implemented a strict 14-day quarantine on all arrivals, effectively sealing its borders. Florida, by contrast, imposed minimal restrictions and kept its economy largely open.
+This perceived tradeoff—economic ruin versus viral containment—framed many of the political and policy debates in 2020. But how real is this tradeoff? Are large-scale economic losses an unavoidable consequence of early containment, or can they be short-lived and ultimately outweighed by public health benefits?
 
+Few comparisons illustrate these stakes more clearly than Hawaii and Florida. Both states rely heavily on tourism, yet took radically different approaches at the outset of the pandemic. Hawaii implemented a mandatory 14-day quarantine for all arrivals, effectively sealing its borders. Florida, by contrast, kept its economy largely open and imposed minimal restrictions.
+
+As I show below, the consequences of these divergent strategies offer a window into the real costs—and possible benefits—of early, aggressive containment.
 
 ```{python}
 #| label: fig-hawaii-florida
