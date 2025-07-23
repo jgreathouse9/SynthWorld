@@ -391,7 +391,100 @@ Labor market outcomes also show pronounced effects. Accommodation Employment fel
 
 The sharp decline in overall employment, especially in accommodations, is plausibly mediated by the collapse in tourism. Given Hawaii’s economic structure, the vast majority of hotel/hospitality employment is directly demand-driven. Thus, the drop in visitor-days and occupancy rates leads, mechanically, to reduced staffing needs across the sector. This channel provides a natural explanation for the labor market contraction observed in the data.
 
-To assess the credibility of our identification strategy, we conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. @fig-placebo presents these results
+My above results use 5 years of pre-intervention data. Next, I use 10 years of pre-intervention data. The results are presented in @fig-secondplot.
+
+
+```{python}
+#| echo: false
+#| fig-align: center
+#| label: fig-secondplot
+#| fig-cap: "SHC Analysis, $m=120$."
+
+
+# Load data
+df = pd.read_excel("Data/HawaiiData.xlsx")
+
+# Outcomes to estimate
+outcomes = ["Visitor Days", "Occupancy", "Accommodation Emp", "Econ Activity Index"]
+
+# Results container
+results = {}
+plot_data = {}
+
+# Run SHC for each outcome
+for outcome in outcomes:
+    config = {
+        "df": df,
+        "outcome": outcome,
+        "treat": "Mandatory Quarantine",
+        "unitid": "Unit",
+        "time": "Date",
+        "display_graphs": False,
+        "save": False,
+        "counterfactual_color": ["red"],
+        "m": 12*10
+    }
+
+    model = SHC(config)
+    result = model.fit()
+    results[outcome] = result
+
+    # Extract vectors
+    vectors = result.raw_results["Vectors"]
+    observed = vectors["Observed Unit"]
+    counterfactual = vectors["Counterfactual"]
+    gap = vectors["Gap"][:, 1]
+
+    plot_data[outcome] = {
+        "time": gap,
+        "observed": observed,
+        "counterfactual": counterfactual
+    }
+
+# Plotting
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+axes = axes.flatten()
+
+for i, (outcome, data_dict) in enumerate(plot_data.items()):
+    ax = axes[i]
+    time = np.arange(len(data_dict["observed"]))
+    treatment_index = np.where(data_dict["time"] == 0)[0][0]
+
+    ax.plot(time, data_dict["observed"], label="Observed", color="black")
+    ax.plot(time, data_dict["counterfactual"], label="Counterfactual", color="blue", linestyle="--")
+    ax.axvline(treatment_index, color="gray", linestyle="--", label="March 2020")
+
+    # Add prediction interval if available
+    inference = results[outcome].inference
+    if inference and inference.details:
+        interval = inference.details.get("full_interval")
+        if interval is not None and interval.size > 0:
+            lower, upper = interval[:, 0], interval[:, 1]
+            valid = ~(np.isnan(lower) | np.isnan(upper))
+            if np.any(valid):
+                ax.fill_between(time[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
+                                label="Conformal 90% Interval")
+
+    # Title and labels
+    att = results[outcome].effects.att
+    rmse = results[outcome].fit_diagnostics.rmse_pre
+    ax.set_title(f"ATT = {att:.3f}, RMSE = {rmse:.3f}", fontsize=11)
+    ax.set_ylabel(outcome, fontsize=11)
+    ax.set_xlabel("Time")
+    ax.legend(fontsize=9)
+    ax.grid(True, linestyle="--", alpha=0.3)
+
+# Remove any unused axes
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.tight_layout(h_pad=3)
+plt.show()
+```
+
+When we do this, the ATT for visitor days and occupancy respectively become 86\% and 75\%. with slight degredation of fit (mostly a the beginning of the evaluation periods, but fitting much better towards the date of the intervention. The same is true for the ATTs for accomodation industry employment and the coincident economic activity index, whose ATTs are now 57\% and 25\%, which are not much different from the estimation with 5 years of evaluation data. Noticeably, these two have much worse pre-treatment fit by 1.2 and 0.6 percentage points. However, the central results are the same, and the economic impact is still substantial.
+
+I now would like to assess the credibility of my identification strategy. I conduct a placebo test by assigning a false treatment date of September 2019 and evaluating outcomes through February 2020. Because this window predates the onset of the COVID-19 pandemic, a well-specified model should yield no substantial treatment effects. @fig-placebo presents these results
 
 
 ```{python}
