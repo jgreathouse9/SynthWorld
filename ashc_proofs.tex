@@ -215,6 +215,21 @@ By the operator norm bound (A4), $\\|\widetilde{\mathbf{Y}}\\| \leq \gamma$. Thu
 \]
 \end{proof}
 
+
+\begin{remark}
+Lemma~\ref{lem:gamma} is needed because Lemma~\ref{lem:delta} only controls the
+deviation of the ASHC weights from the SHC weights in $\ell_2$ norm,
+i.e.\ $\|\Delta\|$. However, our primary interest is not in the weights
+themselves, but in the \emph{predictions} they generate. The fitted outcomes
+differ by $\widetilde{\mathbf{Y}}\Delta$, so we require a way to translate
+weight deviations into prediction deviations. Assumption~(A4) provides this
+translation: it ensures that $\widetilde{\mathbf{Y}}$ cannot amplify the
+deviation $\Delta$ by more than its operator norm $\gamma$. Thus, Lemma~\ref{lem:gamma}
+bridges the gap between controlling weight deviations and controlling the error
+in fitted outcomes.
+\end{remark}
+
+
 \begin{lemma}[Bias from Smoothness]
 \label{lem:smoothness}
 Under (A3), for horizon $k > 0$,
@@ -289,6 +304,14 @@ Hence,
 \frac{2\epsilon}{(H+1)!}\, |k|^{H+1}.
 \]
 \end{proof}
+
+
+\begin{remark}[Interpretation and Importance of the Bias Bound]
+Lemma~\ref{lem:smoothness} quantifies the approximation error introduced by the Synthetic Historical Control (SHC) method when estimating the latent smooth component \(\ell(t)\) of the treated unit's outcome trajectory. The SHC estimator is designed to match the function and its derivatives up to order \(H\) at the last pre-treatment time point \(T_0\). This lemma shows that the residual bias at a future time \(T_0 + k\) behaves like the remainder term in a Taylor expansion, shrinking at a rate proportional to \(|k|^{H+1}\).
+
+This bound is critical because it formalizes how smoothness assumptions on the underlying trend translate into predictable and controlled bias in the synthetic control estimator. Essentially, it justifies that for sufficiently smooth trends (large \(H\)) and moderate forecasting horizons \(k\), the SHC bias becomes negligible. This allows us to separate and analyze the bias due to smoothness from other sources of error, such as noise or weight deviations, thereby enabling more precise finite-sample error bounds for SHC and its augmented variants.
+\end{remark}
+
 
 % Main result with updated bound
 \section*{Main Result}
