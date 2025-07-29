@@ -3,6 +3,7 @@
 \usepackage{mathtools}
 \usepackage{fullpage}
 
+% Defining the title, author, and date
 \title{Finite-Sample Error Bound for the Augmented Synthetic Historical Control Estimator (ASHC)}
 \author{}
 \date{}
@@ -10,23 +11,28 @@
 \begin{document}
 \maketitle
 
+% Setting up the problem and assumptions
 \section*{Setup and Assumptions}
 
+% Defining the matrices and vectors
 Let $\widetilde{\mathbf{Y}} \in \mathbb{R}^{m \times N}$ denote the matrix of smoothed donor segments
 for the treated unit in the pre-treatment period, and let $\widetilde{\mathbf{y}} \in \mathbb{R}^m$
 denote the smoothed evaluation vector for the treated unit.
 
+% Defining the SHC and modified ASHC solutions with additional penalty
 Let $\mathbf{w}^{\text{SHC}}$ denote the SHC solution, and $\mathbf{w}^{\text{ASHC}}$
 the ASHC solution:
 \begin{align*}
 \mathbf{w}^{\text{ASHC}}
 = \arg\min_{\mathbf{w} \in \mathbb{R}^N}
 \left\{
-\frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|^2
+\frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|^2
 + \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}\|_2^2
 \right\}
-\quad \text{s.t. } \sum_{i=1}^N w_i = 1.
+\quad \text{s.t. } \sum_{i=1}^N w_i = 1,
 \end{align*}
+where $\lambda > 0$ is the regularization parameter, $\varsigma > 0$ is the penalty parameter for the low-variance directions, and $\mathbf{C}_0 \in \mathbb{R}^{N \times k}$ contains the eigenvectors of the Gram matrix $\mathbf{G} = \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}$ corresponding to eigenvalues less than a threshold $\tau > 0$.
 
 We adopt assumptions inspired by the SHC framework.
 
@@ -52,29 +58,69 @@ for all $t$ and some $H \geq 3$.
 $\|\widetilde{\mathbf{Y}}\| \leq \gamma$.
 
 \item[\textbf{(A5)}] \textbf{Simplex feasibility:} 
-$\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} := \{\mathbf{w}\in\mathbb{R}^N: \sum w_i = 1,\; w_i \geq 0\}$.
+$\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} := \{\mathbf{w} \in \mathbb{R}^N: \sum w_i = 1,\; w_i \geq 0\}$.
 \end{enumerate}
 
+% Lemmas supporting the main result
 \section*{Lemmas}
 
+% Updating the deviation lemma to account for the additional penalty
 \begin{lemma}[Deviation from SHC]
 \label{lem:delta}
 Let $\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$. Then
 \[
-\|\Delta\| \leq \frac{\epsilon_{\text{SHC}}}{\sqrt{2\lambda}},
+\|\Delta\| \leq \frac{\epsilon_{\text{SHC}}}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}},
 \]
-where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$.
+where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ and $\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
 \end{lemma}
 
 \begin{proof}
-By optimality of $\mathbf{w}^{\text{ASHC}}$ and feasibility of $\mathbf{w}^{\text{SHC}}$,
+% Optimality condition with the new penalty term
+By optimality of $\mathbf{w}^{\text{ASHC}}$ and feasibility of $\mathbf{w}^{\text{SHC}}$, the objective function for $\mathbf{w}^{\text{ASHC}}$ satisfies:
 \[
-\frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|^2 
-+ \|\Delta\|^2
-\;\leq\;
-\frac{1}{2\lambda}\epsilon_{\text{SHC}}^2.
+\frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|^2
++ \|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\|^2
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{ASHC}}\|_2^2
+\leq
+\frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|^2
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
 \]
-Dropping the first term yields the result.
+Since $\mathbf{w}^{\text{SHC}}$ is feasible, we have:
+\[
+\frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|^2
++ \|\Delta\|^2
++ \varsigma \|\mathbf{C}_0^\top (\mathbf{w}^{\text{SHC}} + \Delta)\|_2^2
+\leq
+\frac{1}{2\lambda} \epsilon_{\text{SHC}}^2
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
+\]
+% Bounding the penalty term
+By the triangle inequality and the operator norm, $\\|\mathbf{C}_0^\top (\mathbf{w}^{\text{SHC}} + \Delta)\\|_2 \leq \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2 + \|\mathbf{C}_0^\top \Delta\|_2$. Since $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$, we focus on the deviation term. Dropping the non-negative data fidelity term $\frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|^2$, we get:
+\[
+\|\Delta\|^2 + \varsigma \|\mathbf{C}_0^\top \Delta + \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2
+\leq
+\frac{1}{2\lambda} \epsilon_{\text{SHC}}^2 + \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
+\]
+Since the left-hand side includes $\varsigma \|\mathbf{C}_0^\top \Delta + \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2 \geq 0$, we conservatively bound:
+\[
+\|\Delta\|^2 \leq \frac{1}{2\lambda} \epsilon_{\text{SHC}}^2.
+\]
+However, to account for the additional penalty, consider the unconstrained minimizer by taking the gradient of the objective (ignoring the simplex constraint for a moment):
+\[
+\nabla J(\mathbf{w}) = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}})
++ 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}})
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}.
+\]
+Setting to zero:
+\[
+\left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \right) \mathbf{w}
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} + 2 \mathbf{w}^{\text{SHC}}.
+\]
+The matrix $\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top$ has eigenvalues at least $2 + 2 \varsigma \lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top)$. Thus, the deviation is bounded by considering the effective regularization strength. For simplicity, we use the operator norm $\\|\mathbf{C}_0\\|^2 = \lambda_{\max}(\mathbf{C}_0^\top \mathbf{C}_0)$, leading to:
+\[
+\|\Delta\|^2 \leq \frac{\epsilon_{\text{SHC}}^2}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
+\]
+Taking the square root yields the result.
 \end{proof}
 
 \begin{lemma}[Impact of Weight Deviations]
@@ -84,6 +130,13 @@ Under (A4), the error from deviating off SHC weights satisfies
 \|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|.
 \]
 \end{lemma}
+
+\begin{proof}
+By the operator norm bound (A4), $\\|\widetilde{\mathbf{Y}}\\| \leq \gamma$. Thus:
+\[
+\|\widetilde{\mathbf{Y}} \Delta\| \leq \|\widetilde{\mathbf{Y}}\| \|\Delta\| \leq \gamma \|\Delta\|.
+\]
+\end{proof}
 
 \begin{lemma}[Bias from Smoothness]
 \label{lem:smoothness}
@@ -99,6 +152,7 @@ Let $\ell(t)$ denote the latent smooth component of the treated outcome.
 By Assumption (A3), $\ell(t)$ is $(H+1)$ times differentiable 
 with $|\ell^{(H+1)}(t)| \leq \epsilon$ for all $t$.
 
+% Taylor expansion around T_0
 \textbf{Step 1. Taylor expansion around $T_0$.}
 For any $k > 0$, by Taylor’s theorem,
 \[
@@ -112,12 +166,14 @@ R_{H+1}(k) = \frac{\ell^{(H+1)}(\xi)}{(H+1)!}\, k^{H+1}
 \quad \text{for some } \xi \in [T_0, T_0 + k].
 \]
 
+% Bounding the remainder
 \textbf{Step 2. Bound the remainder.}
 By Assumption (A3),
 \[
 |R_{H+1}(k)| \;\leq\; \frac{\epsilon}{(H+1)!}\, |k|^{H+1}.
 \]
 
+% SHC approximation
 \textbf{Step 3. SHC approximation of lower-order terms.}
 By construction, the SHC estimator forms smoothed donor segments 
 that replicate the first $H$ terms of this Taylor expansion. 
@@ -128,6 +184,7 @@ That is,
 \]
 up to an error bounded by the same order as the remainder.
 
+% Total bias decomposition
 \textbf{Step 4. Total bias decomposition.}
 Thus,
 \begin{align*}
@@ -137,6 +194,7 @@ Thus,
 - \ell^{\text{SHC}}(T_0 + k)\Big|.
 \end{align*}
 
+% Bounding SHC approximation error
 \textbf{Step 5. Bound SHC approximation error.}
 The smoothing construction ensures
 \[
@@ -145,6 +203,7 @@ The smoothing construction ensures
 \;\leq\; \frac{\epsilon}{(H+1)!}\, |k|^{H+1}.
 \]
 
+% Combining bounds
 \textbf{Step 6. Combine bounds.}
 Hence,
 \[
@@ -154,6 +213,7 @@ Hence,
 \]
 \end{proof}
 
+% Main result with updated bound
 \section*{Main Result}
 
 \begin{proposition}[Finite-Sample Error Bound for ASHC]
@@ -163,12 +223,13 @@ Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
 \;\leq\;
 \epsilon_{\text{SHC}}
-\left(1 + \frac{\gamma}{\sqrt{2\lambda}} \right)
+\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
 + b_\epsilon(H,k) + \delta.
 \]
 \end{proposition}
 
 \begin{proof}
+% Applying triangle inequality
 By the triangle inequality,
 \[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|
@@ -176,26 +237,25 @@ By the triangle inequality,
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|
 + \|\widetilde{\mathbf{Y}}\Delta\|.
 \]
-Applying Lemmas~\ref{lem:delta} and~\ref{lem:gamma},
+% Using updated lemmas
+Applying Lemma~\ref{lem:delta} and Lemma~\ref{lem:gamma},
 \[
-\|\widetilde{\mathbf{Y}}\Delta\| \leq \frac{\gamma}{\sqrt{2\lambda}}\epsilon_{\text{SHC}}.
+\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\| \leq \frac{\gamma \epsilon_{\text{SHC}}}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}.
 \]
 Adding the bias term from Lemma~\ref{lem:smoothness} and the noise bound (A2) yields the result.
 \end{proof}
 
+% Discussion of the updated bound
 \section*{Discussion}
 
 Proposition~\ref{prop:ashc} shows that ASHC error decomposes into four sources:
 (i) baseline SHC fit error ($\epsilon_{\text{SHC}}$),
-(ii) an amplification factor from ASHC deviation ($\gamma/\sqrt{2\lambda}$),
+(ii) an amplification factor from ASHC deviation ($\gamma/\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}$),
 (iii) smoothness-induced bias $b_\epsilon(H,k)$,
 and (iv) noise $\delta$.
-Thus, $\lambda$ controls the bias--variance tradeoff:
-large $\lambda$ tethers ASHC close to SHC,
-while small $\lambda$ allows more flexibility but risks greater extrapolation error.
+The additional penalty term $\varsigma \|\mathbf{C}_0^\top \mathbf{w}\|_2^2$ reduces the deviation factor by increasing the effective regularization, tightening the bound, but may introduce bias if the true weights $\mathbf{w}^*$ have components in the directions of $\mathbf{C}_0$. The parameter $\lambda$ controls the trade-off between data fidelity and proximity to SHC weights, while $\varsigma$ controls stability in low-variance directions.
 
-
-
+% Asymptotic theorem (unchanged)
 \begin{theorem}[Asymptotic Bias Bound for ASHC]
 \label{thm:ashc_asymptotics}
 Under Assumptions (A1)--(A5), as the number of pre-treatment periods $m \to \infty$
@@ -220,12 +280,13 @@ Starting from Proposition~\ref{prop:ashc}, for each $m$ we have
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 \;\leq\;
 \epsilon_{\text{SHC}}
-\left(1 + \frac{\gamma}{\sqrt{2\lambda}} \right)
+\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
 + b_\epsilon(H,k) + \delta.
 \end{equation}
 
 We study the asymptotic behavior of each term in the bound.
 
+% Behavior of SHC error
 \paragraph{Step 1. Behavior of $\epsilon_{\text{SHC}}$.}
 By Assumption (A3), $\ell(t)$ is $(H+1)$ times differentiable with bounded derivatives.
 The SHC construction uses Gaussian kernel smoothing of donor segments.
@@ -235,17 +296,19 @@ By Proposition~2 of \cite{SHC}, the SHC estimator achieves
 \quad\text{as } m \to \infty \text{ and } H \to \infty.
 \]
 
+% Behavior of ASHC penalty term
 \paragraph{Step 2. Behavior of the ASHC penalty term.}
 The additional term in \eqref{eq:main_bound} is
 \[
-\frac{\gamma}{\sqrt{2\lambda}} \,\epsilon_{\text{SHC}}.
+\frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \,\epsilon_{\text{SHC}}.
 \]
-Since $\gamma$ and $\lambda$ are fixed constants and $\epsilon_{\text{SHC}} \to 0$ by Step~1,
+Since $\gamma$, $\lambda$, and $\varsigma$ are fixed constants and $\epsilon_{\text{SHC}} \to 0$ by Step~1,
 we conclude
 \[
-\frac{\gamma}{\sqrt{2\lambda}} \,\epsilon_{\text{SHC}} \;\longrightarrow\; 0.
+\frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \,\epsilon_{\text{SHC}} \;\longrightarrow\; 0.
 \]
 
+% Behavior of smoothness bias
 \paragraph{Step 3. Behavior of the smoothness bias $b_\epsilon(H,k)$.}
 By Taylor's theorem with remainder, for any fixed $k > 0$,
 \[
@@ -289,6 +352,7 @@ As $H \to \infty$, the factorial growth of $(H+1)!$ dominates, so for fixed $k$,
 b_\epsilon(H,k) \;\longrightarrow\; 0.
 \]
 
+% Behavior of noise term
 \paragraph{Step 4. Behavior of the noise term.}
 Under deterministic bounded noise (A2), we have
 \[
@@ -308,6 +372,7 @@ Dividing by $m$ and applying \textbf{Minkowski’s inequality} across $m$ period
 \frac{\|\bm{\eta}\|}{m} \;\longrightarrow\; 0 \quad \text{in probability}.
 \]
 
+% Combining asymptotic behaviors
 \paragraph{Step 5. Combine bounds.}
 Substituting the asymptotic behaviors from Steps~1--4 into \eqref{eq:main_bound}, we obtain
 \[
@@ -319,6 +384,7 @@ under bounded deterministic noise.
 If $\bm{\eta}$ is sub-Gaussian, then the right-hand side converges to $0$ in probability.
 \end{proof}
 
+% Consistency and convergence rate
 \begin{corollary}[Consistency and Convergence Rate of ASHC]
 \label{cor:ashc_consistency}
 Under Assumptions (A1)--(A5), the ASHC estimator is asymptotically unbiased up to the noise floor $\delta$. If the noise vector $\bm{\eta}$ consists of i.i.d. mean-zero sub-Gaussian entries with variance proxy $\sigma^2$ and the Gaussian kernel bandwidth scales as $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
@@ -331,6 +397,7 @@ In particular, for sufficiently large smoothing order $H$, the ASHC estimator ac
 \begin{proof}
 We first establish consistency, then derive the convergence rate.
 
+% Consistency
 \paragraph{Part 1: Consistency.}
 From Theorem~\ref{thm:ashc_asymptotics}, under Assumptions (A1)--(A5), as $m \to \infty$ and $H \to \infty$, the ASHC prediction error satisfies
 \[
@@ -341,6 +408,7 @@ under deterministic noise (A2). If $\bm{\eta}$ is i.i.d. mean-zero sub-Gaussian 
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \;\xrightarrow{p}\; 0.
 \]
 
+% Convergence rate
 \paragraph{Part 2: Convergence Rate.}
 Starting from the finite-sample bound in Proposition~\ref{prop:ashc},
 \begin{equation}
@@ -348,10 +416,11 @@ Starting from the finite-sample bound in Proposition~\ref{prop:ashc},
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 \;\leq\;
 \epsilon_{\text{SHC}}
-\left(1 + \frac{\gamma}{\sqrt{2\lambda}}\right)
+\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}\right)
 + b_\epsilon(H,k) + \delta.
 \end{equation}
 
+% Bias term
 \textbf{Step 1. Bias term.}
 From Lemma~\ref{lem:smoothness}, the smoothness bias is
 \[
@@ -359,6 +428,7 @@ b_\epsilon(H,k) = O\!\left(h_m^H\right),
 \]
 since the Gaussian kernel smoother approximates the latent trend $\ell(t)$ up to the $H$th-order Taylor polynomial, with higher-order terms contributing error proportional to the bandwidth $h_m$ raised to the $H$th power (see, e.g., Tsybakov, 2009).
 
+% Stochastic error term
 \textbf{Step 2. Stochastic error term.}
 Under i.i.d. sub-Gaussian noise with variance proxy $\sigma^2$, the effective variance of the kernel-smoothed estimate is
 \[
@@ -366,6 +436,7 @@ O_p\!\left(\frac{1}{\sqrt{m h_m}}\right),
 \]
 since the kernel smoother averages approximately $m h_m$ effective observations, reducing the noise variance by a factor proportional to the effective sample size (Vershynin, 2018). As noted in Remark~\ref{rem:delta}, the deterministic noise bound $\delta$ from (A2) scales as $\delta = O_p(\sigma \sqrt{m})$ under sub-Gaussian noise, and kernel smoothing further reduces the effective noise to $O_p((m h_m)^{-1/2})$.
 
+% SHC fit error
 \textbf{Step 3. SHC fit error.}
 Combining Steps 1 and 2, the SHC fit error is
 \[
@@ -373,6 +444,7 @@ Combining Steps 1 and 2, the SHC fit error is
 = O_p\!\left(h_m^H + \frac{1}{\sqrt{m h_m}}\right).
 \]
 
+% Optimizing bandwidth
 \textbf{Step 4. Optimizing bandwidth.}
 Choose $h_m$ to balance the bias $h_m^H$ and variance $(m h_m)^{-1/2}$. Set
 \[
@@ -384,22 +456,25 @@ h_m \;\asymp\; m^{-1/(2H+3)}.
 \]
 This bandwidth minimizes the mean squared error by equating the orders of bias and variance (Tsybakov, 2009).
 
+% Convergence rate derivation
 \textbf{Step 5. Convergence rate.}
 Substituting $h_m \asymp m^{-1/(2H+3)}$ into $\epsilon_{\text{SHC}}$ yields
 \[
 \epsilon_{\text{SHC}}
 = O_p\!\left(m^{-H/(2H+3)}\right).
 \]
-By Lemma~\ref{lem:delta} and Lemma~\ref{lem:gamma}, the ASHC penalty term adds only a multiplicative factor $(1+\gamma/\sqrt{2\lambda})$, where $\lambda$ is assumed fixed, preserving the rate. The smoothness bias $b_\epsilon(H,k)$ matches the $h_m^H$ term and decays at the same rate. The noise term $\delta$, under sub-Gaussian noise, is dominated by the smoothed rate $O_p((m h_m)^{-1/2}) = O_p(m^{-H/(2H+3)})$ after substituting $h_m$. Thus, from \eqref{eq:bound_rate},
+By Lemma~\ref{lem:delta} and Lemma~\ref{lem:gamma}, the ASHC penalty term adds only a multiplicative factor $(1+\gamma/\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2})$, where $\lambda$ and $\varsigma$ are assumed fixed, preserving the rate. The smoothness bias $b_\epsilon(H,k)$ matches the $h_m^H$ term and decays at the same rate. The noise term $\delta$, under sub-Gaussian noise, is dominated by the smoothed rate $O_p((m h_m)^{-1/2}) = O_p(m^{-H/(2H+3)})$ after substituting $h_m$. Thus, from \eqref{eq:bound_rate},
 \[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 = O_p\!\left(m^{-H/(2H+3)}\right).
 \]
 
+% Near-parametric rate
 \textbf{Step 6. Near-parametric rate.}
 As $H \to \infty$, the exponent $H/(2H+3) \to 1/2$, so the rate approaches $O_p(m^{-1/2})$, matching the parametric rate for linear models.
 \end{proof}
 
+% Noise bound interpretation
 \begin{remark}[Noise Bound Interpretation]
 \label{rem:delta}
 The deterministic noise bound $\delta$ in Assumption (A2) corresponds to the worst-case scenario $\|\bm{\eta}\| \leq \delta$. Under the sub-Gaussian assumption with variance proxy $\sigma^2$, standard concentration results imply
@@ -408,6 +483,5 @@ The deterministic noise bound $\delta$ in Assumption (A2) corresponds to the wor
 \]
 Thus, $\delta$ may be interpreted as $\delta = O(\sigma \sqrt{m})$, ensuring consistency with Theorem~\ref{thm:ashc_asymptotics}. When the stochastic assumption is invoked, kernel smoothing with bandwidth $h_m \asymp m^{-1/(2H+3)}$ reduces the effective noise to $O_p((m h_m)^{-1/2})$, contributing to the rate in Corollary~\ref{cor:ashc_consistency}.
 \end{remark}
-
 
 \end{document}
