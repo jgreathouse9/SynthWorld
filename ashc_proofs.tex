@@ -181,6 +181,25 @@ Using the operator norm bound $\|\mathbf{C}_0\|^2 := \lambda_{\max}(\mathbf{C}_0
 Taking square roots concludes the proof.
 \end{proof}
 
+
+\begin{remark}
+The proof above uses the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$ in place of the simplex
+constraint of SHC. Importantly, the eigenvalue argument is unaffected by this relaxation.
+The key reason is that the deviation bound depends only on the strong convexity of the
+quadratic form defined by 
+\[
+M := \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}
++ 2\mathbf{I}
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top,
+\]
+not on the positivity of the weights.
+The affine constraint is enforced through the Lagrange multiplier $\mu$, which shifts the
+right-hand side of the optimality condition but does not change the conditioning of $M$.
+Thus, the lower eigenvalue bound on $M$ continues to control the magnitude of the deviation
+$\Delta$, ensuring that the derived inequality remains valid.
+\end{remark}
+
+
 \begin{lemma}[Impact of Weight Deviations]
 \label{lem:gamma}
 Under (A4), the error from deviating off SHC weights satisfies
