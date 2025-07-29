@@ -95,7 +95,55 @@ Since $\mathbf{w}^{\text{SHC}}$ is feasible, we have:
 + \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
 \]
 % Bounding the penalty term
-By the triangle inequality and the operator norm, $\\|\mathbf{C}_0^\top (\mathbf{w}^{\text{SHC}} + \Delta)\\|_2 \leq \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2 + \|\mathbf{C}_0^\top \Delta\|_2$. Since $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$, we focus on the deviation term. Dropping the non-negative data fidelity term $\frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|^2$, we get:
+By the triangle inequality and the operator norm, $\\|\mathbf{C}_0^\top (\mathbf{w}^{\text{SHC}} + \Delta)\\|_2 \leq \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2 + \|\mathbf{C}_0^\top \Delta\|_2$. Since $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$, we focus on the deviation term.
+
+
+From the optimality condition we obtained
+\[
+\frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|^2
++ \|\Delta\|^2
++ \varsigma \|\mathbf{C}_0^\top(\mathbf{w}^{\text{SHC}} + \Delta)\|_2^2
+\;\leq\;
+\frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{SHC}}\|^2
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
+\]
+
+All terms on the left-hand side are nonnegative, since they are squared norms multiplied by positive constants. In particular, set
+\[
+A := \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|^2
+\;\geq\; 0,\qquad
+B := \|\Delta\|^2 \;\geq\; 0,\qquad
+D := \varsigma \|\mathbf{C}_0^\top(\mathbf{w}^{\text{SHC}} + \Delta)\|_2^2 \;\geq\; 0.
+\]
+
+Then we have
+\[
+A + B + D \;\leq\; C,
+\qquad
+C := \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{SHC}}\|^2
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
+\]
+
+Since $A, D \geq 0$, removing them from the left-hand side only weakens the inequality:
+\[
+B \;\leq\; C.
+\]
+
+That is,
+\[
+\|\Delta\|^2 \;\leq\;
+\frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{SHC}}\|^2
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
+\]
+
+Taking square roots gives
+\[
+\|\Delta\| \;\leq\;
+\sqrt{\frac{1}{2\lambda}\,\epsilon_{\text{SHC}}^2
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2 }.
+\]
+
+Thus, we drop the fit term, leaving us with:
 \[
 \|\Delta\|^2 + \varsigma \|\mathbf{C}_0^\top \Delta + \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2
 \leq
@@ -105,7 +153,7 @@ Since the left-hand side includes $\varsigma \|\mathbf{C}_0^\top \Delta + \mathb
 \[
 \|\Delta\|^2 \leq \frac{1}{2\lambda} \epsilon_{\text{SHC}}^2.
 \]
-However, to account for the additional penalty, consider the unconstrained minimizer by taking the gradient of the objective (ignoring the simplex constraint for a moment):
+However, to account for the additional penalty term, consider the unconstrained minimizer by taking the gradient of the objective (ignoring the simplex constraint for a moment):
 \[
 \nabla J(\mathbf{w}) = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}})
 + 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}})
