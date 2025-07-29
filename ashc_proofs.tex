@@ -316,6 +316,8 @@ This bound is critical because it formalizes how smoothness assumptions on the u
 % Main result with updated bound
 \section*{Main Result}
 
+\section*{Explanation of Main Result}
+
 \begin{proposition}[Finite-Sample Error Bound for ASHC]
 \label{prop:ashc}
 Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
@@ -328,22 +330,96 @@ Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
 \]
 \end{proposition}
 
-\begin{proof}
-% Applying triangle inequality
-By the triangle inequality,
+\begin{proof}[Intuition]
+
+This result bounds the prediction error of the ASHC estimator, which constructs a weighted combination of donor units to approximate the treated unit's outcome. We explain how each assumption contributes to this bound and how the lemmas combine to yield the result.
+
+\begin{itemize}
+
+\item \textbf{Assumption (A1) -- Linearity with noise:} 
+We assume that the true smoothed treated outcome vector \(\widetilde{\mathbf{y}}\) can be expressed as a linear combination of donor units plus noise:
+\[
+\widetilde{\mathbf{y}} = \widetilde{\mathbf{Y}} \mathbf{w}^* + \bm{\eta},
+\]
+where \(\mathbf{w}^*\) is the true underlying weight vector and \(\bm{\eta}\) is the noise. This models the fundamental premise of synthetic control methods.
+
+\item \textbf{Assumption (A2) -- Bounded noise:} 
+The noise vector \(\bm{\eta}\) is bounded by \(\delta\), ensuring a controlled level of irreducible error:
+\[
+\|\bm{\eta}\| \leq \delta.
+\]
+This term appears additively in the overall error bound.
+
+\item \textbf{Assumption (A3) -- Smoothness of latent trend:} 
+The latent trend \(\ell(t)\) is sufficiently smooth with bounded higher-order derivatives. This permits a Taylor expansion approximation around the treatment time \(T_0\), controlling the bias \(b_\epsilon(H,k)\) due to approximating future outcomes:
+\[
+b_\epsilon(H,k) := \frac{2 \epsilon |k|^{H+1}}{(H+1)!}.
+\]
+
+\item \textbf{Assumption (A4) -- Operator norm bound:} 
+The smoothed donor matrix \(\widetilde{\mathbf{Y}}\) has bounded operator norm \(\gamma\):
+\[
+\|\widetilde{\mathbf{Y}}\| \leq \gamma.
+\]
+This ensures that deviations in the ASHC weights from the SHC weights translate to proportionally bounded deviations in the predictions.
+
+\item \textbf{Assumption (A5) -- Simplex feasibility:} 
+The SHC weights lie in the simplex, which restricts them to convex combinations. This stability assumption supports bounding the difference \(\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\) via regularization.
+
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent
+\textbf{Putting it all together:}
+
+\begin{enumerate}
+
+\item By the triangle inequality, the ASHC prediction error decomposes as
 \[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|
-\;\leq\;
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|
-+ \|\widetilde{\mathbf{Y}}\Delta\|.
+\leq
+\underbrace{\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|}_{\epsilon_{\text{SHC}}} + \underbrace{\|\widetilde{\mathbf{Y}} \Delta\|}_{\text{deviation from weight change}}.
 \]
-% Using updated lemmas
-Applying Lemma~\ref{lem:delta} and Lemma~\ref{lem:gamma},
+
+\item Applying Lemma~\ref{lem:gamma} and Lemma~\ref{lem:delta} gives a bound on the second term:
 \[
-\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\| \leq \frac{\gamma \epsilon_{\text{SHC}}}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}.
+\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\| \leq \frac{\gamma \epsilon_{\text{SHC}}}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}},
 \]
-Adding the bias term from Lemma~\ref{lem:smoothness} and the noise bound (A2) yields the result.
+where \(\lambda\) and \(\varsigma\) are regularization parameters controlling the penalty strength.
+
+\item Adding the bias term \(b_\epsilon(H,k)\) from Lemma~\ref{lem:smoothness} (which captures approximation error from the smoothness of \(\ell(t)\)) and the noise bound \(\delta\) from (A2) yields the total finite-sample error bound:
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
+\leq
+\epsilon_{\text{SHC}} \left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
++ b_\epsilon(H,k) + \delta.
+\]
+
+\end{enumerate}
+
+\vspace{0.5em}
+
+\noindent
+\textbf{Interpretation:} 
+
+The bound shows that the ASHC estimator's prediction error is controlled by:
+
+\begin{itemize}
+\item The original SHC fitting error \(\epsilon_{\text{SHC}}\).
+
+\item An inflation factor that depends on the regularization parameters \(\lambda, \varsigma\) and the penalty matrix \(\mathbf{C}_0\), which govern how much the ASHC weights deviate from SHC weights.
+
+\item The smoothness-based bias \(b_\epsilon(H,k)\) that limits how well the latent trend can be approximated at horizon \(k\).
+
+\item The noise floor \(\delta\), representing irreducible randomness in the data.
+
+\end{itemize}
+
+Stronger regularization (larger \(\lambda, \varsigma\)) reduces deviation from the SHC weights, thus keeping the inflation factor small and improving stability.
+
 \end{proof}
+
 
 % Discussion of the updated bound
 \section*{Discussion}
