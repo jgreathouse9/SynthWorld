@@ -3,7 +3,7 @@ name: Render Quarto Report
 on:
   push:
     paths:
-      - '**.qmd'
+      - 'Paper1/Paper/*.qmd'
       - '**/requirements.txt'
   workflow_dispatch:
     inputs:
