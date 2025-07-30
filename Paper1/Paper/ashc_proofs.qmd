@@ -5,6 +5,7 @@ format:
     documentclass: article
     geometry: margin=1in
     include-in-header: preamble2.tex
+    keep-tex: true
 ---
 
 # Setup and Assumptions
