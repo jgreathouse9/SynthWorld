@@ -1,0 +1,412 @@
+---
+title: "Appendix: Finite-Sample Error Bound for the Augmented Synthetic Historical Control Estimator (ASHC)"
+format: 
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    include-in-header: preamble2.tex
+    keep-tex: true
+    cite-method: natbib
+bibliography: pl.bib
+---
+
+# Setup and Assumptions
+
+Let $\mathcal{T} = \{1, 2, \dots, T\}$ index time at a monthly frequency. Define the pre-treatment period as $\mathcal{T}_1 \defeq \{t \in \mathcal{T} : t \leq T_0\}$ and the post-treatment period as $\mathcal{T}_2 \defeq \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$. Let $m \in \mathbb{N}$ denote the evaluation window length. Define the evaluation period as the final $m$ months of the pre-treatment period $\mathcal{T}_{\text{eval}} \defeq \{T_0 - m + 1, \dots, T_0\} \subset \mathcal{T}_1$.
+
+Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector $\mathbf{y}_{\text{pre}} \defeq \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}$, the evaluation subvector $\mathbf{y}_{\text{eval}} \defeq \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector $\mathbf{y}_{\text{post}} \defeq \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$.
+
+The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period.
+
+SHC by \cite{SHC} constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \defeq \begin{bmatrix} \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} \end{bmatrix} \in \mathbb{R}^{m \times N}$.
+
+\begin{example}
+Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is: $N = T_0 - m - n + 1 = 60 - 12 - 6 + 1 = 43$. Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
+\end{example}
+
+In the third step, we solve the following program to obtain the optimal weights:
+
+$$
+\begin{aligned}
+\mathbf{w}^\ast = \ & \underset{\mathbf{w} \in \mathbb{R}^N}{\operatorname*{argmin}} 
+& & \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
++ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \\
+& \text{subject to}
+& & \mathbf{w} \geq \mathbf{0}, \quad \mathbf{1}^\top \mathbf{w} = 1
+\end{aligned}
+$$
+
+Let $\mathbf{w}^{\text{SHC}}$ denote the SHC solution, and $\mathbf{w}^{\text{ASHC}}$ the ASHC solution:
+
+$$
+\mathbf{w}^{\text{ASHC}}
+= \arg\min_{\mathbf{w} \in \mathbb{R}^N}
+\left\{
+\frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|^2
++ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}\|_2^2
+\right\}
+\quad \text{s.t. } \sum_{i=1}^N w_i = 1,
+$$
+
+where $\lambda > 0$ is the regularization parameter, $\varsigma > 0$ is the penalty parameter for the low-variance directions, and $\mathbf{C}_0 \in \mathbb{R}^{N \times k}$ contains the eigenvectors of the Gram matrix $\mathbf{G} = \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}$ corresponding to eigenvalues less than a threshold $\tau > 0$.
+
+## Assumptions
+
+\begin{assumption}
+\textbf{(Linearity with noise)} There exists $\mathbf{w}^* \in \mathbb{R}^N$ such that
+$$
+\widetilde{\mathbf{y}} = \widetilde{\mathbf{Y}} \mathbf{w}^* + \boldsymbol{\eta},
+$$
+where $\boldsymbol{\eta} \in \mathbb{R}^m$ is a mean-zero noise vector.
+\end{assumption}
+
+\begin{assumption}
+\textbf{(Bounded noise)} $\|\boldsymbol{\eta}\| \leq \delta$ for some $\delta > 0$.
+\end{assumption}
+
+\begin{assumption}
+\textbf{(Smoothness of latent trend)} Let $\ell(t)$ denote the latent smooth component of the treated potential outcome. Suppose $\ell(t)$ is $H+1$ times differentiable with $|\ell^{(H+1)}(t)| < \epsilon$ for all $t$ and some $H \geq 3$.
+\end{assumption}
+
+\begin{assumption}
+\textbf{(Operator norm bound)} $\|\widetilde{\mathbf{Y}}\| \leq \gamma$.
+\end{assumption}
+
+\begin{assic}
+\textbf{(Simplex feasibility)} $\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} \defeq \{\mathbf{w} \in \mathbb{R}^N: \sum w_i = 1,\; w_i \geq 0\}$.
+\end{assumption}
+
+# Lemmas
+
+\begin{lemma}
+Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$. Then
+$$
+\|\Delta\| \leq \frac{\epsilon_{\text{SHC}}}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}},
+$$
+where $\epsilon_{\text{SHC}} \defeq \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ and $\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
+\end{lemma}
+
+**Proof.**
+
+By optimality of $\mathbf{w}^{\text{ASHC}}$ and feasibility of $\mathbf{w}^{\text{SHC}}$:
+$$
+\underbrace{\frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|^2}_{A \geq 0}
++ \underbrace{\|\Delta\|^2}_{B \geq 0}
++ \underbrace{\varsigma\|\mathbf{C}_0^\top(\mathbf{w}^{\text{SHC}}+\Delta)\|_2^2}_{D \geq 0}
+\leq
+\underbrace{\frac{1}{2\lambda}\epsilon_{\text{SHC}}^2 
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2}_{C}.
+$$
+
+Since $A, D \geq 0$, removing them weakens the inequality:
+$$
+\|\Delta\|^2 \leq C.
+$$
+
+Thus,
+$$
+\|\Delta\|^2 \leq \frac{1}{2\lambda}\epsilon_{\text{SHC}}^2 
++ \varsigma\|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
+$$
+
+To refine this bound, we impose the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$.
+
+### Step 1. Lagrangian Formulation
+
+Define the Lagrangian with multiplier $\mu \in \mathbb{R}$:
+$$
+\mathcal{L}(\mathbf{w},\mu)
+= \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2
++ \|\mathbf{w}-\mathbf{w}^{\text{SHC}}\|^2
++ \varsigma\|\mathbf{C}_0^\top\mathbf{w}\|_2^2
++ \mu(\mathbf{1}^\top \mathbf{w} - 1).
+$$
+
+### Step 2. Gradient Computation
+
+Using differentiation rules:
+$$
+\nabla_{\mathbf{w}} \frac{1}{2}\|A\mathbf{w}-b\|^2 = A^\top(A\mathbf{w}-b), \quad
+\nabla_{\mathbf{w}}\|\mathbf{w}-\mathbf{a}\|^2 = 2(\mathbf{w}-\mathbf{a}), \quad
+\nabla_{\mathbf{w}}\|\mathbf{C}_0^\top\mathbf{w}\|^2 = 2\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}.
+$$
+
+Applying these:
+$$
+\nabla_{\mathbf{w}}\mathcal{L}(\mathbf{w},\mu) 
+= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w}-\widetilde{\mathbf{y}})
++ 2(\mathbf{w}-\mathbf{w}^{\text{SHC}})
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}
++ \mu \mathbf{1}.
+$$
+
+### Step 3. KKT System
+
+The optimality conditions are:
+$$
+\begin{cases}
+\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w}-\widetilde{\mathbf{y}})
++ 2(\mathbf{w}-\mathbf{w}^{\text{SHC}})
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}
++ \mu \mathbf{1} = 0, \\
+\mathbf{1}^\top\mathbf{w} = 1.
+\end{cases}
+$$
+
+Writing the first condition:
+$$
+\left(\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}
++ 2\mathbf{I}
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\right)\mathbf{w}
+= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}
++ 2\mathbf{w}^{\text{SHC}}
+- \mu \mathbf{1}.
+$$
+
+### Step 4. Conditioning Argument
+
+The matrix
+$$
+M \defeq \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}
++ 2\mathbf{I}
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top
+$$
+is symmetric positive definite. Its eigenvalues are bounded below by
+$$
+2 + 2\varsigma\,\lambda_{\min}(\mathbf{C}_0\mathbf{C}_0^\top).
+$$
+
+Using the operator norm bound $\|\mathbf{C}_0\|^2 \defeq \lambda_{\max}(\mathbf{C}_0^\top\mathbf{C}_0)$, we obtain:
+$$
+\|\Delta\|^2 \leq \frac{\epsilon_{\text{SHC}}^2}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}.
+$$
+
+Taking square roots concludes the proof.
+
+\begin{remark}
+The proof uses the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$ in place of the simplex constraint of SHC. The eigenvalue argument is unaffected by this relaxation because the deviation bound depends only on the strong convexity of the quadratic form defined by $M \defeq \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}} + 2\mathbf{I} + 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top$, not on the positivity of the weights. The affine constraint is enforced through the Lagrange multiplier $\mu$, which shifts the right-hand side of the optimality condition but does not change the conditioning of $M$.
+\end{remark}
+
+\begin{lemma}
+Under (A4), the error from deviating off SHC weights satisfies
+$$
+\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|.
+$$
+\end{lemma}
+
+**Proof.**
+
+By the operator norm bound (A4), $\\|\widetilde{\mathbf{Y}}\\| \leq \gamma$. Thus:
+$$
+\|\widetilde{\mathbf{Y}} \Delta\| \leq \|\widetilde{\mathbf{Y}}\| \|\Delta\| \leq \gamma \|\Delta\|.
+$$
+
+\begin{remark}
+Lemma~\ref{lem:gamma} controls the deviation of the ASHC weights from the SHC weights in $\ell_2$ norm, i.e., $\|\Delta\|$. However, the primary interest is in the *predictions* they generate. The fitted outcomes differ by $\widetilde{\mathbf{Y}}\Delta$, so we require a way to translate weight deviations into prediction deviations. Assumption (A4) ensures that $\widetilde{\mathbf{Y}}$ cannot amplify the deviation $\Delta$ by more than its operator norm $\gamma$.
+\end{remark}
+
+\begin{lemma}
+Under (A3), for horizon $k > 0$,
+$$
+|\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)| \leq b_\epsilon(H,k) \defeq \frac{2\epsilon |k|^{H+1}}{(H+1)!}.
+$$
+\end{lemma}
+
+**Proof.**
+
+Let $\ell(t)$ denote the latent smooth component of the treated outcome. By Assumption (A3), $\ell(t)$ is $(H+1)$ times differentiable with $|\ell^{(H+1)}(t)| \leq \epsilon$ for all $t$.
+
+### Step 1. Taylor expansion around $T_0$
+
+For any $k > 0$, by Taylor’s theorem,
+$$
+\ell(T_0 + k) = \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}\, k^h + R_{H+1}(k),
+$$
+with remainder
+$$
+R_{H+1}(k) = \frac{\ell^{(H+1)}(\xi)}{(H+1)!}\, k^{H+1}, \quad \text{for some } \xi \in [T_0, T_0 + k].
+$$
+
+### Step 2. Bound the remainder
+
+By Assumption (A3),
+$$
+|R_{H+1}(k)| \leq \frac{\epsilon}{(H+1)!}\, |k|^{H+1}.
+$$
+
+### Step 3. SHC approximation of lower-order terms
+
+By construction, the SHC estimator forms smoothed donor segments that replicate the first $H$ terms of this Taylor expansion:
+$$
+\ell^{\text{SHC}}(T_0 + k) \approx \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}\, k^h,
+$$
+up to an error bounded by the same order as the remainder.
+
+### Step 4. Total bias decomposition
+
+Thus,
+$$
+|\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)| \leq |R_{H+1}(k)| + \left|\sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}\, k^h - \ell^{\text{SHC}}(T_0 + k)\right|.
+$$
+
+### Step 5. Bound SHC approximation error
+
+The smoothing construction ensures
+$$
+\left|\sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}\, k^h - \ell^{\text{SHC}}(T_0 + k)\right| \leq \frac{\epsilon}{(H+1)!}\, |k|^{H+1}.
+$$
+
+### Step 6. Combine bounds
+
+Hence,
+$$
+|\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)| \leq \frac{2\epsilon}{(H+1)!}\, |k|^{H+1}.
+$$
+
+\begin{remark}
+Lemma~\ref{lem:smoothness} quantifies the approximation error introduced by the SHC method when estimating the latent smooth component $\ell(t)$. The SHC estimator matches the function and its derivatives up to order $H$ at $T_0$. The residual bias at $T_0 + k$ behaves like the remainder term in a Taylor expansion, shrinking at a rate proportional to $|k|^{H+1}$. This bound justifies that for sufficiently smooth trends (large $H$) and moderate forecasting horizons $k$, the SHC bias becomes negligible.
+\end{remark}
+
+# Main Result
+
+\begin{proposition}
+Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
+$$
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
+\leq
+\epsilon_{\text{SHC}}
+\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
++ b_\epsilon(H,k) + \delta.
+$$
+\end{proposition}
+
+**Proof (Intuition).**
+
+This result bounds the prediction error of the ASHC estimator. We explain how each assumption contributes:
+
+- **(A1) Linearity with noise:** $\widetilde{\mathbf{y}} = \widetilde{\mathbf{Y}} \mathbf{w}^* + \boldsymbol{\eta}$, where $\mathbf{w}^*$ is the true weight vector and $\boldsymbol{\eta}$ is noise.
+- **(A2) Bounded noise:** $\|\boldsymbol{\eta}\| \leq \delta$, contributing additively to the error.
+- **(A3) Smoothness of latent trend:** Controls the bias $b_\epsilon(H,k) \defeq \frac{2 \epsilon |k|^{H+1}}{(H+1)!}$ via Taylor expansion.
+- **(A4) Operator norm bound:** Ensures $\|\widetilde{\mathbf{Y}}\| \leq \gamma$, bounding prediction deviations.
+- **(A5) Simplex feasibility:** Restricts $\mathbf{w}^{\text{SHC}}$ to convex combinations, supporting regularization.
+
+**Putting it together:**
+
+1. By the triangle inequality:
+   $$
+   \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|
+   \leq
+   \epsilon_{\text{SHC}} + \|\widetilde{\mathbf{Y}} \Delta\|.
+   $$
+
+2. Applying Lemmas~\ref{lem:gamma} and \ref{lem:delta}:
+   $$
+   \|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\| \leq \frac{\gamma \epsilon_{\text{SHC}}}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}.
+   $$
+
+3. Adding the bias $b_\epsilon(H,k)$ from Lemma~\ref{lem:smoothness} and noise $\delta$ from (A2):
+   $$
+   \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
+   \leq
+   \epsilon_{\text{SHC}} \left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
+   + b_\epsilon(H,k) + \delta.
+   $$
+
+**Interpretation:** The bound comprises the SHC error $\epsilon_{\text{SHC}}$, an inflation factor from ASHC deviation, smoothness bias $b_\epsilon(H,k)$, and noise $\delta$. Stronger regularization reduces deviation, improving stability.
+
+# Discussion
+
+Proposition~\ref{prop:ashc} decomposes ASHC error into: (i) SHC fit error ($\epsilon_{\text{SHC}}$), (ii) amplification from ASHC deviation, (iii) smoothness bias $b_\epsilon(H,k)$, and (iv) noise $\delta$. The penalty term $\varsigma \|\mathbf{C}_0^\top \mathbf{w}\|_2^2$ reduces deviation but may introduce bias if true weights have components in $\mathbf{C}_0$ directions. Parameters $\lambda$ and $\varsigma$ control trade-offs between data fidelity and stability.
+
+# Asymptotic Results
+
+\begin{theorem}
+Under (A1)--(A5), as $m \to \infty$ and $H \to \infty$, for fixed $k > 0$,
+$$
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \longrightarrow \delta,
+$$
+where $\delta$ is the noise bound from (A2). If $\boldsymbol{\eta}$ consists of independent mean-zero sub-Gaussian entries, then
+$$
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.
+$$
+\end{theorem}
+
+**Proof.**
+
+Starting from Proposition~\ref{prop:ashc}:
+$$
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
+\leq
+\epsilon_{\text{SHC}}
+\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
++ b_\epsilon(H,k) + \delta.
+$$
+
+### Step 1. Behavior of $\epsilon_{\text{SHC}}$
+
+By (A3), $\ell(t)$ is $(H+1)$ times differentiable. SHC’s Gaussian kernel smoothing ensures $\epsilon_{\text{SHC}} \to 0$ as $m \to \infty$ and $H \to \infty$ \cite{SHC}.
+
+### Step 2. Behavior of ASHC penalty term
+
+The term $\frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \,\epsilon_{\text{SHC}}$ vanishes since $\epsilon_{\text{SHC}} \to 0$.
+
+### Step 3. Behavior of smoothness bias $b_\epsilon(H,k)$
+
+By Taylor’s theorem:
+$$
+\ell(T_0 + k) = \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}k^h + R_{H+1}(k),
+$$
+with $|R_{H+1}(k)| \leq \frac{\epsilon}{(H+1)!}\,|k|^{H+1}$. SHC approximates lower-order terms, so
+$$
+b_\epsilon(H,k) \leq \frac{2\epsilon}{(H+1)!}\,|k|^{H+1} \to 0 \text{ as } H \to \infty.
+$$
+
+### Step 4. Behavior of noise term
+
+Under (A2), $\|\boldsymbol{\eta}\| \leq \delta$. If $\boldsymbol{\eta}$ is sub-Gaussian with variance proxy $\sigma^2$, then $\frac{\|\boldsymbol{\eta}\|}{m} \to 0$ in probability.
+
+### Step 5. Combine bounds
+
+The limit is $\limsup_{m \to \infty} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \leq \delta$. With sub-Gaussian noise, the right-hand side is $0$ in probability.
+
+\begin{corollary}
+Under (A1)--(A5), the ASHC estimator is asymptotically unbiased up to $\delta$. If $\boldsymbol{\eta}$ is i.i.d. mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
+$$
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| = O_p\left(m^{-H/(2H+3)}\right).
+$$
+For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
+\end{corollary}
+
+**Proof.**
+
+### Part 1: Consistency
+
+From Theorem~\ref{thm:ashc-asymptotics}, the error converges to $\delta$, or $0$ in probability under sub-Gaussian noise.
+
+### Part 2: Convergence Rate
+
+From Proposition~\ref{prop:ashc}:
+$$
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
+\leq
+\epsilon_{\text{SHC}}
+\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}\right)
++ b_\epsilon(H,k) + \delta.
+$$
+
+**Step 1. Bias term.** $b_\epsilon(H,k) = O(h_m^H)$.
+
+**Step 2. Stochastic error term.** With sub-Gaussian noise, the smoothed estimate variance is $O_p((m h_m)^{-1/2})$.
+
+**Step 3. SHC fit error.** $\epsilon_{\text{SHC}} = O_p(h_m^H + (m h_m)^{-1/2})$.
+
+**Step 4. Optimizing bandwidth.** Set $h_m^H \asymp (m h_m)^{-1/2}$, giving $h_m \asymp m^{-1/(2H+3)}$.
+
+**Step 5. Convergence rate.** Substituting yields $\epsilon_{\text{SHC}} = O_p(m^{-H/(2H+3)})$. The ASHC penalty and bias terms match this rate, so the total error is $O_p(m^{-H/(2H+3)})$.
+
+**Step 6. Near-parametric rate.** As $H \to \infty$, the exponent $H/(2H+3) \to 1/2$.
+
+\begin{remark}
+The deterministic noise bound $\delta$ in (A2) corresponds to $\|\boldsymbol{\eta}\| \leq \delta$. Under sub-Gaussian noise, $\delta = O(\sigma \sqrt{m})$, and kernel smoothing reduces the effective noise to $O_p((m h_m)^{-1/2})$, contributing to the rate.
+\end{remark}
