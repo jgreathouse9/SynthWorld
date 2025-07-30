@@ -5,9 +5,9 @@ on:
     branches:
       - main
     paths:
-      - 'Paper2/*.qmd'
-      - 'Paper2/preamble2.tex'
-      - 'Paper2/pl.bib'
+      - 'Paper2/Paper/*.qmd'
+      - 'Paper2/Paper/preamble2.tex'
+      - 'Paper2/Paper/pl.bib'
 
 permissions:
   contents: write
