@@ -7,8 +7,10 @@ format:
     include-in-header: prelim.tex
     keep-tex: true
     cite-method: natbib
+    pdf-engine: pdflatex   # force pdfLaTeX instead of XeLaTeX
 bibliography: pl.bib
 ---
+
 
 # Setup and Assumptions
 
