@@ -4,9 +4,7 @@ format:
   pdf:
     documentclass: article
     geometry: margin=1in
-    header-includes: |
-      \usepackage{amsmath, amssymb, amsthm, bm}
-      \usepackage{mathtools}
+    include-in-header: preamble.tex
 ---
 
 # Setup and Assumptions
