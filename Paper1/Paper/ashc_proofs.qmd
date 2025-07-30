@@ -1,4 +1,3 @@
-```yaml
 ---
 title: "Appendix: Finite-Sample Error Bound for the Augmented Synthetic Historical Control Estimator (ASHC)"
 format: 
@@ -429,4 +428,3 @@ $$
 \begin{remark}
 The deterministic noise bound $\delta$ in (A2) corresponds to $\|\bm{\eta}\| \leq \delta$. Under sub-Gaussian noise, $\delta = O(\sigma \sqrt{m})$, and kernel smoothing reduces the effective noise to $O_p((m h_m)^{-1/2})$, contributing to the rate.
 \end{remark}
-```
