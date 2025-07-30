@@ -51,10 +51,7 @@ where $\lambda > 0$ is the regularization parameter, $\varsigma > 0$ is the pena
 ## Assumptions
 
 \begin{assumption}
-\textbf{(Linearity with noise)} There exists $\mathbf{w}^* \in \mathbb{R}^N$ such that
-$$
-\widetilde{\mathbf{y}} = \widetilde{\mathbf{Y}} \mathbf{w}^* + \boldsymbol{\eta},
-$$
+\textbf{(Linearity with noise)} There exists $\mathbf{w}^* \in \mathbb{R}^N$ such that $\widetilde{\mathbf{y}}= \widetilde{\mathbf{Y}}\mathbf{w}^\ast+\boldsymbol{\eta}$
 where $\boldsymbol{\eta} \in \mathbb{R}^m$ is a mean-zero noise vector.
 \end{assumption}
 
