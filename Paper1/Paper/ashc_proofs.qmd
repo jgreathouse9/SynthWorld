@@ -18,4 +18,4 @@ Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the obser
 
 The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period.
 
-SHC by \cite{SHC}
+SHC by \citet{SHC}
