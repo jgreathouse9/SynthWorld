@@ -1,0 +1,50 @@
+name: Render Quarto PDFs in Paper2 and Commit
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Paper2/*.qmd'
+      - 'Paper2/preamble2.tex'
+      - 'Paper2/pl.bib'
+
+permissions:
+  contents: write
+
+jobs:
+  render-and-commit-pdfs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tinytex: true
+
+      - name: Install additional LaTeX packages
+        run: |
+          quarto install tinytex
+          tlmgr install amsfonts amssymb graphicx epsfig verbatim latexsym amsmath url amsbsy mathtools float booktabs natbib
+
+      - name: Render Quarto files to PDF
+        run: |
+          for file in Paper2/*.qmd; do
+            if [ -f "$file" ]; then
+              quarto render "$file" --to pdf
+            fi
+          done
+
+      - name: Commit PDF files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Add rendered PDFs from Paper2'
+          file_pattern: 'Paper2/*.pdf'
+          branch: main
