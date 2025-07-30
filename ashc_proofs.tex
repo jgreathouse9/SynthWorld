@@ -21,6 +21,23 @@ Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the obser
 
 The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period. 
 
+SHC constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \defeq \begin{bmatrix} \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} \end{bmatrix} \in \mathbb{R}^{m \times N}.$
+
+\begin{example}[Constructing $\widetilde{\mathbf{Y}}_{\text{pre}}$]
+Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months in order to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is: $N = T_0 - m - n + 1 = 60 - 12 - 6 + 1 = 43.$ Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
+\end{example}
+In the third step, we solve the following program to obtain the optimal weights:
+\begin{equation}
+\label{eq:weight_qp_explicit}
+\begin{aligned}
+\mathbf{w}^\ast = \ & \underset{\mathbf{w} \in \mathbb{R}^N}{\operatorname*{argmin}} 
+& & \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
++ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \\
+& \text{subject to}
+& & \mathbf{w} \geq \mathbf{0}, \quad \mathbf{1}^\top \mathbf{w} = 1
+\end{aligned}
+\end{equation}
+
 % Defining the SHC and modified ASHC solutions with additional penalty
 Let $\mathbf{w}^{\text{SHC}}$ denote the SHC solution, and $\mathbf{w}^{\text{ASHC}}$
 the ASHC solution:
