@@ -29,9 +29,14 @@ jobs:
         with:
           tinytex: true
 
+      - name: Initialize TinyTeX
+        run: |
+          quarto install tool tinytex
+          echo "/home/runner/.TinyTeX/bin/x86_64-linux" >> $GITHUB_PATH
+
       - name: Install additional LaTeX packages
         run: |
-          quarto install tinytex
+          tlmgr update --self
           tlmgr install amsfonts amssymb graphicx epsfig verbatim latexsym amsmath url amsbsy mathtools float booktabs natbib
 
       - name: Render Quarto files to PDF
