@@ -6,6 +6,7 @@ format:
     geometry: margin=1in
     include-in-header: preamble2.tex
     keep-tex: true
+bibliography: pl.bib
 ---
 
 # Setup and Assumptions
@@ -16,7 +17,7 @@ Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the obser
 
 The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period.
 
-SHC constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \defeq \begin{bmatrix} \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} \end{bmatrix} \in \mathbb{R}^{m \times N}$.
+SHC by \cite{SHC} constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \defeq \begin{bmatrix} \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} \end{bmatrix} \in \mathbb{R}^{m \times N}$.
 
 \begin{example}
 Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is: $N = T_0 - m - n + 1 = 60 - 12 - 6 + 1 = 43$. Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
