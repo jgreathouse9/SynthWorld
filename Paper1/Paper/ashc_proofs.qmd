@@ -4,28 +4,7 @@ format:
   pdf:
     documentclass: article
     geometry: margin=1in
-    header-includes: |
-      \usepackage{amsfonts,amssymb,graphics,epsfig,verbatim,bm,latexsym,amsmath,url,amsbsy}
-      \usepackage{mathtools}
-      \usepackage{float}
-      \usepackage{booktabs}
-      \newcommand{\defeq}{\mathrel{\mathop:}=}
-      \newtheorem{theorem}{Theorem}
-      \newtheorem{assumption}{Assumption}
-      \newtheorem{proposition}{Proposition}
-      \newtheorem{corollary}{Corollary}
-      \newtheorem{lemma}{Lemma}
-      \newtheorem{example}{Example}
-      \newtheorem{remark}{Remark}
-      \renewcommand{\thesection}{\arabic{section}}
-      \renewcommand{\theequation}{\arabic{section}.\arabic{equation}}
-      \renewcommand{\thetheorem}{\arabic{section}.\arabic{theorem}}
-      \renewcommand{\theassumption}{\arabic{section}.\arabic{assumption}}
-      \renewcommand{\theproposition}{\arabic{section}.\arabic{proposition}}
-      \renewcommand{\thecorollary}{\arabic{section}.\arabic{corollary}}
-      \renewcommand{\thelemma}{\arabic{section}.\arabic{lemma}}
-      \renewcommand{\theexample}{\arabic{section}.\arabic{example}}
-      \renewcommand{\theremark}{\arabic{section}.\arabic{remark}}
+    include-in-header: preamble.tex
 ---
 
 # Setup and Assumptions
