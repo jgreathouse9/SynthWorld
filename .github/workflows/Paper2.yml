@@ -22,32 +22,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Quarto
+      - name: Set up Quarto with TinyTeX
         uses: quarto-dev/quarto-actions/setup@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tinytex: true
-
-      - name: Initialize TinyTeX
-        run: |
-          quarto install tool tinytex
-          echo "/home/runner/.TinyTeX/bin/x86_64-linux" >> $GITHUB_PATH
-
-      - name: Install additional LaTeX packages
-        run: |
-          tlmgr update --self
-          tlmgr install \
-            amsfonts \
-            amsmath \
-            amssymb \
-            mathtools \
-            bm \
-            float \
-            booktabs \
-            natbib \
-            url \
-            graphicx
 
       - name: Render Quarto files to PDF
         run: |
