@@ -1,5 +1,5 @@
 ---
-title: "Appendix: Finite-Sample Error Bound for the Augmented Synthetic Historical Control Estimator (ASHC)"
+title: "Appendix: Theoretical Analysis of the Augmented Synthetic Historical Control Estimator (ASHC)"
 format: 
   pdf:
     documentclass: article
