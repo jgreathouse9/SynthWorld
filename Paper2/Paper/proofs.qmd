@@ -4,7 +4,7 @@ format:
   pdf:
     documentclass: article
     geometry: margin=1in
-    include-in-header: preamble2.tex
+    include-in-header: prelim.tex
     keep-tex: true
     cite-method: natbib
 bibliography: pl.bib
