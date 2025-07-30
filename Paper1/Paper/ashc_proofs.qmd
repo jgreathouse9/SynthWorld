@@ -4,7 +4,7 @@ format:
   pdf:
     documentclass: article
     geometry: margin=1in
-    include-in-header: preamble.tex
+    include-in-header: preamble2.tex
 ---
 
 # Setup and Assumptions
