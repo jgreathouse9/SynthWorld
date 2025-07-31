@@ -168,20 +168,27 @@ M \defeq \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}
 $$
 
 From the first-order condition for $\mathbf{w}^{\text{ASHC}}$, we obtained:
-$$
+
+\begin{equation}
 M \mathbf{w}^{\text{ASHC}}
 = \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}}
 + 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
 \tag{FOC-ASHC}
-$$
+\end{equation}
+
 
 We now evaluate the same structure at $\mathbf{w}^{\text{SHC}}$. Note that
 $\mathbf{w}^{\text{SHC}}$ need not satisfy the ASHC first-order condition, but writing the analogous expression will allow us to cancel common terms. Plugging
 $\mathbf{w}^{\text{SHC}}$ into the left-hand side yields:
-$$
-M \mathbf{w}^{\text{SHC}}= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}+ 2 \mathbf{w}^{\text{SHC}}+ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}.
+
+\begin{equation}
+M \mathbf{w}^{\text{SHC}}
+= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}
++ 2 \mathbf{w}^{\text{SHC}}
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}.
 \tag{Baseline}
-$$
+\end{equation}
+
 
 Subtracting \eqref{Baseline} from \eqref{FOC-ASHC}, we obtain:
 $$
@@ -189,22 +196,13 @@ M(\mathbf{w}^{\text{ASHC}} -\mathbf{w}^{\text{SHC}})= \tfrac{1}{\lambda}\widetil
 $$
 
 That is,
-$$
+\begin{equation}
 M\Delta
 = \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top
 \big(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\big)- \mu\mathbf{1}.
 \tag{Deviation Equation}
-$$
+\end{equation}
 This subtraction step isolates the deviation $\Delta$, which is the central quantity we need to bound and expresses $\Delta$ entirely in terms of the SHC residual $r \defeq \widetilde{\mathbf{y}}-\widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$ and the Lagrange multiplier $\mu$, eliminating any direct dependence on the unknown $\mathbf{w}^{\text{ASHC}}$.
-
-From the Deviation Equation we obtained:
-$$
-M\Delta
-= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top
-\big(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\big)
-- \mu \mathbf{1}.
-\tag{Deviation Equation}
-$$
 
 The affine constraint $\mathbf{1}^\top \mathbf{w}^{\text{ASHC}} = 1$
 and $\mathbf{1}^\top \mathbf{w}^{\text{SHC}} = 1$ together imply
