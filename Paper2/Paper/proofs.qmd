@@ -116,48 +116,43 @@ $$
 The three components have clear roles: the first encourages close fit to the evaluation period outcomes, the second penalizes deviation from the SHC weights, and the third stabilizes the solution in low-variance directions.  
 
 If we minimized $J(\mathbf{w})$ without the affine constraint $\mathbf{1}^\top\mathbf{w}=1$, the resulting $\mathbf{w}$ might not be feasible. To enforce this constraint, we introduce the Lagrangian
-\[
+$$
 \mathcal{L}(\mathbf{w},\mu) 
 = J(\mathbf{w}) + \mu(\mathbf{1}^\top\mathbf{w}-1),
-\]
+$$
 where $\mu \in \mathbb{R}$ is a Lagrange multiplier. This term acts as a corrective force, ensuring feasibility without changing the curvature of $J(\mathbf{w})$ that governs the size of $\Delta$. We now may compute the gradient of $\mathcal{L}$.  
 
 First, for the fit term, define $r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}$. Using the \emph{chain rule for vector functions},
-\[
+$$
 \nabla_{\mathbf{w}} \frac{1}{2\lambda}\|r(\mathbf{w})\|^2
 = \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w} - \widetilde{\mathbf{y}}).
-\]
+$$
 
 Second, for the deviation penalty, recall the rule for the gradient of a quadratic form, $\nabla_{\mathbf{w}} (\mathbf{w}^\top A \mathbf{w}) = (A+A^\top)\mathbf{w}$. With $A=I$, we obtain
-\[
+$$
 \nabla_{\mathbf{w}}\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
 = 2(\mathbf{w} - \mathbf{w}^{\text{SHC}}).
-\]
+$$
 
 Third, for the low-variance penalty,
-\[
+$$
 \varsigma\|\mathbf{C}_0^\top\mathbf{w}\|^2
-= \varsigma\mathbf{w}^\top(\mathbf{C}_0\mathbf{C}_0^\top)\mathbf{w}.
-\]
+=\varsigma\mathbf{w}^\top(\mathbf{C}_0\mathbf{C}_0^\top)\mathbf{w}.
+$$
 Since $\mathbf{C}_0\mathbf{C}_0^\top$ is symmetric, applying the quadratic form rule yields
-\[
-\nabla_{\mathbf{w}}\varsigma\|\mathbf{C}_0^\top\mathbf{w}\|^2
-= 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}.
-\]
+$$
+\nabla_{\mathbf{w}}\varsigma\|\mathbf{C}_0^\top\mathbf{w}\|^2=2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}.
+$$
 
 Finally, differentiating the affine constraint term $\mu(\mathbf{1}^\top\mathbf{w}-1)$, linearity of differentiation gives
-\[
+$$
 \nabla_{\mathbf{w}}[\mu(\mathbf{1}^\top \mathbf{w}-1)] = \mu\mathbf{1}.
-\]
+$$
 
 Collecting terms, the stationarity condition $\nabla_{\mathbf{w}}\mathcal{L}(\mathbf{w},\mu) = 0$ is
-\[
-\left(\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}} 
-+ 2\mathbf{I}
-+ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\right)\mathbf{w}
-= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}
-+ 2\mathbf{w}^{\text{SHC}} - \mu\mathbf{1}.
-\]
+$$
+\left(\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}} + 2\mathbf{I}+ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\right)\mathbf{w}= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}+ 2\mathbf{w}^{\text{SHC}} - \mu\mathbf{1}.
+$$
 
 Now with our FOC, we must express our deviation term
 \[
