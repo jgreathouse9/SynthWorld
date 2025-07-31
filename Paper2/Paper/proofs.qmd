@@ -100,7 +100,8 @@ $\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} \defeq \{\mathbf{w} \in \mathbb{R}^N :
 \label{lem:delta}
 Let $\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$. Then
 \[
-\|\Delta\| \;\leq\; \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2},
+\|\Delta\| 
+\;\leq\; \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}}.
 \]
 where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ and 
 $\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
