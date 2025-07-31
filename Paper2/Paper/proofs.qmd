@@ -202,6 +202,7 @@ That is,
 M\Delta
 = \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top
 \big(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\big)- \mu\mathbf{1}.
+\label{Deviation Equation}
 \tag{Deviation Equation}
 \end{equation}
 This subtraction step isolates the deviation $\Delta$, which is the central quantity we need to bound and expresses $\Delta$ entirely in terms of the SHC residual $r \defeq \widetilde{\mathbf{y}}-\widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$ and the Lagrange multiplier $\mu$, eliminating any direct dependence on the unknown $\mathbf{w}^{\text{ASHC}}$.
