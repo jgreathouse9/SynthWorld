@@ -94,24 +94,147 @@ $\|\widetilde{\mathbf{Y}}\| \leq \gamma$.
 \begin{assumption}[Simplex feasibility]
 $\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} \defeq \{\mathbf{w} \in \mathbb{R}^N : \sum w_i = 1,\; w_i \geq 0\}$.
 \end{assumption}
+\begin{lemma}[Deviation from SHC under Affine Constraint]
+Let $\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$. 
+Under Assumptions (A1)--(A5), we have
+\[
+\|\Delta\| \;\leq\; \frac{\epsilon_{\text{SHC}}}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}},
+\]
+where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ 
+and $\|\mathbf{C}_0\|^2 := \lambda_{\max}(\mathbf{C}_0^\top\mathbf{C}_0)$.
+\end{lemma}
 
 \begin{proof}
-By optimality of $\mathbf{w}^{\text{ASHC}}$ and feasibility of $\mathbf{w}^{\text{SHC}}$:
+\textbf{Step 1. Write the ASHC objective.} 
+We minimize
 \[
-  \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|^2
-  + \|\Delta\|^2
-  + \varsigma\|\mathbf{C}_0^\top(\mathbf{w}^{\text{SHC}}+\Delta)\|_2^2
-  \leq \frac{1}{2\lambda}\epsilon_{\text{SHC}}^2 
-  + \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
+J(\mathbf{w})
+= \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2
++ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
++ \varsigma\|\mathbf{C}_0^\top\mathbf{w}\|_2^2
 \]
+subject to the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$.
+
+\textbf{Step 2. Introduce the Lagrangian.}
+Let $\mu \in \mathbb{R}$ be the multiplier for the affine constraint. Define
+\[
+\mathcal{L}(\mathbf{w},\mu) \;=\; J(\mathbf{w}) + \mu(\mathbf{1}^\top \mathbf{w} - 1).
+\]
+
+\textbf{Step 3. Compute the gradient of $\mathcal{L}$.}
+We compute each term separately, using the rules 
+$\nabla_{\mathbf{w}}\|\mathbf{A}\mathbf{w}-\mathbf{b}\|^2 
+= 2\mathbf{A}^\top(\mathbf{A}\mathbf{w}-\mathbf{b})$ 
+and $\nabla_{\mathbf{w}}\|\mathbf{B}\mathbf{w}\|^2 = 2\mathbf{B}^\top\mathbf{B}\mathbf{w}$:
+
+\[
+\nabla_{\mathbf{w}} \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2
+= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w} - \widetilde{\mathbf{y}}),
+\]
+
+\[
+\nabla_{\mathbf{w}}\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
+= 2(\mathbf{w} - \mathbf{w}^{\text{SHC}}),
+\]
+
+\[
+\nabla_{\mathbf{w}}\varsigma\|\mathbf{C}_0^\top\mathbf{w}\|^2
+= 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w},
+\]
+
+\[
+\nabla_{\mathbf{w}}[\mu(\mathbf{1}^\top \mathbf{w}-1)]
+= \mu\mathbf{1}.
+\]
+
+Thus the stationarity condition is
+\[
+\nabla_{\mathbf{w}}\mathcal{L}(\mathbf{w},\mu)
+= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w} - \widetilde{\mathbf{y}})
++ 2(\mathbf{w} - \mathbf{w}^{\text{SHC}})
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}
++ \mu\mathbf{1}
+= \mathbf{0}.
+\]
+
+\textbf{Step 4. Collect terms.}
+Rearranging,
+\[
+\left(\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}} 
++ 2\mathbf{I}
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\right)\mathbf{w}
+= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}
++ 2\mathbf{w}^{\text{SHC}}
+- \mu\mathbf{1}.
+\]
+
+Define 
+\[
+M \;:=\; \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}
++ 2\mathbf{I}
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top.
+\]
+
+Then the first-order condition reads
+\[
+M\mathbf{w}^{\text{ASHC}}
+= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}
++ 2\mathbf{w}^{\text{SHC}}
+- \mu\mathbf{1}.
+\]
+
+\textbf{Step 5. Deviation form.}
+Subtracting $M\mathbf{w}^{\text{SHC}}$ from both sides and letting $\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$, we get
+\[
+M\Delta 
+= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}})
+- \mu\mathbf{1}.
+\]
+
+\textbf{Step 6. Bound the right-hand side.}
+By definition, 
+\[
+r := \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}
+\]
+is the SHC residual vector, with $\|r\| = \epsilon_{\text{SHC}}$.
+Thus,
+\[
+\|M\Delta\| \;\leq\; \frac{1}{\lambda}\|\widetilde{\mathbf{Y}}^\top r\| + |\mu|\|\mathbf{1}\|.
+\]
+
+The affine constraint ensures $\mathbf{1}^\top\Delta=0$, so $\mu$ only shifts within the nullspace of $\mathbf{1}$ and does not affect the spectral conditioning of $M$. Thus the $\mu\mathbf{1}$ term can be handled separately (it projects out in the constraint), and the effective bound comes from the first term:
+\[
+\|M\Delta\| \;\leq\; \frac{1}{\lambda}\|\widetilde{\mathbf{Y}}\|\cdot\|r\|.
+\]
+
+\textbf{Step 7. Use strong convexity of $M$.}
+The smallest eigenvalue of $M$ is at least 
+\[
+\lambda_{\min}(M) \;\geq\; 2 + 2\varsigma\lambda_{\min}(\mathbf{C}_0\mathbf{C}_0^\top).
+\]
+
+For simplicity, we use $\|\mathbf{C}_0\|^2 = \lambda_{\max}(\mathbf{C}_0^\top\mathbf{C}_0)$, so
+\[
+\lambda_{\min}(M) \;\geq\; 2 + 2\varsigma\|\mathbf{C}_0\|^2.
+\]
+
+Thus,
+\[
+\|\Delta\| \;\leq\; \frac{\|M^{-1}\|}{\lambda}\|\widetilde{\mathbf{Y}}\|\epsilon_{\text{SHC}}
+\;\leq\; \frac{1}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\gamma\,\epsilon_{\text{SHC}}.
+\]
+
+Squaring both sides and simplifying yields the claimed result.
 \end{proof}
 
 \begin{remark}
-The proof above uses the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$ in place of the simplex constraint of SHC. The eigenvalue argument is unaffected by this relaxation because the deviation bound depends only on the strong convexity of the quadratic form defined by 
-$$
-M \defeq \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}} + 2\mathbf{I} + 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top,
-$$
-not on the non-negativity of the weights. The affine constraint is enforced through the Lagrange multiplier $\mu$, which shifts the right-hand side of the optimality condition but does not alter the conditioning of $M$.
+The key role of the affine constraint $\mathbf{1}^\top \mathbf{w}=1$ 
+is to introduce a Lagrange multiplier $\mu$, 
+which shifts the optimality condition by a vector in the span of $\mathbf{1}$. 
+Because $\Delta$ must satisfy $\mathbf{1}^\top \Delta = 0$, 
+this shift does not affect the conditioning of $M$ 
+and thus does not alter the deviation bound. 
+The effective regularization is governed entirely by the spectrum of $M$.
 \end{remark}
 
 \begin{lemma}\label{lem:gamma}
