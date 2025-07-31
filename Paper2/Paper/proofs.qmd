@@ -18,7 +18,7 @@ For the purposes of self-containment, let $\mathcal{T} = \{1, 2, \dots, T\}$ ind
 
 Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector $\mathbf{y}_{\text{pre}} \defeq \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}$, the evaluation subvector $\mathbf{y}_{\text{eval}} \defeq \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector $\mathbf{y}_{\text{post}} \defeq \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$.
 
-The evaluation sub-vector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period.
+The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period.
 
 SHC by \cite{SHC} constructs 
 $$
