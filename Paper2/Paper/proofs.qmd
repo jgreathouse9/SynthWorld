@@ -173,6 +173,7 @@ From the first-order condition for $\mathbf{w}^{\text{ASHC}}$, we obtained:
 M \mathbf{w}^{\text{ASHC}}
 = \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}}
 + 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
+\label{FOC-ASHC}
 \tag{FOC-ASHC}
 \end{equation}
 
@@ -186,6 +187,7 @@ M \mathbf{w}^{\text{SHC}}
 = \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}
 + 2 \mathbf{w}^{\text{SHC}}
 + 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}.
+\label{Baseline}
 \tag{Baseline}
 \end{equation}
 
@@ -301,7 +303,6 @@ $$
 This shows that the deviation of ASHC weights from the SHC baseline 
 is tightly controlled by the residual error of SHC, scaled down by the effective regularization strength 
 coming from both $\lambda$ and the stabilizing penalty $\varsigma$.
-
 \end{proof}
 
 
