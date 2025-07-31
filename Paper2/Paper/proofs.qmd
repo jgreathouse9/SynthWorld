@@ -339,14 +339,13 @@ This establishes the claim.
 Lemma~\ref{lem:gamma} ensures that deviations of the ASHC weights from the SHC weights, measured in $\ell_2$ norm, translate into controlled deviations in the predicted outcomes. The operator norm bound (A4) prevents $\widetilde{\mathbf{Y}}$ from amplifying small changes in the weights disproportionately.
 \end{remark}
 
-
 \begin{lemma}\label{lem:smoothness}
 Under (A3), for horizon $k > 0$,
-$$
+\[
 |\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)| 
 \;\leq\; 
 b_\epsilon(H,k) \;\defeq\; \frac{2\epsilon |k|^{H+1}}{(H+1)!}.
-$$
+\]
 \end{lemma}
 
 \begin{proof}
@@ -360,23 +359,23 @@ Let $\ell(t)$ denote the latent smooth component of the treated outcome.
 By Assumption (A3), $\ell(t)$ is $(H+1)$ times differentiable with 
 $|\ell^{(H+1)}(t)| < \epsilon$ for all $t$.  
 Expanding $\ell$ around $T_0$ using Taylor’s theorem gives
-$$
+\[
 \ell(T_0 + k) 
 = \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}\, k^h \;+\; R_{H+1}(k),
-$$
+\]
 where the remainder term is
-$$
+\[
 R_{H+1}(k) 
 = \frac{\ell^{(H+1)}(\xi)}{(H+1)!}\, k^{H+1}, 
 \quad \text{for some } \xi \in [T_0, T_0 + k].
-$$
+\]
 
 \medskip
 \noindent\textbf{Step 2. Bound the Taylor remainder.}  
 Since $|\ell^{(H+1)}(t)| \leq \epsilon$ for all $t$, the remainder is bounded by
-$$
+\[
 |R_{H+1}(k)| \;\leq\; \frac{\epsilon}{(H+1)!}\,|k|^{H+1}.
-$$
+\]
 
 \medskip
 \noindent\textbf{Step 3. Representation of the SHC approximation.}  
@@ -389,30 +388,30 @@ Thus, when we form $\ell^{\text{SHC}}$, the lower-order terms of the Taylor expa
 is of the same order as the Taylor remainder.
 
 Formally, we may write
-$$
+\[
 \ell^{\text{SHC}}(T_0 + k)
 = \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}\, k^h \;+\; R'_{H+1}(k),
-$$
+\]
 where $R'_{H+1}(k)$ is another error term of order $|k|^{H+1}$.
 
 \medskip
 \noindent\textbf{Step 4. Combine the two remainder terms.}  
 Subtracting the SHC expansion from the true expansion gives
-$$
+\[
 \ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k) 
 = R_{H+1}(k) - R'_{H+1}(k).
-$$
+\]
 Applying the triangle inequality,
-$%
+\[
 |\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)| 
 \;\leq\; |R_{H+1}(k)| + |R'_{H+1}(k)|.
-$$
+\]
 Each remainder is bounded by $\tfrac{\epsilon}{(H+1)!}\,|k|^{H+1}$, 
 so together we obtain
-$$
+\[
 |\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)|
 \;\leq\; \frac{2\epsilon}{(H+1)!}\,|k|^{H+1}.
-$$
+\]
 
 \medskip
 \noindent This completes the proof.
