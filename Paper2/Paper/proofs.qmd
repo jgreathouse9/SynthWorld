@@ -105,127 +105,104 @@ and $\|\mathbf{C}_0\|^2 := \lambda_{\max}(\mathbf{C}_0^\top\mathbf{C}_0)$.
 \end{lemma}
 
 \begin{proof}
-\textbf{Step 1. Write the ASHC objective.} 
-We minimize
+To show how much the ASHC may deviate in sample, we can begin by rewriting our objective function which minimizes
 \[
 J(\mathbf{w})
 = \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2
 + \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
-+ \varsigma\|\mathbf{C}_0^\top\mathbf{w}\|_2^2
-\]
-subject to the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$.
-
-\textbf{Step 2. Introduce the Lagrangian.}
-Let $\mu \in \mathbb{R}$ be the multiplier for the affine constraint. Define
-\[
-\mathcal{L}(\mathbf{w},\mu) \;=\; J(\mathbf{w}) + \mu(\mathbf{1}^\top \mathbf{w} - 1).
++ \varsigma\|\mathbf{C}_0^\top\mathbf{w}\|_2^2 \quad \text{s.t. } \mathbf{1}^\top\mathbf{w} = 1
 \]
 
-\textbf{Step 3. Compute the gradient of $\mathcal{L}$.}
-We compute each term separately, using the rules 
-$\nabla_{\mathbf{w}}\|\mathbf{A}\mathbf{w}-\mathbf{b}\|^2 
-= 2\mathbf{A}^\top(\mathbf{A}\mathbf{w}-\mathbf{b})$ 
-and $\nabla_{\mathbf{w}}\|\mathbf{B}\mathbf{w}\|^2 = 2\mathbf{B}^\top\mathbf{B}\mathbf{w}$:
+\textit{Explanation:} The first term is a fit term. It encourages the solution to have the ASHC weights fit closely to the evaluation period outcome vector. The second term penalizes deviation from the SHC weights, or, allows us to extrapolate beyond the convex hull of donor segments. The third term, as also discussed by \cite{SHC}, stabilizes the solution in directions of low variance. 
 
+If we ignored the affine constraint and simply minimized $J(\mathbf{w})$, 
+we would obtain an unconstrained solution $\mathbf{w}^{\text{uncon}}$ 
+that may not satisfy $\mathbf{1}^\top \mathbf{w} = 1$, 
+and therefore would not be a valid ASHC weight vector. Thus, we need to allow ASHC to have a feasible solution set. to do this, we use the Lagrangian, where we form
 \[
+\mathcal{L}(\mathbf{w},\mu) 
+= J(\mathbf{w}) + \mu(\mathbf{1}^\top \mathbf{w} - 1),
+\]
+with $\mu \in \mathbb{R}$ being a Lagrange multiplier. The Lagrangian corrects this by introducing $\mu$, 
+which acts like a "force" that pins the solution back onto the hyperplane of feasible weights. Importantly, while $\mu$ shifts the right-hand side of the optimality condition, it does not affect the curvature matrix $M$ that controls $\|\Delta\|$. Thus feasibility is enforced without disrupting the conditioning argument.
+
+\textbf{Step 3. Differentiate each term.}
+\begin{align*}
 \nabla_{\mathbf{w}} \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2
-= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w} - \widetilde{\mathbf{y}}),
-\]
-
-\[
+&= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w} - \widetilde{\mathbf{y}}), \\
 \nabla_{\mathbf{w}}\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
-= 2(\mathbf{w} - \mathbf{w}^{\text{SHC}}),
-\]
-
-\[
+&= 2(\mathbf{w} - \mathbf{w}^{\text{SHC}}), \\
 \nabla_{\mathbf{w}}\varsigma\|\mathbf{C}_0^\top\mathbf{w}\|^2
-= 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w},
-\]
-
-\[
+&= 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}, \\
 \nabla_{\mathbf{w}}[\mu(\mathbf{1}^\top \mathbf{w}-1)]
-= \mu\mathbf{1}.
-\]
+&= \mu\mathbf{1}.
+\end{align*}
 
-Thus the stationarity condition is
-\[
-\nabla_{\mathbf{w}}\mathcal{L}(\mathbf{w},\mu)
-= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w} - \widetilde{\mathbf{y}})
-+ 2(\mathbf{w} - \mathbf{w}^{\text{SHC}})
-+ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}
-+ \mu\mathbf{1}
-= \mathbf{0}.
-\]
+\textit{Explanation:} Each gradient follows from standard rules: 
+quadratic forms give $2A^\top(Aw-b)$, 
+while $\mu(\mathbf{1}^\top w -1)$ differentiates to $\mu\mathbf{1}$.
 
-\textbf{Step 4. Collect terms.}
-Rearranging,
+\textbf{Step 4. Stationarity condition.}
+Setting $\nabla_{\mathbf{w}}\mathcal{L}(\mathbf{w},\mu)=0$:
 \[
-\left(\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}} 
+\left(\tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}} 
 + 2\mathbf{I}
 + 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\right)\mathbf{w}
-= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}
+= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}
 + 2\mathbf{w}^{\text{SHC}}
 - \mu\mathbf{1}.
 \]
 
+\textit{Explanation:} This is the first-order condition: the gradient must vanish. 
+The $\mu\mathbf{1}$ term shifts the right-hand side to enforce feasibility.
+
+\textbf{Step 5. Deviation form.}
 Define 
 \[
-M \;:=\; \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}
+M := \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}
 + 2\mathbf{I}
 + 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top.
 \]
-
-Then the first-order condition reads
-\[
-M\mathbf{w}^{\text{ASHC}}
-= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}
-+ 2\mathbf{w}^{\text{SHC}}
-- \mu\mathbf{1}.
-\]
-
-\textbf{Step 5. Deviation form.}
-Subtracting $M\mathbf{w}^{\text{SHC}}$ from both sides and letting $\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$, we get
+Letting $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$, we subtract the equation at $\mathbf{w}^{\text{SHC}}$ to obtain
 \[
 M\Delta 
-= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}})
+= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}})
 - \mu\mathbf{1}.
 \]
 
-\textbf{Step 6. Bound the right-hand side.}
-By definition, 
+\textit{Explanation:} This isolates the deviation $\Delta$, 
+showing it depends on the SHC residual and the Lagrange term.
+
+\textbf{Step 6. Handle the $\mu$ term.}
+The affine constraint implies $\mathbf{1}^\top\Delta=0$, 
+so $\Delta$ is orthogonal to $\mathbf{1}$. 
+Thus the $\mu\mathbf{1}$ term, although present in the equation, 
+does not affect $\Delta$’s magnitude in the feasible subspace.
+
+\textit{Explanation:} Geometrically, $\mu\mathbf{1}$ is parallel to the constraint direction, 
+while $\Delta$ lives in the orthogonal hyperplane. 
+So $\mu$ enforces feasibility but does not change the conditioning that controls $\|\Delta\|$.
+
+\textbf{Step 7. Bound $\Delta$.}
+Let $r := \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$, 
+with $\|r\|=\epsilon_{\text{SHC}}$. Then
 \[
-r := \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}
+\|M\Delta\| \leq \tfrac{1}{\lambda}\|\widetilde{\mathbf{Y}}^\top r\|
+\leq \tfrac{\gamma}{\lambda}\epsilon_{\text{SHC}},
 \]
-is the SHC residual vector, with $\|r\| = \epsilon_{\text{SHC}}$.
-Thus,
+using Assumption (A4). 
+
+Because the smallest eigenvalue of $M$ is at least 
+$2+2\varsigma\|\mathbf{C}_0\|^2$, we conclude
 \[
-\|M\Delta\| \;\leq\; \frac{1}{\lambda}\|\widetilde{\mathbf{Y}}^\top r\| + |\mu|\|\mathbf{1}\|.
+\|\Delta\| \leq \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}}.
 \]
 
-The affine constraint ensures $\mathbf{1}^\top\Delta=0$, so $\mu$ only shifts within the nullspace of $\mathbf{1}$ and does not affect the spectral conditioning of $M$. Thus the $\mu\mathbf{1}$ term can be handled separately (it projects out in the constraint), and the effective bound comes from the first term:
-\[
-\|M\Delta\| \;\leq\; \frac{1}{\lambda}\|\widetilde{\mathbf{Y}}\|\cdot\|r\|.
-\]
-
-\textbf{Step 7. Use strong convexity of $M$.}
-The smallest eigenvalue of $M$ is at least 
-\[
-\lambda_{\min}(M) \;\geq\; 2 + 2\varsigma\lambda_{\min}(\mathbf{C}_0\mathbf{C}_0^\top).
-\]
-
-For simplicity, we use $\|\mathbf{C}_0\|^2 = \lambda_{\max}(\mathbf{C}_0^\top\mathbf{C}_0)$, so
-\[
-\lambda_{\min}(M) \;\geq\; 2 + 2\varsigma\|\mathbf{C}_0\|^2.
-\]
-
-Thus,
-\[
-\|\Delta\| \;\leq\; \frac{\|M^{-1}\|}{\lambda}\|\widetilde{\mathbf{Y}}\|\epsilon_{\text{SHC}}
-\;\leq\; \frac{1}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\gamma\,\epsilon_{\text{SHC}}.
-\]
-
-Squaring both sides and simplifying yields the claimed result.
+\textit{Explanation:} Strong convexity of $M$ guarantees $\|M^{-1}\|$ is bounded. 
+Thus the deviation is controlled by the SHC residual, 
+scaled down by the effective regularization strength.
 \end{proof}
+
 
 \begin{remark}
 The key role of the affine constraint $\mathbf{1}^\top \mathbf{w}=1$ 
