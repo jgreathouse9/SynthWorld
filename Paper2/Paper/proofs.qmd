@@ -111,13 +111,16 @@ $$
 $$
 \end{lemma}
 
-**Proof.**
-
-By the operator norm bound (A4), $\|\widetilde{\mathbf{Y}}\| \leq \gamma$. Thus,
-$$
-\|\widetilde{\mathbf{Y}} \Delta\| \leq \|\widetilde{\mathbf{Y}}\| \,\|\Delta\| \leq \gamma \|\Delta\|.
-$$
-\qed
+\begin{proof}
+By optimality of $\mathbf{w}^{\text{ASHC}}$ and feasibility of $\mathbf{w}^{\text{SHC}}$:
+\[
+  \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|^2
+  + \|\Delta\|^2
+  + \varsigma\|\mathbf{C}_0^\top(\mathbf{w}^{\text{SHC}}+\Delta)\|_2^2
+  \leq \frac{1}{2\lambda}\epsilon_{\text{SHC}}^2 
+  + \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
+\]
+\end{proof}
 
 \begin{remark}
 Lemma~\ref{lem:gamma} ensures that deviations of the ASHC weights from the SHC weights, measured in $\ell_2$ norm, translate into controlled deviations in the predicted outcomes. The operator norm bound (A4) prevents $\widetilde{\mathbf{Y}}$ from amplifying small changes in the weights disproportionately.
@@ -131,36 +134,38 @@ b_\epsilon(H,k) \defeq \frac{2\epsilon |k|^{H+1}}{(H+1)!}.
 $$
 \end{lemma}
 
-**Proof.**
+\begin{proof}
+Let $\ell(t)$ denote the latent smooth component of the treated outcome. 
+By (A3), $\ell(t)$ is $(H+1)$ times differentiable with 
+$|\ell^{(H+1)}(t)| \leq \epsilon$.
 
-Let $\ell(t)$ denote the latent smooth component of the treated outcome. By (A3), $\ell(t)$ is $(H+1)$ times differentiable with $|\ell^{(H+1)}(t)| \leq \epsilon$.
-
-**Step 1. Taylor expansion around $T_0$.**  
+\textbf{Step 1. Taylor expansion around $T_0$.}  
 By Taylor’s theorem,
-$$
+\[
 \ell(T_0 + k) 
 = \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}\, k^h + R_{H+1}(k),
-$$
+\]
 with remainder
-$$
+\[
 R_{H+1}(k) = \frac{\ell^{(H+1)}(\xi)}{(H+1)!}\, k^{H+1}, 
 \quad \text{for some } \xi \in [T_0, T_0 + k].
-$$
+\]
 
-**Step 2. Bound the remainder.**
-$$
+\textbf{Step 2. Bound the remainder.}
+\[
 |R_{H+1}(k)| \leq \frac{\epsilon}{(H+1)!}\, |k|^{H+1}.
-$$
+\]
 
-**Step 3. SHC approximation of lower-order terms.**  
-By construction, SHC matches the first $H$ terms of this expansion up to error of the same order as the remainder.
+\textbf{Step 3. SHC approximation of lower-order terms.}  
+By construction, SHC matches the first $H$ terms of this expansion 
+up to error of the same order as the remainder.
 
-**Step 4. Combine bounds.**
-$$
+\textbf{Step 4. Combine bounds.}
+\[
 |\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)| 
 \leq \frac{2\epsilon}{(H+1)!}\, |k|^{H+1}.
-$$
-\qed
+\]
+\end{proof}
 
 \begin{remark}
 Lemma~\ref{lem:smoothness} formalizes the SHC bias as a Taylor remainder. The SHC approximation matches derivatives of $\ell(t)$ at $T_0$ up to order $H$, leaving bias decaying like $|k|^{H+1}$. Thus, for smooth latent trends and moderate horizons, SHC bias is negligible.
@@ -179,33 +184,33 @@ $$
 $$
 \end{proposition}
 
-**Proof (Sketch).**
 
-1. By triangle inequality,
-$$
+\begin{proof}
+1. By the triangle inequality,
+\[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|
 \leq
 \epsilon_{\text{SHC}} + \|\widetilde{\mathbf{Y}}\Delta\|.
-$$
+\]
 
 2. By Lemma~\ref{lem:gamma}, 
-$$
+\[
 \|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|.
-$$
+\]
 
 3. By Lemma~1 (earlier),
-$$
+\[
 \|\Delta\| \leq \frac{\epsilon_{\text{SHC}}}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}.
-$$
+\]
 
-4. Add smoothness bias (Lemma~\ref{lem:smoothness}) and noise (A2):
-$$
+4. Adding smoothness bias (Lemma~\ref{lem:smoothness}) and noise (A2):
+\[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|
 \leq
 \epsilon_{\text{SHC}}\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}\right)
 + b_\epsilon(H,k) + \delta.
-$$
-\qed
+\]
+\end{proof}
 
 # Discussion
 
@@ -231,9 +236,8 @@ $$
 \end{theorem}
 
 
-**Proof.**
-
-Starting from Proposition~\ref{prop:ashc},
+\begin{proof}
+Starting from Proposition~\ref{prop:ashc}, we have
 \[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 \leq
@@ -242,47 +246,47 @@ Starting from Proposition~\ref{prop:ashc},
 + b_\epsilon(H,k) + \delta.
 \]
 
-### Step 1. Behavior of $\epsilon_{\text{SHC}}$
-By (A3), $\ell(t)$ is $(H+1)$ times differentiable. Gaussian kernel smoothing in SHC ensures 
+\textbf{Step 1. Behavior of \(\epsilon_{\text{SHC}}\).}  
+By (A3), \(\ell(t)\) is \((H+1)\)-times differentiable. Gaussian kernel smoothing in SHC ensures 
 \[
-\epsilon_{\text{SHC}} \to 0 \quad \text{as } m \to \infty,\; H \to \infty \; \cite{SHC}.
+\epsilon_{\text{SHC}} \to 0 \quad \text{as } m \to \infty,\, H \to \infty \quad \cite{SHC}.
 \]
 
-### Step 2. Behavior of ASHC penalty term
-Since $\epsilon_{\text{SHC}} \to 0$, the inflation factor
+\textbf{Step 2. Behavior of ASHC penalty term.}  
+Since \(\epsilon_{\text{SHC}} \to 0\), the inflation factor
 \[
 \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \,\epsilon_{\text{SHC}}
 \]
 vanishes asymptotically.
 
-### Step 3. Behavior of smoothness bias $b_\epsilon(H,k)$
+\textbf{Step 3. Behavior of smoothness bias \(b_\epsilon(H,k)\).}  
 From Taylor’s theorem,
 \[
 \ell(T_0 + k) = \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}k^h + R_{H+1}(k),
 \]
 with
 \[
-|R_{H+1}(k)| \leq \frac{\epsilon}{(H+1)!}\,|k|^{H+1}.
+|R_{H+1}(k)| \leq \frac{\epsilon}{(H+1)!} |k|^{H+1}.
 \]
 Thus
 \[
-b_\epsilon(H,k) \leq \frac{2\epsilon}{(H+1)!}\,|k|^{H+1} \;\to\; 0 \quad \text{as } H \to \infty.
+b_\epsilon(H,k) \leq \frac{2\epsilon}{(H+1)!} |k|^{H+1} \to 0 \quad \text{as } H \to \infty.
 \]
 
-### Step 4. Behavior of noise term
-By (A2), $\|\boldsymbol{\eta}\| \leq \delta$.  
-If $\boldsymbol{\eta}$ is i.i.d. sub-Gaussian with variance proxy $\sigma^2$, then
+\textbf{Step 4. Behavior of noise term.}  
+By (A2), \(\|\boldsymbol{\eta}\| \leq \delta\).  
+If \(\boldsymbol{\eta}\) is i.i.d.\ sub-Gaussian with variance proxy \(\sigma^2\), then
 \[
-\frac{\|\boldsymbol{\eta}\|}{m} \;\xrightarrow{p}\; 0.
+\frac{\|\boldsymbol{\eta}\|}{m} \xrightarrow{p} 0.
 \]
 
-### Step 5. Combine bounds
+\textbf{Step 5. Combine bounds.}  
 Therefore,
 \[
 \limsup_{m \to \infty} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \leq \delta.
 \]
-With sub-Gaussian noise, the limit is $0$ in probability.
-\qed
+With sub-Gaussian noise, the limit is \(0\) in probability.
+\end{proof}
 
 \begin{corollary}\label{cor:ashc-rate}
 Under (A1)--(A5), the ASHC estimator is asymptotically unbiased up to $\delta$.  
@@ -294,14 +298,13 @@ If $\boldsymbol{\eta}$ is i.i.d. mean-zero sub-Gaussian with variance proxy $\si
 For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
 \end{corollary}
 
-**Proof.**
 
-### Part 1: Consistency
-From Theorem~\ref{thm:ashc-asymptotics}, the error converges to $\delta$, or $0$ in probability under sub-Gaussian noise.
+\begin{proof}
+\textbf{Part 1: Consistency.}  
+From Theorem~\ref{thm:ashc-asymptotics}, the error converges to \(\delta\), or \(0\) in probability under sub-Gaussian noise.
 
-### Part 2: Convergence Rate
-
-From Proposition~\ref{prop:ashc},
+\textbf{Part 2: Convergence Rate.}  
+From Proposition~\ref{prop:ashc}, we have
 \[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 \leq
@@ -310,47 +313,49 @@ From Proposition~\ref{prop:ashc},
 + b_\epsilon(H,k) + \delta.
 \]
 
-**Step 1. Bias term.**  
-From Lemma~\ref{lem:smoothness}, 
+\textbf{Step 1. Bias term.}  
+From Lemma~\ref{lem:smoothness},  
 \[
 b_\epsilon(H,k) = O(h_m^H).
 \]
 
-**Step 2. Stochastic error term.**  
-With sub-Gaussian noise, the smoothed variance is
+\textbf{Step 2. Stochastic error term.}  
+With sub-Gaussian noise, the smoothed variance is  
 \[
-O_p((m h_m)^{-1/2}).
+O_p\big((m h_m)^{-1/2}\big).
 \]
 
-**Step 3. SHC fit error.**  
-Combining,
+\textbf{Step 3. SHC fit error.}  
+Combining,  
 \[
-\epsilon_{\text{SHC}} = O_p(h_m^H + (m h_m)^{-1/2}).
+\epsilon_{\text{SHC}} = O_p\big(h_m^H + (m h_m)^{-1/2}\big).
 \]
 
-**Step 4. Optimal bandwidth.**  
-Equating orders $h_m^H \asymp (m h_m)^{-1/2}$ yields
+\textbf{Step 4. Optimal bandwidth.}  
+Equating orders \(h_m^H \asymp (m h_m)^{-1/2}\) yields  
 \[
 h_m \asymp m^{-1/(2H+3)}.
 \]
 
-**Step 5. Convergence rate.**  
-Substituting,
+\textbf{Step 5. Convergence rate.}  
+Substituting,  
 \[
-\epsilon_{\text{SHC}} = O_p(m^{-H/(2H+3)}).
-\]
-Thus the total error is
+\epsilon_{\text{SHC}} = O_p\big(m^{-H/(2H+3)}\big).
+\]  
+Thus the total error is  
 \[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| = O_p(m^{-H/(2H+3)}).
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| = O_p\big(m^{-H/(2H+3)}\big).
 \]
 
-**Step 6. Near-parametric rate.**  
-As $H \to \infty$, 
+\textbf{Step 6. Near-parametric rate.}  
+As \(H \to \infty\),  
 \[
-\frac{H}{2H+3} \;\to\; \tfrac{1}{2}.
-\]
-So the rate approaches $O_p(m^{-1/2})$.
-\qed
+\frac{H}{2H+3} \to \tfrac{1}{2}.
+\]  
+So the rate approaches \(O_p(m^{-1/2})\).
+\end{proof}
+
+
 
 \begin{remark}
 The deterministic noise bound $\delta$ in (A2) corresponds to $\|\boldsymbol{\eta}\| \leq \delta$.  
