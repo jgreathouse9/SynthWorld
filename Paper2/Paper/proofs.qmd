@@ -418,10 +418,21 @@ $$
 \noindent This completes the proof.
 \end{proof}
 
-
 \begin{remark}
-Lemma~\ref{lem:smoothness} formalizes the SHC bias as a Taylor remainder. The SHC approximation matches derivatives of $\ell(t)$ at $T_0$ up to order $H$, leaving bias decaying like $|k|^{H+1}$. Thus, for smooth latent trends and moderate horizons, SHC bias is negligible.
+Lemma~\ref{lem:smoothness} formalizes the idea that the SHC predictor inherits 
+the smoothness of the latent trend $\ell(\cdot)$.  
+Because SHC is built from overlapping donor segments that reflect the same 
+underlying smooth dynamics, the approximation reproduces the first $H$ terms 
+of the Taylor expansion around $T_0$.  
+The only discrepancy comes from the $(H+1)$-st order remainder, which is small 
+when the latent trend is sufficiently smooth.  
+Thus, the difference between $\ell$ and $\ell^{\text{SHC}}$ grows only 
+polynomially in the forecast horizon $k$, and the error is of order 
+$|k|^{H+1}$ rather than linear or quadratic in $k$.  
+This ensures that SHC extrapolates the smooth component accurately over short 
+to moderate horizons.
 \end{remark}
+
 
 # Main Result
 
