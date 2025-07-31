@@ -307,26 +307,33 @@ is tightly controlled by the residual error of SHC, scaled down by the effective
 coming from both $\lambda$ and the stabilizing penalty $\varsigma$.
 \end{proof}
 
-
-
-
-
-\begin{remark}
-The key role of the affine constraint $\mathbf{1}^\top \mathbf{w}=1$ 
-is to introduce a Lagrange multiplier $\mu$, 
-which shifts the optimality condition by a vector in the span of $\mathbf{1}$. 
-Because $\Delta$ must satisfy $\mathbf{1}^\top \Delta = 0$, 
-this shift does not affect the conditioning of $M$ 
-and thus does not alter the deviation bound. 
-The effective regularization is governed entirely by the spectrum of $M$.
-\end{remark}
-
 \begin{lemma}\label{lem:gamma}
 Under (A4), the error from deviating off SHC weights satisfies
 $$
 \|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|.
 $$
 \end{lemma}
+
+\begin{proof}
+By definition, $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}} \in \mathbb{R}^N$.
+From Assumption (A4), the operator (spectral) norm of the donor matrix satisfies
+\[
+\|\widetilde{\mathbf{Y}}\| \;\leq\; \gamma,
+\]
+where the operator norm is
+\[
+\|\widetilde{\mathbf{Y}}\| \;=\; \sup_{\mathbf{v}\neq 0} 
+\frac{\|\widetilde{\mathbf{Y}}\mathbf{v}\|}{\|\mathbf{v}\|}.
+\]
+Applying this inequality to $\mathbf{v} = \Delta$ gives
+\[
+\|\widetilde{\mathbf{Y}}\Delta\|
+\;\leq\; \|\widetilde{\mathbf{Y}}\|\;\|\Delta\|
+\;\leq\; \gamma \|\Delta\|.
+\]
+This establishes the claim.
+\end{proof}
+
 
 \begin{remark}
 Lemma~\ref{lem:gamma} ensures that deviations of the ASHC weights from the SHC weights, measured in $\ell_2$ norm, translate into controlled deviations in the predicted outcomes. The operator norm bound (A4) prevents $\widetilde{\mathbf{Y}}$ from amplifying small changes in the weights disproportionately.
