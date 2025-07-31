@@ -107,6 +107,7 @@ $\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
 \end{lemma}
 
 \begin{proof}
+
 To bound in sample deviation, we can begin from the ASHC optimization problem:
 $$
 J(\mathbf{w})= \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2+ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
@@ -194,7 +195,7 @@ M\Delta
 \big(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\big)- \mu\mathbf{1}.
 \tag{Deviation Equation}
 $$
-This subtraction step isolates the deviation $\Delta$}, which is the central quantity we need to bound and expresses $\Delta$ entirely in terms of the SHC residual $r \defeq \widetilde{\mathbf{y}}-\widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$ and the Lagrange multiplier $\mu$, eliminating any direct dependence on the unknown $\mathbf{w}^{\text{ASHC}}$.
+This subtraction step isolates the deviation $\Delta$, which is the central quantity we need to bound and expresses $\Delta$ entirely in terms of the SHC residual $r \defeq \widetilde{\mathbf{y}}-\widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$ and the Lagrange multiplier $\mu$, eliminating any direct dependence on the unknown $\mathbf{w}^{\text{ASHC}}$.
 
 From the Deviation Equation we obtained:
 $$
