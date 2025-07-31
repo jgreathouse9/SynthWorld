@@ -437,58 +437,113 @@ to moderate horizons.
 
 \begin{proposition}\label{prop:ashc}
 Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
-$$
+\[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
-\leq
+\;\leq\;
 \epsilon_{\text{SHC}}
-\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
+\left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \right)
 + b_\epsilon(H,k) + \delta.
-$$
+\]
 \end{proposition}
 
 \begin{proof}
-We want to bound the prediction error of the ASHC estimator,
+We want to establish an upper bound on the prediction error of the ASHC estimator,
 \[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|.
 \]
+The argument proceeds in four steps.
 
-\textbf{Step 1: Decompose the error using the triangle inequality.}  
-Let $\mathbf{w}^*$ denote the ideal weights from the SHC estimator without the ASHC penalty. Define the difference $\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^*$. Then,
+\medskip
+\noindent\textbf{Step 1. Break down the error into two components.}  
+To understand the ASHC error, we compare it against the SHC solution.  
+Let $\mathbf{w}^{\text{SHC}}$ denote the SHC weights and define
+\[
+\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}.
+\]
+The idea is that the ASHC weights should not deviate much from SHC weights.  
+Substituting this definition, we write:
 \[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|
-= \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^* - \widetilde{\mathbf{Y}}\Delta\|
-\leq
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^*\| + \|\widetilde{\mathbf{Y}}\Delta\|.
+= \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}} 
+      - \widetilde{\mathbf{Y}}\Delta\|.
 \]
-The first term, $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^*\|$, is the SHC prediction error without augmentation.
-
-\textbf{Step 2: Control the second term using operator norm.}  
-By Lemma~\ref{lem:gamma}, the matrix $\widetilde{\mathbf{Y}}$ satisfies
-\[
-\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|,
-\]
-where $\gamma$ is an operator norm bound capturing how the weights perturbations translate into prediction changes.
-
-\textbf{Step 3: Bound the weight difference $\|\Delta\|$.}  
-From Lemma~1 (stated earlier), the ASHC weight vector $\mathbf{w}^{\text{ASHC}}$ stays close to the SHC weights in Euclidean norm:
-\[
-\|\Delta\| = \|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^*\| \leq \frac{\epsilon_{\text{SHC}}}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}},
-\]
-where the denominator reflects the strength of the ASHC penalty, ensuring stability.
-
-\textbf{Step 4: Incorporate smoothness bias and noise.}  
-Finally, the total prediction error also includes the smoothness bias $b_\epsilon(H,k)$ due to approximating the latent function by a truncated Taylor expansion of order $H$, and a noise term bounded by $\delta$ (from assumption (A2)).
-
-Putting all these together, we get
+By the triangle inequality,
 \[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|
 \leq
-\epsilon_{\text{SHC}} + \gamma \|\Delta\| + b_\epsilon(H,k) + \delta
-\leq
-\epsilon_{\text{SHC}}\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}\right) + b_\epsilon(H,k) + \delta,
+\underbrace{\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|}_{\epsilon_{\text{SHC}}}
++ \|\widetilde{\mathbf{Y}}\Delta\|.
 \]
-which completes the proof.
+Thus the ASHC error consists of two pieces: the SHC error $\epsilon_{\text{SHC}}$, 
+plus an extra term reflecting how much the weights changed.
+
+\medskip
+\noindent\textbf{Step 2. Relate the second term to the size of the deviation.}  
+We now focus on bounding $\|\widetilde{\mathbf{Y}}\Delta\|$.  
+The key question is: how large a prediction change can arise from a given weight change?  
+By Lemma~\ref{lem:gamma}, the donor matrix $\widetilde{\mathbf{Y}}$ is bounded in operator norm, so
+\[
+\|\widetilde{\mathbf{Y}}\Delta\| \;\leq\; \gamma \|\Delta\|.
+\]
+Thus, the effect on predictions is proportional to the norm of $\Delta$.
+
+\medskip
+\noindent\textbf{Step 3. Bound the deviation $\|\Delta\|$.}  
+Next we ask: how far can the ASHC weights move away from SHC weights?  
+Lemma~\ref{lem:delta} guarantees that the regularization in ASHC penalizes such deviations, ensuring
+\[
+\|\Delta\| \;\leq\; \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
+\]
+This bound shows that the stronger the penalty parameters $\lambda$ and $\varsigma$, 
+the smaller the deviation.
+
+\medskip
+\noindent\textbf{Step 4. Account for smoothness bias and noise.}  
+So far we have bounded the deterministic error introduced by moving from SHC to ASHC.  
+Two additional sources of error remain:
+
+- By Lemma~\ref{lem:smoothness}, approximating the latent smooth trend $\ell(t)$ 
+  by a truncated Taylor expansion of order $H$ introduces a bias bounded by
+  \[
+  b_\epsilon(H,k) = \frac{2\epsilon |k|^{H+1}}{(H+1)!}.
+  \]
+
+- By Assumption~(A2), the noise vector $\bm{\eta}$ is bounded in norm by $\delta$.
+
+\medskip
+\noindent\textbf{Final step: Combine all contributions.}  
+Putting the pieces together, we obtain
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|
+\leq
+\epsilon_{\text{SHC}}
++ \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}
++ b_\epsilon(H,k) + \delta,
+\]
+which simplifies to
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|
+\leq
+\epsilon_{\text{SHC}}
+\left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}\right)
++ b_\epsilon(H,k) + \delta.
+\]
+
+\medskip
+\noindent This completes the proof.
 \end{proof}
+
+\begin{remark}
+The proposition shows that ASHC inherits the predictive accuracy of SHC 
+(up to $\epsilon_{\text{SHC}}$), with only a controlled inflation factor.  
+The inflation depends on how strongly we regularize the weights: larger $\lambda$ 
+or $\varsigma$ keeps ASHC closer to SHC.  
+In addition, smoothness bias ($b_\epsilon(H,k)$) and bounded noise ($\delta$) 
+contribute additively.  
+Thus, the overall error reflects three forces: the baseline SHC fit, the ASHC 
+regularization effect, and the structural bias/noise limits.
+\end{remark}
+
 
 
 
