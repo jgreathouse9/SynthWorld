@@ -108,13 +108,11 @@ $\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
 
 \begin{proof}
 To bound in sample deviation, we can begin from the ASHC optimization problem:
-\[
-J(\mathbf{w})
-= \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2
-+ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
-+ \varsigma\|\mathbf{C}_0^\top\mathbf{w}\|_2^2 
+$$
+J(\mathbf{w})= \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2+ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
++\varsigma\|\mathbf{C}_0^\top\mathbf{w}\|_2^2 
 \quad \text{s.t. } \mathbf{1}^\top\mathbf{w} = 1.
-\]
+$$
 The three components have clear roles: the first encourages close fit to the evaluation period outcomes, the second penalizes deviation from the SHC weights, and the third stabilizes the solution in low-variance directions.  
 
 If we minimized $J(\mathbf{w})$ without the affine constraint $\mathbf{1}^\top\mathbf{w}=1$, the resulting $\mathbf{w}$ might not be feasible. To enforce this constraint, we introduce the Lagrangian
