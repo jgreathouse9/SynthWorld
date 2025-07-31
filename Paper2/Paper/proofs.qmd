@@ -235,7 +235,6 @@ $$
 $$
 \end{theorem}
 
-
 \begin{proof}
 Starting from Proposition~\ref{prop:ashc}, we have
 \[
@@ -249,8 +248,9 @@ Starting from Proposition~\ref{prop:ashc}, we have
 \textbf{Step 1. Behavior of \(\epsilon_{\text{SHC}}\).}  
 By (A3), \(\ell(t)\) is \((H+1)\)-times differentiable. Gaussian kernel smoothing in SHC ensures 
 \[
-\epsilon_{\text{SHC}} \to 0 \quad \text{as } m \to \infty,\, H \to \infty \quad \cite{SHC}.
+\epsilon_{\text{SHC}} \to 0 \quad \text{as } m \to \infty,\, H \to \infty.
 \]
+\cite{SHC}
 
 \textbf{Step 2. Behavior of ASHC penalty term.}  
 Since \(\epsilon_{\text{SHC}} \to 0\), the inflation factor
