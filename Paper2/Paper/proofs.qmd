@@ -95,6 +95,16 @@ $\|\widetilde{\mathbf{Y}}\| \leq \gamma$.
 $\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} \defeq \{\mathbf{w} \in \mathbb{R}^N : \sum w_i = 1,\; w_i \geq 0\}$.
 \end{assumption}
 
+\begin{proof}
+By optimality of $\mathbf{w}^{\text{ASHC}}$ and feasibility of $\mathbf{w}^{\text{SHC}}$:
+\[
+  \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|^2
+  + \|\Delta\|^2
+  + \varsigma\|\mathbf{C}_0^\top(\mathbf{w}^{\text{SHC}}+\Delta)\|_2^2
+  \leq \frac{1}{2\lambda}\epsilon_{\text{SHC}}^2 
+  + \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
+\]
+\end{proof}
 
 \begin{remark}
 The proof above uses the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$ in place of the simplex constraint of SHC. The eigenvalue argument is unaffected by this relaxation because the deviation bound depends only on the strong convexity of the quadratic form defined by 
@@ -110,17 +120,6 @@ $$
 \|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|.
 $$
 \end{lemma}
-
-\begin{proof}
-By optimality of $\mathbf{w}^{\text{ASHC}}$ and feasibility of $\mathbf{w}^{\text{SHC}}$:
-\[
-  \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\|^2
-  + \|\Delta\|^2
-  + \varsigma\|\mathbf{C}_0^\top(\mathbf{w}^{\text{SHC}}+\Delta)\|_2^2
-  \leq \frac{1}{2\lambda}\epsilon_{\text{SHC}}^2 
-  + \varsigma \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|_2^2.
-\]
-\end{proof}
 
 \begin{remark}
 Lemma~\ref{lem:gamma} ensures that deviations of the ASHC weights from the SHC weights, measured in $\ell_2$ norm, translate into controlled deviations in the predicted outcomes. The operator norm bound (A4) prevents $\widetilde{\mathbf{Y}}$ from amplifying small changes in the weights disproportionately.
