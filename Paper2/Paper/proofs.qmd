@@ -131,10 +131,6 @@ $$
 + \mu(\mathbf{1}^\top\mathbf{w}-1).
 $$
 
----
-
-### Gradient Computation
-
 \[
 \nabla_{\mathbf{w}}\mathcal{L}(\mathbf{w},\mu) 
 = \underbrace{\tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w}-\widetilde{\mathbf{y}})}_{\text{fit term}}
@@ -152,10 +148,6 @@ $$
 + 2\mathbf{w}^{\text{SHC}}
 - \mu\mathbf{1}.
 $$
-
----
-
-### Expressing the Deviation
 
 Define
 $$
@@ -187,10 +179,6 @@ M\Delta
 = \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top r - \mu \mathbf{1}.
 $$
 
----
-
-### Eliminating the Lagrange Multiplier
-
 Since $\mathbf{1}^\top\mathbf{w}^{\text{ASHC}} = \mathbf{1}^\top\mathbf{w}^{\text{SHC}} = 1$, we have
 $$
 \mathbf{1}^\top \Delta = 0.
@@ -210,10 +198,6 @@ $$
 \Delta^\top M\Delta
 = \tfrac{1}{\lambda}\Delta^\top\widetilde{\mathbf{Y}}^\top r.
 $$
-
----
-
-### Bounding the Deviation
 
 Applying Cauchy–Schwarz:
 $$
@@ -252,10 +236,6 @@ $$
 \|\Delta\| 
 \;\leq\; \frac{\gamma}{\lambda\,\lambda_{\min}(M)}\,\epsilon_{\text{SHC}}.
 $$
-
----
-
-### Lower Bound on $\lambda_{\min}(M)$
 
 By construction,
 $$
