@@ -260,6 +260,14 @@ This shows that the deviation of ASHC weights from SHC is tightly controlled by 
 \end{proof}
 
 
+\begin{remark}
+This result shows that the difference between the ASHC weights and the original SHC weights — the deviation $\Delta$ — is directly controlled by how well the SHC fit performs (measured by the residual error $\epsilon_{\text{SHC}}$) and the strength of the regularization penalties ($\lambda$ and $\varsigma$).  
+
+Importantly, the affine constraint (weights summing to one) is enforced by the Lagrange multiplier $\mu$, which acts like a balancing force that keeps the weights feasible but does not increase the deviation size.  
+
+Thus, the ASHC estimator remains close to the SHC baseline, with the regularization terms effectively shrinking the deviation to be small whenever the SHC fit is good. This gives applied researchers a clear sense that ASHC improves stability without drastically changing the solution unless necessary, ensuring robust predictions.
+\end{remark}
+
 
 
 \begin{lemma}\label{lem:gamma}
