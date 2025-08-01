@@ -109,203 +109,178 @@ $\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
 
 \begin{proof}
 
-To bound in sample deviation, we can begin from the ASHC optimization problem:
-$$
-J(\mathbf{w})= \frac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2+ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
-+\varsigma\|\mathbf{C}_0^\top\mathbf{w}\|_2^2 
-\quad \text{s.t. } \mathbf{1}^\top\mathbf{w} = 1.
-$$
-The three components have clear roles: the first encourages close fit to the evaluation period outcomes, the second penalizes deviation from the SHC weights, and the third stabilizes the solution in low-variance directions.  
+To bound in-sample deviation, we begin from the ASHC optimization problem:
 
-If we minimized $J(\mathbf{w})$ without the affine constraint $\mathbf{1}^\top\mathbf{w}=1$, the resulting $\mathbf{w}$ might not be feasible. To enforce this constraint, we introduce the Lagrangian
+$$
+J(\mathbf{w})=
+\underbrace{\tfrac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2}_{\text{fit term}}
++ \underbrace{\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2}_{\text{deviation penalty}}
++ \underbrace{\varsigma\|\mathbf{C}_0^\top\mathbf{w}\|_2^2}_{\text{Gram penalty}}
+\quad \text{s.t. } 
+\underbrace{\mathbf{1}^\top\mathbf{w} = 1}_{\text{affine constraint}}.
+$$
+
+If we minimized $J(\mathbf{w})$ without the affine constraint, the resulting $\mathbf{w}$ might not be feasible.  
+To enforce feasibility, we introduce the Lagrangian:
+
 $$
 \mathcal{L}(\mathbf{w},\mu) 
-= J(\mathbf{w}) + \mu(\mathbf{1}^\top\mathbf{w}-1),
-$$
-where $\mu \in \mathbb{R}$ is a Lagrange multiplier. This term acts as a corrective force, ensuring feasibility without changing the curvature of $J(\mathbf{w})$ that governs the size of $\Delta$. We now may compute the gradient of $\mathcal{L}$.  
-
-First, for the fit term, define $r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}$. Using the \emph{chain rule for vector functions},
-$$
-\nabla_{\mathbf{w}} \frac{1}{2\lambda}\|r(\mathbf{w})\|^2
-= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w} - \widetilde{\mathbf{y}}).
+= \tfrac{1}{2\lambda}\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}\|^2
++ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
++ \varsigma\|\mathbf{C}_0^\top\mathbf{w}\|_2^2
++ \mu(\mathbf{1}^\top\mathbf{w}-1).
 $$
 
-Second, for the deviation penalty, recall the rule for the gradient of a quadratic form, $\nabla_{\mathbf{w}} (\mathbf{w}^\top A \mathbf{w}) = (A+A^\top)\mathbf{w}$. With $A=I$, we obtain
+---
+
+### Gradient Computation
+
+\[
+\nabla_{\mathbf{w}}\mathcal{L}(\mathbf{w},\mu) 
+= \underbrace{\tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w}-\widetilde{\mathbf{y}})}_{\text{fit term}}
++ \underbrace{2(\mathbf{w}-\mathbf{w}^{\text{SHC}})}_{\text{deviation penalty}}
++ \underbrace{2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}}_{\text{Gram penalty}}
++ \underbrace{\mu\mathbf{1}}_{\text{affine constraint}}.
+\]
+
+Stationarity gives
 $$
-\nabla_{\mathbf{w}}\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
-= 2(\mathbf{w} - \mathbf{w}^{\text{SHC}}).
+\Big(\tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}
++ 2\mathbf{I}
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\Big)\mathbf{w}
+= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}
++ 2\mathbf{w}^{\text{SHC}}
+- \mu\mathbf{1}.
 $$
 
-Third, for the low-variance penalty,
-$$
-\varsigma\|\mathbf{C}_0^\top\mathbf{w}\|^2
-=\varsigma\mathbf{w}^\top(\mathbf{C}_0\mathbf{C}_0^\top)\mathbf{w}.
-$$
-Since $\mathbf{C}_0\mathbf{C}_0^\top$ is symmetric, applying the quadratic form rule yields
-$$
-\nabla_{\mathbf{w}}\varsigma\|\mathbf{C}_0^\top\mathbf{w}\|^2=2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}.
-$$
+---
 
-Finally, differentiating the affine constraint term $\mu(\mathbf{1}^\top\mathbf{w}-1)$, linearity of differentiation gives
-$$
-\nabla_{\mathbf{w}}[\mu(\mathbf{1}^\top \mathbf{w}-1)] = \mu\mathbf{1}.
-$$
+### Expressing the Deviation
 
-Collecting terms, the stationarity condition $\nabla_{\mathbf{w}}\mathcal{L}(\mathbf{w},\mu) = 0$ is
+Define
 $$
-\left(\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}} + 2\mathbf{I}+ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\right)\mathbf{w}= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}}+ 2\mathbf{w}^{\text{SHC}} - \mu\mathbf{1}.
-$$
-
-Now with our FOC, we must express our deviation term
-$$
-\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}
-$$
-in terms of known quantities. To achieve this, we first package the curvature
-terms of the Lagrangian into a single matrix:
-$$
-M \defeq \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}
+\Delta \;\defeq\; \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}, \qquad
+M \;\defeq\; \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}
 + 2\mathbf{I}
 + 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top.
 $$
 
-From the first-order condition for $\mathbf{w}^{\text{ASHC}}$, we obtained:
-
-\begin{equation}
-M \mathbf{w}^{\text{ASHC}}
+From the ASHC FOC we have:
+$$
+M\mathbf{w}^{\text{ASHC}}
 = \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}}
-+ 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
-\label{FOC-ASHC}
-\tag{FOC-ASHC}
-\end{equation}
-
-
-We now evaluate the same structure at $\mathbf{w}^{\text{SHC}}$. Note that
-$\mathbf{w}^{\text{SHC}}$ need not satisfy the ASHC first-order condition, but writing the analogous expression will allow us to cancel common terms. Plugging
-$\mathbf{w}^{\text{SHC}}$ into the left-hand side yields:
-
-\begin{equation}
-M \mathbf{w}^{\text{SHC}}
-= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}
-+ 2 \mathbf{w}^{\text{SHC}}
-+ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}.
-\label{Baseline}
-\tag{Baseline}
-\end{equation}
-
-
-Subtracting \eqref{Baseline} from \eqref{FOC-ASHC}, we obtain:
-$$
-M(\mathbf{w}^{\text{ASHC}} -\mathbf{w}^{\text{SHC}})= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{y}}-\widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}})- \mu \mathbf{1}.
++ 2\mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
 $$
 
-That is,
-\begin{equation}
+Subtracting the analogous expansion at $\mathbf{w}^{\text{SHC}}$, we get:
+
+$$
 M\Delta
-= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top
-\big(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\big)- \mu\mathbf{1}.
-\label{Deviation Equation}
-\tag{Deviation Equation}
-\end{equation}
-This subtraction step isolates the deviation $\Delta$, which is the central quantity we need to bound and expresses $\Delta$ entirely in terms of the SHC residual $r \defeq \widetilde{\mathbf{y}}-\widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$ and the Lagrange multiplier $\mu$, eliminating any direct dependence on the unknown $\mathbf{w}^{\text{ASHC}}$.
-
-The affine constraint $\mathbf{1}^\top \mathbf{w}^{\text{ASHC}} = 1$
-and $\mathbf{1}^\top \mathbf{w}^{\text{SHC}} = 1$ together imply
-$$
-\mathbf{1}^\top \Delta = 
-\mathbf{1}^\top(\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}) = 0.
+= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}) - \mu \mathbf{1}.
 $$
 
-This means $\Delta$ lies in the hyperplane orthogonal to the all-ones vector $\mathbf{1}$. Thus any component of the right-hand side parallel to $\mathbf{1}$ (such as $-\mu\mathbf{1}$) does not affect $\Delta$ within its feasible subspace.
+Let $r \;\defeq\; \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$ denote the SHC residual.  
+Then
 
-To make this explicit, take inner products of both sides of 
-\eqref{Deviation Equation} with $\Delta$:
+$$
+M\Delta
+= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top r - \mu \mathbf{1}.
+$$
+
+---
+
+### Eliminating the Lagrange Multiplier
+
+Since $\mathbf{1}^\top\mathbf{w}^{\text{ASHC}} = \mathbf{1}^\top\mathbf{w}^{\text{SHC}} = 1$, we have
+$$
+\mathbf{1}^\top \Delta = 0.
+$$
+
+Taking inner products with $\Delta$ yields:
+
 $$
 \Delta^\top M\Delta
-= \tfrac{1}{\lambda}\Delta^\top \widetilde{\mathbf{Y}}^\top
-\big(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\big)- \mu \underbrace{\Delta^\top\mathbf{1}}_{=0}.
+= \tfrac{1}{\lambda}\Delta^\top\widetilde{\mathbf{Y}}^\top r
+- \mu\underbrace{\Delta^\top\mathbf{1}}_{=0}.
 $$
 
-Hence the $\mu\mathbf{1}$ term vanishes:
+So the $\mu$ term vanishes, leaving
+
 $$
 \Delta^\top M\Delta
-= \tfrac{1}{\lambda}\Delta^\top\widetilde{\mathbf{Y}}^\top
-\big(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\big).
+= \tfrac{1}{\lambda}\Delta^\top\widetilde{\mathbf{Y}}^\top r.
 $$
 
-The Lagrange multiplier $\mu$ acts like a force that keeps  $\mathbf{w}^{\text{ASHC}}$ on the feasible hyperplane $\{\mathbf{w} : \mathbf{1}^\top \mathbf{w} = 1\}$. 
-But since $\Delta$ itself lies entirely within this hyperplane, $\mu$ does not change $\Delta$’s magnitude. It enforces feasibility but does not distort the conditioning of $M$, which governs the bound on $\|\Delta\|$.
+---
 
-Let $r \defeq \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$ 
-denote the residual from the SHC fit, with norm $\|r\| = \epsilon_{\text{SHC}}$. 
-From the previous step, we now have
-$$
-\Delta^\top M \Delta
-= \tfrac{1}{\lambda}\Delta^\top \widetilde{\mathbf{Y}}^\top r.
-$$
+### Bounding the Deviation
 
-Applying the Cauchy–Schwarz inequality, we obtain
+Applying Cauchy–Schwarz:
 $$
 \Delta^\top M \Delta 
-\;\leq\; \tfrac{1}{\lambda} \|\Delta\|\,
-\|\widetilde{\mathbf{Y}}^\top r\|.
+\;\leq\; \tfrac{1}{\lambda}\|\Delta\|\,\|\widetilde{\mathbf{Y}}^\top r\|.
 $$
 
-By Assumption (A4), the operator norm of $\widetilde{\mathbf{Y}}$ is bounded:
+By Assumption (A4),
 $$
 \|\widetilde{\mathbf{Y}}^\top r\|
 \;\leq\; \|\widetilde{\mathbf{Y}}\|\,\|r\|
-\;\leq\; \gamma\,\epsilon_{\text{SHC}}.
+\;\leq\; \gamma\,\epsilon_{\text{SHC}},
 $$
+where $\epsilon_{\text{SHC}} = \|r\|$.
 
-Hence,
+Thus,
 $$
 \Delta^\top M \Delta 
 \;\leq\; \frac{\gamma}{\lambda}\,\|\Delta\|\,\epsilon_{\text{SHC}}.
 $$
 
-At the same time, since $M$ is positive definite, we can bound the left-hand side below using its smallest eigenvalue. Let $\lambda_{\min}(M)$ denote the minimum eigenvalue of $M$. Then
+On the other hand, since $M$ is positive definite,
 $$
 \Delta^\top M \Delta 
 \;\geq\; \lambda_{\min}(M)\,\|\Delta\|^2.
 $$
 
-Combining the two bounds gives
+Combining,
 $$
 \lambda_{\min}(M)\,\|\Delta\|^2
 \;\leq\; \frac{\gamma}{\lambda}\,\|\Delta\|\,\epsilon_{\text{SHC}}.
 $$
 
-Dividing through by $\|\Delta\| > 0$ (the case $\Delta=0$ being trivial) yields
+Dividing through (nontrivially) by $\|\Delta\|$:
 $$
-\|\Delta\| \;\leq\; \frac{\gamma}{\lambda\,\lambda_{\min}(M)}\,\epsilon_{\text{SHC}}.
+\|\Delta\| 
+\;\leq\; \frac{\gamma}{\lambda\,\lambda_{\min}(M)}\,\epsilon_{\text{SHC}}.
 $$
 
-Finally, recall that $M$ was defined as
+---
+
+### Lower Bound on $\lambda_{\min}(M)$
+
+By construction,
 $$
 M = \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}
 + 2\mathbf{I}
-+ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top.
++ 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top,
 $$
-The first two terms ensure $\lambda_{\min}(M) \geq 2$, 
-and the stabilizing penalty contributes at least 
-$2\varsigma\,\lambda_{\min}(\mathbf{C}_0\mathbf{C}_0^\top)$. 
-For simplicity, we use the operator norm bound 
-$\|\mathbf{C}_0\|^2 = \lambda_{\max}(\mathbf{C}_0^\top\mathbf{C}_0)$,
-so that
+so
 $$
 \lambda_{\min}(M) \;\geq\; 2 + 2\varsigma\|\mathbf{C}_0\|^2.
 $$
 
-Substituting this bound, we obtain our final ASHC bound as:
+Substituting, we obtain the final deviation bound:
+
 $$
 \|\Delta\| 
 \;\leq\; \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}}.
 $$
 
-This shows that the deviation of ASHC weights from the SHC baseline 
-is tightly controlled by the residual error of SHC, scaled down by the effective regularization strength 
-coming from both $\lambda$ and the stabilizing penalty $\varsigma$.
+This shows that the deviation of ASHC weights from SHC is tightly controlled by the SHC residual error, with additional shrinkage provided by both the fit penalty ($\lambda$) and the stabilizing Gram penalty ($\varsigma$).
+
 \end{proof}
+
+
+
 
 \begin{lemma}\label{lem:gamma}
 Under (A4), the error from deviating off SHC weights satisfies
