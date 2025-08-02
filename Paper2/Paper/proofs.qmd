@@ -309,35 +309,46 @@ The primary driver of the deviation $\|\Delta\|$ between the ASHC and SHC weight
 
 \begin{lemma}\label{lem:gamma}
 Under (A4), the error from deviating off SHC weights satisfies
-$$
+\[
 \|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|.
-$$
+\]
 \end{lemma}
 
 \begin{proof}
-By definition, $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}} \in \mathbb{R}^N$.
-From Assumption (A4), the operator (spectral) norm of the donor matrix satisfies
+Recall that $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}} \in \mathbb{R}^N$ 
+denotes the deviation of ASHC weights from the SHC weights.  
+To understand how much this weight deviation changes the fitted donor outcomes, 
+we consider the vector $\widetilde{\mathbf{Y}}\Delta$.  
+
+From Assumption (A4), the donor matrix $\widetilde{\mathbf{Y}}$ has operator (spectral) norm bounded by $\gamma$:
 \[
-\|\widetilde{\mathbf{Y}}\| \;\leq\; \gamma,
+\|\widetilde{\mathbf{Y}}\| \;\leq\; \gamma.
 \]
-where the operator norm is
+The operator norm of a matrix is defined as
 \[
 \|\widetilde{\mathbf{Y}}\| \;=\; \sup_{\mathbf{v}\neq 0} 
 \frac{\|\widetilde{\mathbf{Y}}\mathbf{v}\|}{\|\mathbf{v}\|}.
 \]
-Applying this inequality to $\mathbf{v} = \Delta$ gives
+This measures the maximum stretching effect that the matrix $\widetilde{\mathbf{Y}}$ can have on any vector $\mathbf{v}$.
+In other words, it tells us how much $\widetilde{\mathbf{Y}}$ can amplify a deviation in the weights.
+
+Applying this definition with $\mathbf{v} = \Delta$ gives
+\[
+\frac{\|\widetilde{\mathbf{Y}}\Delta\|}{\|\Delta\|} 
+\;\leq\; \|\widetilde{\mathbf{Y}}\| 
+\;\leq\; \gamma.
+\]
+
+Multiplying through by $\|\Delta\|$ yields
 \[
 \|\widetilde{\mathbf{Y}}\Delta\|
-\;\leq\; \|\widetilde{\mathbf{Y}}\|\;\|\Delta\|
 \;\leq\; \gamma \|\Delta\|.
 \]
-This establishes the claim.
+
+Thus, even if the ASHC weights deviate from the SHC weights, 
+the resulting change in fitted donor outcomes cannot exceed $\gamma$ times the size of that deviation.
+This ensures that the donor matrix does not amplify weight differences in an uncontrolled way.
 \end{proof}
-
-
-\begin{remark}
-Lemma~\ref{lem:gamma} ensures that deviations of the ASHC weights from the SHC weights, measured in $\ell_2$ norm, translate into controlled deviations in the predicted outcomes. The operator norm bound (A4) prevents $\widetilde{\mathbf{Y}}$ from amplifying small changes in the weights disproportionately.
-\end{remark}
 
 \begin{lemma}\label{lem:smoothness}
 Under (A3), for horizon $k > 0$,
