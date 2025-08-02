@@ -517,7 +517,7 @@ The proof explicitly shows how each component contributes to the final bound:
 (2) the ASHC deviation penalty controlled by $\lambda$ and $\varsigma$,  
 (3) the smoothness bias from Taylor approximation, and  
 (4) the bounded noise.  
-Factoring $\epsilon_{\text{SHC}}$ at the end highlights how ASHC scales the SHC error by at most a small multiplicative factor depending on the regularization strength.
+Factoring $\epsilon_{\text{SHC}}$ at the end highlights how ASHC scales the SHC error by at most a small multiplicative factor depending on the regularization strength. It is worth emphasizing that the ASHC estimator is guaranteed to perform at least as well as SHC within the evaluation window, since its objective explicitly penalizes deviations from the SHC solution. The bound above quantifies how much its predictions may differ, depending on the donor matrix and the penalty strength. However, this guarantee applies in-sample. Out-of-sample performance in the post-treatment period depends on smoothness of the latent trend and the boundedness of noise, as reflected in the $b_{\epsilon(H,k)}$ and $\delta$ terms.
 \end{remark}
 
 # Asymptotic Results
