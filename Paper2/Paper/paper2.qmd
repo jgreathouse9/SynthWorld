@@ -285,3 +285,239 @@ This application provides a compelling case to benchmark ITS, SCM, SHC, and ASHC
 
 # Conclusion
 \label{sec:conclusion}
+
+
+
+\clearpage
+
+
+\section{Appendix}
+
+
+\begin{proof}
+
+To analyze the ASHC optimization problem, recall the objective function:
+\begin{equation}
+J(\mathbf{w}) = \frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|^2 
++ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}\|^2,
+\end{equation}
+subject to the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$.
+
+To enforce this constraint, we form th Lagrangian:
+\begin{equation}
+\mathcal{L}(\mathbf{w}, \mu) 
+= J(\mathbf{w}) + \mu (\mathbf{1}^\top \mathbf{w} - 1),
+\end{equation}
+where $\mu$ is a Lagrange multiplier ensuring feasibility of $\mathbf{w}$. We compute the gradient of $\mathcal{L}$ with respect to $\mathbf{w}$ by differentiating each term separately.
+
+For the first term, define the residual vector:
+\begin{equation}
+r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}.
+\end{equation}
+The fit term is then:
+\begin{equation}
+\frac{1}{2\lambda} \|r(\mathbf{w})\|^2 
+= \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}).
+\end{equation}
+
+We can see that this is a standard quadratic form. We begin by applying the Chain Rule for vector calculus. The chain rule for a composite function $f(g(\mathbf{w}))$ is given by:
+$$\nabla_{\mathbf{w}} f(g(\mathbf{w})) = \left( \nabla_{g(\mathbf{w})} f \right)^\top \nabla_{\mathbf{w}} g(\mathbf{w})$$
+In our case, the inner function is the residual vector $g(\mathbf{w}) = r(\mathbf{w})$, and the outer function is the squared norm $f(r) = \frac{1}{2\lambda} r^\top r$. First, let's find the gradient of the outer function with respect to the residual vector $r$.
+$$\nabla_{r} \left( \frac{1}{2\lambda} r^\top r \right) = \frac{1}{2\lambda} \nabla_{r} \left( \sum_{i} r_i^2 \right) = \frac{1}{2\lambda} \begin{pmatrix} 2r_1 \\ 2r_2 \\ \vdots \end{pmatrix} = \frac{1}{\lambda} r$$
+This is a well-known result: the gradient of $\|r\|^2$ is $2r$. The $\frac{1}{2\lambda}$ is a constant scaling factor.
+
+Next, we need to find the gradient of the inner function, $r(\mathbf{w})$, with respect to the weight vector $\mathbf{w}$. This is the Jacobian matrix of the transformation.
+$$\nabla_{\mathbf{w}} r(\mathbf{w}) = \nabla_{\mathbf{w}} (\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w})$$
+Since $\widetilde{\mathbf{y}}$ is a constant vector with respect to $\mathbf{w}$, its gradient is zero. We only need to compute the gradient of $-\widetilde{\mathbf{Y}} \mathbf{w}$.
+$$\nabla_{\mathbf{w}} (-\widetilde{\mathbf{Y}} \mathbf{w}) = -\widetilde{\mathbf{Y}}$$
+This result comes from the general rule that for a linear function $A\mathbf{x}$, the gradient with respect to $\mathbf{x}$ is just the matrix $A$. Here, our linear function is a negative, so the gradient is $-\widetilde{\mathbf{Y}}$.
+
+Now we plug the results from the above back into the chain rule formula.
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \left( \nabla_{r(\mathbf{w})} \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}) \right)^\top \nabla_{\mathbf{w}} r(\mathbf{w})$$
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \left( \frac{1}{\lambda} r(\mathbf{w}) \right)^\top (-\widetilde{\mathbf{Y}})$$
+Using the property that $(A\mathbf{x})^\top = \mathbf{x}^\top A^\top$, we get:
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \frac{1}{\lambda} r(\mathbf{w})^\top (-\widetilde{\mathbf{Y}}) = -\frac{1}{\lambda} r(\mathbf{w})^\top \widetilde{\mathbf{Y}}$$
+This is equivalent to:
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = -\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top r(\mathbf{w})$$
+
+Finally, we substitute the definition of the residual vector, $r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}$, back into the gradient expression.
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = -\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w})$$
+Distributing the negative sign gives us the final form:
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}})$$
+
+Next, consider the deviation penalty term:
+\begin{equation}
+\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
+= (\mathbf{w} - \mathbf{w}^{\text{SHC}})^\top 
+(\mathbf{w} - \mathbf{w}^{\text{SHC}}).
+\end{equation}
+Its gradient with respect to $\mathbf{w}$ is:
+\begin{equation}
+\nabla_{\mathbf{w}} \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
+= 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}}).
+\end{equation}
+
+Notice that the Hessian of this term is $2\mathbf{I}$, because differentiating again with respect to $\mathbf{w}$ gives:
+\begin{equation}
+\nabla^2_{\mathbf{w}} \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 = 2 \mathbf{I}.
+\end{equation}
+Here $\mathbf{I}$ is the identity matrix, representing curvature equally in all coordinate directions. 
+Thus the $2\mathbf{I}$ in $M$ directly reflects the Hessian of this quadratic deviation penalty.
+
+For the Gram penalty term, rewrite it as:
+\begin{equation}
+\varsigma \|\mathbf{C}_0^\top \mathbf{w}\|^2 
+= \varsigma \mathbf{w}^\top \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}.
+\end{equation}
+Since $\mathbf{C}_0 \mathbf{C}_0^\top$ is symmetric, its gradient is:
+\begin{equation}
+\nabla_{\mathbf{w}} 
+\varsigma \mathbf{w}^\top \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} 
+= 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}.
+\end{equation}
+
+Finally, the affine constraint term differentiates as:
+\begin{equation}
+\nabla_{\mathbf{w}} \mu (\mathbf{1}^\top \mathbf{w} - 1) = \mu \mathbf{1}.
+\end{equation}
+
+We now have the first-order condition from the gradient of the Lagrangian:
+\begin{equation}
+\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top 
+(\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}}) 
++ 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}}) 
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} 
++ \mu \mathbf{1} = \mathbf{0}.
+\end{equation}
+
+Expanding the deviation penalty term gives
+\begin{equation}
+2 (\mathbf{w} - \mathbf{w}^{\text{SHC}})
+= 2\mathbf{w} - 2\mathbf{w}^{\text{SHC}}.
+\end{equation}
+
+Substituting back, the condition becomes
+\begin{equation}
+\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w} 
+- \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}}
++ 2\mathbf{w} - 2\mathbf{w}^{\text{SHC}}
++ 2\varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} 
++ \mu\mathbf{1} = \mathbf{0}.
+\end{equation}
+
+Now collect all the terms involving $\mathbf{w}$ on the left-hand side:
+\begin{equation}
+\left(
+\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}
++ 2\mathbf{I}
++ 2\varsigma \mathbf{C}_0 \mathbf{C}_0^\top
+\right)\mathbf{w}
+\end{equation}
+and move all the other terms to the right-hand side:
+\begin{equation}
+\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}}
++ 2\mathbf{w}^{\text{SHC}}
+- \mu\mathbf{1}.
+\end{equation}
+
+Thus we obtain the compact matrix form:
+\begin{equation}
+\left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} 
++ 2 \mathbf{I} 
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \right)\mathbf{w} 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} 
++ 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
+\end{equation}
+
+Here the $2\mathbf{I}$ arises directly from the quadratic penalty 
+$\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2$, 
+whose gradient contributes $2\mathbf{w}$, corresponding in matrix form to $2\mathbf{I}\cdot\mathbf{w}$.
+
+
+Next, define the matrix
+\begin{equation}
+M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} 
++ 2 \mathbf{I} 
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top.
+\end{equation}
+$M$ corresponds to the Hessian of the objective function $J(\mathbf{w})$ plus the identity-weighted contribution of the deviation penalty.
+
+The solution $\mathbf{w}^{\text{ASHC}}$ satisfies the first-order condition:
+\begin{equation}
+M \mathbf{w}^{\text{ASHC}} 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} 
++ 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
+\end{equation}
+
+Evaluating the same matrix $M$ at $\mathbf{w}^{\text{SHC}}$, which is not necessarily the ASHC solution, gives:
+\begin{equation}
+M \mathbf{w}^{\text{SHC}} 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} 
++ 2 \mathbf{w}^{\text{SHC}} 
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}.
+\end{equation}
+
+Subtracting this equation from the previous one, we get
+\begin{equation}
+M \mathbf{w}^{\text{ASHC}} - M \mathbf{w}^{\text{SHC}} 
+= \left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} + 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1} \right) 
+- \left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} + 2 \mathbf{w}^{\text{SHC}} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}} \right).
+\end{equation}
+
+Simplifying the right-hand side by canceling the $2 \mathbf{w}^{\text{SHC}}$ terms, we obtain
+\begin{equation}
+M (\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}) 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \left( \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} \right) 
+- \mu \mathbf{1}.
+\end{equation}
+
+Define the deviation
+\begin{equation}
+\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}},
+\end{equation}
+and the residual vector
+\begin{equation}
+r = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}.
+\end{equation}
+
+Since both $\mathbf{w}^{\text{ASHC}}$ and $\mathbf{w}^{\text{SHC}}$ satisfy the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$, their difference $\Delta$ lies in the hyperplane orthogonal to $\mathbf{1}$:
+\begin{equation}
+\mathbf{1}^\top \Delta = 0.
+\end{equation}
+
+Taking the inner product of both sides of the previous equation with $\Delta$ gives
+\begin{equation}
+\Delta^\top M \Delta 
+= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top r - \mu \underbrace{\Delta^\top \mathbf{1}}_{=0} 
+= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top r.
+\end{equation}
+
+Here, the right-hand side is an inner product between the deviation vector $\Delta$ 
+and the vector $\widetilde{\mathbf{Y}}^\top r$. 
+Because inner products can be difficult to control directly, 
+we apply the Cauchy--Schwarz inequality to bound it:
+\begin{equation}
+|\Delta^\top \widetilde{\mathbf{Y}}^\top r| 
+\leq \|\Delta\| \, \|\widetilde{\mathbf{Y}}^\top r\|.
+\end{equation}
+
+Thus, $\Delta^\top M \Delta 
+\leq \frac{1}{\lambda} \|\Delta\| \, \| \widetilde{\mathbf{Y}}^\top r \|$. By assumption, the operator norm of $\widetilde{\mathbf{Y}}$ is bounded by $\gamma$, and the residual norm is $\epsilon_{\text{SHC}} = \|r\|$, so
+\begin{equation}
+\| \widetilde{\mathbf{Y}}^\top r \| \leq \|\widetilde{\mathbf{Y}}\| \|r\| \leq \gamma \epsilon_{\text{SHC}}.
+\end{equation}
+
+Thus, $\Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}$. On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees $\Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.$ Putting these two inequalities together, we sandwich the quadratic form: $ \lambda_{\min}(M) \|\Delta\|^2 \le \Delta^\top M \Delta \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}$.
+
+The left-hand side is the lower bound derived from the smallest eigenvalue of the positive definite matrix $M$. The right-hand side is the upper bound derived from the Cauchy-Schwarz and operator norm inequalities. We can now discard the middle term to focus on the key inequality between the two bounds: $\lambda_{\min}(M) \|\Delta\|^2 \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}$. Assuming $\|\Delta\| > 0$ (the trivial case where the weights are identical is already clear), we can divide both sides of the inequality by $\|\Delta\|$ to isolate the term of interest. $ \lambda_{\min}(M) \|\Delta\| \le \frac{\gamma}{\lambda} \epsilon_{\text{SHC}}$. Rearranging this inequality to solve for $\|\Delta\|$ gives us an intermediate bound: $ \|\Delta\| \le \frac{\gamma}{\lambda \lambda_{\min}(M)} \epsilon_{\text{SHC}}$. Next, we establish a lower bound for the smallest eigenvalue of the matrix $M$. Recall that the matrix $M$ is defined as: $M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top$. The smallest eigenvalue of a sum of positive semi-definite matrices is at least the sum of their smallest eigenvalues. Since the first term's smallest eigenvalue is non-negative, and the second term's is 2, we have:
+$$ \lambda_{\min}(M) \ge \lambda_{\min}\left(\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}\right) + \lambda_{\min}(2 \mathbf{I}) + \lambda_{\min}(2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top) $$
+$$ \lambda_{\min}(M) \ge 0 + 2 + 2\varsigma \lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) $$
+By the assumption that $\lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) \ge \|\mathbf{C}_0\|^2$, we get the lower bound for the smallest eigenvalue of M:
+$$ \lambda_{\min}(M) \ge 2 + 2\varsigma \|\mathbf{C}_0\|^2 $$
+
+Finally, we substitute this lower bound for $\lambda_{\min}(M)$ back into the intermediate bound for $\|\Delta\|$. A smaller value in the denominator leads to a larger (and therefore valid) upper bound on the expression. This gives us the final bound on the deviation:
+$$ \|\Delta\| \le \frac{\gamma}{\lambda (2 + 2\varsigma \|\mathbf{C}_0\|^2)} \epsilon_{\text{SHC}} = \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \epsilon_{\text{SHC}} $$
+
+This final expression shows that the deviation between the ASHC and SHC weights is controlled by the SHC residual error, scaled by a factor that depends on the regularization parameters $\lambda$ and $\varsigma$.
+\end{proof}
