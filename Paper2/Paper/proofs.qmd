@@ -26,7 +26,7 @@ $$\widetilde{\mathbf{Y}}_{\text{pre}}
 $$
 
 \begin{example}
-Suppose $T_0 = 60$ is months of pre-treatment data and we want the segment length to be $m = 12$ months to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is:$N = 60 - 12 - 6 + 1 = 43,$ where each segment is 12 months long.
+If $T_0 = 60$ and we want the segment length to be $m = 12$ months to predict a post-treatment horizon of $n = 6$ months, $N = 60 - 12 - 6 + 1 = 43,$ where each segment is 12 months long.
 \end{example}
 
 Respectively, SHC and ASHC solve:
