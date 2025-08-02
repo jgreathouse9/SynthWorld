@@ -173,14 +173,14 @@ where $\Lambda$ is a candidate grid of $\lambda$ values (e.g. logarithmically sp
 
 Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs of ASHC: smoothing bias versus noise, and extrapolation bias versus instability.
 
-# Theoretical Findings
-\label{sec:theory}
-
 # Theoretical Analysis of ASHC
 \label{sec:theory}
 
-This section establishes the finite-sample error bounds and asymptotic properties of the Augmented Synthetic Historical Control (ASHC) estimator.  
-Complete proofs are provided in Appendix~\ref{appendix:proofs}.
+This section develops the finite-sample error bounds and asymptotic properties of the Augmented Synthetic Historical Control (ASHC) estimator. Complete proofs are deferred to Appendix~\ref{appendix:proofs}. Here we focus on explaining what these results mean for applied researchers.
+
+## Weight deviation from SHC
+
+Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ denote the deviation of ASHC weights from the SHC solution.
 
 \begin{lemma}[Deviation from SHC]
 \label{lem:delta}
@@ -192,9 +192,9 @@ $$
 where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ is the SHC in-sample fit error.
 \end{lemma}
 
-This result shows that the primary driver of ASHC’s deviation from SHC is the SHC residual error. The tuning parameters $\lambda$ and $\varsigma$ serve only as stabilizers, shrinking deviations when large but never generating them on their own.
+This result shows that ASHC departs from SHC only when SHC leaves meaningful residual error. If SHC already matches the pre-treatment trajectory well, ASHC produces nearly identical weights. If SHC fits poorly, ASHC permits deviations, but the size of the adjustment is proportional to the SHC error and limited by the penalty parameter $\lambda$ and the stability term $\varsigma$. In applied work, this ensures that ASHC never strays far from SHC unless the fit quality justifies it.
 
-The next result bounds how deviations in the weights translate into deviations in pre-treatment fit.
+## In-sample Error
 
 \begin{proposition}[Pre-treatment Error Bound]
 \label{prop:ashc}
@@ -208,59 +208,41 @@ $$
 $$
 \end{proposition}
 
-This bound extends SHC by incorporating the effect of $\lambda$ and $\varsigma$, ensuring that extrapolation via ASHC remains well controlled. The additional terms $b_\epsilon(H,k)$ and $\delta$ reflect smoothness bias and noise.
+The bound ties ASHC’s pre-treatment error to three ingredients: the SHC fit error $\epsilon_{\text{SHC}}$, a smoothness bias term $b_\epsilon(H,k)$ from kernel smoothing, and the noise level $\delta$. For an applied researcher, the message is that ASHC cannot worsen the fit much beyond SHC, and when SHC’s fit leaves room for improvement, ASHC reduces error without letting variance get out of control. In practice, the method balances gains in fit against the risk of instability.
 
-We now turn to the post-treatment period and the resulting effect estimates.
+## Post-treatment prediction error error
 
-\begin{lemma}[Post-treatment Smoothness and Noise]
-\label{lem:smoothness_post}
-Under Assumptions~\ref{assump:matching}--\ref{assump:operator_post},  
-$$
-\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\| 
-\;\leq\; b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}.
-$$
-\end{lemma}
-
-\begin{lemma}[Oracle vs. SHC Weights]
-\label{lem:weight_diff}
-There exists $\eta > 0$ such that
-$$
-\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\| \;\leq\; \eta.
-$$
-\end{lemma}
-
-\begin{proposition}[ATT Error Bound]
+\begin{proposition}[Out-of-sample Error Bound]
 \label{prop:att_error_bound}
 Under Assumptions~\ref{assump:errors}--\ref{assump:operator_post},  
 $$
-\left| \widehat{\text{ATT}} - \text{ATT} \right|
-\;\leq\;
-\frac{1}{\sqrt{n}}
-\left[
-b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} 
-+ \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right)
-\right].
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
+\leq
+b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right),
 $$
+where $\eta$ bounds the difference $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$.
 \end{proposition}
 
-Together, Lemmas~\ref{lem:smoothness_post}--\ref{lem:weight_diff} and Proposition~\ref{prop:att_error_bound} show that post-treatment prediction and ATT estimation inherit SHC’s smoothness and noise guarantees, with additional terms accounting for controlled extrapolation.
+This inequality clarifies what governs the reliability of ASHC’s counterfactual predictions. Smoothness bias and noise matter, as does the quality of the SHC fit, measured by $\epsilon_{\text{SHC}}$. The term $\eta$ reflects how far SHC is from the infeasible “oracle” weights. The regularization parameter $\lambda$ limits how much ASHC departs from SHC in seeking a better fit. For applied use, the upshot is that ASHC’s post-treatment predictions improve on SHC when SHC fits poorly, yet the scope of extrapolation is bounded so that counterfactuals do not swing wildly.
 
-Finally, we establish consistency of ASHC.
+## Asymptotic properties
 
 \begin{theorem}[Consistency of ASHC]
 \label{thm:ashc-asymptotics}
-Under Assumptions~\ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$ and $H \to \infty$ with fixed $k>0$,  
+Under Assumptions~\ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$ and $H \to \infty$,  
 $$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
-\;\longrightarrow\; \delta.
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \longrightarrow \delta.
 $$
-If $\{\varepsilon_t\}$ are independent mean-zero sub-Gaussian, then
+If $\bm{\eta}$ is sub-Gaussian, then  
 $$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \;\xrightarrow{p}\; 0.
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.
 $$
 \end{theorem}
 
-This theorem ensures that ASHC remains stable and converges to the true counterfactual under mild conditions. The bias vanishes with increasing smoothing order $H$, while sub-Gaussian concentration drives the residual error to zero in probability.
+Theorem~\ref{thm:ashc-asymptotics} establishes that with a sufficiently long evaluation window and smooth latent trends, the ASHC prediction error converges to the noise level, and under standard probabilistic assumptions it converges in probability to zero. For empirical work, this means that with enough data, ASHC recovers the true counterfactual trajectory and ensures consistency of the estimated treatment effect.
+
+To summarize, these results show that ASHC remains close to SHC when SHC already performs well, improves fit when SHC leaves residual error, provides bounded error guarantees in finite samples, and delivers consistent estimates asymptotically. For applied researchers, this means ASHC can be adopted as a robust extension of SHC, especially in settings where SHC struggles to achieve a satisfactory pre-treatment fit.
+
 
 # Empirical Application
 \label{sec:empirical}
