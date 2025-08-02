@@ -8,6 +8,7 @@ format:
     keep-tex: true
     cite-method: natbib
     pdf-engine: pdflatex   # force pdfLaTeX instead of XeLaTeX
+number-sections: true
 bibliography: pl.bib
 ---
 
