@@ -16,17 +16,8 @@ bibliography: pl.bib
 
 For the purposes of self-containment, let $\mathcal{T} = \{1, 2, \dots, T\}$ index time at a monthly frequency. Define the pre-treatment period as $\mathcal{T}_1 \defeq \{t \in \mathcal{T} : t \leq T_0\}$ and the post-treatment period as $\mathcal{T}_2 \defeq \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$. Let $m \in \mathbb{N}$ denote the evaluation window length. Define the evaluation period as the final $m$ months of the pre-treatment period $\mathcal{T}_{\text{eval}} \defeq \{T_0 - m + 1, \dots, T_0\} \subset \mathcal{T}_1$.
 
-Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector $\mathbf{y}_{\text{pre}} \defeq \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}$, the evaluation subvector $\mathbf{y}_{\text{eval}} \defeq \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector $\mathbf{y}_{\text{post}} \defeq \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$.
-
-The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period.
-
-SHC by \cite{SHC} constructs 
-$$
-N = T_0 - m - n + 1
-$$ 
-overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix
-$$
-\widetilde{\mathbf{Y}}_{\text{pre}} 
+Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector $\mathbf{y}_{\text{pre}} \defeq \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}$, the evaluation subvector $\mathbf{y}_{\text{eval}} \defeq \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector $\mathbf{y}_{\text{post}} \defeq \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$. The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period. SHC by \cite{SHC} constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix
+$$\widetilde{\mathbf{Y}}_{\text{pre}} 
 \defeq 
 \begin{bmatrix} 
 \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} 
@@ -35,22 +26,17 @@ $$
 $$
 
 \begin{example}
-Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is:
-$$
-N = 60 - 12 - 6 + 1 = 43.
-$$
+Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is:$N = 60 - 12 - 6 + 1 = 43.$
 Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
 \end{example}
 
-In the third step, we solve the following program to obtain the optimal weights:
+SHC solves:
 
 $$
 \begin{aligned}
-\mathbf{w}^\ast = \ & \underset{\mathbf{w} \in \mathbb{R}^N}{\operatorname*{argmin}} 
+\mathbf{w}^{\text{SHC}} = \ & \underset{\mathbf{w} \in \mathbb{R}^N}{\operatorname*{argmin}} 
 & & \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
-+ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \\
-& \text{subject to}
-& & \mathbf{w} \geq \mathbf{0}, \quad \mathbf{1}^\top \mathbf{w} = 1.
++ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \quad \text{subject to } \mathbf{w} \geq \mathbf{0}, \quad \mathbf{1}^\top \mathbf{w} = 1.
 \end{aligned}
 $$
 
@@ -72,18 +58,14 @@ where $\lambda > 0$ is the regularization parameter, $\varsigma > 0$ is the pena
 ## Assumptions
 
 \begin{assumption}[Linearity with noise]
-There exists $\mathbf{w}^* \in \mathbb{R}^N$ such that
-$$
-\widetilde{\mathbf{y}} = \widetilde{\mathbf{Y}} \mathbf{w}^* + \bm{\eta},
-$$
-where $\bm{\eta} \in \mathbb{R}^m$ is a mean-zero noise vector.
+There exists $\mathbf{w}^* \in \mathbb{R}^N$ such that $ \widetilde{\mathbf{y}} = \widetilde{\mathbf{Y}} \mathbf{w}^* + \bm{\eta},$ where $\bm{\eta} \in \mathbb{R}^m$ is a mean-zero noise vector.
 \end{assumption}
 
 \begin{assumption}[Bounded noise]
 $\|\bm{\eta}\| \leq \delta$ for some $\delta > 0$.
 \end{assumption}
 
-\begin{assumption}[Smoothness of latent trend]
+\begin{assumption}[Smoothness of latent trend, from \citet{SHC}]
 Let $\ell(t)$ denote the latent smooth component of the treated potential outcome. Suppose $\ell(t)$ is $H+1$ times differentiable with $|\ell^{(H+1)}(t)| < \epsilon$ for all $t$ and some $H \geq 3$.
 \end{assumption}
 
@@ -98,7 +80,7 @@ $\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} \defeq \{\mathbf{w} \in \mathbb{R}^N :
 
 \begin{lemma}[Deviation from SHC]
 \label{lem:delta}
-Let $\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$. Then
+Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$. Then
 \[
 \|\Delta\| 
 \;\leq\; \frac{\gamma}{2\lambda + 2\lambda\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}}.
