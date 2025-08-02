@@ -164,9 +164,7 @@ Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs
 # Theoretical Analysis of ASHC
 \label{sec:theory}
 
-This section develops the finite-sample error bounds and asymptotic properties of the Augmented Synthetic Historical Control (ASHC) estimator. Complete proofs are deferred to Appendix~\ref{appendix:proofs}. Here the focus is on the practical meaning of these results for applied researchers.
-
-We begin by stating two additional assumptions needed for the analysis.
+One of the main concerns we had in mind while developing the ASHC estimator was the possibility of poor in-sample fit when using the standard SHC estimator. Thus, now that we have introduced the ASHC estimator, in this section we develop the finite-sample guarantees and asymptotic properties of the ASHC method. We work within the fixed $N$, large $T$ asymptotic framework. After studying the deviation of the weights from ASHC relative to the SHC, we proceed to quantify the worst case in-sample error bound. Complete proofs are deferred to Appendix~\ref{appendix:proofs}. We begin by stating two additional assumptions needed for the analysis.
 
 \begin{assumption}[Operator Norm Bound]
 \label{assump:operator}
@@ -194,7 +192,7 @@ $$
 where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ is the SHC in-sample fit error.
 \end{lemma}
 
-This lemma shows that ASHC’s weights move away from SHC only in proportion to SHC’s residual error. If SHC already fits well, ASHC remains very close. If SHC fits poorly, ASHC has room to adjust—but the amount of movement is capped by the penalty parameter $\lambda$ and the curvature of the penalty term.
+This lemma shows that ASHC’s weights move away from SHC only in proportion to SHC’s residual error. If SHC already fits well, ASHC's weight vector remains very close. If SHC fits poorly, ASHC has room to adjust. However, the amount of movement is capped by the penalty parameter $\lambda$ and the curvature of the penalty term.
 
 ## Finite-sample error bounds
 
@@ -212,9 +210,7 @@ $$
 $$
 \end{proposition}
 
-This bound ties ASHC’s pre-treatment error to three pieces: the SHC fit error $\epsilon_{\text{SHC}}$, the smoothness bias $b_\epsilon(H,k)$ from kernel smoothing, and the noise level $\delta$. In practice, this means ASHC does not substantially worsen the fit relative to SHC, and can improve fit when SHC leaves meaningful residuals. The tuning parameter $\lambda$ controls how much flexibility ASHC can use, striking a balance between tighter fit and stability.
-
-ASHC’s properties extend to the post-treatment period as well.
+This bound ties ASHC’s pre-treatment error to three pieces: the original SHC fit error $\epsilon_{\text{SHC}}$, the smoothness bias $b_\epsilon(H,k)$ from kernel smoothing, and the noise level $\delta$. In practice, this means ASHC does not substantially worsen the fit relative to SHC, and can even improve fit when SHC leaves meaningful residuals. The tuning parameter $\lambda$ controls how much flexibility ASHC can use, striking a balance between tighter fit and out-of-sample predictions. ASHC’s properties extend to the post-treatment period as well.
 
 \begin{proposition}[Out-of-sample Error Bound]
 \label{prop:att_error_bound}
@@ -227,7 +223,7 @@ $$
 where $\eta$ bounds the difference $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$.
 \end{proposition}
 
-This inequality highlights what governs the reliability of ASHC’s counterfactuals: smoothness bias, outcome noise, the quality of SHC’s fit, and the penalty parameter $\lambda$. The term $\eta$ reflects how far SHC is from the infeasible “oracle” solution. For applied work, this means ASHC will improve on SHC when SHC fits poorly, but regularization ensures the counterfactual does not drift too far.
+This inequality highlights what governs the reliability of ASHC’s counterfactuals: smoothness bias, outcome noise, the quality of SHC’s fit, and the penalty parameter $\lambda$. The term $\eta$ reflects how far SHC is from the infeasible "oracle" solution. Practically, this means ASHC will improve on SHC when SHC fits poorly, but regularization ensures the counterfactual does not drift too far.
 
 ## Asymptotic properties
 
@@ -257,9 +253,9 @@ $$
 For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
 \end{corollary}
 
-This corollary emphasizes that ASHC, while more flexible than purely parametric models, can still achieve near-parametric efficiency as sample size grows, provided the smoothness order is high enough. For the applied researcher, this means ASHC combines flexibility in finite samples with strong long-run efficiency guarantees.
+This corollary emphasizes that ASHC, while more flexible than purely parametric models, can still achieve near-parametric efficiency as sample size grows, provided the smoothness order is high enough. This means ASHC combines flexibility in finite samples with strong long-run efficiency guarantees, similar to the bias bound developed by \citet{Abadie2010} for the SC estimator.
 
-These results carry three main lessons. First, ASHC remains close to SHC when SHC already fits well, so adopting ASHC does not risk worse in-sample fit. Second, when SHC leaves residual error, ASHC can reduce that error, but regularization ensures the counterfactual does not become unstable. Third, with sufficient data, ASHC is consistent and approaches parametric efficiency, making it a reliable tool for long evaluation windows. For the applied microeconomist or policy analyst, the method offers a practical compromise: better pre-treatment balance where needed, without losing the interpretability and stability of the SHC framework.
+These results carry three main lessons. First, ASHC remains close to SHC when SHC already fits well, so adopting ASHC does not risk worse in-sample fit. Second, when SHC leaves residual error, ASHC can reduce that error, but regularization ensures the counterfactual does not become unstable. Third, with sufficient data, ASHC is consistent and approaches parametric efficiency, making it a reliable tool for long evaluation windows. For the applied microeconomist or policy analyst, the method offers a practical compromise: better pre-treatment balance where needed, without losing the interpretability and stability of the SHC framework, thereby allowing researchers to estimate counterfactuals even without donor units or perfect fit from convex regression estimators.
 
 # Empirical Application
 \label{sec:empirical}
