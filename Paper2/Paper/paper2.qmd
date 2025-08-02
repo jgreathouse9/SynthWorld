@@ -40,8 +40,6 @@ The remainder of the paper proceeds as follows. Section \ref{sec:literature} sit
 ## The Synthetic Historical Control Method
 \label{sec:shc}
 
-The SHC method of \citet{SHC} constructs counterfactual outcomes using only the treated unit’s own pre-treatment trajectory. This approach is intended for contexts where no suitable external donor units exist, such as global shocks or highly localized interventions.
-
 Let $\mathcal{T} = \{1, \dots, T\}$ index time, with pre-treatment period $\mathcal{T}_1 = \{t \in \mathcal{T} : t \leq T_0\}$ and post-treatment period $\mathcal{T}_2 = \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$, and an evaluation window of length $m$ is defined as the final $m$ pre-treatment periods $\mathcal{T}_{\text{eval}} = \{T_0 - m + 1, \dots, T_0\}$. Let $\mathbf{y} = (y_1, \dots, y_T)^\top$ denote the observed outcome series. The evaluation subvector is $\mathbf{y}_{\text{eval}} = \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector is $\mathbf{y}_{\text{post}} = \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$.
 
 For each $t \in \mathcal{T}$, let $y_t^1$ and $y_t^0$ denote the potential outcomes under treatment and no treatment, respectively. The observed outcome is 
