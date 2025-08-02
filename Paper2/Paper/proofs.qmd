@@ -135,26 +135,18 @@ The fit term is then:
 \frac{1}{2\lambda} \|r(\mathbf{w})\|^2 
 = \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}).
 \end{equation}
-Using the chain rule, the gradient with respect to $\mathbf{w}$ is:
-\begin{equation}
-\nabla_{\mathbf{w}} \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}) 
-= \frac{1}{\lambda} \nabla_{\mathbf{w}} r(\mathbf{w})^\top r(\mathbf{w}).
-\end{equation}
-Since
-\begin{equation}
-r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w},
-\end{equation}
-we have
-\begin{equation}
-\nabla_{\mathbf{w}} r(\mathbf{w}) = -\widetilde{\mathbf{Y}}.
-\end{equation}
-Therefore,
-\begin{equation}
-\nabla_{\mathbf{w}} \frac{1}{2\lambda} \|r(\mathbf{w})\|^2 
-= -\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top r(\mathbf{w}) 
-= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top 
-(\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}}).
-\end{equation}
+
+We can see that this is a standard quadratic form. We begin by applying the Chain Rule for vector calculus. The chain rule for a composite function $f(g(\mathbf{w}))$ is given by:
+$$\nabla_{\mathbf{w}} f(g(\mathbf{w})) = \left( \nabla_{g(\mathbf{w})} f \right)^\top \nabla_{\mathbf{w}} g(\mathbf{w})$$
+In our case, the inner function is the residual vector $g(\mathbf{w}) = r(\mathbf{w})$, and the outer function is the squared norm $f(r) = \frac{1}{2\lambda} r^\top r$. First, let's find the gradient of the outer function with respect to the residual vector $r$.
+$$\nabla_{r} \left( \frac{1}{2\lambda} r^\top r \right) = \frac{1}{2\lambda} \nabla_{r} \left( \sum_{i} r_i^2 \right) = \frac{1}{2\lambda} \begin{pmatrix} 2r_1 \\ 2r_2 \\ \vdots \end{pmatrix} = \frac{1}{\lambda} r$$
+This is a well-known result: the gradient of $\|r\|^2$ is $2r$. The $\frac{1}{2\lambda}$ is a constant scaling factor.
+
+Next, we need to find the gradient of the inner function, $r(\mathbf{w})$, with respect to the weight vector $\mathbf{w}$. This is the Jacobian matrix of the transformation.
+$$\nabla_{\mathbf{w}} r(\mathbf{w}) = \nabla_{\mathbf{w}} (\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w})$$
+Since $\widetilde{\mathbf{y}}$ is a constant vector with respect to $\mathbf{w}$, its gradient is zero. We only need to compute the gradient of $-\widetilde{\mathbf{Y}} \mathbf{w}$.
+$$\nabla_{\mathbf{w}} (-\widetilde{\mathbf{Y}} \mathbf{w}) = -\widetilde{\mathbf{Y}}$$
+This result comes from the general rule that for a linear function $A\mathbf{x}$, the gradient with respect to $\mathbf{x}$ is just the matrix $A$. Here, our linear function is a negative, so the gradient is $-\widetilde{\mathbf{Y}}$.
 
 Next, consider the deviation penalty term:
 \begin{equation}
