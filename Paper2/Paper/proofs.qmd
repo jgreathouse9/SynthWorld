@@ -278,24 +278,13 @@ we apply the Cauchy--Schwarz inequality to bound it:
 \leq \|\Delta\| \, \|\widetilde{\mathbf{Y}}^\top r\|.
 \end{equation}
 
-Thus,
-\begin{equation}
-\Delta^\top M \Delta 
-\leq \frac{1}{\lambda} \|\Delta\| \, \| \widetilde{\mathbf{Y}}^\top r \|.
-\end{equation}
-
-
-By assumption, the operator norm of $\widetilde{\mathbf{Y}}$ is bounded by $\gamma$, and the residual norm is $\epsilon_{\text{SHC}} = \|r\|$, so
+Thus, $\Delta^\top M \Delta 
+\leq \frac{1}{\lambda} \|\Delta\| \, \| \widetilde{\mathbf{Y}}^\top r \|$. By assumption, the operator norm of $\widetilde{\mathbf{Y}}$ is bounded by $\gamma$, and the residual norm is $\epsilon_{\text{SHC}} = \|r\|$, so
 \begin{equation}
 \| \widetilde{\mathbf{Y}}^\top r \| \leq \|\widetilde{\mathbf{Y}}\| \|r\| \leq \gamma \epsilon_{\text{SHC}}.
 \end{equation}
 
-Thus,
-\begin{equation}
-\Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}.
-\end{equation}
-
-On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees $\Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.$
+Thus, $\Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}$. On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees $\Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.$
 
 Putting these two inequalities together, we sandwich the quadratic form: $\lambda_{\min}(M) \|\Delta\|^2 
 \leq \Delta^\top M \Delta 
