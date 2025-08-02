@@ -406,7 +406,7 @@ to moderate horizons.
 
 # Finite Sample Bound
 
-\begin{proposition}\label{prop\:ashc}
+\begin{proposition}\label{prop:ashc}
 Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
 
 $$
@@ -486,7 +486,7 @@ $$
 \|\widetilde{\mathbf{Y}} \Delta\| \leq \gamma \|\Delta\|.
 $$
 
-From Lemma~\ref{lem\:delta}, we have:
+From Lemma~\ref{lem:delta}, we have:
 
 $$
 \|\Delta\| \leq \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
@@ -498,7 +498,7 @@ $$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \leq \epsilon_{\text{SHC}} + \gamma \|\Delta\| \leq \epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
 $$
 
-By Lemma~\ref{lem\:smoothness}, smoothness bias is bounded as:
+By Lemma~\ref{lem:smoothness}, smoothness bias is bounded as:
 
 $$
 b_\epsilon(H,k) = \frac{2\epsilon |k|^{H+1}}{(H+1)!}.
