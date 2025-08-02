@@ -406,123 +406,109 @@ to moderate horizons.
 
 # Finite Sample Bound
 
+# Main Result
+
 \begin{proposition}\label{prop:ashc}
 Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
-
-$$
+\[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
 \;\leq\;
 \epsilon_{\text{SHC}}
 \left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \right)
 + b_\epsilon(H,k) + \delta.
-$$
-
+\]
 \end{proposition}
+
 \begin{proof}
 
-Our goal is to bound the prediction error:
-
-$$
+We want to bound the prediction error
+\[
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|.
-$$
+\]
 
-Recall the triangle inequality, where for any vectors $\mathbf{a}, \mathbf{b}$, the triangle inequality states:
-
-$$
-\|\mathbf{a} + \mathbf{b}\| \leq \|\mathbf{a}\| + \|\mathbf{b}\|.
-$$
-
-We define the weight difference and decompose the error as
-
-$$
-\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}.
-$$
-
-Rewrite the error as:
-
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| = \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} + \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|.
-$$
-
+Why we begin with the triangle inequality. Directly bounding this expression is difficult, since $\mathbf{w}^{\text{ASHC}}$ is defined through an optimization problem. However, we do know the baseline SHC weights $\mathbf{w}^{\text{SHC}}$ and their associated error. The triangle inequality provides a natural way to insert $\mathbf{w}^{\text{SHC}}$ into the expression so that we can decompose the ASHC error into
+\[
+\text{(baseline SHC error)} + \text{(extra error from deviating from SHC)}.
+\]
+This decomposition anchors the analysis in the known SHC error, while isolating the additional price of using ASHC. Define the weight difference
+\[
+\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}.
+\]
+We write
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| 
+= \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} 
++ \widetilde{\mathbf{Y}}(\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}})\|.
+\]
 By the triangle inequality,
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
+\;\leq\;
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|
++ \|\widetilde{\mathbf{Y}}(\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}})\|.
+\]
+Since $\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} = -\Delta$, the second term is
+\[
+\|\widetilde{\mathbf{Y}}(-\Delta)\| = \|\widetilde{\mathbf{Y}} \Delta\|.
+\]
+Therefore
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
+\;\leq\; \epsilon_{\text{SHC}} + \|\widetilde{\mathbf{Y}} \Delta\|,
+\]
+where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|$.
 
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \leq \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\| + \|\widetilde{\mathbf{Y}}(\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}})\|.
-$$
-
-Substitute $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$, noting that $\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} = -\Delta$, so:
-
-$$
-\|\widetilde{\mathbf{Y}}(\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}})\| = \|\widetilde{\mathbf{Y}}(-\Delta)\| = \|\widetilde{\mathbf{Y}} \Delta\|.
-$$
-
-Thus,
-
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \leq \underbrace{\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|}_{\epsilon_{\text{SHC}}} + \|\widetilde{\mathbf{Y}} \Delta\|.
-$$
-
-Now we bound $\|\widetilde{\mathbf{Y}} \Delta\|$ using operator norm. Recall the operator norm of a matrix $A$ is defined as:
-
-$$
+We can now bound $\|\widetilde{\mathbf{Y}} \Delta\|$ via the operator norm. Recall that the operator norm of a matrix $A$ is
+\[
 \|A\| := \sup_{\mathbf{v} \neq 0} \frac{\|A \mathbf{v}\|}{\|\mathbf{v}\|}.
-$$
-
-This implies, for any vector $\mathbf{v}$,
-
-$$
+\]
+This implies that for any vector $\mathbf{v}$,
+\[
 \|A \mathbf{v}\| \leq \|A\| \cdot \|\mathbf{v}\|.
-$$
-
-Apply this to $A = \widetilde{\mathbf{Y}}$ and $\mathbf{v} = \Delta$:
-
-$$
+\]
+Applying this with $A = \widetilde{\mathbf{Y}}$ and $\mathbf{v} = \Delta$,
+\[
 \|\widetilde{\mathbf{Y}} \Delta\| \leq \|\widetilde{\mathbf{Y}}\| \cdot \|\Delta\|.
-$$
-
-By Assumption (A4), $\|\widetilde{\mathbf{Y}}\| \leq \gamma$, so:
-
-$$
+\]
+By Assumption (A4), $\|\widetilde{\mathbf{Y}}\| \leq \gamma$, so
+\[
 \|\widetilde{\mathbf{Y}} \Delta\| \leq \gamma \|\Delta\|.
-$$
+\]
 
-From Lemma~\ref{lem:delta}, we have:
-
-$$
+We can bound $\|\Delta\|$ using Lemma~\ref{lem:delta},
+\[
 \|\Delta\| \leq \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
-$$
+\]
 
-From Step 2 and Step 3:
+Now we substitute this bound into the inequality from Step 1:
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
+\leq \epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
+\]
 
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \leq \epsilon_{\text{SHC}} + \gamma \|\Delta\| \leq \epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
-$$
-
-By Lemma~\ref{lem:smoothness}, smoothness bias is bounded as:
-
-$$
+The error is also affected by the smoothness bias and noise from the kernel smoothing. From Lemma~\ref{lem:smoothness},
+\[
 b_\epsilon(H,k) = \frac{2\epsilon |k|^{H+1}}{(H+1)!}.
-$$
+\]
+From Assumption (A2), the noise contributes at most
+\[
+\delta.
+\]
+Adding these terms,
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
+\leq \epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} + b_\epsilon(H,k) + \delta.
+\]
 
-By Assumption (A2), noise magnitude is bounded by $\delta$. Include these additive terms in the overall bound:
+Now we factor out $\epsilon_{\text{SHC}}$:
+\[
+\epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}
+= \epsilon_{\text{SHC}} \left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}\right).
+\]
 
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \leq \epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} + b_\epsilon(H,k) + \delta.
-$$
-We include the additive terms in the overall bounds: 
-$$
-\epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} = \epsilon_{\text{SHC}} \left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \right).
-$$
-
-Our final finite-sample error bound is
-
-$$
-\boxed{
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \leq \epsilon_{\text{SHC}} \left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \right) + b_\epsilon(H,k) + \delta.
-}
-$$
-This completes the proof.
+This proves the claim.
 \end{proof}
+
 
 \begin{remark}
 The proof explicitly shows how each component contributes to the final bound:  
