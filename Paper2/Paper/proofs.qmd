@@ -26,11 +26,10 @@ $$\widetilde{\mathbf{Y}}_{\text{pre}}
 $$
 
 \begin{example}
-Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is:$N = 60 - 12 - 6 + 1 = 43.$
-Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
+Suppose $T_0 = 60$ is months of pre-treatment data and we want the segment length to be $m = 12$ months to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is:$N = 60 - 12 - 6 + 1 = 43,$ where each segment is 12 months long.
 \end{example}
 
-SHC solves:
+Respectively, SHC and ASHC solve:
 
 $$
 \begin{aligned}
@@ -39,9 +38,6 @@ $$
 + \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \quad \text{subject to } \mathbf{w} \geq \mathbf{0}, \quad \mathbf{1}^\top \mathbf{w} = 1.
 \end{aligned}
 $$
-
-Let $\mathbf{w}^{\text{SHC}}$ denote the SHC solution, and $\mathbf{w}^{\text{ASHC}}$ the ASHC solution:
-
 $$
 \mathbf{w}^{\text{ASHC}}
 = \arg\min_{\mathbf{w} \in \mathbb{R}^N}
@@ -50,10 +46,10 @@ $$
 + \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
 + \varsigma \|\mathbf{C}_0^\top \mathbf{w}\|_2^2
 \right\}
-\quad \text{s.t. } \sum_{i=1}^N w_i = 1,
+\quad \text{s.t. } \sum_{i=1}^N w_i = 1.
 $$
 
-where $\lambda > 0$ is the regularization parameter, $\varsigma > 0$ is the penalty parameter for the low-variance directions, and $\mathbf{C}_0 \in \mathbb{R}^{N \times k}$ contains the eigenvectors of the Gram matrix $\mathbf{G} = \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}$ corresponding to eigenvalues less than a threshold $\tau > 0$.
+Here, $\lambda > 0$ is the regularization parameter, $\varsigma > 0$ is the penalty parameter for the low-variance directions, and $\mathbf{C}_0 \in \mathbb{R}^{N \times k}$ contains the eigenvectors of the Gram matrix $\mathbf{G} = \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}$ corresponding to eigenvalues less than a threshold $\tau > 0$.
 
 ## Assumptions
 
