@@ -148,6 +148,19 @@ Since $\widetilde{\mathbf{y}}$ is a constant vector with respect to $\mathbf{w}$
 $$\nabla_{\mathbf{w}} (-\widetilde{\mathbf{Y}} \mathbf{w}) = -\widetilde{\mathbf{Y}}$$
 This result comes from the general rule that for a linear function $A\mathbf{x}$, the gradient with respect to $\mathbf{x}$ is just the matrix $A$. Here, our linear function is a negative, so the gradient is $-\widetilde{\mathbf{Y}}$.
 
+Now we plug the results from the above back into the chain rule formula.
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \left( \nabla_{r(\mathbf{w})} \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}) \right)^\top \nabla_{\mathbf{w}} r(\mathbf{w})$$
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \left( \frac{1}{\lambda} r(\mathbf{w}) \right)^\top (-\widetilde{\mathbf{Y}})$$
+Using the property that $(A\mathbf{x})^\top = \mathbf{x}^\top A^\top$, we get:
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \frac{1}{\lambda} r(\mathbf{w})^\top (-\widetilde{\mathbf{Y}}) = -\frac{1}{\lambda} r(\mathbf{w})^\top \widetilde{\mathbf{Y}}$$
+This is equivalent to:
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = -\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top r(\mathbf{w})$$
+
+Finally, we substitute the definition of the residual vector, $r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}$, back into the gradient expression.
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = -\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w})$$
+Distributing the negative sign gives us the final form:
+$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}})$$
+
 Next, consider the deviation penalty term:
 \begin{equation}
 \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
