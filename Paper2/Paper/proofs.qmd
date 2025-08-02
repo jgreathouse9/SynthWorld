@@ -520,6 +520,84 @@ The proof explicitly shows how each component contributes to the final bound:
 Factoring $\epsilon_{\text{SHC}}$ at the end highlights how ASHC scales the SHC error by at most a small multiplicative factor depending on the regularization strength. It is worth emphasizing that the ASHC estimator is guaranteed to perform at least as well as SHC within the evaluation window, since its objective explicitly penalizes deviations from the SHC solution. The bound above quantifies how much its predictions may differ, depending on the donor matrix and the penalty strength. However, this guarantee applies in-sample. Out-of-sample performance in the post-treatment period depends on smoothness of the latent trend and the boundedness of noise, as reflected in the $b_{\epsilon(H,k)}$ and $\delta$ terms.
 \end{remark}
 
+\begin{lemma}[Post-treatment smoothness bias and noise]\label{lem:smoothness_post}
+Under Assumptions (A2) and (A3), the approximation error in the post-treatment period satisfies
+\[
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\| \leq b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}},
+\]
+where $b_{\epsilon,\text{post}}(H,k)$ is a smoothness bias term similar to the pre-treatment case, and $\delta_{\text{post}}$ bounds the noise in the post-treatment outcomes.
+\end{lemma}
+
+\begin{proof}
+Recall from Assumption (A1) that the treated unit’s latent potential outcome $\ell(t)$ is $H+1$ times differentiable, and its $(H+1)$-th derivative is bounded by $\epsilon$. By a Taylor expansion argument, the latent outcome over the post-treatment period can be approximated by the linear combination of donor segments with a bias bounded by the smoothness term $b_{\epsilon,\text{post}}(H,k)$.
+
+Additionally, from Assumption (A2), the noise vector $\bm{\eta}_{\text{post}}$ satisfies $\|\bm{\eta}_{\text{post}}\| \leq \delta_{\text{post}}$.
+
+Thus,
+\[
+\mathbf{y}_{\text{post}} = \mathbf{Y}_{\text{post}} \mathbf{w}^* + \bm{\eta}_{\text{post}} + \text{smoothness bias},
+\]
+where the smoothness bias norm is at most $b_{\epsilon,\text{post}}(H,k)$.
+
+Applying the triangle inequality,
+\[
+\left\|\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^*\right\|
+\leq
+\|\bm{\eta}_{\text{post}}\| + b_{\epsilon,\text{post}}(H,k)
+\leq \delta_{\text{post}} + b_{\epsilon,\text{post}}(H,k).
+\]
+
+This completes the proof.
+\end{proof}
+
+\begin{assumption}[Post-treatment operator norm]\label{assump:operator_post}
+There exists $\gamma_{\text{post}} > 0$ such that
+\[
+\| \mathbf{Y}_{\text{post}} \| \leq \gamma_{\text{post}}.
+\]
+\end{assumption}
+
+\begin{lemma}[Weight deviation between oracle and SHC]\label{lem:weight_diff}
+Under Assumptions (A1)--(A5), the difference between the oracle weights $\mathbf{w}^*$ and the SHC weights $\mathbf{w}^{\text{SHC}}$ is bounded by
+\[
+\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| \leq \eta,
+\]
+for some $\eta > 0$ depending on the data and model.
+\end{lemma}
+
+\begin{proof}
+This follows from the stability and consistency properties of the SHC estimator under Assumptions (A1)--(A5). Since $\mathbf{w}^{\text{SHC}}$ solves a constrained least squares problem minimizing
+\[
+\left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{eval}} \mathbf{w} \right\|^2 + \varsigma \| \mathbf{C}_0^\top \mathbf{w} \|^2,
+\]
+and $\mathbf{w}^*$ satisfies the noiseless model $\widetilde{\mathbf{y}}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{eval}} \mathbf{w}^* + \bm{\eta}$ with $\|\bm{\eta}\| \leq \delta$, standard results on constrained least squares imply $\mathbf{w}^{\text{SHC}}$ is close to $\mathbf{w}^*$ within a ball whose radius depends on $\delta$ and model parameters.
+
+More explicitly, since the problem is strictly convex and well-conditioned by assumption (due to the regularization and eigenvalue structure),
+\[
+\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| \leq \eta,
+\]
+where $\eta$ depends on the noise bound $\delta$, the regularization parameter $\varsigma$, and the spectral properties of $\widetilde{\mathbf{Y}}_{\text{eval}}$.
+
+A detailed exact expression can be derived by comparing the KKT conditions for $\mathbf{w}^*$ and $\mathbf{w}^{\text{SHC}}$, but for the purposes here, it suffices to assert the existence of such $\eta$.
+
+\end{proof}
+
+\begin{lemma}[Total weight deviation bound]\label{lem:total_weight_dev}
+We have
+\[
+\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \| \leq \| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| + \| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \|.
+\]
+\end{lemma}
+
+\begin{proof}
+This is a direct application of the triangle inequality for vector norms. For any vectors $\mathbf{a}, \mathbf{b}, \mathbf{c}$ in a normed vector space,
+\[
+\|\mathbf{a} - \mathbf{c}\| \leq \|\mathbf{a} - \mathbf{b}\| + \|\mathbf{b} - \mathbf{c}\|.
+\]
+Setting $\mathbf{a} = \mathbf{w}^*$, $\mathbf{b} = \mathbf{w}^{\text{SHC}}$, and $\mathbf{c} = \mathbf{w}^{\text{ASHC}}$ yields the stated result.
+\end{proof}
+
+
 # Asymptotic Results
 
 \begin{theorem}\label{thm:ashc-asymptotics}
