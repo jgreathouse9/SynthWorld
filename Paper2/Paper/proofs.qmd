@@ -295,14 +295,18 @@ Thus,
 \Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}.
 \end{equation}
 
-Because $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ satisfies
+On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees
+
 \begin{equation}
 \Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.
 \end{equation}
 
-Combining these inequalities yields
+Putting these two inequalities together, we sandwich the quadratic form:
+
 \begin{equation}
-\lambda_{\min}(M) \|\Delta\|^2 \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}.
+\lambda_{\min}(M) \|\Delta\|^2 
+\leq \Delta^\top M \Delta 
+\leq \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}.
 \end{equation}
 
 Dividing by $\|\Delta\| > 0$ (the trivial case $\Delta=0$ is clear) gives the bound
