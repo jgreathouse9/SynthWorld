@@ -406,8 +406,6 @@ to moderate horizons.
 
 # Finite Sample Bound
 
-# Main Result
-
 \begin{proposition}\label{prop:ashc}
 Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
 \[
@@ -426,13 +424,13 @@ We want to bound the prediction error
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|.
 \]
 
-Why we begin with the triangle inequality. Directly bounding this expression is difficult, since $\mathbf{w}^{\text{ASHC}}$ is defined through an optimization problem. However, we do know the baseline SHC weights $\mathbf{w}^{\text{SHC}}$ and their associated error. The triangle inequality provides a natural way to insert $\mathbf{w}^{\text{SHC}}$ into the expression so that we can decompose the ASHC error into
+Directly bounding this expression is difficult, since $\mathbf{w}^{\text{ASHC}}$ is defined through an optimization problem and are therefore unknown. However, we do know the baseline SHC weights $\mathbf{w}^{\text{SHC}}$ and their associated error. This means that we can exploit the triangle inequality to insert $\mathbf{w}^{\text{SHC}}$ into the expression so that we can decompose the ASHC error into
 \[
 \text{(baseline SHC error)} + \text{(extra error from deviating from SHC)}.
 \]
-This decomposition anchors the analysis in the known SHC error, while isolating the additional price of using ASHC. Define the weight difference
+This decomposition anchors the analysis in the known SHC error, while isolating the additional price of using ASHC. Recall the weight difference between ASHC and SHC
 \[
-\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}.
+\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}.
 \]
 We write
 \[
