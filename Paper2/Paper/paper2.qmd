@@ -173,9 +173,80 @@ where $\Lambda$ is a candidate grid of $\lambda$ values (e.g. logarithmically sp
 
 Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs of ASHC: smoothing bias versus noise, and extrapolation bias versus instability.
 
-
 # Theoretical Findings
 \label{sec:theory}
+
+We provide finite sample and asymptotic analysis of the ASHC estimator.
+
+\begin{lemma}[Deviation from SHC]
+\label{lem:delta}
+Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$. Then
+$$
+\|\Delta\| 
+\;\leq\; \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}}.
+$$
+where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ and 
+$\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
+\end{lemma}
+
+Lemma~\ref{lem:delta} establishes that the deviation between ASHC and SHC weights, $\|\Delta\| = \|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\|$, is bounded by $\frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\epsilon_{\text{SHC}}$, where $\epsilon_{\text{SHC}}$ is the SHC in-sample fit error. 
+
+\begin{corollary}
+The primary driver of the deviation $\|\Delta\|$ between the ASHC and SHC weights is the SHC residual error $\epsilon_{\text{SHC}}$. The terms $\lambda$ and $\lambda_{\min}(M)$ appear in the denominator and therefore act only as scaling factors: stronger regularization ($\lambda$ large) or greater curvature of the Hessian ($\lambda_{\min}(M)$ large) shrink the deviation, but cannot generate deviation on their own. In contrast, $\epsilon_{\text{SHC}}$ enters multiplicatively in the numerator. Thus, if the SHC fit is already tight (so that $\epsilon_{\text{SHC}}$ is small), the deviation $\|\Delta\|$ is necessarily small. Conversely, if SHC exhibits poor fit, then $\epsilon_{\text{SHC}}$ is large, and ASHC permits correspondingly larger deviations, though still bounded by the regularization terms. In this way, ASHC improves stability without moving far from the baseline SHC solution unless the SHC fit leaves room for meaningful improvement.
+\end{corollary}
+
+To analyze the ASHC estimator relative to the SHC estimator, we aim to bound how much the ASHC predictions can deviate given a change in the weight vector. We do this using the operator norm of the donor matrix $\widetilde{\mathbf{Y}}$, which measures the largest possible amplification of weight deviations into prediction deviations.
+
+\begin{proposition}\label{prop:ashc}
+Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
+\;\leq\;
+\epsilon_{\text{SHC}}
+\left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \right)
++ b_\epsilon(H,k) + \delta.
+\]
+\end{proposition}
+
+Proposition~\ref{prop:ashc} bounds the ASHC pre-treatment prediction error by $\epsilon_{\text{SHC}}\left(1 + \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\right) + b_\epsilon(H,k) + \delta$, incorporating the SHC error, smoothness bias, and noise. For post-treatment predictions, Lemma~\ref{lem:smoothness_post} bounds the approximation error by $b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}$, reflecting smoothness and noise contributions. Analogous bounds may be made for the post-treatment regime, too.
+
+\begin{proposition}[Out-of-sample prediction and ATT error bound]\label{prop:att_error_bound}
+Under Assumptions (A1)--(A5) and Assumption~\ref{assump:operator_post}, the ASHC estimator's post-treatment prediction error satisfies
+\[
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
+\leq
+b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right),
+\]
+where $\eta$ bounds the difference $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$ and $\epsilon_{\text{SHC}}$ is the SHC in-sample fit error.
+
+Moreover, the error in the average treatment effect on the treated (ATT) estimate is bounded by
+$$
+\left| \widehat{\text{ATT}} - \text{ATT} \right|
+\leq
+\frac{1}{\sqrt{n}} \left[
+b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right)
+\right].
+$$
+\end{proposition}
+
+Proposition~\ref{prop:att_error_bound} extends this to the post-treatment error, bounded by $b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}}\left(\eta + \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\right)$, where $\eta$ bounds the difference between oracle and SHC weights (Lemma~\ref{lem:weight_diff}). The Average Treatment Effect on the Treated (ATT) error is similarly bounded, scaled by $1/\sqrt{n}$.
+
+Now we return to asymptotics.
+
+\begin{theorem}\label{thm:ashc-asymptotics}
+Under (A1)--(A5), as $m \to \infty$ and $H \to \infty$, for fixed $k > 0$,
+$$
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \longrightarrow \delta.
+$$
+If $\bm{\eta}$ consists of independent mean-zero sub-Gaussian entries, then
+$$
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.
+$$
+\end{theorem}
+
+Theorem~\ref{thm:ashc-asymptotics} proves that as the evaluation window $m \to \infty$ and Taylor expansion order $H \to \infty$, the ASHC prediction error converges to the noise bound $\delta$. Under sub-Gaussian noise, the error converges in probability to zero, ensuring consistency. These results confirm that ASHC maintains stability relative to SHC while improving fit when SHC residuals are large, with robust error bounds and asymptotic consistency under standard assumptions.
+
+\end{document}
 
 # Empirical Application
 \label{sec:empirical}
