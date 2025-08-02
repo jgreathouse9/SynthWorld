@@ -219,6 +219,14 @@ b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \lef
 $$
 where $\eta$ bounds the difference $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$ and $\epsilon_{\text{SHC}}$ is the SHC in-sample fit error.
 
+\begin{lemma}[Post-treatment smoothness bias and noise]\label{lem:smoothness_post}
+Under Assumptions (A2) and (A3), the approximation error in the post-treatment period satisfies
+\[
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\| \leq b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}},
+\]
+where $b_{\epsilon,\text{post}}(H,k)$ is a smoothness bias term similar to the pre-treatment case, and $\delta_{\text{post}}$ bounds the noise in the post-treatment outcomes.
+\end{lemma}
+
 \begin{lemma}[Weight deviation between oracle and SHC]\label{lem:weight_diff}
 Under Assumptions (A1)--(A5), the difference between the oracle weights $\mathbf{w}^*$ and the SHC weights $\mathbf{w}^{\text{SHC}}$ is bounded by
 $$
