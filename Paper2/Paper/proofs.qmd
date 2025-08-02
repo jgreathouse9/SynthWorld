@@ -1,16 +1,16 @@
 ---
 title: "Appendix: Theoretical Analysis of the Augmented Synthetic Historical Control Estimator (ASHC)"
-format: 
+format:
   pdf:
     documentclass: article
     geometry: margin=1in
     include-in-header: prelim.tex
     keep-tex: true
     cite-method: natbib
-    pdf-engine: pdflatex   # force pdfLaTeX instead of XeLaTeX
+    pdf-engine: pdflatex
+    number-sections: true # Add this line
 bibliography: pl.bib
 ---
-
 
 # Setup and Assumptions
 
