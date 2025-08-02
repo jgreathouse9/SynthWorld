@@ -97,12 +97,12 @@ $$
 \left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
 + \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2
 + \lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2,
-\qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1,
+\qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1.
 $$
-. The third term in the ASHC objective, 
-\[
+As we can see, the first two terms are essentially unchanged. We have a fit term to learn the treated unit's outcomes in the evaluation period and the stability penalty term from \citet{SHC}. The third term in the ASHC objective, 
+$$
 \lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2,
-\] 
+$$
 is a proximity penalty. This term discourages the ASHC solution from deviating too far from the original SHC weights. The penalty plays a dual role. Conceptually, it regularizes the affine extension of SHC by shrinking the solution back toward the purely convex combination used in SHC. This ensures that the additional flexibility provided by negative weights is only exercised when it leads to a substantial reduction in pre-treatment error. Mathematically, the penalty stabilizes the optimization problem by making the objective function strongly convex. The tuning parameter $\lambda \geq 0$ controls the degree of shrinkage: when $\lambda$ is very large, the ASHC solution converges to $\mathbf{w}^{\text{SHC}}$, while when $\lambda=0$ the penalty vanishes and the estimator reduces to an unpenalized affine extension of SHC. Thus, the proximity penalty creates a continuum between SHC and its affine relaxation, allowing researchers to balance interpretability and stability against the potential gains in fit from extrapolation.
 
 The ASHC counterfactual is obtained as 
