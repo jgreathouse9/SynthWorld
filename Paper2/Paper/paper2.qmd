@@ -229,9 +229,7 @@ Assumption~\ref{assump:operator} ensures that the smoothed pre-treatment donor m
 
 Together with the base SHC assumptions, these conditions provide stability and control of the ASHC estimator, enabling its theoretical properties to be derived and ensuring its performance in finite samples.
 
-## Asymptotic properties
-
-I nor establish the large sample properties of the ASHC. Below I show its consistency.
+I now establish the large sample properties of the ASHC. Below I show its consistency.
 
 \begin{theorem}[Consistency of ASHC]
 \label{thm:ashc-asymptotics}
@@ -245,7 +243,22 @@ $$
 $$
 \end{theorem}
 
-Theorem~\ref{thm:ashc-asymptotics} establishes that with a sufficiently long evaluation window and smooth latent trends, the ASHC prediction error converges to the noise level, and under standard probabilistic assumptions it converges in probability to zero. For empirical work, this means that with enough data, ASHC recovers the true counterfactual trajectory and ensures consistency of the estimated treatment effect.
+Theorem~\ref{thm:ashc-asymptotics} establishes that with a sufficiently long evaluation window and smooth latent trends, the ASHC prediction error converges to the noise level, and under standard probabilistic assumptions it converges in probability to zero. For empirical work, this means that with enough data, ASHC recovers the true counterfactual trajectory and ensures consistency of the estimated treatment effect. We can now report the convergence rate of ASHC.
+
+\begin{corollary}\label{cor:ashc-rate}
+The ASHC estimator is asymptotically unbiased up to $\delta$.  
+If $\boldsymbol{\eta}$ is i.i.d. mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
+$$
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| 
+= O_p\!\left(m^{-H/(2H+3)}\right).
+$$
+For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
+\end{corollary}
+
+\begin{remark}
+The deterministic noise bound $\delta$ in (A2) corresponds to $\|\boldsymbol{\eta}\| \leq \delta$.  
+Under sub-Gaussian noise, $\delta = O(\sigma \sqrt{m})$, while kernel smoothing reduces effective noise to $O_p((m h_m)^{-1/2})$. This explains the appearance of the nonparametric rate.
+\end{remark}
 
 To summarize, these results show that ASHC remains close to SHC when SHC already performs well, improves fit when SHC leaves residual error, provides bounded error guarantees in finite samples, and delivers consistent estimates asymptotically. For applied researchers, this means ASHC can be adopted as a robust extension of SHC, especially in settings where SHC struggles to achieve a satisfactory pre-treatment fit.
 
