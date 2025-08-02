@@ -29,7 +29,12 @@ The discussion begins with a careful review of SHC, its assumptions, and its imp
 
 For policy analysts, the message is straightforward: ASHC provides a principled way to construct reliable counterfactuals even in environments where no external donor units are available. Furthermore, it allows policy analysts to do this even when methods such as interrupted time series method or the \cite{SHC} would not do well.
 
-The remainder of the paper proceeds as follows. The next section situates our contribution within the existing literature on causal inference in policy evaluation. We then review the synthetic historical control method (SHC) before introducing the augmented SHC (ASHC). The following section presents our theoretical results, including finite-sample error bounds and asymptotic properties. We then turn to an empirical application, replicating the analysis of Barcelona’s 2016 hotel moratorium from \citet{Bel2021}, a setting that allows us to compare ITS, SCM, SHC, and ASHC on equal footing. The paper concludes with implications for both methodological research and policy analysis.
+The remainder of the paper proceeds as follows. 
+Section~\ref{sec:literature} situates our contribution within the existing literature on causal inference in policy evaluation. 
+We then review the synthetic historical control method (SHC) in Section~\ref{sec:shc} before introducing the augmented SHC (ASHC) in Section~\ref{sec:ashc}. 
+Section~\ref{sec:theory} presents our theoretical results, including finite-sample error bounds and asymptotic properties. 
+We then turn to an empirical application in Section~\ref{sec:empirical}, replicating the analysis of Barcelona’s 2015 hotel moratorium from \citet{Bel2021}, a setting that allows us to compare ITS, SCM, SHC, and ASHC on equal footing. 
+Finally, Section~\ref{sec:conclusion} concludes with implications for both methodological research and policy analysis.
 
 ## Literature Review {#sec:literature}
 
