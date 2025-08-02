@@ -46,16 +46,7 @@ For each $t \in \mathcal{T}$, let $y_t^1$ and $y_t^0$ denote the potential outco
 $$
 y_t = d_t y_t^1 + (1-d_t)y_t^0, \quad d_t = \mathbf{1}\{t > T_0\}.
 $$
-For $t > T_0$, only $y_t^1$ is observed. SHC provides an estimate $\widehat{y}_t^0$ for the missing counterfactual, and the treatment effect is estimated as 
-$$
-\widehat{\alpha}_t = y_t - \widehat{y}_t^0, \quad t \in \mathcal{T}_2,
-$$
-with the average treatment effect on the treated (ATT) defined as
-$$
-\widehat{\text{ATT}} = \frac{1}{n} \sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.
-$$
-
-The SHC framework is grounded in the following assumptions.
+For $t > T_0$, only $y_t^1$ is observed. SHC provides an estimate $\widehat{y}_t^0$ for the missing counterfactual, and the treatment effect is estimated as $\widehat{\alpha}_t = y_t - \widehat{y}_t^0, \quad t \in \mathcal{T}_2,$ with the average treatment effect on the treated (ATT) defined as $\widehat{\text{ATT}} = n^{-1}\sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.$ The SHC framework is grounded in the following assumptions.
 
 \begin{assumption}[Error Properties]
 \label{assump:errors}
@@ -103,12 +94,8 @@ $$
 $$
 is a proximity penalty. This term discourages the ASHC solution from deviating too far from the original SHC weights. The penalty plays a dual role. Conceptually, it regularizes the affine extension of SHC by shrinking the solution back toward the purely convex combination used in SHC. This ensures that the additional flexibility provided by negative weights is only exercised when it leads to a substantial reduction in pre-treatment error. Mathematically, the penalty stabilizes the optimization problem by making the objective function strongly convex. The tuning parameter $\lambda \geq 0$ controls the degree of shrinkage: when $\lambda$ is very large, the ASHC solution converges to $\mathbf{w}^{\text{SHC}}$, while when $\lambda=0$ the penalty vanishes and the estimator reduces to an unpenalized affine extension of SHC. Thus, the proximity penalty creates a continuum between SHC and its affine relaxation, allowing researchers to balance interpretability and stability against the potential gains in fit from extrapolation.
 
-The ASHC counterfactual is obtained as 
-$$
-\widehat{\mathbf{y}}_{\text{post}}^{0,\text{ASHC}} 
-= \widetilde{\mathbf{Y}}_{\text{post}} \, \mathbf{w}^{\text{ASHC}},
-$$
-with treatment effects estimated analogously to SHC. In addition to the assumptions underlying SHC, ASHC requires bounds on the operator norms of the donor matrices.
+The ASHC counterfactual is obtained as  $\widehat{\mathbf{y}}_{\text{post}}^{0,\text{ASHC}} 
+= \widetilde{\mathbf{Y}}_{\text{post}} \, \mathbf{w}^{\text{ASHC}},$ with treatment effects estimated analogously to SHC. In addition to the assumptions underlying SHC, ASHC requires bounds on the operator norms of the donor matrices.
 
 \begin{assumption}[Operator Norm Bound]
 \label{assump:operator}
@@ -122,7 +109,7 @@ There exists $\gamma_{\text{post}} > 0$ such that $\| \widetilde{\mathbf{Y}}_{\t
 
 Assumption~\ref{assump:operator} ensures that the smoothed pre-treatment donor matrix does not admit arbitrarily large operator norm growth, which would destabilize the estimation of weights under affine relaxation. Assumption~\ref{assump:operator_post} provides a corresponding bound for the post-treatment donor matrix, guaranteeing that extrapolation via affine weights cannot yield counterfactual predictions with unbounded variance. Together with the SHC assumptions, these conditions provide stability and control of the ASHC estimator, enabling its theoretical properties to be derived and ensuring its performance in finite samples.
 
-### Bandwidth and Regularization Parameter Selection
+## Bandwidth and Regularization Parameter Selection
 \label{sec:hyperparams}
 
 The performance of ASHC depends critically on two hyperparameters: the smoothing bandwidth $h$ and the proximity penalty parameter $\lambda$. Both are chosen via cross-validation.
