@@ -295,30 +295,11 @@ Thus,
 \Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}.
 \end{equation}
 
-On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees
+On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees $\Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.$
 
-\begin{equation}
-\Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.
-\end{equation}
-
-Putting these two inequalities together, we sandwich the quadratic form:
-
-\begin{equation}
-\lambda_{\min}(M) \|\Delta\|^2 
+Putting these two inequalities together, we sandwich the quadratic form: $\lambda_{\min}(M) \|\Delta\|^2 
 \leq \Delta^\top M \Delta 
-\leq \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}.
-\end{equation}
-
-Dividing by $\|\Delta\| > 0$ (the trivial case $\Delta=0$ is clear) gives the bound
-\begin{equation}
-\|\Delta\| \leq \frac{\gamma}{\lambda \lambda_{\min}(M)} \epsilon_{\text{SHC}}.
-\end{equation}
-
-Recall that
-\begin{equation}
-M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top.
-\end{equation}
-Its smallest eigenvalue is at least
+\leq \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}.$ Dividing by $\|\Delta\| > 0$ (the trivial case $\Delta=0$ is clear) gives the bound $\|\Delta\| \leq \frac{\gamma}{\lambda \lambda_{\min}(M)} \epsilon_{\text{SHC}}$. The smallest eigenvalue of $M$ is at least
 \begin{equation}
 \lambda_{\min}(M) \geq 2 + 2 \varsigma \lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) \geq 2 + 2 \varsigma \| \mathbf{C}_0 \|^2,
 \end{equation}
@@ -329,10 +310,8 @@ Therefore, the final bound on the deviation is
 \|\Delta\| \leq \frac{\gamma}{2 \lambda + 2 \varsigma \|\mathbf{C}_0\|^2} \epsilon_{\text{SHC}}.
 \end{equation}
 
-This completes the proof, showing that the difference between the ASHC and SHC weights is controlled by the residual fit error of SHC, scaled by a factor depending on the tuning parameters $\lambda$ and $\varsigma$.
+The difference between the ASHC and SHC weights is controlled by the residual fit error of SHC, scaled by a factor depending on the tuning parameters $\lambda$ and $\varsigma$.
 \end{proof}
-
-
 
 \begin{remark}
 This result shows that the difference between the ASHC weights and the original SHC weights — the deviation $\Delta$ — is directly controlled by how well the SHC fit performs (measured by the residual error $\epsilon_{\text{SHC}}$) and the strength of the regularization penalties ($\lambda$ and $\varsigma$).  
