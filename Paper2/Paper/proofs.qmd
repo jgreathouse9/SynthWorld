@@ -197,7 +197,7 @@ Finally, the affine constraint term differentiates as:
 \nabla_{\mathbf{w}} \mu (\mathbf{1}^\top \mathbf{w} - 1) = \mu \mathbf{1}.
 \end{equation}
 
-Collecting all these gradient terms, the stationarity (first-order optimality) condition requires:
+We begin with the first-order condition from the gradient of the Lagrangian:
 \begin{equation}
 \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top 
 (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}}) 
@@ -206,16 +206,51 @@ Collecting all these gradient terms, the stationarity (first-order optimality) c
 + \mu \mathbf{1} = \mathbf{0}.
 \end{equation}
 
-Rearranging terms, we have:
+Expanding the deviation penalty term gives
+\begin{equation}
+2 (\mathbf{w} - \mathbf{w}^{\text{SHC}})
+= 2\mathbf{w} - 2\mathbf{w}^{\text{SHC}}.
+\end{equation}
+
+Substituting back, the condition becomes
+\begin{equation}
+\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w} 
+- \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}}
++ 2\mathbf{w} - 2\mathbf{w}^{\text{SHC}}
++ 2\varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} 
++ \mu\mathbf{1} = \mathbf{0}.
+\end{equation}
+
+Now collect all the terms involving $\mathbf{w}$ on the left-hand side:
+\begin{equation}
+\left(
+\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}
++ 2\mathbf{I}
++ 2\varsigma \mathbf{C}_0 \mathbf{C}_0^\top
+\right)\mathbf{w}
+\end{equation}
+and move all the other terms to the right-hand side:
+\begin{equation}
+\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}}
++ 2\mathbf{w}^{\text{SHC}}
+- \mu\mathbf{1}.
+\end{equation}
+
+Thus we obtain the compact matrix form:
 \begin{equation}
 \left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} 
 + 2 \mathbf{I} 
-+ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \right) \mathbf{w} 
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \right)\mathbf{w} 
 = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} 
 + 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
 \end{equation}
 
-Define the matrix
+Here the $2\mathbf{I}$ arises directly from the quadratic penalty 
+$\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2$, 
+whose gradient contributes $2\mathbf{w}$, corresponding in matrix form to $2\mathbf{I}\cdot\mathbf{w}$.
+
+
+Next, define the matrix
 \begin{equation}
 M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} 
 + 2 \mathbf{I} 
