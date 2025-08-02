@@ -92,20 +92,20 @@ where $\mathbf{C}_0$ contains the eigenvectors of the donor Gram matrix associat
 The augmented synthetic historical control (ASHC) method extends SHC by permitting limited extrapolation beyond the convex hull of historical segments, while stabilizing the solution through a proximity penalty. This modification is motivated by cases where the simplex constraint of SHC is too restrictive to achieve adequate pre-treatment fit. By allowing negative weights under an affine constraint and penalizing deviations from the SHC solution, ASHC balances improved fit with regularization.
 
 Let $\mathbf{w}^{\text{SHC}}$ denote the SHC weight vector. The ASHC estimator solves
-\[
+$$
 \mathbf{w}^{\text{ASHC}} = \arg\min_{\mathbf{w} \in \mathbb{R}^N} 
 \left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
 + \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2
 + \lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2,
 \qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1,
-\]
+$$
 where $\lambda \geq 0$ tunes the strength of the proximity penalty. When $\lambda=0$, the estimator coincides with the affine extension of SHC, while for $\lambda \to \infty$ the estimator converges back to $\mathbf{w}^{\text{SHC}}$.
 
 The ASHC counterfactual is obtained as 
-\[
+$$
 \widehat{\mathbf{y}}_{\text{post}}^{0,\text{ASHC}} 
 = \widetilde{\mathbf{Y}}_{\text{post}} \, \mathbf{w}^{\text{ASHC}},
-\]
+$$
 with treatment effects estimated analogously to SHC. In addition to the assumptions underlying SHC, ASHC requires bounds on the operator norms of the donor matrices.
 
 \begin{assumption}[Operator Norm Bound]
