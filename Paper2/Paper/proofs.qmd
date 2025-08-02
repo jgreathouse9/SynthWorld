@@ -299,23 +299,9 @@ Thus, $\Delta^\top M \Delta
 \| \widetilde{\mathbf{Y}}^\top r \| \leq \|\widetilde{\mathbf{Y}}\| \|r\| \leq \gamma \epsilon_{\text{SHC}}.
 \end{equation}
 
-Thus, $\Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}$. On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees $\Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.$
+Thus, $\Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}$. On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees $\Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.$ Putting these two inequalities together, we sandwich the quadratic form: $ \lambda_{\min}(M) \|\Delta\|^2 \le \Delta^\top M \Delta \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}$.
 
-Putting these two inequalities together, we sandwich the quadratic form:
-$$ \lambda_{\min}(M) \|\Delta\|^2 \le \Delta^\top M \Delta \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}} $$
-
-The left-hand side is the lower bound derived from the smallest eigenvalue of the positive definite matrix $M$. The right-hand side is the upper bound derived from the Cauchy-Schwarz and operator norm inequalities. We can now discard the middle term to focus on the key inequality between the two bounds:
-$$ \lambda_{\min}(M) \|\Delta\|^2 \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}} $$
-
-Assuming $\|\Delta\| > 0$ (the trivial case where the weights are identical is already clear), we can divide both sides of the inequality by $\|\Delta\|$ to isolate the term of interest.
-$$ \lambda_{\min}(M) \|\Delta\| \le \frac{\gamma}{\lambda} \epsilon_{\text{SHC}} $$
-
-Rearranging this inequality to solve for $\|\Delta\|$ gives us an intermediate bound:
-$$ \|\Delta\| \le \frac{\gamma}{\lambda \lambda_{\min}(M)} \epsilon_{\text{SHC}} $$
-
-Next, we establish a lower bound for the smallest eigenvalue of the matrix $M$. Recall that the matrix $M$ is defined as:
-$$ M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top $$
-The smallest eigenvalue of a sum of positive semi-definite matrices is at least the sum of their smallest eigenvalues. Since the first term's smallest eigenvalue is non-negative, and the second term's is 2, we have:
+The left-hand side is the lower bound derived from the smallest eigenvalue of the positive definite matrix $M$. The right-hand side is the upper bound derived from the Cauchy-Schwarz and operator norm inequalities. We can now discard the middle term to focus on the key inequality between the two bounds: $\lambda_{\min}(M) \|\Delta\|^2 \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}$. Assuming $\|\Delta\| > 0$ (the trivial case where the weights are identical is already clear), we can divide both sides of the inequality by $\|\Delta\|$ to isolate the term of interest. $ \lambda_{\min}(M) \|\Delta\| \le \frac{\gamma}{\lambda} \epsilon_{\text{SHC}}$. Rearranging this inequality to solve for $\|\Delta\|$ gives us an intermediate bound: $ \|\Delta\| \le \frac{\gamma}{\lambda \lambda_{\min}(M)} \epsilon_{\text{SHC}}$. Next, we establish a lower bound for the smallest eigenvalue of the matrix $M$. Recall that the matrix $M$ is defined as: $M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top$. The smallest eigenvalue of a sum of positive semi-definite matrices is at least the sum of their smallest eigenvalues. Since the first term's smallest eigenvalue is non-negative, and the second term's is 2, we have:
 $$ \lambda_{\min}(M) \ge \lambda_{\min}\left(\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}\right) + \lambda_{\min}(2 \mathbf{I}) + \lambda_{\min}(2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top) $$
 $$ \lambda_{\min}(M) \ge 0 + 2 + 2\varsigma \lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) $$
 By the assumption that $\lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) \ge \|\mathbf{C}_0\|^2$, we get the lower bound for the smallest eigenvalue of M:
