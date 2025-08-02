@@ -219,7 +219,16 @@ b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \lef
 $$
 where $\eta$ bounds the difference $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$ and $\epsilon_{\text{SHC}}$ is the SHC in-sample fit error.
 
-Moreover, the error in the average treatment effect on the treated (ATT) estimate is bounded by
+\begin{lemma}[Weight deviation between oracle and SHC]\label{lem:weight_diff}
+Under Assumptions (A1)--(A5), the difference between the oracle weights $\mathbf{w}^*$ and the SHC weights $\mathbf{w}^{\text{SHC}}$ is bounded by
+$$
+\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| \leq \eta,
+$$
+for some $\eta > 0$ depending on the data and model.
+\end{lemma}
+
+
+By this lemma, the error in ATT estimate is bounded by
 $$
 \left| \widehat{\text{ATT}} - \text{ATT} \right|
 \leq
