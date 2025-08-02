@@ -303,14 +303,8 @@ The difference between the ASHC and SHC weights is controlled by the residual fi
 \end{proof}
 
 \begin{corollary}
-The primary driver of the deviation $\|\Delta\|$ between the ASHC and SHC weights is the SHC residual error $\epsilon_{\text{SHC}}$. The terms $\lambda$ and $\lambda_{\min}(M)$ appear in the denominator and therefore act only as scaling factors: stronger regularization ($\lambda$ large) or greater curvature of the Hessian ($\lambda_{\min}(M)$ large) shrink the deviation, but cannot generate deviation on their own. In contrast, $\epsilon_{\text{SHC}}$ enters multiplicatively in the numerator. Thus, if the SHC fit is already tight (so that $\epsilon_{\text{SHC}}$ is small), the deviation $\|\Delta\|$ is necessarily small. Conversely, if SHC exhibits poor fit, then $\epsilon_{\text{SHC}}$ is large, and ASHC permits correspondingly larger deviations, though still bounded by the regularization terms.  
+The primary driver of the deviation $\|\Delta\|$ between the ASHC and SHC weights is the SHC residual error $\epsilon_{\text{SHC}}$. The terms $\lambda$ and $\lambda_{\min}(M)$ appear in the denominator and therefore act only as scaling factors: stronger regularization ($\lambda$ large) or greater curvature of the Hessian ($\lambda_{\min}(M)$ large) shrink the deviation, but cannot generate deviation on their own. In contrast, $\epsilon_{\text{SHC}}$ enters multiplicatively in the numerator. Thus, if the SHC fit is already tight (so that $\epsilon_{\text{SHC}}$ is small), the deviation $\|\Delta\|$ is necessarily small. Conversely, if SHC exhibits poor fit, then $\epsilon_{\text{SHC}}$ is large, and ASHC permits correspondingly larger deviations, though still bounded by the regularization terms. In this way, ASHC improves stability without moving far from the baseline SHC solution unless the SHC fit leaves room for meaningful improvement.
 \end{corollary}
-
-\begin{remark}
-This result shows that the adjustment made by ASHC to the original SHC weights is governed by two forces: how well the SHC weights already fit the treated unit, and the strength of the regularization penalties in the ASHC problem. The difference between the two sets of weights, $\Delta$, is shown to be bounded using the residual error from SHC, denoted $\epsilon_{\text{SHC}}$, together with the tuning parameter $\lambda$ and the curvature of the ASHC objective captured by the matrix $M$. The conclusion is that when the residual error of SHC is small, the adjustment made by ASHC is guaranteed to be small as well, as long as the penalties are not too weak. The affine constraint enforced by the multiplier does not enlarge the deviation, but only ensures that the weights remain valid. In this way, ASHC improves stability without moving far from the baseline SHC solution unless the SHC fit leaves room for meaningful improvement.
-\end{remark}
-
-
 
 
 \begin{lemma}\label{lem:gamma}
