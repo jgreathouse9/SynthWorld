@@ -79,7 +79,7 @@ $\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} \defeq \{\mathbf{w} \in \mathbb{R}^N :
 Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$. Then
 \[
 \|\Delta\| 
-\;\leq\; \frac{\gamma}{2\lambda + 2\lambda\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}}.
+\;\leq\; \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}}.
 \]
 where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ and 
 $\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
@@ -308,7 +308,7 @@ By the assumption that $\lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) \ge \|\ma
 $$ \lambda_{\min}(M) \ge 2 + 2\varsigma \|\mathbf{C}_0\|^2 $$
 
 Finally, we substitute this lower bound for $\lambda_{\min}(M)$ back into the intermediate bound for $\|\Delta\|$. A smaller value in the denominator leads to a larger (and therefore valid) upper bound on the expression. This gives us the final bound on the deviation:
-$$ \|\Delta\| \le \frac{\gamma}{\lambda (2 + 2\varsigma \|\mathbf{C}_0\|^2)} \epsilon_{\text{SHC}} = \frac{\gamma}{2\lambda + 2\lambda\varsigma \|\mathbf{C}_0\|^2} \epsilon_{\text{SHC}} $$
+$$ \|\Delta\| \le \frac{\gamma}{\lambda (2 + 2\varsigma \|\mathbf{C}_0\|^2)} \epsilon_{\text{SHC}} = \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \epsilon_{\text{SHC}} $$
 
 This final expression shows that the deviation between the ASHC and SHC weights is controlled by the SHC residual error, scaled by a factor that depends on the regularization parameters $\lambda$ and $\varsigma$.
 \end{proof}
