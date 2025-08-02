@@ -361,6 +361,10 @@ the resulting change in fitted donor outcomes cannot exceed $\gamma$ times the s
 This ensures that the donor matrix does not amplify weight differences in an uncontrolled way.
 \end{proof}
 
+\begin{remark}
+This lemma directly links the deviation in the weights, $\|\Delta\|$, to the change in the fitted donor outcomes, $\|\widetilde{\mathbf{Y}}\Delta\|$. It uses the operator norm of the donor matrix $\widetilde{\mathbf{Y}}$. The operator norm, $\gamma$, measures the maximum possible "stretching" effect that the donor matrix can have on any vector. It tells us that even if the ASHC weights differ from the SHC weights, the resulting change in the fitted donor outcomes is bounded. Specifically, it cannot exceed the magnitude of the weight deviation multiplied by $\gamma$. This is important because it ensures that the model is well-behaved. If the donor matrix had a very large operator norm, a small change in the weights could lead to a huge, uncontrolled change in the fitted outcomes. By bounding this norm with $\gamma$, the lemma guarantees that the impact of weight deviations on the fitted outcomes is predictable and proportional.
+\end{remark}
+\part{Useful Lemmas}
 \begin{lemma}\label{lem:smoothness}
 Under (A3), for horizon $k > 0$,
 \[
