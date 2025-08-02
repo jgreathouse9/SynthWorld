@@ -263,8 +263,6 @@ $$
 
 Theorem~\ref{thm:ashc-asymptotics} proves that as the evaluation window $m \to \infty$ and Taylor expansion order $H \to \infty$, the ASHC prediction error converges to the noise bound $\delta$. Under sub-Gaussian noise, the error converges in probability to zero, ensuring consistency. These results confirm that ASHC maintains stability relative to SHC while improving fit when SHC residuals are large, with robust error bounds and asymptotic consistency under standard assumptions.
 
-\end{document}
-
 # Empirical Application
 \label{sec:empirical}
 
