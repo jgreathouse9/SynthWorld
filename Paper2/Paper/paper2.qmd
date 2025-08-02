@@ -28,3 +28,21 @@ While the finite-sample analysis provides guarantees on the accuracy of ASHC for
 The discussion begins with a careful review of SHC, its assumptions, and its implementation, before introducing the ASHC framework. We then turn to the theoretical analysis, establishing finite-sample error bounds and asymptotic properties. The empirical performance of ASHC is explored through calibrated simulations, followed by an application that illustrates its usefulness in practice. Proofs are collected in the appendix, and all computations are carried out using Python’s mlsynth library (<https://mlsynth.readthedocs.io/en/latest/>).
 
 For policy analysts, the message is straightforward: ASHC provides a principled way to construct reliable counterfactuals even in environments where no external donor units are available. Furthermore, it allows policy analysts to do this even when methods such as interrupted time series method or the \cite{SHC} would not do well.
+
+The remainder of the paper proceeds as follows. The next section situates our contribution within the existing literature on causal inference in policy evaluation. We then review the synthetic historical control method (SHC) before introducing the augmented SHC (ASHC). The following section presents our theoretical results, including finite-sample error bounds and asymptotic properties. We then turn to an empirical application, replicating the analysis of Barcelona’s 2016 hotel moratorium from \citet{Bel2021}, a setting that allows us to compare ITS, SCM, SHC, and ASHC on equal footing. The paper concludes with implications for both methodological research and policy analysis.
+
+## Literature Review {#sec:literature}
+
+# Methodology
+
+## The Synthetic Historical Control Method {#sec:shc}
+
+## The Augmented Synthetic Historical Control Method {#sec:ashc}
+
+# Theoretical Findings {#sec:theory}
+
+# Empirical Application {#sec:empirical}
+
+We replicate the setting of \citet{Bel2021}, who study the effects of Barcelona’s 2015 hotel moratorium using data on hotel prices from 2010 to 2017. This application provides a compelling case to benchmark ITS, SCM, SHC, and ASHC against one another.
+
+# Conclusion {#sec:conclusion}
