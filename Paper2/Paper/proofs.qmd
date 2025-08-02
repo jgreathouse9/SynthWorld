@@ -217,16 +217,16 @@ M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}
 + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top,
 \end{equation}
 which summarizes the curvature of the Lagrangian. 
-It is the Hessian of $J(\mathbf{w})$ plus the identity-weighted contribution of the deviation penalty.
+It corresponds to the Hessian of the objective function $J(\mathbf{w})$ plus the identity-weighted contribution of the deviation penalty.
 
-The solution $\mathbf{w}^{\text{ASHC}}$ satisfies
+The solution $\mathbf{w}^{\text{ASHC}}$ satisfies the first-order condition:
 \begin{equation}
 M \mathbf{w}^{\text{ASHC}} 
 = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} 
 + 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
 \end{equation}
 
-Evaluating $M$ at $\mathbf{w}^{\text{SHC}}$ (not necessarily a solution to the ASHC problem) gives:
+Evaluating the same matrix $M$ at $\mathbf{w}^{\text{SHC}}$, which is not necessarily the ASHC solution, gives:
 \begin{equation}
 M \mathbf{w}^{\text{SHC}} 
 = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} 
@@ -234,31 +234,40 @@ M \mathbf{w}^{\text{SHC}}
 + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}.
 \end{equation}
 
-Subtracting these two equations yields an expression for the deviation
+Subtracting this equation from the previous one, we get
 \begin{equation}
-\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}},
+M \mathbf{w}^{\text{ASHC}} - M \mathbf{w}^{\text{SHC}} 
+= \left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} + 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1} \right) 
+- \left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} + 2 \mathbf{w}^{\text{SHC}} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}} \right).
 \end{equation}
-namely
+
+Simplifying the right-hand side by canceling the $2 \mathbf{w}^{\text{SHC}}$ terms, we obtain
 \begin{equation}
-M \Delta 
-= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top 
-\left( \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} \right) 
+M (\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}) 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \left( \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} \right) 
 - \mu \mathbf{1}.
 \end{equation}
 
-Since both $\mathbf{w}^{\text{ASHC}}$ and $\mathbf{w}^{\text{SHC}}$ satisfy the affine constraint, their difference $\Delta$ lies in the hyperplane orthogonal to $\mathbf{1}$:
+Define the deviation
+\begin{equation}
+\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}},
+\end{equation}
+and the residual vector
+\begin{equation}
+r = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}.
+\end{equation}
+
+Since both $\mathbf{w}^{\text{ASHC}}$ and $\mathbf{w}^{\text{SHC}}$ satisfy the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$, their difference $\Delta$ lies in the hyperplane orthogonal to $\mathbf{1}$:
 \begin{equation}
 \mathbf{1}^\top \Delta = 0.
 \end{equation}
-Taking inner products with $\Delta$ on both sides gives:
+
+Taking the inner product of both sides of the previous equation with $\Delta$ gives
 \begin{equation}
 \Delta^\top M \Delta 
-= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top 
-\left( \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} \right) 
-- \mu \underbrace{\Delta^\top \mathbf{1}}_{=0} 
-= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top r,
+= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top r - \mu \underbrace{\Delta^\top \mathbf{1}}_{=0} 
+= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top r.
 \end{equation}
-where we define the residual $r = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}$.
 
 Here, the right-hand side is an inner product between the deviation vector $\Delta$ 
 and the vector $\widetilde{\mathbf{Y}}^\top r$. 
