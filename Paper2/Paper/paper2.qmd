@@ -127,13 +127,67 @@ Assumption~\ref{assump:operator} ensures that the smoothed pre-treatment donor m
 ### Bandwidth and Regularization Parameter Selection
 \label{sec:hyperparams}
 
-The performance of ASHC depends critically on two hyperparameters: the smoothing bandwidth $h$ used in the local linear regression step and the proximity penalty parameter $\lambda$ that controls the strength of shrinkage toward the SHC solution. Both parameters govern the bias–variance tradeoff of the estimator.
+The performance of ASHC depends critically on two hyperparameters: the smoothing bandwidth $h$ and the proximity penalty parameter $\lambda$. Both are chosen via cross-validation.
 
-The bandwidth $h$ determines how aggressively the pre-treatment outcome series $\mathbf{y}_{\text{pre}}$ is smoothed. A large bandwidth produces smoother estimates of the latent component $\widetilde{\mathbf{y}}$ with reduced variance but at the cost of higher approximation bias. Conversely, a small bandwidth captures fine-grained local structure but may yield noisy donor segments with higher variance. To balance these competing forces, we select $h$ by leave-one-out cross-validation (LOOCV). For each candidate $h$ in a prespecified grid, we remove each pre-treatment observation in turn, re-estimate its value using local linear regression on the remaining data, and compute the squared prediction error. The bandwidth minimizing the average LOOCV error is chosen as $h^\ast$. This procedure directly targets out-of-sample predictive accuracy, yielding a smoothing parameter that controls the bias–variance tradeoff in a data-driven fashion. This is employed for the SHC method as well.
+First I discuss the bandwidth for the kernel smoothing. Let $\mathbf{y}_{\text{pre}} = (y_1,\dots,y_{T_0})^\top$ denote the pre-treatment series.  
+For a candidate bandwidth $h > 0$, define the local linear smoother estimate $\widehat{y}_i^{(-i)}(h)$ as the fitted intercept obtained by regressing $\{y_j : j \neq i\}$ on $\{j - i : j \neq i\}$ with kernel weights
+$$
+K_h(j - i) \;=\; \exp\!\left(-\tfrac{1}{2}\left(\tfrac{j-i}{h}\right)^2\right),
+$$
+normalized so that $\sum_{j \neq i} K_h(j - i) = 1$. Formally, for each $i \in \{1,\dots,T_0\}$,
+$$
+\widehat{\beta}(h)^{(-i)} 
+= \arg\min_{\beta_0,\beta_1}
+\sum_{j \neq i} K_h(j-i)\,\Big(y_j - \beta_0 - \beta_1 (j-i)\Big)^2,
+$$
+and the leave-one-out prediction is
+$$
+\widehat{y}_i^{(-i)}(h) \;=\; \widehat{\beta}_0(h)^{(-i)}.
+$$
 
-The parameter $\lambda$ governs the strength of the proximity penalty. When $\lambda$ is small, the estimator places little weight on the SHC solution, allowing ASHC to deviate substantially through extrapolation. This reduces bias in cases where the convex hull of historical segments poorly spans the evaluation window, but it may inflate variance, especially if donor segments are highly collinear. When $\lambda$ is large, the estimator shrinks toward the SHC solution, suppressing variance at the expense of potential bias from underfitting. To select $\lambda$, we employ a holdout validation strategy within the evaluation window. Specifically, we split the evaluation period into a training set and a validation set, estimate ASHC weights using the training set for each candidate $\lambda$, and compute the mean squared prediction error on the validation set. The value of $\lambda$ minimizing this error is selected as $\lambda^\ast$. This approach adapts the degree of shrinkage to the complexity of the pre-treatment series, allowing controlled extrapolation only when it improves predictive accuracy.
+The LOOCV error is
+$$
+\text{CV}(h) \;=\; \frac{1}{T_0}\sum_{i=1}^{T_0}
+\Big(y_i - \widehat{y}_i^{(-i)}(h)\Big)^2.
+$$
 
-Together, the data-driven choices $h^\ast$ and $\lambda^\ast$ ensure that ASHC balances the dual bias–variance tradeoffs inherent in the augmented problem: smoothing bias versus noise in the construction of donor segments, and extrapolation bias versus instability in the estimation of affine weights. By tuning both hyperparameters through out-of-sample predictive performance, ASHC achieves stable and accurate counterfactual estimation without relying on ad hoc parameter choices.
+The optimal bandwidth is then chosen as
+$$
+h^\ast = \arg\min_{h \in \mathcal{H}} \text{CV}(h),
+$$
+where $\mathcal{H}$ is a prespecified candidate grid. This is part of the normal SHC method.
+
+Next we discuss lambda, exclusive to the ASHC. Recall the ASHC objective
+$$
+Q(\mathbf{w};\lambda)
+= \left\|\mathbf{y}_{\text{train}} - \widetilde{\mathbf{Y}}_{\text{train}}\mathbf{w}\right\|_2^2
++ \varsigma \left\|\mathbf{C}_0^\top\mathbf{w}\right\|_2^2
++ \lambda \left\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\right\|_2^2,
+\qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1.
+$$
+
+Let the evaluation window $\mathcal{T}_{\text{eval}}$ be split into a training set $\mathcal{T}_{\text{train}}$ and a validation set $\mathcal{T}_{\text{val}}$, with corresponding subvectors $\mathbf{y}_{\text{train}}, \mathbf{y}_{\text{val}}$ and donor matrices $\widetilde{\mathbf{Y}}_{\text{train}}, \widetilde{\mathbf{Y}}_{\text{val}}$.  
+
+For each $\lambda > 0$,
+$$
+\widehat{\mathbf{w}}(\lambda) 
+= \arg\min_{\mathbf{w} \in \mathbb{R}^N} Q(\mathbf{w};\lambda),
+$$
+and the validation error is
+$$
+\text{Val}(\lambda) 
+= \frac{1}{|\mathcal{T}_{\text{val}}|}
+\;\big\|\mathbf{y}_{\text{val}} - \widetilde{\mathbf{Y}}_{\text{val}}\,\widehat{\mathbf{w}}(\lambda)\big\|_2^2.
+$$
+
+The optimal penalty parameter is selected as
+$$
+\lambda^\ast = \arg\min_{\lambda \in \Lambda} \text{Val}(\lambda),
+$$
+where $\Lambda$ is a candidate grid of $\lambda$ values (e.g. logarithmically spaced).
+
+Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs of ASHC: smoothing bias versus noise, and extrapolation bias versus instability.
+
 
 # Theoretical Findings
 \label{sec:theory}
