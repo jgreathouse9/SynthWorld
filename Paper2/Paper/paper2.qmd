@@ -47,7 +47,7 @@ Let $\mathcal{T} = \{1, \dots, T\}$ index time, with pre-treatment period $\math
 For each $t \in \mathcal{T}$, let $y_t^1$ and $y_t^0$ denote the potential outcomes under treatment and no treatment, respectively. The observed outcome is 
 $$
 y_t = d_t y_t^1 + (1-d_t)y_t^0, \quad d_t = \mathbf{1}\{t > T_0\}.
-\$$
+$$
 For $t > T_0$, only $y_t^1$ is observed. SHC provides an estimate $\widehat{y}_t^0$ for the missing counterfactual, and the treatment effect is estimated as 
 $$
 \widehat{\alpha}_t = y_t - \widehat{y}_t^0, \quad t \in \mathcal{T}_2,
