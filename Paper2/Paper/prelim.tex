@@ -39,3 +39,17 @@
 \renewcommand{\thelemma}{\arabic{section}.\arabic{lemma}}
 \renewcommand{\theexample}{\arabic{section}.\arabic{example}}
 \renewcommand{\theremark}{\arabic{section}.\arabic{remark}}
+
+% Custom proof environment with explicit reference to theorem/corollary/etc.
+\makeatletter
+\newenvironment{proof}[1]{%
+  \par\pushQED{\qed}%
+  \normalfont \topsep6\p@\@plus6\p@\relax
+  \trivlist
+  \item[\hskip\labelsep
+        \bfseries Proof of #1.]%
+}{%
+  \popQED\endtrivlist\@endpefalse
+}
+\makeatother
+
