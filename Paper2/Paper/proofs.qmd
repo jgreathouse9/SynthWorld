@@ -597,6 +597,90 @@ This is a direct application of the triangle inequality for vector norms. For an
 Setting $\mathbf{a} = \mathbf{w}^*$, $\mathbf{b} = \mathbf{w}^{\text{SHC}}$, and $\mathbf{c} = \mathbf{w}^{\text{ASHC}}$ yields the stated result.
 \end{proof}
 
+\begin{proposition}[Out-of-sample prediction and ATT error bound]\label{prop:att_error_bound}
+Under Assumptions (A1)--(A5) and Assumption~\ref{assump:operator_post}, the ASHC estimator's post-treatment prediction error satisfies
+\[
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
+\leq
+b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right),
+\]
+where $\eta$ bounds the difference $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$ and $\epsilon_{\text{SHC}}$ is the SHC in-sample fit error.
+
+Moreover, the error in the average treatment effect on the treated (ATT) estimate is bounded by
+\[
+\left| \widehat{\text{ATT}} - \text{ATT} \right|
+\leq
+\frac{1}{\sqrt{n}} \left[
+b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right)
+\right].
+\]
+\end{proposition}
+
+\begin{proof}
+We want to bound the out-of-sample prediction error
+\[
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
+\]
+
+Add and subtract the oracle weights prediction $\mathbf{Y}_{\text{post}} \mathbf{w}^*$ inside the norm:
+\[
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
+= \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* + \mathbf{Y}_{\text{post}} \mathbf{w}^* - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
+\]
+
+By the triangle inequality,
+\[
+\leq
+\underbrace{\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\|}_{\text{smoothness bias + noise}}
++
+\underbrace{\left\| \mathbf{Y}_{\text{post}} \left(\mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right) \right\|}_{\text{weight deviation effect}}.
+\]
+
+Using Lemma~\ref{lem:smoothness_post}, the first term is bounded by
+\[
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\| \leq b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}.
+\]
+
+For the second term, apply the operator norm bound from Assumption~\ref{assump:operator_post}:
+\[
+\left\| \mathbf{Y}_{\text{post}} (\mathbf{w}^* - \mathbf{w}^{\text{ASHC}}) \right\| \leq \gamma_{\text{post}} \left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\|.
+\]
+
+By Lemma~\ref{lem:total_weight_dev}, decompose the weight difference:
+\[
+\left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\| \leq \left\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \right\| + \left\| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \right\|.
+\]
+
+Use Lemma~\ref{lem:weight_diff} and your existing bound on \(\|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\|\) (from Lemma~\ref{lem:delta} or your prior proof):
+\[
+\leq \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2}.
+\]
+
+Combining all parts,
+\[
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
+\leq
+b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right).
+\]
+
+To bound the ATT estimation error, recall
+\[
+\widehat{\text{ATT}} - \text{ATT} = \frac{1}{n} \sum_{t \in \mathcal{T}_2} \left( y_t(0) - \hat{y}_t(0) \right).
+\]
+
+Applying Jensen’s inequality and Cauchy–Schwarz,
+\[
+\left| \widehat{\text{ATT}} - \text{ATT} \right|
+\leq
+\frac{1}{n} \sum_{t \in \mathcal{T}_2} \left| y_t(0) - \hat{y}_t(0) \right|
+\leq
+\frac{1}{\sqrt{n}} \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
+\]
+
+Substitute the bound for the prediction error to complete the ATT bound.
+
+\end{proof}
+
 
 # Asymptotic Results
 
