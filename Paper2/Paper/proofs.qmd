@@ -117,14 +117,12 @@ J(\mathbf{w}) = \frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf
 \end{equation}
 subject to the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$.
 
-To enforce this constraint, we form the Lagrangian:
+To enforce this constraint, we form th Lagrangian:
 \begin{equation}
 \mathcal{L}(\mathbf{w}, \mu) 
 = J(\mathbf{w}) + \mu (\mathbf{1}^\top \mathbf{w} - 1),
 \end{equation}
-where $\mu$ is a Lagrange multiplier ensuring feasibility of $\mathbf{w}$.
-
-We compute the gradient of $\mathcal{L}$ with respect to $\mathbf{w}$ by differentiating each term separately.
+where $\mu$ is a Lagrange multiplier ensuring feasibility of $\mathbf{w}$. We compute the gradient of $\mathcal{L}$ with respect to $\mathbf{w}$ by differentiating each term separately.
 
 For the first term, define the residual vector:
 \begin{equation}
@@ -197,7 +195,7 @@ Finally, the affine constraint term differentiates as:
 \nabla_{\mathbf{w}} \mu (\mathbf{1}^\top \mathbf{w} - 1) = \mu \mathbf{1}.
 \end{equation}
 
-We begin with the first-order condition from the gradient of the Lagrangian:
+We now have the first-order condition from the gradient of the Lagrangian:
 \begin{equation}
 \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top 
 (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}}) 
@@ -254,10 +252,9 @@ Next, define the matrix
 \begin{equation}
 M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} 
 + 2 \mathbf{I} 
-+ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top,
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top.
 \end{equation}
-which summarizes the curvature of the Lagrangian. 
-It corresponds to the Hessian of the objective function $J(\mathbf{w})$ plus the identity-weighted contribution of the deviation penalty.
+$M$ corresponds to the Hessian of the objective function $J(\mathbf{w})$ plus the identity-weighted contribution of the deviation penalty.
 
 The solution $\mathbf{w}^{\text{ASHC}}$ satisfies the first-order condition:
 \begin{equation}
