@@ -196,7 +196,7 @@ where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}
 This lemma directly links the deviation in the weights, $\|\Delta\|$, to the change in the fitted donor outcomes, $\|\widetilde{\mathbf{Y}}\Delta\|$. It uses the operator norm of the donor matrix $\widetilde{\mathbf{Y}}$. The operator norm, $\gamma$, measures the maximum possible "stretching" effect that the donor matrix can have on any vector. It tells us that even if the ASHC weights differ from the SHC weights, the resulting change in the fitted donor outcomes is bounded. Specifically, it cannot exceed the magnitude of the weight deviation multiplied by $\gamma$.l.
 \end{remark}
 
- This is important because it ensures that the model is well-behaved. If the donor matrix had a very large operator norm, a small change in the weights could lead to a huge, uncontrolled change in the fitted outcomes. By bounding this norm with $\gamma$, the lemma guarantees that the impact of weight deviations on the fitted outcomes is predictable and proportional.
+This is important because it ensures that the model is well-behaved. If the donor matrix had a very large operator norm, a small change in the weights could lead to a huge, uncontrolled change in the fitted outcomes. By bounding this norm with $\gamma$, the lemma guarantees that the impact of weight deviations on the fitted outcomes is predictable and proportional.
 
 ## Finite-sample error bounds
 
@@ -294,7 +294,7 @@ This application provides a compelling case to benchmark ITS, SCM, SHC, and ASHC
 \section{Appendix}
 
 
-\begin{proof}
+\begin{customproof}{Lemma \ref{lem:delta}}
 
 To analyze the ASHC optimization problem, recall the objective function:
 \begin{equation}
@@ -520,4 +520,4 @@ Finally, we substitute this lower bound for $\lambda_{\min}(M)$ back into the in
 $$ \|\Delta\| \le \frac{\gamma}{\lambda (2 + 2\varsigma \|\mathbf{C}_0\|^2)} \epsilon_{\text{SHC}} = \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \epsilon_{\text{SHC}} $$
 
 This final expression shows that the deviation between the ASHC and SHC weights is controlled by the SHC residual error, scaled by a factor that depends on the regularization parameters $\lambda$ and $\varsigma$.
-\end{proof}
+\end{customproof}
