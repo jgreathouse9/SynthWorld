@@ -108,15 +108,19 @@ $\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
 \end{lemma}
 
 \begin{proof}
+
 To analyze the ASHC optimization problem, recall the objective function:
 \begin{equation}
-J(\mathbf{w}) = \frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|^2 + \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 + \varsigma \|\mathbf{C}_0^\top \mathbf{w}\|^2,
+J(\mathbf{w}) = \frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|^2 
++ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
++ \varsigma \|\mathbf{C}_0^\top \mathbf{w}\|^2,
 \end{equation}
 subject to the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$.
 
 To enforce this constraint, we form the Lagrangian:
 \begin{equation}
-\mathcal{L}(\mathbf{w}, \mu) = J(\mathbf{w}) + \mu (\mathbf{1}^\top \mathbf{w} - 1),
+\mathcal{L}(\mathbf{w}, \mu) 
+= J(\mathbf{w}) + \mu (\mathbf{1}^\top \mathbf{w} - 1),
 \end{equation}
 where $\mu$ is a Lagrange multiplier ensuring feasibility of $\mathbf{w}$.
 
@@ -128,11 +132,13 @@ r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}.
 \end{equation}
 The fit term is then:
 \begin{equation}
-\frac{1}{2\lambda} \|r(\mathbf{w})\|^2 = \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}).
+\frac{1}{2\lambda} \|r(\mathbf{w})\|^2 
+= \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}).
 \end{equation}
 Using the chain rule, the gradient with respect to $\mathbf{w}$ is:
 \begin{equation}
-\nabla_{\mathbf{w}} \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}) = \frac{1}{\lambda} \nabla_{\mathbf{w}} r(\mathbf{w})^\top r(\mathbf{w}).
+\nabla_{\mathbf{w}} \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}) 
+= \frac{1}{\lambda} \nabla_{\mathbf{w}} r(\mathbf{w})^\top r(\mathbf{w}).
 \end{equation}
 Since
 \begin{equation}
@@ -144,25 +150,41 @@ we have
 \end{equation}
 Therefore,
 \begin{equation}
-\nabla_{\mathbf{w}} \frac{1}{2\lambda} \|r(\mathbf{w})\|^2 = -\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top r(\mathbf{w}) = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}}).
+\nabla_{\mathbf{w}} \frac{1}{2\lambda} \|r(\mathbf{w})\|^2 
+= -\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top r(\mathbf{w}) 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top 
+(\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}}).
 \end{equation}
 
 Next, consider the deviation penalty term:
 \begin{equation}
-\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 = (\mathbf{w} - \mathbf{w}^{\text{SHC}})^\top (\mathbf{w} - \mathbf{w}^{\text{SHC}}).
+\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
+= (\mathbf{w} - \mathbf{w}^{\text{SHC}})^\top 
+(\mathbf{w} - \mathbf{w}^{\text{SHC}}).
 \end{equation}
 Its gradient with respect to $\mathbf{w}$ is:
 \begin{equation}
-\nabla_{\mathbf{w}} \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 = 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}}).
+\nabla_{\mathbf{w}} \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
+= 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}}).
 \end{equation}
+
+Notice that the Hessian of this term is $2\mathbf{I}$, because differentiating again with respect to $\mathbf{w}$ gives:
+\begin{equation}
+\nabla^2_{\mathbf{w}} \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 = 2 \mathbf{I}.
+\end{equation}
+Here $\mathbf{I}$ is the identity matrix, representing curvature equally in all coordinate directions. 
+Thus the $2\mathbf{I}$ in $M$ directly reflects the Hessian of this quadratic deviation penalty.
 
 For the Gram penalty term, rewrite it as:
 \begin{equation}
-\varsigma \|\mathbf{C}_0^\top \mathbf{w}\|^2 = \varsigma \mathbf{w}^\top \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}.
+\varsigma \|\mathbf{C}_0^\top \mathbf{w}\|^2 
+= \varsigma \mathbf{w}^\top \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}.
 \end{equation}
 Since $\mathbf{C}_0 \mathbf{C}_0^\top$ is symmetric, its gradient is:
 \begin{equation}
-\nabla_{\mathbf{w}} \varsigma \mathbf{w}^\top \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} = 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}.
+\nabla_{\mathbf{w}} 
+\varsigma \mathbf{w}^\top \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} 
+= 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}.
 \end{equation}
 
 Finally, the affine constraint term differentiates as:
@@ -172,28 +194,44 @@ Finally, the affine constraint term differentiates as:
 
 Collecting all these gradient terms, the stationarity (first-order optimality) condition requires:
 \begin{equation}
-\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}}) + 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}}) + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} + \mu \mathbf{1} = \mathbf{0}.
+\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top 
+(\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}}) 
++ 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}}) 
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} 
++ \mu \mathbf{1} = \mathbf{0}.
 \end{equation}
 
 Rearranging terms, we have:
 \begin{equation}
-\left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \right) \mathbf{w} = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} + 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
+\left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} 
++ 2 \mathbf{I} 
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \right) \mathbf{w} 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} 
++ 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
 \end{equation}
 
 Define the matrix
 \begin{equation}
-M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top,
+M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} 
++ 2 \mathbf{I} 
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top,
 \end{equation}
-which summarizes the curvature of the Lagrangian.
+which summarizes the curvature of the Lagrangian. 
+It is the Hessian of $J(\mathbf{w})$ plus the identity-weighted contribution of the deviation penalty.
 
 The solution $\mathbf{w}^{\text{ASHC}}$ satisfies
 \begin{equation}
-M \mathbf{w}^{\text{ASHC}} = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} + 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
+M \mathbf{w}^{\text{ASHC}} 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} 
++ 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
 \end{equation}
 
 Evaluating $M$ at $\mathbf{w}^{\text{SHC}}$ (not necessarily a solution to the ASHC problem) gives:
 \begin{equation}
-M \mathbf{w}^{\text{SHC}} = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} + 2 \mathbf{w}^{\text{SHC}} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}.
+M \mathbf{w}^{\text{SHC}} 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} 
++ 2 \mathbf{w}^{\text{SHC}} 
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}.
 \end{equation}
 
 Subtracting these two equations yields an expression for the deviation
@@ -202,7 +240,10 @@ Subtracting these two equations yields an expression for the deviation
 \end{equation}
 namely
 \begin{equation}
-M \Delta = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \left( \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} \right) - \mu \mathbf{1}.
+M \Delta 
+= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top 
+\left( \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} \right) 
+- \mu \mathbf{1}.
 \end{equation}
 
 Since both $\mathbf{w}^{\text{ASHC}}$ and $\mathbf{w}^{\text{SHC}}$ satisfy the affine constraint, their difference $\Delta$ lies in the hyperplane orthogonal to $\mathbf{1}$:
@@ -211,14 +252,29 @@ Since both $\mathbf{w}^{\text{ASHC}}$ and $\mathbf{w}^{\text{SHC}}$ satisfy the 
 \end{equation}
 Taking inner products with $\Delta$ on both sides gives:
 \begin{equation}
-\Delta^\top M \Delta = \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top \left( \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} \right) - \mu \underbrace{\Delta^\top \mathbf{1}}_{=0} = \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top r,
+\Delta^\top M \Delta 
+= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top 
+\left( \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} \right) 
+- \mu \underbrace{\Delta^\top \mathbf{1}}_{=0} 
+= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top r,
 \end{equation}
 where we define the residual $r = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}$.
 
-Using the Cauchy–Schwarz inequality,
+Here, the right-hand side is an inner product between the deviation vector $\Delta$ 
+and the vector $\widetilde{\mathbf{Y}}^\top r$. 
+Because inner products can be difficult to control directly, 
+we apply the Cauchy--Schwarz inequality to bound it:
 \begin{equation}
-\Delta^\top M \Delta \leq \frac{1}{\lambda} \|\Delta\| \| \widetilde{\mathbf{Y}}^\top r \|.
+|\Delta^\top \widetilde{\mathbf{Y}}^\top r| 
+\leq \|\Delta\| \, \|\widetilde{\mathbf{Y}}^\top r\|.
 \end{equation}
+
+Thus,
+\begin{equation}
+\Delta^\top M \Delta 
+\leq \frac{1}{\lambda} \|\Delta\| \, \| \widetilde{\mathbf{Y}}^\top r \|.
+\end{equation}
+
 
 By assumption, the operator norm of $\widetilde{\mathbf{Y}}$ is bounded by $\gamma$, and the residual norm is $\epsilon_{\text{SHC}} = \|r\|$, so
 \begin{equation}
