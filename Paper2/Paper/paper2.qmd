@@ -533,19 +533,19 @@ This final expression shows that the deviation between the ASHC and SHC weights 
 
 \begin{lemma}\label{lem:gamma}
 Under Assumption (A4), the error from deviating off SHC weights satisfies
-\[
+$$
 \|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|,
-\]
+$$
 where $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$.
 \end{lemma}
 
 \begin{customproof}{Lemma \ref{lem:gamma}}
 We begin by recalling the definition of the operator (spectral) norm of a matrix.
 For a real matrix $A \in \mathbb{R}^{m \times N}$,
-\[
+$$
 \|A\| \;\defeq\; \sup_{\mathbf{v} \in \mathbb{R}^N \setminus \{0\}}
 \frac{\|A \mathbf{v}\|}{\|\mathbf{v}\|}.
-\]
+$$
 This means $\|A\|$ measures the largest possible multiplicative factor 
 by which $A$ can increase the Euclidean norm of a vector.
 
@@ -554,26 +554,26 @@ where $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}} \in \mathbb{R
 of the ASHC weight vector from the SHC weight vector.
 
 By the definition of the operator norm, we have
-\[
+$$
 \frac{\|\widetilde{\mathbf{Y}} \Delta\|}{\|\Delta\|}
 \;\leq\; \|\widetilde{\mathbf{Y}}\|, 
 \quad \text{for all } \Delta \neq \mathbf{0}.
-\]
+$$
 Multiplying through by $\|\Delta\|$ yields
-\[
+$$
 \|\widetilde{\mathbf{Y}}\Delta\| 
 \;\leq\; \|\widetilde{\mathbf{Y}}\| \, \|\Delta\|.
-\]
+$$
 
 Finally, Assumption (A4) gives us the explicit bound
-\[
+$$
 \|\widetilde{\mathbf{Y}}\| \;\leq\; \gamma,
-\]
+$$
 so that
-\[
+$$
 \|\widetilde{\mathbf{Y}}\Delta\| 
 \;\leq\; \gamma \|\Delta\|.
-\]
+$$
 
 In words: although ASHC may choose weights that differ from SHC,
 the resulting perturbation in the reconstructed donor outcomes
@@ -583,11 +583,11 @@ coming directly from the operator norm bound in Assumption (A4).
 
 \begin{lemma}\label{lem:smoothness}
 Under (A3), for horizon $k > 0$,
-\[
+$$
 |\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)| 
 \;\leq\; 
 b_\epsilon(H,k) \;\defeq\; \frac{2\epsilon |k|^{H+1}}{(H+1)!}.
-\]
+$$
 \end{lemma}
 
 \begin{customproof}{Lemma \ref{lem:smoothness}}
@@ -605,9 +605,9 @@ to moderate horizons.
 
 \begin{lemma}[Post-treatment smoothness bias and noise]\label{lem:smoothness_post}
 Under Assumptions (A2) and (A3), the approximation error in the post-treatment period satisfies
-\[
+$$
 \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\| \leq b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}},
-\]
+$$
 where $b_{\epsilon,\text{post}}(H,k)$ is a smoothness bias term similar to the pre-treatment case, and $\delta_{\text{post}}$ bounds the noise in the post-treatment outcomes.
 \end{lemma}
 
@@ -617,58 +617,58 @@ Recall from Assumption (A1) that the treated unit’s latent potential outcome $
 Additionally, from Assumption (A2), the noise vector $\bm{\eta}_{\text{post}}$ satisfies $\|\bm{\eta}_{\text{post}}\| \leq \delta_{\text{post}}$.
 
 Thus,
-\[
+$$
 \mathbf{y}_{\text{post}} = \mathbf{Y}_{\text{post}} \mathbf{w}^* + \bm{\eta}_{\text{post}} + \text{smoothness bias},
-\]
+$$
 where the smoothness bias norm is at most $b_{\epsilon,\text{post}}(H,k)$.
 
 Applying the triangle inequality,
-\[
+$$
 \left\|\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^*\right\|
 \leq
 \|\bm{\eta}_{\text{post}}\| + b_{\epsilon,\text{post}}(H,k)
 \leq \delta_{\text{post}} + b_{\epsilon,\text{post}}(H,k).
-\]
+$$
 
 This completes the proof.
 \end{customproof}
 
 \begin{lemma}[Weight deviation between oracle and SHC]\label{lem:weight_diff}
-Under Assumptions (A1)--(A5), the difference between the oracle weights $\mathbf{w}^*$ and the SHC weights $\mathbf{w}^{\text{SHC}}$ is bounded by
-\[
+Under Assumptions (A1)--(A5), the difference between the oracle weights $\mathbf{w}^\ast$ and the SHC weights $\mathbf{w}^{\text{SHC}}$ is bounded by
+$$
 \| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| \leq \eta,
-\]
+$$
 for some $\eta > 0$ depending on the data and model.
 \end{lemma}
 
 \begin{customproof}{Lemma \ref{lem:weight_diff}}
 This follows from the stability and consistency properties of the SHC estimator under Assumptions (A1)--(A5). Since $\mathbf{w}^{\text{SHC}}$ solves a constrained least squares problem minimizing
-\[
+$$
 \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{eval}} \mathbf{w} \right\|^2 + \varsigma \| \mathbf{C}_0^\top \mathbf{w} \|^2,
-\]
-and $\mathbf{w}^*$ satisfies the noiseless model $\widetilde{\mathbf{y}}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{eval}} \mathbf{w}^* + \bm{\eta}$ with $\|\bm{\eta}\| \leq \delta$, standard results on constrained least squares imply $\mathbf{w}^{\text{SHC}}$ is close to $\mathbf{w}^*$ within a ball whose radius depends on $\delta$ and model parameters.
+$$
+and $\mathbf{w}^*$ satisfies the noiseless model $\widetilde{\mathbf{y}}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{eval}} \mathbf{w}^\ast + \bm{\eta}$ with $\|\bm{\eta}\| \leq \delta$, standard results on constrained least squares imply $\mathbf{w}^{\text{SHC}}$ is close to $\mathbf{w}^\ast$ within a ball whose radius depends on $\delta$ and model parameters.
 
 More explicitly, since the problem is strictly convex and well-conditioned by assumption (due to the regularization and eigenvalue structure),
-\[
+$$
 \| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| \leq \eta,
-\]
+$$
 where $\eta$ depends on the noise bound $\delta$, the regularization parameter $\varsigma$, and the spectral properties of $\widetilde{\mathbf{Y}}_{\text{eval}}$.
 
-A detailed exact expression can be derived by comparing the KKT conditions for $\mathbf{w}^*$ and $\mathbf{w}^{\text{SHC}}$, but for the purposes here, it suffices to assert the existence of such $\eta$.
+A detailed exact expression can be derived by comparing the KKT conditions for $\mathbf{w}^\ast$ and $\mathbf{w}^{\text{SHC}}$, but for the purposes here, it suffices to assert the existence of such $\eta$.
 \end{customproof}
 
 \begin{lemma}[Total weight deviation bound]\label{lem:total_weight_dev}
 We have
-\[
-\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \| \leq \| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| + \| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \|.
-\]
+$$
+\| \mathbf{w}^\ast - \mathbf{w}^{\text{ASHC}} \| \leq \| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| + \| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \|.
+$$
 \end{lemma}
 
 \begin{customproof}{Lemma \ref{lem:total_weight_dev}}
 This is a direct application of the triangle inequality for vector norms. For any vectors $\mathbf{a}, \mathbf{b}, \mathbf{c}$ in a normed vector space,
-\[
+$$
 \|\mathbf{a} - \mathbf{c}\| \leq \|\mathbf{a} - \mathbf{b}\| + \|\mathbf{b} - \mathbf{c}\|.
-\]
+$$
 Setting $\mathbf{a} = \mathbf{w}^*$, $\mathbf{b} = \mathbf{w}^{\text{SHC}}$, and $\mathbf{c} = \mathbf{w}^{\text{ASHC}}$ yields the stated result.
 \end{customproof}
 
@@ -694,139 +694,139 @@ $$
 + \widetilde{\mathbf{Y}}(\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}})\|.
 $$
 Applying the triangle inequality gives
-\[
+$$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
 \;\leq\;
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|
 + \|\widetilde{\mathbf{Y}}(\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}})\|.
-\]
+%%
 Since $\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} = -\Delta$, the second term becomes $\|\widetilde{\mathbf{Y}}\Delta\|$. Denoting the SHC error by
-\[
+$$
 \epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|,
-\]
+$$
 we obtain
-\[
+$$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \;\leq\; \epsilon_{\text{SHC}} + \|\widetilde{\mathbf{Y}}\Delta\|.
-\]
+$$
 
 The challenge now reduces to bounding $\|\widetilde{\mathbf{Y}}\Delta\|$. For this, we use the operator norm. Recall that for a matrix $A$,
-\[
+$$
 \|A\| := \sup_{\mathbf{v} \neq 0} \frac{\|A\mathbf{v}\|}{\|\mathbf{v}\|}.
-\]
+$$
 This definition guarantees that for any vector $\mathbf{v}$,
-\[
+$$
 \|A\mathbf{v}\| \leq \|A\| \cdot \|\mathbf{v}\|.
-\]
+$$
 Taking $A = \widetilde{\mathbf{Y}}$ and $\mathbf{v} = \Delta$, we have
-\[
+$%
 \|\widetilde{\mathbf{Y}}\Delta\| \leq \|\widetilde{\mathbf{Y}}\|\cdot \|\Delta\|.
-\]
+$$
 By Assumption (A4), the operator norm of $\widetilde{\mathbf{Y}}$ is bounded by $\gamma$, so
-\[
+$$
 \|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|.
-\]
+$$
 
-To proceed, we need a bound on the size of the deviation $\Delta$. Lemma~\ref{lem:delta} provides exactly this, showing that
-\[
+To proceed, we need a bound on the size of the deviation $\Delta$. Lemma \ref{lem:delta} provides exactly this, showing that
+$$
 \|\Delta\| \leq \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
-\]
+$$
 
 Substituting this into the previous inequality, we obtain
-\[
+$$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
 \leq \epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
-\]
+$$
 
-Finally, we incorporate the other two sources of error. Lemma~\ref{lem:smoothness} bounds the bias due to imperfect smoothness of the latent trend by
-\[
+Finally, we incorporate the other two sources of error. Lemma \ref{lem:smoothness} bounds the bias due to imperfect smoothness of the latent trend by
+$$
 b_\epsilon(H,k) = \frac{2\epsilon |k|^{H+1}}{(H+1)!},
-\]
+$$
 and Assumption (A2) ensures that the noise term contributes at most $\delta$. Adding these yields
-\[
+$$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
 \leq \epsilon_{\text{SHC}}
 + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}
 + b_\epsilon(H,k) + \delta.
-\]
+$$
 
 It remains only to factor out $\epsilon_{\text{SHC}}$ from the first two terms:
-\[
+$$
 \epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}
 = \epsilon_{\text{SHC}} \left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}\right).
-\]
+$$
 
 Thus we conclude that
-\[
+$$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
 \;\leq\;
 \epsilon_{\text{SHC}}
 \left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}\right)
 + b_\epsilon(H,k) + \delta,
-\]
+$$
 which completes the proof.
 
 \end{customproof}
 
 \begin{customproof}{Proposition \ref{prop:att_error_bound}}
 We want to bound the out-of-sample prediction error
-\[
+$$
 \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
-\]
+$$
 
 Add and subtract the oracle weights prediction $\mathbf{Y}_{\text{post}} \mathbf{w}^*$ inside the norm:
-\[
+$$
 \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
 = \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* + \mathbf{Y}_{\text{post}} \mathbf{w}^* - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
-\]
+$$
 
 By the triangle inequality,
-\[
+$$
 \leq
 \underbrace{\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\|}_{\text{smoothness bias + noise}}
 +
 \underbrace{\left\| \mathbf{Y}_{\text{post}} \left(\mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right) \right\|}_{\text{weight deviation effect}}.
-\]
+$$
 
 Using Lemma~\ref{lem:smoothness_post}, the first term is bounded by
-\[
+$$
 \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\| \leq b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}.
-\]
+$$
 
 For the second term, apply the operator norm bound from Assumption~\ref{assump:operator_post}:
-\[
+$$
 \left\| \mathbf{Y}_{\text{post}} (\mathbf{w}^* - \mathbf{w}^{\text{ASHC}}) \right\| \leq \gamma_{\text{post}} \left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\|.
-\]
+$$
 
-By Lemma~\ref{lem:total_weight_dev}, decompose the weight difference:
-\[
+By Lemma \ref{lem:total_weight_dev}, decompose the weight difference:
+$$
 \left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\| \leq \left\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \right\| + \left\| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \right\|.
-\]
+$$
 
-Use Lemma~\ref{lem:weight_diff} and your existing bound on \(\|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\|\) (from Lemma~\ref{lem:delta} or your prior proof):
-\[
+Use Lemma~\ref{lem:weight_diff} and your existing bound on $\|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\|$ (from Lemma~\ref{lem:delta} or your prior proof):
+$$
 \leq \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2}.
-\]
+$$
 
 Combining all parts,
-\[
+$$
 \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
 \leq
 b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right).
-\]
+$$
 
 To bound the ATT estimation error, recall
-\[
+$$
 \widehat{\text{ATT}} - \text{ATT} = \frac{1}{n} \sum_{t \in \mathcal{T}_2} \left( y_t(0) - \hat{y}_t(0) \right).
-\]
+$$
 
 Applying Jensen’s inequality and Cauchy–Schwarz,
-\[
+$$
 \left| \widehat{\text{ATT}} - \text{ATT} \right|
 \leq
 \frac{1}{n} \sum_{t \in \mathcal{T}_2} \left| y_t(0) - \hat{y}_t(0) \right|
 \leq
 \frac{1}{\sqrt{n}} \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
-\]
+$$
 
 Substitute the bound for the prediction error to complete the ATT bound.
 \end{customproof}
@@ -834,121 +834,121 @@ Substitute the bound for the prediction error to complete the ATT bound.
 \begin{chain
 customproof}{Theorem \ref{thm:ashc-bound}}
 Starting from Proposition~\ref{prop:ashc}, we have
-\[
+$$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 \leq
 \epsilon_{\text{SHC}}
 \left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
 + b_\epsilon(H,k) + \delta.
-\]
+$$
 
-\textbf{Step 1. Behavior of \(\epsilon_{\text{SHC}}\).}  
+\textbf{Step 1. Behavior of $\epsilon_{\text{SHC}}$.}  
 By (A3), \(\ell(t)\) is \((H+1)\)-times differentiable. Gaussian kernel smoothing in SHC ensures 
-\[
+$$
 \epsilon_{\text{SHC}} \to 0 \quad \text{as } m \to \infty,\, H \to \infty.
-\]
+$$
 \cite{SHC}
 
 \textbf{Step 2. Behavior of ASHC penalty term.}  
-Since \(\epsilon_{\text{SHC}} \to 0\), the inflation factor
-\[
+Since $\epsilon_{\text{SHC}} \to 0$, the inflation factor
+$$
 \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \,\epsilon_{\text{SHC}}
-\]
+$$
 vanishes asymptotically.
 
-\textbf{Step 3. Behavior of smoothness bias \(b_\epsilon(H,k)\).}  
+\textbf{Step 3. Behavior of smoothness bias $b_\epsilon(H,k)$.}  
 From Taylor’s theorem,
-\[
+$$
 \ell(T_0 + k) = \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}k^h + R_{H+1}(k),
-\]
+$$
 with
-\[
+$$
 |R_{H+1}(k)| \leq \frac{\epsilon}{(H+1)!} |k|^{H+1}.
-\]
+$$
 Thus
-\[
+$$
 b_\epsilon(H,k) \leq \frac{2\epsilon}{(H+1)!} |k|^{H+1} \to 0 \quad \text{as } H \to \infty.
-\]
+$$
 
 \textbf{Step 4. Behavior of noise term.}  
-By (A2), \(\|\boldsymbol{\eta}\| \leq \delta\).  
-If \(\boldsymbol{\eta}\) is i.i.d.\ sub-Gaussian with variance proxy \(\sigma^2\), then
-\[
+By (A2), $\|\boldsymbol{\eta}\| \leq \delta$.  
+If $\boldsymbol{\eta}$ is i.i.d.\ sub-Gaussian with variance proxy $\sigma^2$, then
+$$
 \frac{\|\boldsymbol{\eta}\|}{m} \xrightarrow{p} 0.
-\]
+$$
 
 \textbf{Step 5. Combine bounds.}  
 Therefore,
-\[
+$$
 \limsup_{m \to \infty} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \leq \delta.
-\]
-With sub-Gaussian noise, the limit is \(0\) in probability.
+%$
+With sub-Gaussian noise, the limit is $0% in probability.
 \end{customproof}
 
 \begin{corollary}\label{cor:ashc-rate}
 Under (A1)--(A5), the ASHC estimator is asymptotically unbiased up to $\delta$.  
 If $\boldsymbol{\eta}$ is i.i.d. mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
-\[
+$$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| 
 = O_p\!\left(m^{-H/(2H+3)}\right).
-\]
+$$
 For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
 \end{corollary}
 
 
 \begin{customproof}{Corollary \ref{cor:ashc-rate}}
 \textbf{Part 1: Consistency.}  
-From Theorem~\ref{thm:ashc-asymptotics}, the error converges to \(\delta\), or \(0\) in probability under sub-Gaussian noise.
+From Theorem~\ref{thm:ashc-asymptotics}, the error converges to $\delta$, or $0$ in probability under sub-Gaussian noise.
 
 \textbf{Part 2: Convergence Rate.}  
 From Proposition~\ref{prop:ashc}, we have
-\[
+$$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 \leq
 \epsilon_{\text{SHC}}
 \left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}\right)
 + b_\epsilon(H,k) + \delta.
-\]
+$$
 
 \textbf{Step 1. Bias term.}  
 From Lemma~\ref{lem:smoothness},  
-\[
+$$
 b_\epsilon(H,k) = O(h_m^H).
-\]
+$$
 
 \textbf{Step 2. Stochastic error term.}  
 With sub-Gaussian noise, the smoothed variance is  
-\[
+$$
 O_p\big((m h_m)^{-1/2}\big).
-\]
+$$
 
 \textbf{Step 3. SHC fit error.}  
 Combining,  
-\[
+$$
 \epsilon_{\text{SHC}} = O_p\big(h_m^H + (m h_m)^{-1/2}\big).
-\]
+$$
 
 \textbf{Step 4. Optimal bandwidth.}  
 Equating orders \(h_m^H \asymp (m h_m)^{-1/2}\) yields  
-\[
+$$
 h_m \asymp m^{-1/(2H+3)}.
-\]
+$$
 
 \textbf{Step 5. Convergence rate.}  
 Substituting,  
-\[
+$$
 \epsilon_{\text{SHC}} = O_p\big(m^{-H/(2H+3)}\big).
-\]  
+$$
 Thus the total error is  
-\[
+$$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| = O_p\big(m^{-H/(2H+3)}\big).
-\]
+$$
 
 \textbf{Step 6. Near-parametric rate.}  
 As \(H \to \infty\),  
-\[
+$$
 \frac{H}{2H+3} \to \tfrac{1}{2}.
-\]  
+$$ 
 So the rate approaches \(O_p(m^{-1/2})\).
 \end{customproof}
 
