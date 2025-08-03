@@ -699,7 +699,7 @@ $$
 \;\leq\;
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|
 + \|\widetilde{\mathbf{Y}}(\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}})\|.
-%%
+$$
 Since $\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} = -\Delta$, the second term becomes $\|\widetilde{\mathbf{Y}}\Delta\|$. Denoting the SHC error by
 $$
 \epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|,
