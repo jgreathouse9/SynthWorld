@@ -595,7 +595,7 @@ See Proposition 1 of \cite{SHC}.
 \end{customproof}
 
 \begin{remark}
-Lemma~\ref{lem:smoothness} formalizes the idea that the SHC predictor inherits 
+Lemma \ref{lem:smoothness} formalizes the idea that the SHC predictor inherits 
 the smoothness of the latent trend $\ell(\cdot)$.  
 Because SHC is built from overlapping donor segments that reflect the same 
 underlying smooth dynamics, the approximation reproduces the first $H$ terms of the Taylor expansion around $T_0$. The only discrepancy comes from the $(H+1)$-st order remainder, which is small when the latent trend is sufficiently smooth. Thus, the difference between $\ell$ and $\ell^{\text{SHC}}$ grows only polynomially in the forecast horizon $k$, and the error is of order 
@@ -702,7 +702,7 @@ $$
 $$
 Since $\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} = -\Delta$, the second term becomes $\|\widetilde{\mathbf{Y}}\Delta\|$. Denoting the SHC error by
 $$
-\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|,
+\epsilon_{\text{SHC}} \defeq \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|,
 $$
 we obtain
 $$
@@ -718,7 +718,7 @@ $$
 \|A\mathbf{v}\| \leq \|A\| \cdot \|\mathbf{v}\|.
 $$
 Taking $A = \widetilde{\mathbf{Y}}$ and $\mathbf{v} = \Delta$, we have
-$%
+$$
 \|\widetilde{\mathbf{Y}}\Delta\| \leq \|\widetilde{\mathbf{Y}}\|\cdot \|\Delta\|.
 $$
 By Assumption (A4), the operator norm of $\widetilde{\mathbf{Y}}$ is bounded by $\gamma$, so
@@ -764,7 +764,6 @@ $$
 + b_\epsilon(H,k) + \delta,
 $$
 which completes the proof.
-
 \end{customproof}
 
 \begin{customproof}{Proposition \ref{prop:att_error_bound}}
