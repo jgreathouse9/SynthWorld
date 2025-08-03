@@ -880,7 +880,7 @@ Therefore,
 $$
 \limsup_{m \to \infty} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \leq \delta.
 %$
-With sub-Gaussian noise, the limit is $0% in probability.
+With sub-Gaussian noise, the limit is $0$ in probability.
 \end{customproof}
 
 \begin{corollary}\label{cor:ashc-rate}
