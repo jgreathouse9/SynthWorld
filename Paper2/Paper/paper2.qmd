@@ -831,4 +831,132 @@ Applying Jensen’s inequality and Cauchy–Schwarz,
 Substitute the bound for the prediction error to complete the ATT bound.
 \end{customproof}
 
+\begin{chain
+customproof}{Theorem \ref{thm:ashc-bound}}
+Starting from Proposition~\ref{prop:ashc}, we have
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
+\leq
+\epsilon_{\text{SHC}}
+\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
++ b_\epsilon(H,k) + \delta.
+\]
+
+\textbf{Step 1. Behavior of \(\epsilon_{\text{SHC}}\).}  
+By (A3), \(\ell(t)\) is \((H+1)\)-times differentiable. Gaussian kernel smoothing in SHC ensures 
+\[
+\epsilon_{\text{SHC}} \to 0 \quad \text{as } m \to \infty,\, H \to \infty.
+\]
+\cite{SHC}
+
+\textbf{Step 2. Behavior of ASHC penalty term.}  
+Since \(\epsilon_{\text{SHC}} \to 0\), the inflation factor
+\[
+\frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \,\epsilon_{\text{SHC}}
+\]
+vanishes asymptotically.
+
+\textbf{Step 3. Behavior of smoothness bias \(b_\epsilon(H,k)\).}  
+From Taylor’s theorem,
+\[
+\ell(T_0 + k) = \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}k^h + R_{H+1}(k),
+\]
+with
+\[
+|R_{H+1}(k)| \leq \frac{\epsilon}{(H+1)!} |k|^{H+1}.
+\]
+Thus
+\[
+b_\epsilon(H,k) \leq \frac{2\epsilon}{(H+1)!} |k|^{H+1} \to 0 \quad \text{as } H \to \infty.
+\]
+
+\textbf{Step 4. Behavior of noise term.}  
+By (A2), \(\|\boldsymbol{\eta}\| \leq \delta\).  
+If \(\boldsymbol{\eta}\) is i.i.d.\ sub-Gaussian with variance proxy \(\sigma^2\), then
+\[
+\frac{\|\boldsymbol{\eta}\|}{m} \xrightarrow{p} 0.
+\]
+
+\textbf{Step 5. Combine bounds.}  
+Therefore,
+\[
+\limsup_{m \to \infty} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \leq \delta.
+\]
+With sub-Gaussian noise, the limit is \(0\) in probability.
+\end{customproof}
+
+\begin{corollary}\label{cor:ashc-rate}
+Under (A1)--(A5), the ASHC estimator is asymptotically unbiased up to $\delta$.  
+If $\boldsymbol{\eta}$ is i.i.d. mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| 
+= O_p\!\left(m^{-H/(2H+3)}\right).
+\]
+For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
+\end{corollary}
+
+
+\begin{customproof}{Corollary \ref{cor:ashc-rate}}
+\textbf{Part 1: Consistency.}  
+From Theorem~\ref{thm:ashc-asymptotics}, the error converges to \(\delta\), or \(0\) in probability under sub-Gaussian noise.
+
+\textbf{Part 2: Convergence Rate.}  
+From Proposition~\ref{prop:ashc}, we have
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
+\leq
+\epsilon_{\text{SHC}}
+\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}\right)
++ b_\epsilon(H,k) + \delta.
+\]
+
+\textbf{Step 1. Bias term.}  
+From Lemma~\ref{lem:smoothness},  
+\[
+b_\epsilon(H,k) = O(h_m^H).
+\]
+
+\textbf{Step 2. Stochastic error term.}  
+With sub-Gaussian noise, the smoothed variance is  
+\[
+O_p\big((m h_m)^{-1/2}\big).
+\]
+
+\textbf{Step 3. SHC fit error.}  
+Combining,  
+\[
+\epsilon_{\text{SHC}} = O_p\big(h_m^H + (m h_m)^{-1/2}\big).
+\]
+
+\textbf{Step 4. Optimal bandwidth.}  
+Equating orders \(h_m^H \asymp (m h_m)^{-1/2}\) yields  
+\[
+h_m \asymp m^{-1/(2H+3)}.
+\]
+
+\textbf{Step 5. Convergence rate.}  
+Substituting,  
+\[
+\epsilon_{\text{SHC}} = O_p\big(m^{-H/(2H+3)}\big).
+\]  
+Thus the total error is  
+\[
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| = O_p\big(m^{-H/(2H+3)}\big).
+\]
+
+\textbf{Step 6. Near-parametric rate.}  
+As \(H \to \infty\),  
+\[
+\frac{H}{2H+3} \to \tfrac{1}{2}.
+\]  
+So the rate approaches \(O_p(m^{-1/2})\).
+\end{customproof}
+
+
+
+\begin{remark}
+The deterministic noise bound $\delta$ in (A2) corresponds to $\|\boldsymbol{\eta}\| \leq \delta$.  
+Under sub-Gaussian noise, $\delta = O(\sigma \sqrt{m})$, while kernel smoothing reduces effective noise to $O_p((m h_m)^{-1/2})$. This explains the appearance of the nonparametric rate.
+\end{remark}
+
 
