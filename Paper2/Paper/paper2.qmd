@@ -188,7 +188,7 @@ This result ensures ASHC is well-behaved. Even if its weights differ from SHC’
 
 \subsection{Finite-Sample Error Bounds}
 
-We now use Lemma~\ref{lem:delta} to derive in-sample and post-treatment error bounds.
+We now use Lemma \ref{lem:delta} to derive in-sample and post-treatment error bounds.
 
 \begin{proposition}[Pre-treatment Error Bound]
 \label{prop:ashc}
@@ -202,7 +202,8 @@ $$
 $$
 \end{proposition}
 
-The bound decomposes into four interpretable components. The first is baseline error: the SHC in-sample fit $\epsilon_{\text{SHC}}$. Next, we have a deviation penalty: controlled by $\lambda$ and $\varsigma$. We also have snoothness bias: $b_\epsilon(H,k)$ from Taylor approximation. Finally we have bias from random noise, $\delta$. Factoring $\epsilon_{\text{SHC}}$ highlights that ASHC can scale the SHC error by at most a small multiplicative factor, depending on the regularization strength. This guarantees that ASHC does not perform worse than SHC in-sample, while retaining the potential to improve fit when SHC leaves residual error.
+This provides a pre-treatment error bound that decomposes into four components. The first is the baseline error, which is simply the in-sample fit error of the standard SHC model, $\epsilon_{\text{SHC}}$. The second component is a deviation penalty, controlled by the regularization parameters $\lambda$ and $\varsigma$. This term quantifies the additional error introduced by allowing the ASHC weights to deviate from the SHC weights, such that this deviation doesn't lead to a significant loss of fit. The third component, $b_\epsilon(H,k)$, represents the smoothness bias that arises from the Taylor approximation used in snoothing step. This bias is a function of the number of harmonics, $H$, and the order of the approximation, $k$, and reflects the error introduced by approximating a smooth function (which may be less approximated with noisier outcome series). The final component, $\delta$, is the bias from random noise, which accounts for the unpredictable, random fluctuations in the data that are not explained by the model.
+
 
 \begin{proposition}[Out-of-sample Error Bound]
 \label{prop:att_error_bound}
@@ -215,7 +216,7 @@ $$
 where $\eta$ bounds $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$.
 \end{proposition}
 
-The accuracy of ASHC's post-treatment results and its ATT estimates depends on four elements, same as above: the smoothness bias, $b_{\epsilon,\text{post}}(H,k)$, the noise, $\delta_{\text{post}}$, the quality of the SHC fit, $\epsilon_{\text{SHC}}$, and the regularization parameters, $\lambda$, $\varsigma$, and $\eta$. In practice, ASHC provides a safeguard: it can improve upon poor SHC fits, but its adjustments are bounded by the lambda regularization and operator norm constraints, preventing unstable counterfactuals.
+This provides an out-of-sample error bound for the post-treatment period that clarifies the factors influencing the accuracy of ASHC's ATT estimates. The bound consists of four key components. The first is post-treatment smoothness bias, $b_{\epsilon,\text{post}}(H,k)$, which is the error from using a spherical harmonic approximation to model the post-treatment outcome trend. The second is post-treatment noise, $\delta_{\text{post}}$, which captures random error in the outcome data. The third component, $\epsilon_{\text{SHC}}$, represents the quality of the initial SHC fit and demonstrates that a poor pre-treatment fit can propagate into post-treatment error. This term is scaled by the operator norm, $\gamma_{\text{post}}$, and regularization parameters, $\lambda$ and $\varsigma$, highlighting how regularization helps to control the influence of the initial fit error. The final term, $\eta$, is a bound on the difference between the optimal weights and the SHC weights, which is also scaled by $\gamma_{\text{post}}$. This term represents the bias from regularization itself.
 
 \subsection{Asymptotic Properties}
 
