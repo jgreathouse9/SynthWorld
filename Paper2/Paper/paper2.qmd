@@ -289,10 +289,19 @@ This application provides a compelling case to benchmark ITS, SCM, SHC, and ASHC
 
 
 \clearpage
-
+\thispagestyle{empty} % no page number
+\begin{center}
+    {\Huge Appendix} \\[2cm]
+    {\Large Technical Proofs} \\[1cm]
+    {\large Jared Greathouse} \\[0.5cm]
+    {\today}
+\end{center}
+\clearpage
 
 \appendix
 
+
+# Useful Lemmas
 
 \begin{customproof}{Lemma \ref{lem:delta}}
 
@@ -522,6 +531,79 @@ $$ \|\Delta\| \le \frac{\gamma}{\lambda (2 + 2\varsigma \|\mathbf{C}_0\|^2)} \ep
 This final expression shows that the deviation between the ASHC and SHC weights is controlled by the SHC residual error, scaled by a factor that depends on the regularization parameters $\lambda$ and $\varsigma$.
 \end{customproof}
 
+\begin{lemma}\label{lem:gamma}
+Under Assumption (A4), the error from deviating off SHC weights satisfies
+\[
+\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|,
+\]
+where $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$.
+\end{lemma}
+
+\begin{customproof}{Lemma \ref{lem:gamma}}
+We begin by recalling the definition of the operator (spectral) norm of a matrix.
+For a real matrix $A \in \mathbb{R}^{m \times N}$,
+\[
+\|A\| \;\defeq\; \sup_{\mathbf{v} \in \mathbb{R}^N \setminus \{0\}}
+\frac{\|A \mathbf{v}\|}{\|\mathbf{v}\|}.
+\]
+This means $\|A\|$ measures the largest possible multiplicative factor 
+by which $A$ can increase the Euclidean norm of a vector.
+
+Now let $A = \widetilde{\mathbf{Y}}$ and $\mathbf{v} = \Delta$, 
+where $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}} \in \mathbb{R}^N$ is the deviation 
+of the ASHC weight vector from the SHC weight vector.
+
+By the definition of the operator norm, we have
+\[
+\frac{\|\widetilde{\mathbf{Y}} \Delta\|}{\|\Delta\|}
+\;\leq\; \|\widetilde{\mathbf{Y}}\|, 
+\quad \text{for all } \Delta \neq \mathbf{0}.
+\]
+Multiplying through by $\|\Delta\|$ yields
+\[
+\|\widetilde{\mathbf{Y}}\Delta\| 
+\;\leq\; \|\widetilde{\mathbf{Y}}\| \, \|\Delta\|.
+\]
+
+Finally, Assumption (A4) gives us the explicit bound
+\[
+\|\widetilde{\mathbf{Y}}\| \;\leq\; \gamma,
+\]
+so that
+\[
+\|\widetilde{\mathbf{Y}}\Delta\| 
+\;\leq\; \gamma \|\Delta\|.
+\]
+
+In words: although ASHC may choose weights that differ from SHC,
+the resulting perturbation in the reconstructed donor outcomes
+is controlled in magnitude, with the constant of proportionality $\gamma$
+coming directly from the operator norm bound in Assumption (A4).
+\end{customproof}
+
+\begin{lemma}\label{lem:smoothness}
+Under (A3), for horizon $k > 0$,
+\[
+|\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)| 
+\;\leq\; 
+b_\epsilon(H,k) \;\defeq\; \frac{2\epsilon |k|^{H+1}}{(H+1)!}.
+\]
+\end{lemma}
+
+\begin{customproof}{Lemma \ref{lem:smoothness}}
+See Proposition 1 of \cite{SHC}.
+\end{customproof}
+
+\begin{remark}
+Lemma~\ref{lem:smoothness} formalizes the idea that the SHC predictor inherits 
+the smoothness of the latent trend $\ell(\cdot)$.  
+Because SHC is built from overlapping donor segments that reflect the same 
+underlying smooth dynamics, the approximation reproduces the first $H$ terms of the Taylor expansion around $T_0$. The only discrepancy comes from the $(H+1)$-st order remainder, which is small when the latent trend is sufficiently smooth. Thus, the difference between $\ell$ and $\ell^{\text{SHC}}$ grows only polynomially in the forecast horizon $k$, and the error is of order 
+$|k|^{H+1}$ rather than linear or quadratic in $k$. This ensures that SHC extrapolates the smooth component accurately over short 
+to moderate horizons.
+\end{remark}
+
+# Propositions
 
 \begin{customproof}{Proposition \ref{prop:ashc}}
 
