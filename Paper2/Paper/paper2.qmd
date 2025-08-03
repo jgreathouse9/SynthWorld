@@ -224,14 +224,7 @@ We now turn to large-sample guarantees.
 
 \begin{theorem}[Consistency of ASHC]
 \label{thm:ashc-asymptotics}
-Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$ and $H \to \infty$,  
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \longrightarrow \delta.
-$$
-If $\bm{\eta}$ is sub-Gaussian, then  
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.
-$$
+Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$ and $H \to \infty$, $\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \longrightarrow \delta.$ While $\bm{\eta}$ is sub-Gaussian, then $\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.$
 \end{theorem}
 
 With enough pre-treatment data and smooth latent trends, ASHC's prediction error shrinks to the noise level, and under mild probabilistic conditions converges in probability to zero. In practice, this means longer evaluation windows and pre-treatment periods yield increasingly unbiased out of sample predictions.
