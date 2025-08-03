@@ -167,11 +167,7 @@ where $\Lambda$ is a candidate grid of $\lambda$ values (e.g. logarithmically sp
 
 Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs of ASHC: smoothing bias versus noise, and extrapolation bias versus instability.
 
-% ---------------------------
-% Theoretical Analysis of ASHC
-% ---------------------------
-# Theoretical Results for Finite and Asymptotic Settings
-\label{sec:theory}
+# Theoretical Results for Finite and Asymptotic Settings \label{sec:theory}
 
 One of the main concerns motivating the ASHC estimator is the possibility of poor in-sample fit when using the standard SHC estimator. Thus, in this section we establish the finite-sample guarantees and asymptotic properties of ASHC. We work within the fixed $N$, large $T$ asymptotic framework. 
 
