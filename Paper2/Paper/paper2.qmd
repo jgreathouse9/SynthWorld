@@ -785,67 +785,115 @@ which completes the proof.
 
 \begin{customproof}{Proposition \ref{prop:att_error_bound}}
 We want to bound the out-of-sample prediction error
-$$
+\begin{equation}
 \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
-$$
+\end{equation}
 
-Add and subtract the oracle weights prediction $\mathbf{Y}_{\text{post}} \mathbf{w}^*$ inside the norm:
-$$
+\textbf{Step 1: Add and subtract the oracle predictor.}  
+Insert $\mathbf{Y}_{\text{post}}\mathbf{w}^*$ inside the norm:
+\begin{equation}
 \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
-= \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* + \mathbf{Y}_{\text{post}} \mathbf{w}^* - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
-$$
+= \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* 
++ \mathbf{Y}_{\text{post}} (\mathbf{w}^* - \mathbf{w}^{\text{ASHC}}) \right\|.
+\end{equation}
 
-By the triangle inequality,
-$$
+\textbf{Step 2: Apply the triangle inequality.}  
+\begin{equation}
 \leq
 \underbrace{\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\|}_{\text{smoothness bias + noise}}
 +
-\underbrace{\left\| \mathbf{Y}_{\text{post}} \left(\mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right) \right\|}_{\text{weight deviation effect}}.
-$$
+\underbrace{\left\| \mathbf{Y}_{\text{post}} (\mathbf{w}^* - \mathbf{w}^{\text{ASHC}}) \right\|}_{\text{weight deviation effect}}.
+\end{equation}
 
-Using Lemma~\ref{lem:smoothness_post}, the first term is bounded by
-$$
-\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\| \leq b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}.
-$$
+\textbf{Step 3: Bound the smoothness + noise term.}  
+By Lemma~\ref{lem:smoothness_post},
+\begin{equation}
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\|
+\leq b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}.
+\end{equation}
 
-For the second term, apply the operator norm bound from Assumption \ref{assump:operator_post}:
-$$
-\left\| \mathbf{Y}_{\text{post}} (\mathbf{w}^* - \mathbf{w}^{\text{ASHC}}) \right\| \leq \gamma_{\text{post}} \left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\|.
-$$
+\textbf{Step 4: Bound the weight deviation effect.}  
+By the operator norm bound in Assumption \ref{assump:operator_post},
+\begin{equation}
+\left\| \mathbf{Y}_{\text{post}} (\mathbf{w}^* - \mathbf{w}^{\text{ASHC}}) \right\|
+\leq \gamma_{\text{post}} \left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\|.
+\end{equation}
 
-By Lemma \ref{lem:total_weight_dev}, decompose the weight difference:
-$$
-\left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\| \leq \left\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \right\| + \left\| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \right\|.
-$$
+Using Lemma~\ref{lem:total_weight_dev},
+\begin{equation}
+\left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\|
+\leq \left\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \right\| 
++ \left\| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \right\|.
+\end{equation}
 
-Use Lemma \ref{lem:weight_diff} and your existing bound on $\|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\|$ (from Lemma~\ref{lem:delta}:
-$$
+By Lemma~\ref{lem:weight_diff} and Lemma~\ref{lem:delta},
+\begin{equation}
+\left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\|
 \leq \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2}.
-$$
+\end{equation}
 
-Combining all parts,
-$$
+\textbf{Step 5: Combine bounds.}  
+\begin{equation}
 \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
 \leq
-b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right).
-$$
+b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} 
++ \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right).
+\end{equation}
 
-To bound the ATT estimation error, recall
-$$
-\widehat{\text{ATT}} - \text{ATT} = \frac{1}{n} \sum_{t \in \mathcal{T}_2} \left( y_t(0) - \hat{y}_t(0) \right).
-$$
+\textbf{Step 6: Relate prediction error to ATT error.}  
+Recall that
+\begin{equation}
+\widehat{\text{ATT}} - \text{ATT} 
+= \frac{1}{n} \sum_{t \in \mathcal{T}_2} \left( y_t(0) - \hat{y}_t(0) \right).
+\end{equation}
 
-Applying Jensen’s inequality and Cauchy–Schwarz,
-$$
+\textbf{(a) Jensen’s inequality.}  
+For any reals $a_1,\dots,a_n$,
+\[
+\left| \frac{1}{n} \sum_{t=1}^n a_t \right|
+\leq \frac{1}{n} \sum_{t=1}^n |a_t|.
+\]
+Applying this with $a_t = y_t(0)-\hat{y}_t(0)$ gives
+\begin{equation}
 \left| \widehat{\text{ATT}} - \text{ATT} \right|
 \leq
-\frac{1}{n} \sum_{t \in \mathcal{T}_2} \left| y_t(0) - \hat{y}_t(0) \right|
-\leq
-\frac{1}{\sqrt{n}} \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
-$$
+\frac{1}{n} \sum_{t \in \mathcal{T}_2} \left| y_t(0) - \hat{y}_t(0) \right|.
+\end{equation}
 
-Substitute the bound for the prediction error to complete the ATT bound.
+\textbf{(b) Cauchy--Schwarz inequality.}  
+Writing the sum as an inner product with $\mathbf{1}$,
+\[
+\frac{1}{n} \sum_{t=1}^n |a_t|
+= \frac{1}{n} \langle |a|, \mathbf{1} \rangle
+\;\leq\; \frac{1}{n} \|\,|a|\,\| \cdot \|\mathbf{1}\|,
+\]
+where $\|\,|a|\,\| = \sqrt{\sum a_t^2}$ and $\|\mathbf{1}\| = \sqrt{n}$.  
+Thus,
+\begin{equation}
+\frac{1}{n} \sum_{t=1}^n |a_t|
+\leq \frac{1}{\sqrt{n}} \sqrt{\sum_{t=1}^n a_t^2}.
+\end{equation}
+
+\textbf{Step 7: Express in vector norm form.}  
+\begin{equation}
+\left| \widehat{\text{ATT}} - \text{ATT} \right|
+\leq
+\frac{1}{\sqrt{n}}
+\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
+\end{equation}
+
+\textbf{Final Step: Substitute the prediction error bound.}  
+\begin{equation}
+\left| \widehat{\text{ATT}} - \text{ATT} \right|
+\leq
+\frac{1}{\sqrt{n}}
+\Bigg[
+b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} 
++ \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right)
+\Bigg].
+\end{equation}
 \end{customproof}
+
 
 \begin{customproof}{Corollary \ref{thm:ashc-bound}}
 Starting from Proposition~\ref{prop:ashc}, we have
