@@ -802,7 +802,7 @@ $$
 \left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\| \leq \left\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \right\| + \left\| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \right\|.
 $$
 
-Use Lemma~\ref{lem:weight_diff} and your existing bound on $\|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\|$ (from Lemma~\ref{lem:delta} or your prior proof):
+Use Lemma \ref{lem:weight_diff} and your existing bound on $\|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\|$ (from Lemma~\ref{lem:delta} or your prior proof):
 $$
 \leq \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2}.
 $$
@@ -831,8 +831,7 @@ $$
 Substitute the bound for the prediction error to complete the ATT bound.
 \end{customproof}
 
-\begin{chain
-customproof}{Theorem \ref{thm:ashc-bound}}
+\begin{customproof}{Theorem \ref{thm:ashc-bound}}
 Starting from Proposition~\ref{prop:ashc}, we have
 $$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
