@@ -523,7 +523,7 @@ This final expression shows that the deviation between the ASHC and SHC weights 
 \end{customproof}
 
 
-\begin{customproof}Proposition \ref{prop:ashc}}
+\begin{customproof}{Proposition \ref{prop:ashc}}
 
 We want to control the error of the ASHC estimator, given by
 $$
@@ -677,7 +677,6 @@ Applying Jensen’s inequality and Cauchy–Schwarz,
 \]
 
 Substitute the bound for the prediction error to complete the ATT bound.
-
 \end{customproof}
 
 
