@@ -35,6 +35,8 @@ The remainder of the paper proceeds as follows. Section \ref{sec:literature} sit
 ## Literature Review
 \label{sec:literature}
 
+This paper is situated within the literature on causal time series methods. The most popular method is likely the Bayesian Structural Time Series method \citep{bsts, alaskabsts, tierney2024multivariate} due to its ease of use in Python and R as well as inferential methodology. Another similar estimator in the same vein is the causal ARIMA method \citep{carima}.
+
 # Methodology
 
 ## The Synthetic Historical Control Method
