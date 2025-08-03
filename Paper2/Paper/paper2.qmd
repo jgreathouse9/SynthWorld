@@ -298,8 +298,7 @@ This application provides a compelling case to benchmark ITS, SCM, SHC, and ASHC
 \thispagestyle{empty}
 \begin{center}
     {\Huge Appendix} \\[2cm]
-    {\Large Technical Proofs} \\[1cm]
-    {\large Jared Greathouse} \\[0.5cm]
+    {\Large Mathematical Proofs} \\[1cm]
     {\today}
 \end{center}
 \clearpage
