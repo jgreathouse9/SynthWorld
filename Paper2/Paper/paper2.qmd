@@ -106,10 +106,7 @@ The ASHC counterfactual is obtained as  $\widehat{\mathbf{y}}_{\text{post}}^{0,\
 ## Bandwidth and Regularization Parameter Selection
 \label{sec:hyperparams}
 
-The performance of ASHC depends critically on two hyperparameters: the smoothing bandwidth $h$ and the proximity penalty parameter $\lambda$. Both are chosen via cross-validation.
-
-First I discuss the bandwidth for the kernel smoothing. Let $\mathbf{y}_{\text{pre}} = (y_1,\dots,y_{T_0})^\top$ denote the pre-treatment series.  
-For a candidate bandwidth $h > 0$, define the local linear smoother estimate $\widehat{y}_i^{(-i)}(h)$ as the fitted intercept obtained by regressing $\{y_j : j \neq i\}$ on $\{j - i : j \neq i\}$ with kernel weights
+The performance of ASHC depends critically on two hyperparameters: the smoothing bandwidth $h$ and the proximity penalty parameter $\lambda$. Both are chosen via cross-validation. First I discuss the bandwidth for the kernel smoothing. Let $\mathbf{y}_{\text{pre}} = (y_1,\dots,y_{T_0})^\top$ denote the pre-treatment series. For a candidate bandwidth $h > 0$, define the local linear smoother estimate $\widehat{y}_i^{(-i)}(h)$ as the fitted intercept obtained by regressing $\{y_j : j \neq i\}$ on $\{j - i : j \neq i\}$ with kernel weights
 $$
 K_h(j - i) \;=\; \exp\!\left(-\tfrac{1}{2}\left(\tfrac{j-i}{h}\right)^2\right),
 $$
@@ -119,22 +116,7 @@ $$
 = \arg\min_{\beta_0,\beta_1}
 \sum_{j \neq i} K_h(j-i)\,\Big(y_j - \beta_0 - \beta_1 (j-i)\Big)^2,
 $$
-and the leave-one-out prediction is
-$$
-\widehat{y}_i^{(-i)}(h) \;=\; \widehat{\beta}_0(h)^{(-i)}.
-$$
-
-The LOOCV error is
-$$
-\text{CV}(h) \;=\; \frac{1}{T_0}\sum_{i=1}^{T_0}
-\Big(y_i - \widehat{y}_i^{(-i)}(h)\Big)^2.
-$$
-
-The optimal bandwidth is then chosen as
-$$
-h^\ast = \arg\min_{h \in \mathcal{H}} \text{CV}(h),
-$$
-where $\mathcal{H}$ is a prespecified candidate grid. This is part of the normal SHC method.
+and the leave-one-out prediction is $\widehat{y}_i^{(-i)}(h) \;=\; \widehat{\beta}_0(h)^{(-i)}$. The LOOCV error is $\text{CV}(h) \;=\; \frac{1}{T_0}\sum_{i=1}^{T_0} \Big(y_i - \widehat{y}_i^{(-i)}(h)\Big)^2.$ The optimal bandwidth is then chosen as $h^\ast = \arg\min_{h \in \mathcal{H}} \text{CV}(h),$ where $\mathcal{H}$ is a prespecified candidate grid. This is part of the normal SHC method.
 
 Next we discuss lambda, exclusive to the ASHC. Recall the ASHC objective
 $$
