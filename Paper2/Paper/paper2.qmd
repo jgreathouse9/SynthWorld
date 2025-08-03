@@ -234,8 +234,7 @@ $$
 $$
 \end{theorem}
 
-\noindent
-With enough pre-treatment data and smooth latent trends, ASHC’s prediction error shrinks to the noise level, and under mild probabilistic conditions converges in probability to zero. In practice, this means longer evaluation windows and pre-treatment periods yield increasingly unbiased out of sample predictions.
+With enough pre-treatment data and smooth latent trends, ASHC's prediction error shrinks to the noise level, and under mild probabilistic conditions converges in probability to zero. In practice, this means longer evaluation windows and pre-treatment periods yield increasingly unbiased out of sample predictions.
 
 \begin{corollary}[Convergence Rate]\label{cor:ashc-rate}
 If $\boldsymbol{\eta}$ is i.i.d.\ mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
@@ -246,8 +245,7 @@ $$
 For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
 \end{corollary}
 
-\noindent
-The smoother the underlying trend ($H$ larger), the faster ASHC’s error decreases. For example, with $H=5$, the rate is roughly $m^{-0.45}$, already close to the parametric $m^{-0.5}$ rate.
+The smoother the underlying trend ($H$ larger), the faster ASHC's error decreases. For example, with $H=5$, the rate is roughly $m^{-0.45}$, already close to the parametric $m^{-0.5}$ rate.
 
 These results carry three main lessons. For applied microeconomists and policy analysts, the ASHC method offers a practical solution for causal inference. It achieves better pre-treatment balance where the standard SHC method might fall short, without compromising the model's stability or interpretability. This allows for more credible counterfactual estimates, which are essential for policy evaluation, especially in situations with limited donor units. ASHC's performance can be summarized by three key characteristics: it remains faithful to the original SHC model when the fit is already good, it actively improves the fit by reducing residual error when necessary while maintaining stability through regularization, and it becomes consistent and nearly as efficient as parametric estimators when a sufficiently long pre-treatment window is available. This makes ASHC a robust and versatile tool for generating reliable insights for policy decisions.
 
