@@ -289,7 +289,7 @@ This application provides a compelling case to benchmark ITS, SCM, SHC, and ASHC
 
 
 \clearpage
-\thispagestyle{empty} % no page number
+\thispagestyle{empty}
 \begin{center}
     {\Huge Appendix} \\[2cm]
     {\Large Technical Proofs} \\[1cm]
@@ -672,6 +672,7 @@ $$
 Setting $\mathbf{a} = \mathbf{w}^*$, $\mathbf{b} = \mathbf{w}^{\text{SHC}}$, and $\mathbf{c} = \mathbf{w}^{\text{ASHC}}$ yields the stated result.
 \end{customproof}
 
+ \newpage
 
 # Propositions
 
@@ -830,7 +831,7 @@ $$
 Substitute the bound for the prediction error to complete the ATT bound.
 \end{customproof}
 
-\begin{customproof}{Theorem \ref{thm:ashc-bound}}
+\begin{customproof}{Corollary \ref{thm:ashc-bound}}
 Starting from Proposition~\ref{prop:ashc}, we have
 $$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
@@ -882,17 +883,6 @@ $$
 $$
 With sub-Gaussian noise, the limit is $0$ in probability.
 \end{customproof}
-
-\begin{corollary}\label{cor:ashc-rate}
-Under (A1)--(A5), the ASHC estimator is asymptotically unbiased up to $\delta$.  
-If $\boldsymbol{\eta}$ is i.i.d. mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| 
-= O_p\!\left(m^{-H/(2H+3)}\right).
-$$
-For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
-\end{corollary}
-
 
 \begin{customproof}{Corollary \ref{cor:ashc-rate}}
 \textbf{Part 1: Consistency.}  
