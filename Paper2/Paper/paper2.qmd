@@ -37,7 +37,9 @@ The remainder of the paper proceeds as follows. Section \ref{sec:literature} sit
 
 This paper is situated within the literature on causal time series methods. The most popular method is likely the Bayesian Structural Time Series method \citep{bsts, alaskabsts, tierney2024multivariate} due to its ease of use in Python and R as well as inferential methodology. Another similar estimator in the same vein is the causal ARIMA method \citep{carima}.
 
-The most natural setting this literature relates to its the artificial control setting with imperfect pre-treatment fit. \citet{Abadie2010,Abadie2015} advise against using the SC method when pre-treatment fit is poor. Other researchers have argued for demeaning approaches \citep{scimppre}, model averaging approaches \citep{masc}, and penalized approaches \citep{scmdisagg} to use SCM when the normal method breaks down. This paper is of course must related to \citet{BenMichael2021} who argue for the affine hull and proximity penalty I use here for the SHC method. However of course, all the SCM methods require other units who are not treated, whereas SHC does not. 
+The most natural setting this literature relates to is the artificial control setting with imperfect pre-treatment fit. \citet{Abadie2010,Abadie2015} advise against using the SC method when pre-treatment fit is poor. This same kind of caution is implicit in the theoretical findings of \citet{SHC}, who require a matching condition to hold for identification.
+
+Econometricians are quite interested in how we may address this problem in realistic settings. Some researchers have argued for demeaning approaches \citep{scimppre} to remove fixed effects. Others advocate model averaging approaches \citep{masc}, whereas still others study penalized approaches to use SCM when the normal method breaks down \citep{scmdisagg}. This paper is of course most related to \citet{BenMichael2021} who argue for the affine hull and proximity penalty bias correction I use here for the SHC method. However of course, all the SCM methods require other units who are not treated, whereas SHC does not. 
 
 # Methodology
 
