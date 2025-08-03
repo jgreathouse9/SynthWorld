@@ -481,18 +481,70 @@ Thus, $\Delta^\top M \Delta
 \| \widetilde{\mathbf{Y}}^\top r \| \leq \|\widetilde{\mathbf{Y}}\| \|r\| \leq \gamma \epsilon_{\text{SHC}}.
 \end{equation}
 
-Thus, $\Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}$. On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees $\Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.$ Putting these two inequalities together, we sandwich the quadratic form: $ \lambda_{\min}(M) \|\Delta\|^2 \le \Delta^\top M \Delta \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}$.
+Thus, $\Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}$. On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees 
+\begin{equation}
+\Delta^\top M \Delta \;\geq\; \lambda_{\min}(M) \|\Delta\|^2.
+\end{equation}
 
-The left-hand side is the lower bound derived from the smallest eigenvalue of the positive definite matrix $M$. The right-hand side is the upper bound derived from the Cauchy-Schwarz and operator norm inequalities. We can now discard the middle term to focus on the key inequality between the two bounds: $\lambda_{\min}(M) \|\Delta\|^2 \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}$. Assuming $\|\Delta\| > 0$ (the trivial case where the weights are identical is already clear), we can divide both sides of the inequality by $\|\Delta\|$ to isolate the term of interest. $ \lambda_{\min}(M) \|\Delta\| \le \frac{\gamma}{\lambda} \epsilon_{\text{SHC}}$. Rearranging this inequality to solve for $\|\Delta\|$ gives us an intermediate bound: $ \|\Delta\| \le \frac{\gamma}{\lambda \lambda_{\min}(M)} \epsilon_{\text{SHC}}$. Next, we establish a lower bound for the smallest eigenvalue of the matrix $M$. Recall that the matrix $M$ is defined as: $M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top$. The smallest eigenvalue of a sum of positive semi-definite matrices is at least the sum of their smallest eigenvalues. Since the first term's smallest eigenvalue is non-negative, and the second term's is 2, we have:
-$$ \lambda_{\min}(M) \ge \lambda_{\min}\left(\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}\right) + \lambda_{\min}(2 \mathbf{I}) + \lambda_{\min}(2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top) $$
-$$ \lambda_{\min}(M) \ge 0 + 2 + 2\varsigma \lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) $$
-By the assumption that $\lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) \ge \|\mathbf{C}_0\|^2$, we get the lower bound for the smallest eigenvalue of M:
-$$ \lambda_{\min}(M) \ge 2 + 2\varsigma \|\mathbf{C}_0\|^2 $$
+To see this, recall the Rayleigh quotient characterization of eigenvalues:
+\begin{equation}
+\lambda_{\min}(M) \;=\; 
+\min_{\mathbf{z} \neq 0} \frac{\mathbf{z}^\top M \mathbf{z}}{\|\mathbf{z}\|^2}.
+\end{equation}
+By setting $\mathbf{z} = \Delta$, we obtain
+\begin{equation}
+\frac{\Delta^\top M \Delta}{\|\Delta\|^2} \;\geq\; \lambda_{\min}(M),
+\end{equation}
+which rearranges to the inequality above.
 
-Finally, we substitute this lower bound for $\lambda_{\min}(M)$ back into the intermediate bound for $\|\Delta\|$. A smaller value in the denominator leads to a larger (and therefore valid) upper bound on the expression. This gives us the final bound on the deviation:
-$$ \|\Delta\| \le \frac{\gamma}{\lambda (2 + 2\varsigma \|\mathbf{C}_0\|^2)} \epsilon_{\text{SHC}} = \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \epsilon_{\text{SHC}} $$
+Putting the two inequalities together, we sandwich the quadratic form:
+\begin{equation}
+\lambda_{\min}(M) \|\Delta\|^2 
+\;\leq\; \Delta^\top M \Delta 
+\;\leq\; \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}.
+\end{equation}
 
-This final expression shows that the deviation between the ASHC and SHC weights is controlled by the SHC residual error, scaled by a factor that depends on the regularization parameters $\lambda$ and $\varsigma$.
+Assuming $\|\Delta\| > 0$ (the trivial case where the weights coincide is clear), we divide through by $\|\Delta\|$ to obtain:
+\begin{equation}
+\lambda_{\min}(M)\, \|\Delta\| 
+\;\leq\; \frac{\gamma}{\lambda}\,\epsilon_{\text{SHC}}.
+\end{equation}
+
+Rearranging yields the intermediate bound:
+\begin{equation}
+\|\Delta\| 
+\;\leq\; \frac{\gamma}{\lambda\,\lambda_{\min}(M)} \,\epsilon_{\text{SHC}}.
+\end{equation}
+
+Next, we establish a lower bound for $\lambda_{\min}(M)$. Recall that
+\begin{equation}
+M \;=\; \frac{1}{\lambda}\,\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}
++ 2 \mathbf{I} 
++ 2 \varsigma \,\mathbf{C}_0 \mathbf{C}_0^\top.
+\end{equation}
+
+By the variational characterization of eigenvalues, the smallest eigenvalue of a sum of symmetric positive semidefinite matrices is at least the sum of their individual smallest eigenvalues:
+\begin{equation}
+\lambda_{\min}(M) 
+\;\geq\; 
+\lambda_{\min}\!\left(\tfrac{1}{\lambda}\,\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}\right) 
++ \lambda_{\min}(2\mathbf{I}) 
++ \lambda_{\min}(2\varsigma\,\mathbf{C}_0 \mathbf{C}_0^\top).
+\end{equation}
+
+Since $\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}/\lambda$ is positive semidefinite, its smallest eigenvalue is nonnegative, and we know $\lambda_{\min}(2\mathbf{I}) = 2$. Under Assumption \ref{assump:estimation}, $\lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) \geq \|\mathbf{C}_0\|^2$, so
+\begin{equation}
+\lambda_{\min}(M) 
+\;\geq\; 0 + 2 + 2\varsigma \,\|\mathbf{C}_0\|^2.
+\end{equation}
+
+Substituting this bound into the inequality for $\|\Delta\|$ gives the final deviation bound:
+\begin{equation}
+\boxed{\;\|\Delta\| \;\leq\; 
+\frac{\gamma}{2\lambda + 2\varsigma\,\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}}\;}
+\end{equation}
+
+This result shows that the deviation between the ASHC and SHC weights is directly proportional to the SHC residual error, and shrinks as either $\lambda$ (the proximity penalty) or $\varsigma$ (the Gram stability penalty) increases.
 \end{customproof}
 
 \begin{lemma}\label{lem:gamma}
