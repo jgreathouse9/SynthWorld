@@ -846,7 +846,6 @@ By (A3), \(\ell(t)\) is \((H+1)\)-times differentiable. Gaussian kernel smoothin
 $$
 \epsilon_{\text{SHC}} \to 0 \quad \text{as } m \to \infty,\, H \to \infty.
 $$
-\cite{SHC}
 
 \textbf{Step 2. Behavior of ASHC penalty term.}  
 Since $\epsilon_{\text{SHC}} \to 0$, the inflation factor
