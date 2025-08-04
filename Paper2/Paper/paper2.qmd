@@ -213,7 +213,7 @@ where $\eta$ bounds $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$.
 
 This provides an out-of-sample error bound for the post-treatment period that clarifies the factors influencing the accuracy of ASHC's ATT estimates. The bound consists of four key components. The first is post-treatment smoothness bias, $b_{\epsilon,\text{post}}(H,k)$, which is the error from using a spherical harmonic approximation to model the post-treatment outcome trend. The second is post-treatment noise, $\delta_{\text{post}}$, which captures random error in the outcome data. The third component, $\epsilon_{\text{SHC}}$, represents the quality of the initial SHC fit and demonstrates that a poor pre-treatment fit can propagate into post-treatment error. This term is scaled by the operator norm, $\gamma_{\text{post}}$, and regularization parameters, $\lambda$ and $\varsigma$, highlighting how regularization helps to control the influence of the initial fit error. The final term, $\eta$, is a bound on the difference between the optimal weights and the SHC weights, which is also scaled by $\gamma_{\text{post}}$. This term represents the bias from regularization itself.
 
-We now turn to large-sample guarantees.
+We now turn to large-sample guarantees. While finite-sample performance is most critical in practice, ASHC remains theoretically reliable in large-sample limits. The asymptotic results show that as the number of pre-treatment periods grows, the ASHC estimator becomes consistent: its prediction error shrinks to the noise level, and under mild sub-Gaussian error conditions, converges in probability to zero.
 
 \begin{theorem}[Asymptotic Consistency of ASHC]
 \label{thm:ashc_asymp}
