@@ -220,7 +220,7 @@ This provides an out-of-sample error bound for the post-treatment period that cl
 We now turn to large-sample guarantees.
 
 \begin{theorem}[Asymptotic Consistency of ASHC]
-\label{thm:ashc_consistency}
+\label{thm:ashc_asymp}
 Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$ and $H \to \infty$, the ASHC estimator satisfies
 \begin{equation}
 \label{eq:consistency}
@@ -895,7 +895,7 @@ b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}
 \end{customproof}
 
 
-\begin{customproof}{Theorem \ref{thm:ashc-bound}}
+\begin{customproof}{Theorem \ref{thm: ashc-asymp}}
 Starting from Theorem \ref{thm:finite_sample_error}, we have
 $$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
@@ -949,7 +949,7 @@ With sub-Gaussian noise, the limit is $0$ in probability.
 
 \begin{customproof}{Corollary \ref{cor:ashc-rate}}
 \textbf{Part 1: Consistency.}  
-From Theorem~\ref{thm:ashc-asymptotics}, the error converges to $\delta$, or $0$ in probability under sub-Gaussian noise.
+From Theorem \ref{thm:ashc-asymp}, the error converges to $\delta$, or $0$ in probability under sub-Gaussian noise.
 
 \textbf{Part 2: Convergence Rate.}  
 From Proposition~\ref{prop:ashc}, we have
