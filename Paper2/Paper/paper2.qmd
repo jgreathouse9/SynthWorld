@@ -895,7 +895,7 @@ b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}
 \end{customproof}
 
 
-\begin{customproof}{Theorem \ref{thm: ashc-asymp}}
+\begin{customproof}{Theorem \ref{thm:ashc_asymp}}
 Starting from Theorem \ref{thm:finite_sample_error}, we have
 $$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
@@ -947,7 +947,7 @@ $$
 With sub-Gaussian noise, the limit is $0$ in probability.
 \end{customproof}
 
-\begin{customproof}{Corollary \ref{cor:ashc-rate}}
+\begin{customproof}{Corollary \ref{cor:ashc_rate}}
 \textbf{Part 1: Consistency.}  
 From Theorem \ref{thm:ashc-asymp}, the error converges to $\delta$, or $0$ in probability under sub-Gaussian noise.
 
