@@ -153,7 +153,7 @@ Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs
 
 # Theoretical Results for Finite and Asymptotic Settings \label{sec:theory}
 
-One of the main concerns motivating the ASHC estimator is the possibility of poor in-sample fit when using the standard SHC estimator. Thus, in this section we establish the finite-sample guarantees and asymptotic properties of ASHC. We work within the fixed $N$, large $T$ asymptotic framework. 
+One of the main concerns motivating the ASHC estimator is the possibility of poor in-sample fit when using the standard SHC estimator. Thus, in this section we establish the finite-sample guarantees and asymptotic properties of ASHC. We work within the fixed $N$, large $T$ asymptotic framework. 
 
 My analysis proceeds in three steps: First, I bound how far ASHC weights can deviate from the SHC weights. Then, I derive finite-sample error bounds, first for the pre-treatment period and then for the post-treatment period. Finally, I establish asymptotic consistency and the convergence rate as the evaluation window grows. Complete proofs are deferred to the Appendix.
 
@@ -178,65 +178,66 @@ Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ denote th
 
 \begin{lemma}[Deviation from SHC]
 \label{lem:delta}
-Under Assumptions \ref{assump:errors}--\ref{assump:operator},  
-$$
-\|\Delta\| 
-\;\leq\; \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}},
-$$
+Under Assumptions \ref{assump:errors}--\ref{assump:operator},  
+\begin{equation}
+\|\Delta\| 
+\leq \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}},
+\end{equation}
 where $\epsilon_{\text{SHC}} \defeq \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ is the SHC in-sample fit error.
 \end{lemma}
 
 This result ensures ASHC is well-behaved. Even if its weights differ from SHC’s, the resulting change in fitted donor outcomes is bounded by the donor matrix’s operator norm. If the donor matrix were too "large," small weight deviations could produce implausibly large changes in predictions. Bounding the operator norm guarantees that such deviations remain controlled.
 
-\subsection{Finite-Sample Error Bounds}
-
-We now use Lemma \ref{lem:delta} to derive in-sample and post-treatment error bounds.
-
-\begin{proposition}[Pre-treatment Error Bound]
-\label{prop:ashc}
-Under Assumptions \ref{assump:errors}--\ref{assump:estimation},  
-$$
+\begin{theorem}[Finite-Sample Error Bound for ASHC]
+\label{thm:finite_sample_error}
+Under Assumptions \ref{assump:errors}--\ref{assump:operator}, the ASHC estimator satisfies
+\begin{equation}
+\label{eq:finite_sample_bound}
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
-\;\leq\;
+\leq
 \epsilon_{\text{SHC}}
 \left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \right)
-+ b_\epsilon(H,k) + \delta.
-$$
-\end{proposition}
++ b_\epsilon(H,k) + \delta,
+\end{equation}
+where $\epsilon_{\text{SHC}} = \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ is the in-sample SHC fit error, $b_\epsilon(H,k)$ is the smoothness bias from the smoothing approximation, $\delta$ is the noise bias, and $\gamma, \lambda, \varsigma$ are constants defined in the model.
+\end{theorem}
 
-This provides a pre-treatment error bound that decomposes into four components. The first is the baseline error, which is simply the in-sample fit error of the standard SHC model, $\epsilon_{\text{SHC}}$. The second component is a deviation penalty, controlled by the regularization parameters $\lambda$ and $\varsigma$. This term quantifies the additional error introduced by allowing the ASHC weights to deviate from the SHC weights, such that this deviation doesn't lead to a significant loss of fit. The third component, $b_\epsilon(H,k)$, represents the smoothness bias that arises from the Taylor approximation used in snoothing step. This bias is a function of the number of harmonics, $H$, and the order of the approximation, $k$, and reflects the error introduced by approximating a smooth function (which may be less approximated with noisier outcome series). The final component, $\delta$, is the bias from random noise, which accounts for the unpredictable, random fluctuations in the data that are not explained by the model.
-
+This provides a pre-treatment error bound that decomposes into four components. The first is the baseline error, which is simply the in-sample fit error of the standard SHC model, $\epsilon_{\text{SHC}}$. The second component is a deviation penalty, controlled by the regularization parameters $\lambda$ and $\varsigma$. This term quantifies the additional error introduced by allowing the ASHC weights to deviate from the SHC weights, such that this deviation doesn't lead to a significant loss of fit. The third component, $b_\epsilon(H,k)$, represents the smoothness bias that arises from the Taylor approximation used in smoothing step. This bias is a function of the number of harmonics, $H$, and the order of the approximation, $k$, and reflects the error introduced by approximating a smooth function (which may be less approximated with noisier outcome series). The final component, $\delta$, is the bias from random noise, which accounts for the unpredictable, random fluctuations in the data that are not explained by the model.
 
 \begin{proposition}[Out-of-sample Error Bound]
 \label{prop:att_error_bound}
-Under Assumptions \ref{assump:errors}--\ref{assump:operator_post},  
-$$
+Under Assumptions \ref{assump:errors}--\ref{assump:operator_post},  
+\begin{equation}
 \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
 \leq
 b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right),
-$$
+\end{equation}
 where $\eta$ bounds $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$.
 \end{proposition}
 
 This provides an out-of-sample error bound for the post-treatment period that clarifies the factors influencing the accuracy of ASHC's ATT estimates. The bound consists of four key components. The first is post-treatment smoothness bias, $b_{\epsilon,\text{post}}(H,k)$, which is the error from using a spherical harmonic approximation to model the post-treatment outcome trend. The second is post-treatment noise, $\delta_{\text{post}}$, which captures random error in the outcome data. The third component, $\epsilon_{\text{SHC}}$, represents the quality of the initial SHC fit and demonstrates that a poor pre-treatment fit can propagate into post-treatment error. This term is scaled by the operator norm, $\gamma_{\text{post}}$, and regularization parameters, $\lambda$ and $\varsigma$, highlighting how regularization helps to control the influence of the initial fit error. The final term, $\eta$, is a bound on the difference between the optimal weights and the SHC weights, which is also scaled by $\gamma_{\text{post}}$. This term represents the bias from regularization itself.
 
-\subsection{Asymptotic Properties}
-
 We now turn to large-sample guarantees.
 
-\begin{theorem}[Consistency of ASHC]
-\label{thm:ashc-asymptotics}
-Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$ and $H \to \infty$, $\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \longrightarrow \delta.$ While $\bm{\eta}$ is sub-Gaussian, then $\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.$
+\begin{theorem}[Asymptotic Consistency of ASHC]
+\label{thm:ashc_consistency}
+Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$ and $H \to \infty$, the ASHC estimator satisfies
+\begin{equation}
+\label{eq:consistency}
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \xrightarrow{p} 0.
+\end{equation}
+While $\bm{\eta}$ is sub-Gaussian, then $\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.$
 \end{theorem}
 
 With enough pre-treatment data and smooth latent trends, ASHC's prediction error shrinks to the noise level, and under mild probabilistic conditions converges in probability to zero. In practice, this means longer evaluation windows and pre-treatment periods yield increasingly unbiased out of sample predictions.
 
-\begin{corollary}[Convergence Rate]\label{cor:ashc-rate}
+\begin{corollary}[Convergence Rate]
+\label{cor:ashc_rate}
 If $\boldsymbol{\eta}$ is i.i.d.\ mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| 
-= O_p\!\left(m^{-H/(2H+3)}\right).
-$$
+\begin{equation}
+\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| 
+= O_p\left(m^{-H/(2H+3)}\right).
+\end{equation}
 For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
 \end{corollary}
 
@@ -244,7 +245,7 @@ The expression $O_p\!\left(m^{-H/(2H+3)}\right)$ describes the convergence rate 
 
 For applied microeconomists and policy analysts, the ASHC method offers a practical solution for policy analysis. It achieves better pre-treatment balance where the standard SHC method might fall short, without compromising the model's stability or interpretability. This allows for more credible counterfactual estimates, especially in situations without donor units and standard ITS approaches fail. ASHC's performance can be summarized by three key characteristics: it remains faithful to the original SHC model when the fit is already good. If this does not hold, ASHC actively improves the fit by reducing residual error when necessary while maintaining stability through regularization, and it becomes consistent and nearly as efficient as parametric estimators when a sufficiently long pre-treatment window is available.
 
-I wish to highlight more directly the contribution ASHC makes with resepct to the original SHC. Our analysis highlights that ASHC shares a key structural feature with  doubly robust estimators in causal inference.  When the SHC specification provides an excellent fit, the augmentation term  has little effect, so ASHC essentially coincides with SHC.  When SHC fit is imperfect, however, the augmentation corrects residual imbalance and mitigates bias, in much the same spirit as the bias-correction step  in augmented inverse probability weighting or the generalized regression  estimator.  Thus, while ASHC is not literally doubly robust in the formal sense, its structure is directly analogous to such methods 
+I wish to highlight more directly the contribution ASHC makes with resepct to the original SHC. Our analysis highlights that ASHC shares a key structural feature with  doubly robust estimators in causal inference.  When the SHC specification provides an excellent fit, the augmentation term  has little effect, so ASHC essentially coincides with SHC.  When SHC fit is imperfect, however, the augmentation corrects residual imbalance and mitigates bias, in much the same spirit as the bias-correction step  in augmented inverse probability weighting or the generalized regression  estimator.  Thus, while ASHC is not literally doubly robust in the formal sense, its structure is directly analogous to such methods.
 
 # Empirical Application
 \label{sec:empirical}
@@ -410,7 +411,6 @@ Thus we obtain the compact matrix form:
 Here the $2\mathbf{I}$ arises directly from the quadratic penalty 
 $\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2$, 
 whose gradient contributes $2\mathbf{w}$, corresponding in matrix form to $2\mathbf{I}\cdot\mathbf{w}$.
-
 
 Next, define the matrix
 \begin{equation}
@@ -692,11 +692,7 @@ $$
 Setting $\mathbf{a} = \mathbf{w}^*$, $\mathbf{b} = \mathbf{w}^{\text{SHC}}$, and $\mathbf{c} = \mathbf{w}^{\text{ASHC}}$ yields the stated result.
 \end{customproof}
 
- \newpage
-
-# Propositions
-
-\begin{customproof}{Proposition \ref{prop:ashc}}
+\begin{customproof}{Theorem \ref{thm:finite_sample_error}}
 
 We want to control the error of the ASHC estimator, given by
 $$
@@ -899,8 +895,8 @@ b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}
 \end{customproof}
 
 
-\begin{customproof}{Corollary \ref{thm:ashc-bound}}
-Starting from Proposition~\ref{prop:ashc}, we have
+\begin{customproof}{Theorem \ref{thm:ashc-bound}}
+Starting from Theorem \ref{thm:ashc}, we have
 $$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 \leq
