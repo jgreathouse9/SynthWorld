@@ -63,7 +63,7 @@ with the average treatment effect on the treated (ATT) defined as
 \widehat{\text{ATT}} = \frac{1}{n}\sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.
 \end{equation}
 
-The implementation of SHC begins by smoothing the pre-treatment outcome series $\mathbf{y}_{\text{pre}}$ using local linear regression with a Gaussian kernel, yielding a smooth trajectory $\widetilde{\mathbf{y}}$. From this smoothed series, we construct the donor matrix by extracting $N$ overlapping segments, each of length $m$. 
+The implementation of SHC begins by smoothing the pre-treatment outcome series $\mathbf{y}_{\text{pre}}$ using local linear regression with a Gaussian kernel, yielding a smooth trajectory $\widetilde{\mathbf{y}}$ \citep{fan1992variable}. From this smoothed series, we construct the donor matrix by extracting $N$ overlapping segments, each of length $m$. 
 
 \begin{figure}[ht]
 \centering
@@ -328,12 +328,11 @@ We now turn to large-sample guarantees. While finite-sample performance is most 
 
 \begin{theorem}[Asymptotic Consistency of ASHC]
 \label{thm:ashc_asymp}
-Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$ and $H \to \infty$, the ASHC estimator satisfies
+Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$, $H \to \infty$, and while the noise vector $\bm{\delta}$ is sub-Gaussian,  the ASHC estimator satisfies
 \begin{equation}
 \label{eq:consistency}
 \|\widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^{\text{ASHC}}\| \xrightarrow{p} 0.
 \end{equation}
-While the noise vector $\bm{\eta}$ is sub-Gaussian, then $\|\widetilde{\mathbf{y}}_{\text{eval}} -\widetilde{\mathbf{Y}}_{\text{pre}}w^{\text{ASHC}}\| \xrightarrow{p} 0.$
 \end{theorem}
 \begin{remark}
 With enough pre-treatment data and smooth latent trends, ASHC's prediction error shrinks to the noise level, and under mild probabilistic conditions converges in probability to zero. Note that bias will never vanish completely due to the smoothing terms. However, in practice, this means longer evaluation windows and pre-treatment periods yield increasingly unbiased out of sample predictions.
