@@ -949,7 +949,7 @@ With sub-Gaussian noise, the limit is $0$ in probability.
 
 \begin{customproof}{Corollary \ref{cor:ashc_rate}}
 \textbf{Part 1: Consistency.}  
-From Theorem \ref{thm:ashc-asymp}, the error converges to $\delta$, or $0$ in probability under sub-Gaussian noise.
+From Theorem \ref{thm:ashc_asymp}, the error converges to $\delta$, or $0$ in probability under sub-Gaussian noise.
 
 \textbf{Part 2: Convergence Rate.}  
 From Theorem \ref{thm:finite_sample_error}, we have
