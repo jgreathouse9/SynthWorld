@@ -153,11 +153,7 @@ Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs
 
 # Theoretical Results for Finite and Asymptotic Settings \label{sec:theory}
 
-One of the main concerns motivating the ASHC estimator is the possibility of poor in-sample fit when using the standard SHC estimator. Thus, in this section we establish the finite-sample guarantees and asymptotic properties of ASHC. We work within the fixed $N$, large $T$ asymptotic framework. 
-
-My analysis proceeds in three steps: First, I bound how far ASHC weights can deviate from the SHC weights. Then, I derive finite-sample error bounds, first for the pre-treatment period and then for the post-treatment period. Finally, I establish asymptotic consistency and the convergence rate as the evaluation window grows. Complete proofs are deferred to the Appendix.
-
-We begin with two additional assumptions that safeguard stability.
+I establish the finite-sample guarantees and asymptotic properties of ASHC. We work within the fixed $N$, large $T$ asymptotic framework. My analysis proceeds in three steps: First, I bound how far ASHC weights can deviate from the SHC weights. Then, I derive finite-sample error bounds, first for the pre-treatment period and then for the post-treatment period. Finally, I establish asymptotic consistency and the convergence rate as the evaluation window grows. Complete proofs are deferred to the Appendix. We begin with two additional assumptions that safeguard stability.
 
 \begin{assumption}[Operator Norm Bound]
 \label{assump:operator}
@@ -170,9 +166,9 @@ There exists $\gamma_{\text{post}} > 0$ such that $\| \widetilde{\mathbf{Y}}_{\t
 \end{assumption}
 
 \noindent
-Assumption \ref{assump:operator} ensures that the pre-treatment donor segment matrix is not "too large" in operator norm. It is a regularity condition preventing instability in the weight estimates under affine relaxation. Assumption~\ref{assump:operator_post} provides a parallel safeguard in the post-treatment period, ensuring that extrapolated counterfactuals remain stable.
+Assumption \ref{assump:operator} means that the pre-treatment donor segment matrix is not "too large" in operator norm. It is a regularity condition preventing instability in the weight estimates under affine relaxation. Assumption~\ref{assump:operator_post} provides a parallel safeguard in the post-treatment period, ensuring that extrapolated counterfactuals remain stable.
 
-To study the finite sample properties of ASHC, we first must bound the change in the weights (and therefore the in and out of sample predictions). We do this using Lemma \ref{lem:delta}. Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ denote the deviation of ASHC weights from the SHC solution (i.e., will not explode too much).
+To study the finite sample properties of ASHC, we first must bound the change in the ASHC weights. We do begin using Lemma \ref{lem:delta}. Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ denote the deviation of ASHC weights from the SHC solution (i.e., will not explode too much).
 
 \begin{lemma}[Deviation from SHC]
 \label{lem:delta}
@@ -199,9 +195,11 @@ Under Assumptions \ref{assump:errors}--\ref{assump:operator}, the ASHC estimator
 \end{equation}
 where $\epsilon_{\text{SHC}} = \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ is the in-sample SHC fit error, $b_\epsilon(H,k)$ is the smoothness bias from the smoothing approximation, $\delta$ is the noise bias, and $\gamma, \lambda, \varsigma$ are constants defined in the model.
 \end{theorem}
-
+\begin{remark}
 This provides a pre-treatment error bound that decomposes into four components. The first is the baseline error, which is simply the in-sample fit error of the standard SHC model, $\epsilon_{\text{SHC}}$. The second component is a deviation penalty, controlled by the regularization parameters $\lambda$ and $\varsigma$. This term quantifies the additional error introduced by allowing the ASHC weights to deviate from the SHC weights, such that this deviation doesn't lead to a significant loss of fit. The third component, $b_\epsilon(H,k)$, represents the smoothness bias that arises from the Taylor approximation used in smoothing step. This bias is a function of the number of harmonics, $H$, and the order of the approximation, $k$, and reflects the error introduced by approximating a smooth function (which may be less approximated with noisier outcome series). The final component, $\delta$, is the bias from random noise, which accounts for the unpredictable, random fluctuations in the data that are not explained by the model.
+\end{remark}
 
+Similar bounds exist for the ATT estimate.
 \begin{proposition}[Out-of-sample Error Bound]
 \label{prop:att_error_bound}
 Under Assumptions \ref{assump:errors}--\ref{assump:operator_post},  
@@ -226,9 +224,10 @@ Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \in
 \end{equation}
 While $\bm{\eta}$ is sub-Gaussian, then $\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.$
 \end{theorem}
-
+\begin{remark}
 With enough pre-treatment data and smooth latent trends, ASHC's prediction error shrinks to the noise level, and under mild probabilistic conditions converges in probability to zero. In practice, this means longer evaluation windows and pre-treatment periods yield increasingly unbiased out of sample predictions.
-
+\end{remark}
+With the asymptotic convergence established, we can derive the rate too.
 \begin{corollary}[Convergence Rate]
 \label{cor:ashc_rate}
 If $\boldsymbol{\eta}$ is i.i.d.\ mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
