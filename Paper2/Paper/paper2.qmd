@@ -54,24 +54,7 @@ For each $t \in \mathcal{T}$, let $y_t^1$ and $y_t^0$ denote the potential outco
 $$
 y_t = d_t y_t^1 + (1-d_t)y_t^0, \quad d_t = \mathbf{1}\{t > T_0\}.
 $$
-For $t > T_0$, only $y_t^1$ is observed. SHC provides an estimate $\widehat{y}_t^0$ for the missing counterfactual, and the treatment effect is estimated as $\widehat{\alpha}_t = y_t - \widehat{y}_t^0, \quad t \in \mathcal{T}_2,$ with the average treatment effect on the treated (ATT) defined as $\widehat{\text{ATT}} = n^{-1}\sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.$ The SHC framework is grounded in the following assumptions.
-
-\begin{assumption}[Error Properties]
-\label{assump:errors}
-The error term satisfies $\mathbb{E}[\varepsilon_t] = 0$ and $\mathbb{E}[\varepsilon_t^2] < \infty$ for all $t \in \mathcal{T}$.
-\end{assumption}
-
-\begin{assumption}[Latent Smoothness and Matching]
-\label{assump:matching}
-The latent trend $\widetilde{y}(t)$ is $(H+1)$ times differentiable for some integer $H \geq 3$, with uniformly bounded derivative. Furthermore, there exists $\mathbf{w}^\ast \in \Delta^{N-1}$ such that $\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast$, where $\Delta^{N-1}$ denotes the probability simplex.
-\end{assumption}
-
-\begin{assumption}[Feasibility and Stability]
-\label{assump:estimation}
-There exists a sparse weight vector $\mathbf{w} \in \Delta^{N-1}$ such that $\mathbf{y}_{\text{eval}} \approx \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}$ and the corresponding Gram matrix is positive definite.
-\end{assumption}
-
-These assumptions ensure that noise is mean-zero and bounded, that the latent component is smooth enough to be locally approximated, and that the evaluation window can be matched stably from the donor pool of pre-treatment segments.
+For $t > T_0$, only $y_t^1$ is observed. SHC provides an estimate $\widehat{y}_t^0$ for the missing counterfactual, and the treatment effect is estimated as $\widehat{\alpha}_t = y_t - \widehat{y}_t^0, \quad t \in \mathcal{T}_2,$ with the average treatment effect on the treated (ATT) defined as $\widehat{\text{ATT}} = n^{-1}\sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.$
 
 The implementation of SHC begins by smoothing the pre-treatment series $\mathbf{y}_{\text{pre}}$ using local linear regression with a Gaussian kernel, producing a smoothed trajectory $\widetilde{\mathbf{y}}$. From this smoothed series, $N$ overlapping segments of length $m$ are extracted to form the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$. The evaluation vector $\mathbf{y}_{\text{eval}}$ is reconstructed as a convex combination of the donor segments by solving the quadratic program
 $$
@@ -153,7 +136,26 @@ Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs
 
 # Theoretical Results for Finite and Asymptotic Settings \label{sec:theory}
 
-I establish the finite-sample guarantees and asymptotic properties of ASHC. We work within the fixed $N$, large $T$ asymptotic framework. My analysis proceeds in three steps: First, I bound how far ASHC weights can deviate from the SHC weights. Then, I derive finite-sample error bounds, first for the pre-treatment period and then for the post-treatment period. Finally, I establish asymptotic consistency and the convergence rate as the evaluation window grows. Complete proofs are deferred to the Appendix. We begin with two additional assumptions that safeguard stability.
+I establish the finite-sample guarantees and asymptotic properties of ASHC. We work within the fixed $N$, large $T$ asymptotic framework. My analysis proceeds in three steps: First, I bound how far ASHC weights can deviate from the SHC weights. Then, I derive finite-sample error bounds, first for the pre-treatment period and then for the post-treatment period. Finally, I establish asymptotic consistency and the convergence rate as the evaluation window grows. Complete proofs are deferred to the Appendix.
+
+\citet{SHC} make the following assumptions for SHC's validity.
+
+\begin{assumption}[Error Properties]
+\label{assump:errors}
+The error term satisfies $\mathbb{E}[\varepsilon_t] = 0$ and $\mathbb{E}[\varepsilon_t^2] < \infty$ for all $t \in \mathcal{T}$.
+\end{assumption}
+
+\begin{assumption}[Latent Smoothness and Matching]
+\label{assump:matching}
+The latent trend $\widetilde{y}(t)$ is $(H+1)$ times differentiable for some integer $H \geq 3$, with uniformly bounded derivative. Furthermore, there exists $\mathbf{w}^\ast \in \Delta^{N-1}$ such that $\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast$, where $\Delta^{N-1}$ denotes the probability simplex.
+\end{assumption}
+
+\begin{assumption}[Feasibility and Stability]
+\label{assump:estimation}
+There exists a sparse weight vector $\mathbf{w} \in \Delta^{N-1}$ such that $\mathbf{y}_{\text{eval}} \approx \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}$ and the corresponding Gram matrix is positive definite.
+\end{assumption}
+
+These assumptions ensure that noise is mean-zero and bounded, that the latent component is smooth enough to be locally approximated, and that the evaluation window can be matched stably from the donor pool of pre-treatment segments. I make two additional assumptions.
 
 \begin{assumption}[Operator Norm Bound]
 \label{assump:operator}
