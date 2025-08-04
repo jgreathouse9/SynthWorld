@@ -896,7 +896,7 @@ b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}
 
 
 \begin{customproof}{Theorem \ref{thm:ashc-bound}}
-Starting from Theorem \ref{thm:ashc}, we have
+Starting from Theorem \ref{thm:finite_sample_error}, we have
 $$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 \leq
