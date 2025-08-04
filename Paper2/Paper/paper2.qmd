@@ -208,39 +208,77 @@ Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs
 
 # Theoretical Results for Finite and Asymptotic Settings \label{sec:theory}
 
-I establish the finite-sample guarantees and asymptotic properties of ASHC. We work within the fixed $N$, large $T$ asymptotic framework. My analysis proceeds in three steps: First, I bound how far ASHC weights can deviate from the SHC weights. Then, I derive finite-sample error bounds, first for the pre-treatment period and then for the post-treatment period. Finally, I establish asymptotic consistency and the convergence rate as the evaluation window grows. Complete proofs are deferred to the Appendix.
+I establish the finite-sample guarantees and asymptotic properties of ASHC. We work within the fixed $N$, large $T$ asymptotic framework. My analysis proceeds in three steps: First, I bound how far ASHC weights can deviate from the SHC weights. Then, I derive finite-sample error bounds, first for the pre-treatment period and then for the post-treatment period. Finally, I establish asymptotic consistency and the convergence rate as the evaluation window grows. Complete proofs are deferred to the Appendix.
 
 \citet{SHC} make the following assumptions for SHC's validity.
 
 \begin{assumption}[Error Properties]
 \label{assump:errors}
-The error term satisfies $\mathbb{E}[\varepsilon_t] = 0$ and $\mathbb{E}[\varepsilon_t^2] < \infty$ for all $t \in \mathcal{T}$.
-\end{assumption}
-
-\begin{assumption}[Latent Smoothness and Matching]
-\label{assump:matching}
-The latent trend $\widetilde{y}(t)$ is $(H+1)$ times differentiable for some integer $H \geq 3$, with uniformly bounded derivative. Furthermore, there exists $\mathbf{w}^\ast \in \Delta^{N-1}$ such that $\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast$, where $\Delta^{N-1}$ denotes the probability simplex.
-\end{assumption}
-
-\begin{assumption}[Feasibility and Stability]
-\label{assump:estimation}
-There exists a sparse weight vector $\mathbf{w} \in \Delta^{N-1}$ such that $\mathbf{y}_{\text{eval}} \approx \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}$ and the corresponding Gram matrix is positive definite.
-\end{assumption}
-
-These assumptions ensure that noise is mean-zero and bounded, that the latent component is smooth enough to be locally approximated, and that the evaluation window can be matched stably from the donor pool of pre-treatment segments. I make two additional assumptions.
-
-\begin{assumption}[Operator Norm Bound]
-\label{assump:operator}
-The pre-treatment donor matrix satisfies $\|\widetilde{\mathbf{Y}}\| \leq \gamma$ for some constant $\gamma > 0$.
-\end{assumption}
-
-\begin{assumption}[Post-Treatment Operator Norm]
-\label{assump:operator_post}
-There exists $\gamma_{\text{post}} > 0$ such that $\| \widetilde{\mathbf{Y}}_{\text{post}} \| \leq \gamma_{\text{post}}$.
+\begin{equation}
+\mathbb{E}[\varepsilon_t] = 0 
+\quad\text{and}\quad 
+\mathbb{E}[\varepsilon_t^2] < \infty 
+\qquad \forall\, t \in \mathcal{T}.
+\end{equation}
 \end{assumption}
 
 \noindent
-Assumption \ref{assump:operator} means that the pre-treatment donor segment matrix is not "too large" in operator norm. It is a regularity condition preventing instability in the weight estimates under affine relaxation. Assumption~\ref{assump:operator_post} provides a parallel safeguard in the post-treatment period, ensuring that extrapolated counterfactuals remain stable.
+This assumption ensures that noise is well-behaved. The mean-zero condition rules out systematic bias from the error term, while the finite variance condition prevents extreme fluctuations. Together, these conditions guarantee that the noise does not overwhelm the signal we seek to estimate.
+
+\begin{assumption}[Latent Smoothness and Matching]
+\label{assump:matching}
+\begin{equation}
+\widetilde{y}(t) \in C^{H+1}, \quad H \geq 3,
+\qquad 
+\sup_t \left| \frac{d^k}{dt^k}\widetilde{y}(t) \right| < \infty \;\; \forall\, k \leq H+1,
+\end{equation}
+and there exists 
+\begin{equation}
+\mathbf{w}^\ast \in \Delta^{N-1}
+\qquad \text{such that} \qquad 
+\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast.
+\end{equation}
+\end{assumption}
+
+\noindent
+This assumption serves two purposes. First, differentiability ensures that the latent outcome process is smooth, so it can be approximated by a finite harmonic expansion. Second, the matching condition guarantees that there exists some convex combination of donor segments that can reproduce the evaluation period exactly, at least in the absence of noise.
+
+\begin{assumption}[Feasibility and Stability]
+\label{assump:estimation}
+\begin{equation}
+\exists\, \mathbf{w} \in \Delta^{N-1} \;\; \text{sparse, such that} \;\;
+\mathbf{y}_{\text{eval}} \approx \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w},
+\qquad 
+\widetilde{\mathbf{Y}}_{\text{pre}}^\top \widetilde{\mathbf{Y}}_{\text{pre}} \succ 0.
+\end{equation}
+\end{assumption}
+
+\noindent
+This assumption ensures that a stable solution exists.  Sparsity reflects the idea that only a limited number of donor segments are truly relevant. The positive definiteness of the Gram matrix prevents collinearity among donors, which could otherwise lead to unstable weight estimates. I make two additional assumptions for ASHC.
+
+\begin{assumption}[Operator Norm Bound]
+\label{assump:operator}
+\begin{equation}
+\|\widetilde{\mathbf{Y}}\| \;\leq\; \gamma, 
+\qquad \text{for some constant } \gamma > 0.
+\end{equation}
+\end{assumption}
+
+\noindent
+This assumption restricts the size of the donor matrix in operator norm. Intuitively, it ensures that small deviations in weights cannot translate into disproportionately large changes in predicted outcomes. Without this bound, the affine extension in ASHC could magnify minor instabilities in the estimation.
+
+\begin{assumption}[Post-Treatment Operator Norm]
+\label{assump:operator_post}
+\begin{equation}
+\| \widetilde{\mathbf{Y}}_{\text{post}} \| \;\leq\; \gamma_{\text{post}},
+\qquad \text{for some constant } \gamma_{\text{post}} > 0.
+\end{equation}
+\end{assumption}
+
+\noindent
+This is the post-treatment analogue of Assumption~\ref{assump:operator}. 
+It ensures that when the ASHC weights are applied to post-treatment donor segments, the resulting counterfactual predictions remain stable and well-controlled. 
+Together, these two operator norm bounds protect against instability both before and after treatment.
 
 To study the finite sample properties of ASHC, we first must bound the change in the ASHC weights. We do begin using Lemma \ref{lem:delta}. Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ denote the deviation of ASHC weights from the SHC solution (i.e., will not explode too much).
 
