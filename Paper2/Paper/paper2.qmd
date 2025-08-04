@@ -63,25 +63,7 @@ with the average treatment effect on the treated (ATT) defined as
 \widehat{\text{ATT}} = \frac{1}{n}\sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.
 \end{equation}
 
-The implementation of SHC begins by smoothing the pre-treatment outcome series $\mathbf{y}_{\text{pre}}$ using local linear regression with a Gaussian kernel, yielding a smooth trajectory $\widetilde{\mathbf{y}}$. From this smoothed series, we construct the donor matrix by extracting $N$ overlapping segments, each of length $m$. Specifically, for each index $i$, we take the contiguous subvector  
-\begin{equation}
-\widetilde{\mathbf{y}}_{[i,\, i+m-1]}
-= \big( \widetilde{y}_i, \widetilde{y}_{i+1}, \dots, \widetilde{y}_{i+m-1} \big)^\top,
-\end{equation}
-which forms the $i$th column of the donor matrix. Collecting all $N$ such segments gives  
-\begin{equation}
-\widetilde{\mathbf{Y}}_{\text{pre}}
-\;\defeq\;
-\begin{bmatrix}
-\widetilde{\mathbf{y}}_{[1,\, m]} & 
-\widetilde{\mathbf{y}}_{[2,\, m+1]} &
-\dots &
-\widetilde{\mathbf{y}}_{[N,\, N+m-1]}
-\end{bmatrix}
-\;\in\; \mathbb{R}^{m \times N}.
-\end{equation}
-
-Intuitively, each column of $\widetilde{\mathbf{Y}}_{\text{pre}}$ represents a smoothed historical segment of length $m$. These segments together form the synthetic donor pool from which SHC builds counterfactuals.
+The implementation of SHC begins by smoothing the pre-treatment outcome series $\mathbf{y}_{\text{pre}}$ using local linear regression with a Gaussian kernel, yielding a smooth trajectory $\widetilde{\mathbf{y}}$. From this smoothed series, we construct the donor matrix by extracting $N$ overlapping segments, each of length $m$. 
 
 \begin{figure}[ht]
 \centering
