@@ -172,9 +172,7 @@ There exists $\gamma_{\text{post}} > 0$ such that $\| \widetilde{\mathbf{Y}}_{\t
 \noindent
 Assumption \ref{assump:operator} ensures that the pre-treatment donor segment matrix is not "too large" in operator norm. It is a regularity condition preventing instability in the weight estimates under affine relaxation. Assumption~\ref{assump:operator_post} provides a parallel safeguard in the post-treatment period, ensuring that extrapolated counterfactuals remain stable.
 
-\subsection{Weight Deviation from SHC}
-
-Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ denote the deviation of ASHC weights from the SHC solution.
+To study the finite sample properties of ASHC, we first must bound the change in the weights (and therefore the in and out of sample predictions). We do this using Lemma \ref{lem:delta}. Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ denote the deviation of ASHC weights from the SHC solution (i.e., will not explode too much).
 
 \begin{lemma}[Deviation from SHC]
 \label{lem:delta}
@@ -186,7 +184,7 @@ Under Assumptions \ref{assump:errors}--\ref{assump:operator},  
 where $\epsilon_{\text{SHC}} \defeq \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ is the SHC in-sample fit error.
 \end{lemma}
 
-This result ensures ASHC is well-behaved. Even if its weights differ from SHC’s, the resulting change in fitted donor outcomes is bounded by the donor matrix’s operator norm. If the donor matrix were too "large," small weight deviations could produce implausibly large changes in predictions. Bounding the operator norm guarantees that such deviations remain controlled.
+This Lemma means that even if ASHC's weights differ from SHC’s, the resulting change in fitted donor outcomes is bounded by the donor matrix’s operator norm. If the donor matrix were too "large," small weight deviations could produce implausibly large changes in predictions. Bounding the operator norm guarantees that such deviations remain controlled.
 
 \begin{theorem}[Finite-Sample Error Bound for ASHC]
 \label{thm:finite_sample_error}
