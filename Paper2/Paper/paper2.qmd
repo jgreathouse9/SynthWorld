@@ -48,15 +48,75 @@ This paper is also within the fascinating recent work on doubly-robust models in
 ## The Synthetic Historical Control Method
 \label{sec:shc}
 
-Let $\mathcal{T} = \{1, \dots, T\}$ index time, with pre-treatment period $\mathcal{T}_1 = \{t \in \mathcal{T} : t \leq T_0\}$ and post-treatment period $\mathcal{T}_2 = \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$, and an evaluation window of length $m$ is defined as the final $m$ pre-treatment periods $\mathcal{T}_{\text{eval}} = \{T_0 - m + 1, \dots, T_0\}$. Let $\mathbf{y} = (y_1, \dots, y_T)^\top$ denote the observed outcome series. The evaluation subvector is $\mathbf{y}_{\text{eval}} = \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector is $\mathbf{y}_{\text{post}} = \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$.
+Let $\mathcal{T} = \{1, \dots, T\}$ index time, with pre-treatment period $\mathcal{T}_1 = \{t \in \mathcal{T} : t \leq T_0\}$ and post-treatment period $\mathcal{T}_2 = \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$, and an evaluation window of length $m$ is defined as the final $m$ pre-treatment periods $\mathcal{T}_{\text{eval}} = \{T_0 - m + 1, \dots, T_0\}$. Let $\mathbf{y} = (y_1, \dots, y_T)^\top$ denote the observed outcome series. The evaluation subvector is $\mathbf{y}_{\text{eval}} = \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector is $\mathbf{y}_{\text{post}} = \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$. For each $t \in \mathcal{T}$, let $y_t^1$ and $y_t^0$ denote the potential outcomes under treatment and no treatment, respectively. The observed outcome is $y_t = d_t y_t^1 + (1-d_t)y_t^0, \quad d_t = \mathbf{1}\{t > T_0\}.$ For $t > T_0$, only $y_t^1$ is observed. SHC provides an estimate $\widehat{y}_t^0$ for the missing counterfactual, and the treatment effect is estimated as $\widehat{\alpha}_t = y_t - \widehat{y}_t^0, \quad t \in \mathcal{T}_2,$ with the average treatment effect on the treated (ATT) defined as $\widehat{\text{ATT}} = n^{-1}\sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.$
 
-For each $t \in \mathcal{T}$, let $y_t^1$ and $y_t^0$ denote the potential outcomes under treatment and no treatment, respectively. The observed outcome is 
+The implementation of SHC begins by smoothing the pre-treatment outcome series $\mathbf{y}_{\text{pre}}$ using local linear regression with a Gaussian kernel, yielding a smooth trajectory $\widetilde{\mathbf{y}}$. From this smoothed series, we construct the donor matrix by extracting $N$ overlapping segments, each of length $m$. Specifically, for each index $i$, we take the contiguous subvector  
 $$
-y_t = d_t y_t^1 + (1-d_t)y_t^0, \quad d_t = \mathbf{1}\{t > T_0\}.
+\widetilde{\mathbf{y}}_{[i,\, i+m-1]}\;=\; \big( \widetilde{y}_i, \widetilde{y}_{i+1}, \dots, \widetilde{y}_{i+m-1} \big)^\top,
 $$
-For $t > T_0$, only $y_t^1$ is observed. SHC provides an estimate $\widehat{y}_t^0$ for the missing counterfactual, and the treatment effect is estimated as $\widehat{\alpha}_t = y_t - \widehat{y}_t^0, \quad t \in \mathcal{T}_2,$ with the average treatment effect on the treated (ATT) defined as $\widehat{\text{ATT}} = n^{-1}\sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.$
+which forms the $i$th column of the donor matrix. Collecting all $N$ such segments gives  
+$$
+\widetilde{\mathbf{Y}}_{\text{pre}}
+\;\defeq\;
+\begin{bmatrix}
+\widetilde{\mathbf{y}}_{[1,\, m]} & 
+\widetilde{\mathbf{y}}_{[2,\, m+1]} &
+\dots &
+\widetilde{\mathbf{y}}_{[N,\, N+m-1]}
+\end{bmatrix}
+\;\in\; \mathbb{R}^{m \times N}.
+$$
 
-The implementation of SHC begins by smoothing the pre-treatment series $\mathbf{y}_{\text{pre}}$ using local linear regression with a Gaussian kernel, producing a smoothed trajectory $\widetilde{\mathbf{y}}$. From this smoothed series, $N$ overlapping segments of length $m$ are extracted to form the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$. The evaluation vector $\mathbf{y}_{\text{eval}}$ is reconstructed as a convex combination of the donor segments by solving the quadratic program
+Intuitively, each column of $\widetilde{\mathbf{Y}}_{\text{pre}}$ represents a smoothed historical segment of length $m$. These segments together form the synthetic donor pool from which SHC builds counterfactuals.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[scale=0.9, every node/.style={font=\small}]
+
+% Timeline for the pre-treatment series
+\draw[thick, -] (0,0) -- (12,0);
+\foreach \x in {0,...,12}
+  \draw[thin] (\x,0.1) -- (\x,-0.1);
+
+% Label the series
+\node[below] at (6,-0.3) {Smoothed pre-treatment series $\widetilde{\mathbf{y}}$};
+
+% First sliding window
+\draw[fill=blue!20,rounded corners] (0,0.2) rectangle (4,0.8);
+\node at (2,0.5) {$\widetilde{\mathbf{y}}_{[1,m]}$};
+
+% Second sliding window
+\draw[fill=green!20,rounded corners] (1,1.0) rectangle (5,1.6);
+\node at (3,1.3) {$\widetilde{\mathbf{y}}_{[2,m+1]}$};
+
+% Third sliding window
+\draw[fill=orange!20,rounded corners] (2,1.8) rectangle (6,2.4);
+\node at (4,2.1) {$\widetilde{\mathbf{y}}_{[3,m+2]}$};
+
+% Dots for continuation
+\node at (7,2.2) {$\cdots$};
+
+% Last sliding window
+\draw[fill=red!20,rounded corners] (8,2.8) rectangle (12,3.4);
+\node at (10,3.1) {$\widetilde{\mathbf{y}}_{[N,\,N+m-1]}$};
+
+% Arrow pointing to donor matrix
+\draw[->, thick] (6,3.6) -- (6,5);
+
+% Donor matrix representation
+\draw[fill=gray!10,rounded corners] (3,5) rectangle (9,7);
+\node at (6,6) {$\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$};
+
+\end{tikzpicture}
+\caption{Constructing the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}}$ 
+by sliding overlapping windows of length $m$ across the smoothed 
+pre-treatment series $\widetilde{\mathbf{y}}$. Each colored segment 
+corresponds to a column in the donor matrix.}
+\label{fig:donor-matrix-construction}
+\end{figure}
+
+
+The evaluation vector $\mathbf{y}_{\text{eval}}$ is reconstructed as a convex combination of the donor segments by solving the quadratic program
 $$
 \mathbf{w}^\ast = \arg\min_{\mathbf{w} \in \mathbb{R}^N} 
 \left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
