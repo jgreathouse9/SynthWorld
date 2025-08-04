@@ -241,7 +241,7 @@ and there exists
 \end{assumption}
 
 \noindent
-This assumption serves two purposes. First, differentiability ensures that the latent outcome process is smooth, so it can be approximated by a finite harmonic expansion. Second, the matching condition guarantees that there exists some convex combination of donor segments that can reproduce the evaluation period exactly, at least in the absence of noise.
+This assumption serves two purposes. First, differentiability ensures that the latent outcome process is smooth, so it can be approximated by a finite harmonic expansion. Second, the matching condition guarantees that there exists some convex combination of donor segments that can reproduce the evaluation period exactly, at least in the absence of noise. The matching condition is essentially a version of the "existence of weights" assumption frequently invoked in the artificial counterfactual literature \citep{Abadie2010,Amjad2018}.
 
 \begin{assumption}[Feasibility and Stability]
 \label{assump:estimation}
@@ -259,7 +259,7 @@ Sparsity reflects the idea that only a limited number of donor segments are trul
 \begin{assumption}[Operator Norm Bound]
 \label{assump:operator}
 \begin{equation}
-\|\widetilde{\mathbf{Y}}\| \;\leq\; \gamma, 
+\|\widetilde{\mathbf{Y}}_{\text{pre}}\| \;\leq\; \gamma, 
 \qquad \text{for some constant } \gamma > 0.
 \end{equation}
 \end{assumption}
@@ -287,7 +287,7 @@ Under Assumptions \ref{assump:errors}--\ref{assump:operator},  
 \|\Delta\| 
 \leq \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}},
 \end{equation}
-where $\epsilon_{\text{SHC}} \defeq \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ is the SHC in-sample fit error.
+where $\epsilon_{\text{SHC}} \defeq \|\widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}}\mathbf{w}^{\text{SHC}}\|$ is the SHC in-sample fit error.
 \end{lemma}
 
 This Lemma means that even if ASHC's weights differ from SHC’s, the resulting change in fitted donor outcomes is bounded by the donor matrix’s operator norm. If the donor matrix were too "large," small weight deviations could produce implausibly large changes in predictions. Bounding the operator norm guarantees that such deviations remain controlled.
@@ -297,13 +297,13 @@ This Lemma means that even if ASHC's weights differ from SHC’s, the resulting 
 Under Assumptions \ref{assump:errors}--\ref{assump:operator}, the ASHC estimator satisfies
 \begin{equation}
 \label{eq:finite_sample_bound}
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
+\|\widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}}\mathbf{w}^{\text{ASHC}}\|
 \leq
 \epsilon_{\text{SHC}}
 \left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \right)
 + b_\epsilon(H,k) + \delta,
 \end{equation}
-where $\epsilon_{\text{SHC}} = \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ is the in-sample SHC fit error, $b_\epsilon(H,k)$ is the smoothness bias from the smoothing approximation, $\delta$ is the noise bias, and $\gamma, \lambda, \varsigma$ are constants defined in the model.
+where $\epsilon_{\text{SHC}} = \|\widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}}\mathbf{w}^{\text{SHC}}\|$ is the in-sample SHC fit error, $b_\epsilon(H,k)$ is the smoothness bias from the smoothing approximation, $\delta$ is the noise bias, and $\gamma, \lambda, \varsigma$ are constants defined in the model.
 \end{theorem}
 \begin{remark}
 This provides a pre-treatment error bound that decomposes into four components. The first is the baseline error, which is simply the in-sample fit error of the standard SHC model, $\epsilon_{\text{SHC}}$. The second component is a deviation penalty, controlled by the regularization parameters $\lambda$ and $\varsigma$. This term quantifies the additional error introduced by allowing the ASHC weights to deviate from the SHC weights, such that this deviation doesn't lead to a significant loss of fit. The third component, $b_\epsilon(H,k)$, represents the smoothness bias that arises from the Taylor approximation used in smoothing step. This bias is a function of the number of harmonics, $H$, and the order of the approximation, $k$, and reflects the error introduced by approximating a smooth function (which may be less approximated with noisier outcome series). The final component, $\delta$, is the bias from random noise, which accounts for the unpredictable, random fluctuations in the data that are not explained by the model.
@@ -319,7 +319,7 @@ Under Assumptions \ref{assump:errors}--\ref{assump:operator_post},  
 \leq
 b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right),
 \end{equation}
-where $\eta$ bounds $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$.
+where $\eta$ bounds $\|\mathbf{w}^\ast - \mathbf{w}^{\text{SHC}}\|$.
 \end{proposition}
 \begin{remark}
 This clarifies the factors influencing the accuracy of ASHC's ATT estimates. The bound consists of four key components. The first is post-treatment smoothness bias, $b_{\epsilon,\text{post}}(H,k)$, which is the error from using a spherical harmonic approximation to model the post-treatment outcome trend. The second is post-treatment noise, $\delta_{\text{post}}$, which captures random error in the outcome data. The third component, $\epsilon_{\text{SHC}}$, represents the quality of the initial SHC fit and demonstrates that a poor pre-treatment fit can propagate into post-treatment error. This term is scaled by the operator norm, $\gamma_{\text{post}}$, and regularization parameters, $\lambda$ and $\varsigma$, highlighting how regularization helps to control the influence of the initial fit error. The final term, $\eta$, is a bound on the difference between the optimal weights and the SHC weights, which is also scaled by $\gamma_{\text{post}}$. This term represents the bias from regularization itself.
@@ -331,9 +331,9 @@ We now turn to large-sample guarantees. While finite-sample performance is most 
 Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \infty$ and $H \to \infty$, the ASHC estimator satisfies
 \begin{equation}
 \label{eq:consistency}
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \xrightarrow{p} 0.
+\|\widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^{\text{ASHC}}\| \xrightarrow{p} 0.
 \end{equation}
-While the noise vector $\bm{\eta}$ is sub-Gaussian, then $\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.$
+While the noise vector $\bm{\eta}$ is sub-Gaussian, then $\|\widetilde{\mathbf{y}}_{\text{eval}} -\widetilde{\mathbf{Y}}_{\text{pre}}w^{\text{ASHC}}\| \xrightarrow{p} 0.$
 \end{theorem}
 \begin{remark}
 With enough pre-treatment data and smooth latent trends, ASHC's prediction error shrinks to the noise level, and under mild probabilistic conditions converges in probability to zero. Note that bias will never vanish completely due to the smoothing terms. However, in practice, this means longer evaluation windows and pre-treatment periods yield increasingly unbiased out of sample predictions.
@@ -344,7 +344,7 @@ With the asymptotic convergence established, we can derive the rate too.
 \label{cor:ashc_rate}
 If $\boldsymbol{\eta}$ is i.i.d.\ mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
 \begin{equation}
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| 
+\|\widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}}w^{\text{ASHC}}\| 
 = O_p\left(m^{-H/(2H+3)}\right).
 \end{equation}
 For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
