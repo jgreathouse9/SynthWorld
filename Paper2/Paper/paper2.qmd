@@ -123,24 +123,17 @@ where $\mathbf{C}_0$ contains the eigenvectors of the donor Gram matrix associat
 ## The Augmented Synthetic Historical Control Method
 \label{sec:ashc}
 
-The augmented synthetic historical control (ASHC) method extends SHC by permitting limited extrapolation beyond the convex hull of historical segments, while stabilizing the solution through a proximity penalty. This modification is motivated by cases where the simplex constraint of SHC is too restrictive to achieve adequate pre-treatment fit. By allowing negative weights under an affine constraint and penalizing deviations from the SHC solution, ASHC balances improved fit with regularization.
-
-Let $\mathbf{w}^{\text{SHC}}$ denote the SHC weight vector. The ASHC estimator solves
-$$
-\mathbf{w}^{\text{ASHC}} = \arg\min_{\mathbf{w} \in \mathbb{R}^N} 
-\left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
-+ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2
-+ \lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2,
-\qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1.
-$$
-As we can see, the first two terms are essentially unchanged. We have a fit term to learn the treated unit's outcomes in the evaluation period and the stability penalty term from \citet{SHC}. The third term in the ASHC objective, 
+The augmented synthetic historical control (ASHC) method extends SHC by permitting limited extrapolation beyond the convex hull of historical segments, while stabilizing the solution through a proximity penalty. This modification is motivated by cases where the simplex constraint of SHC is too restrictive to achieve adequate pre-treatment fit. By allowing negative weights under an affine constraint and penalizing deviations from the SHC solution, ASHC balances improved fit with regularization. Let $\mathbf{w}^{\text{SHC}}$ denote the SHC weight vector. The ASHC estimator solves
+\begin{equation}
+\mathbf{w}^{\text{ASHC}} 
+= \arg\min_{\mathbf{w} \in \mathbb{R}^N} \underbrace{\left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2}_{\text{Fit Term}} + \underbrace{\varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2}_{\text{Low-variance term}} + \underbrace{\lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2}_{\text{Proximity term}}, \qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1.
+\end{equation}
+As we can see, the first two terms are essentially unchanged from the original SHC method. The third term in the ASHC objective, 
 $$
 \lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2,
 $$
-is a proximity penalty. This term discourages the ASHC solution from deviating too far from the original SHC weights. The penalty plays a dual role. Conceptually, it regularizes the affine extension of SHC by shrinking the solution back toward the purely convex combination used in SHC. This ensures that the additional flexibility provided by negative weights is only exercised when it leads to a substantial reduction in pre-treatment error. Mathematically, the penalty stabilizes the optimization problem by making the objective function strongly convex. The tuning parameter $\lambda \geq 0$ controls the degree of shrinkage: when $\lambda$ is very large, the ASHC solution converges to $\mathbf{w}^{\text{SHC}}$, while when $\lambda=0$ the penalty vanishes and the estimator reduces to an unpenalized affine extension of SHC. Thus, the proximity penalty creates a continuum between SHC and its affine relaxation, allowing researchers to balance interpretability and stability against the potential gains in fit from extrapolation.
-
-The ASHC counterfactual is obtained as  $\widehat{\mathbf{y}}_{\text{post}}^{0,\text{ASHC}} 
-= \widetilde{\mathbf{Y}}_{\text{post}} \, \mathbf{w}^{\text{ASHC}},$ with treatment effects estimated analogously to SHC. In addition to the assumptions underlying SHC, ASHC requires bounds on the operator norms of the donor matrices.
+is a proximity penalty. This term discourages the ASHC solution from deviating too far from the original SHC weights. The penalty plays a dual role. Conceptually, it regularizes the affine extension of SHC by shrinking the solution back toward the purely convex combination used in SHC. However, the additional flexibility provided by negative weights is only exercised when it leads to a substantial reduction in pre-treatment error. The tuning parameter $\lambda \geq 0$ controls the degree of shrinkage: when $\lambda$ is very large, the ASHC solution converges to $\mathbf{w}^{\text{SHC}}$, while when $\lambda=0$ the penalty vanishes and the estimator reduces to an unpenalized affine extension of SHC. Thus, the proximity penalty creates a continuum between SHC and its affine relaxation, allowing researchers to balance interpretability and stability against the potential gains in fit from extrapolation. The ASHC counterfactual is obtained as  $\widehat{\mathbf{y}}_{\text{post}}^{0,\text{ASHC}} 
+= \widetilde{\mathbf{Y}}_{\text{post}} \, \mathbf{w}^{\text{ASHC}},$ with treatment effects estimated analogously to SHC.
 
 ## Bandwidth and Regularization Parameter Selection
 \label{sec:hyperparams}
