@@ -952,7 +952,7 @@ With sub-Gaussian noise, the limit is $0$ in probability.
 From Theorem \ref{thm:ashc-asymp}, the error converges to $\delta$, or $0$ in probability under sub-Gaussian noise.
 
 \textbf{Part 2: Convergence Rate.}  
-From Proposition~\ref{prop:ashc}, we have
+From Theorem \ref{thm:ashc-asymp}, we have
 $$
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
 \leq
