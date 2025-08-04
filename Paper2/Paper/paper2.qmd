@@ -337,7 +337,7 @@ Under Assumptions \ref{assump:errors}--\ref{assump:operator_post}, as $m \to \in
 \label{eq:consistency}
 \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \xrightarrow{p} 0.
 \end{equation}
-While $\bm{\eta}$ is sub-Gaussian, then $\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.$
+While the noise vector $\bm{\eta}$ is sub-Gaussian, then $\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.$
 \end{theorem}
 \begin{remark}
 With enough pre-treatment data and smooth latent trends, ASHC's prediction error shrinks to the noise level, and under mild probabilistic conditions converges in probability to zero. Note that bias will never vanish completely due to the smoothing terms. However, in practice, this means longer evaluation windows and pre-treatment periods yield increasingly unbiased out of sample predictions.
