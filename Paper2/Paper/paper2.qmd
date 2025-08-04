@@ -354,8 +354,13 @@ The expression $O_p\!\left(m^{-H/(2H+3)}\right)$ describes the convergence rate 
 # Empirical Application
 \label{sec:empirical}
 
-We replicate the setting of \citet{Bel2021}, who study the effects of Barcelona’s 2015 hotel moratorium using data on hotel prices from 2010 to 2017. 
-This application provides a compelling case to benchmark ITS, SCM, SHC, and ASHC against one another.
+We study the economic effects of Hawaii's March 2020 mandatory quarantine, which imposed a 14-day isolation requirement on all arrivals to the state. This policy effectively sealed Hawaii's borders and caused an immediate collapse in tourism activity. The case provides a compelling setting to benchmark ITS, SHC, and the proposed ASHC. I focus on Hawaii’s statewide hotel occupancy rate, defined as the percentage of available rooms that are occupied. This measure provides a direct and interpretable proxy for tourism demand, which was the sector most immediately affected by the state’s COVID-19 quarantine policy. Data are sourced from the Hawaii Department of Business, Economic Development \& Tourism (DBEDT) and span January 1990 through December 2020. Following \citet{SHC}, we transform the raw series into annualized year-over-year (YoY) growth rates to mitigate nonstationary trends and to allow treatment effects to be interpreted directly as percentage point changes. The policy intervention is coded as beginning in March 2020, when Hawaii imposed a mandatory 14-day quarantine on all arrivals:
+\begin{equation}
+d_t \;=\; \mathbb{1}\{t \geq t_0\}, 
+\qquad t_0 = \text{March 2020}.
+\end{equation}
+
+The final pre-treatment observation corresponds to February 2020, yielding a pre-treatment sample of $T_0 = 361$ months.
 
 # Conclusion
 \label{sec:conclusion}
