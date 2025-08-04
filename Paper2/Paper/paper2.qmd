@@ -254,7 +254,7 @@ This assumption serves two purposes. First, differentiability ensures that the l
 \end{assumption}
 
 \noindent
-This assumption ensures that a stable solution exists.  Sparsity reflects the idea that only a limited number of donor segments are truly relevant. The positive definiteness of the Gram matrix prevents collinearity among donors, which could otherwise lead to unstable weight estimates. I make two additional assumptions for ASHC.
+Sparsity reflects the idea that only a limited number of donor segments are truly relevant. The positive definiteness of the Gram matrix prevents collinearity among donors, which could otherwise lead to unstable weight estimates. I make two additional assumptions for ASHC.
 
 \begin{assumption}[Operator Norm Bound]
 \label{assump:operator}
@@ -265,7 +265,7 @@ This assumption ensures that a stable solution exists.  Sparsity reflects the id
 \end{assumption}
 
 \noindent
-This assumption restricts the size of the donor matrix in operator norm. Intuitively, it ensures that small deviations in weights cannot translate into disproportionately large changes in predicted outcomes. Without this bound, the affine extension in ASHC could magnify minor instabilities in the estimation.
+This assumption restricts the size of the donor matrix in operator norm. Intuitively, it says that small deviations in weights cannot translate into disproportionately large changes in predicted outcomes. Without this bound, the affine extension in ASHC could magnify minor instabilities in the estimation.
 
 \begin{assumption}[Post-Treatment Operator Norm]
 \label{assump:operator_post}
@@ -276,9 +276,7 @@ This assumption restricts the size of the donor matrix in operator norm. Intuiti
 \end{assumption}
 
 \noindent
-This is the post-treatment analogue of Assumption~\ref{assump:operator}. 
-It ensures that when the ASHC weights are applied to post-treatment donor segments, the resulting counterfactual predictions remain stable and well-controlled. 
-Together, these two operator norm bounds protect against instability both before and after treatment.
+This is the post-treatment analogue of Assumption~\ref{assump:operator}. When the ASHC weights are applied to post-treatment donor segments, the resulting counterfactual predictions remain stable and well-controlled. Together, these two operator norm bounds protect against instability both before and after treatment.
 
 To study the finite sample properties of ASHC, we first must bound the change in the ASHC weights. We do begin using Lemma \ref{lem:delta}. Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ denote the deviation of ASHC weights from the SHC solution (i.e., will not explode too much).
 
@@ -311,7 +309,7 @@ where $\epsilon_{\text{SHC}} = \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}
 This provides a pre-treatment error bound that decomposes into four components. The first is the baseline error, which is simply the in-sample fit error of the standard SHC model, $\epsilon_{\text{SHC}}$. The second component is a deviation penalty, controlled by the regularization parameters $\lambda$ and $\varsigma$. This term quantifies the additional error introduced by allowing the ASHC weights to deviate from the SHC weights, such that this deviation doesn't lead to a significant loss of fit. The third component, $b_\epsilon(H,k)$, represents the smoothness bias that arises from the Taylor approximation used in smoothing step. This bias is a function of the number of harmonics, $H$, and the order of the approximation, $k$, and reflects the error introduced by approximating a smooth function (which may be less approximated with noisier outcome series). The final component, $\delta$, is the bias from random noise, which accounts for the unpredictable, random fluctuations in the data that are not explained by the model.
 \end{remark}
 
-Similar bounds exist for the ATT estimate. This is shown in Prosperous Proposition \ref{prop:att_error_bound}, which places am upper bound in the bias of the ATT.
+Similar bounds exist for the ATT estimate. This is shown in Proposition \ref{prop:att_error_bound}, which places an upper bound in the bias of the ATT.
 
 \begin{proposition}[Out-of-sample Error Bound]
 \label{prop:att_error_bound}
@@ -323,12 +321,10 @@ b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \lef
 \end{equation}
 where $\eta$ bounds $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$.
 \end{proposition}
-
+\begin{remark}
 This clarifies the factors influencing the accuracy of ASHC's ATT estimates. The bound consists of four key components. The first is post-treatment smoothness bias, $b_{\epsilon,\text{post}}(H,k)$, which is the error from using a spherical harmonic approximation to model the post-treatment outcome trend. The second is post-treatment noise, $\delta_{\text{post}}$, which captures random error in the outcome data. The third component, $\epsilon_{\text{SHC}}$, represents the quality of the initial SHC fit and demonstrates that a poor pre-treatment fit can propagate into post-treatment error. This term is scaled by the operator norm, $\gamma_{\text{post}}$, and regularization parameters, $\lambda$ and $\varsigma$, highlighting how regularization helps to control the influence of the initial fit error. The final term, $\eta$, is a bound on the difference between the optimal weights and the SHC weights, which is also scaled by $\gamma_{\text{post}}$. This term represents the bias from regularization itself.
-
-We now turn to large-sample guarantees. While finite-sample performance is most critical in practice, since most SCM/SHC based methods do not have very large sample sizes compared to DID, ASHC remains theoretically reliable in large-sample limits.
-
-The asymptotic results show that as the number of pre-treatment periods grows, the ASHC estimator becomes consistent: its prediction error shrinks to the noise level, and under mild sub-Gaussian error conditions, converges in probability to zero. Theorem \ref{thm:ashc_asymp} provides a consistency result as the pre-treatment period grows without bound.
+\end(remark}
+We now turn to large-sample guarantees. While finite-sample performance is most critical in practice, since most SCM/SHC based methods do not have very large sample sizes compared to DID, ASHC remains theoretically reliable in large-sample limits. The asymptotic results show that as the number of pre-treatment periods grows, the ASHC estimator becomes consistent: its prediction error shrinks to the noise level, and under mild sub-Gaussian error conditions, converges in probability to zero. Theorem \ref{thm:ashc_asymp} provides a consistency result as the pre-treatment period grows without bound.
 
 \begin{theorem}[Asymptotic Consistency of ASHC]
 \label{thm:ashc_asymp}
