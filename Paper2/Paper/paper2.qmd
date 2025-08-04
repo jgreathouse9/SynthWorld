@@ -241,7 +241,7 @@ and there exists
 \end{assumption}
 
 \noindent
-This assumption serves two purposes. First, differentiability ensures that the latent outcome process is smooth, so it can be approximated by a finite harmonic expansion. Second, the matching condition guarantees that there exists some convex combination of donor segments that can reproduce the evaluation period exactly, at least in the absence of noise. The matching condition is essentially a version of the "existence of weights" assumption frequently invoked in the artificial counterfactual literature \citep{Abadie2010,Amjad2018}.
+This assumption serves two purposes. First, differentiability ensures that the latent outcome process is smooth, so it can be approximated by a finite harmonic expansion. Second, the matching condition guarantees that there exists some convex combination of donor segments that can reproduce the evaluation period exactly (or approximately, in practice). The matching condition is essentially the "existence of weights" assumption frequently invoked in the SCM literature \citep{Abadie2010,Amjad2018}.
 
 \begin{assumption}[Feasibility and Stability]
 \label{assump:estimation}
