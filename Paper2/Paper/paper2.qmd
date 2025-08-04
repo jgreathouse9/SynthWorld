@@ -181,13 +181,16 @@ where
 \begin{equation}
 \lambda_{\max} \;=\; \sigma_{\max}^2, 
 \qquad
-\lambda_{\min} \;=\; \lambda_{\max} \cdot \minratio,
+\lambda_{\min} \;=\; \lambda_{\max} \cdot \kappa,
 \qquad
 \rho \;=\; \left(\frac{\lambda_{\min}}{\lambda_{\max}}\right)^{\frac{1}{n_\lambda-1}}.
 \end{equation}
 Here $\sigma_{\max}$ denotes the largest singular value of 
-$\widetilde{\mathbf{Y}}_{\text{train}}$, and $\minratio > 0$ is a user-chosen constant 
-controlling the lower bound of the grid. Thus $\Lambda$ spans values from 
+$\widetilde{\mathbf{Y}}_{\text{train}}$, and $\kappa > 0$ is a user-chosen constant 
+controlling the lower bound of the grid.\footnote{In practice, we set 
+$\kappa = 10^{-8}$, ensuring that the grid spans from strong shrinkage 
+($\lambda_{\max}$) to nearly unpenalized fits ($\lambda_{\min}$).} 
+Thus $\Lambda$ spans values from 
 $\lambda_{\max}$ (very strong shrinkage toward $\mathbf{w}^{\text{SHC}}$) 
 down to $\lambda_{\min}$ (minimal shrinkage).
 
@@ -208,7 +211,6 @@ The optimal penalty parameter is selected as
 \lambda^\ast 
 = \arg\min_{\lambda \in \Lambda} \text{Val}(\lambda).
 \end{equation}
-
 Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs of ASHC: smoothing bias versus noise, and extrapolation bias versus instability.
 
 # Theoretical Results for Finite and Asymptotic Settings \label{sec:theory}
