@@ -12,7 +12,7 @@ bibliography: pl.bib
 ---
 \vspace*{-4em}
 \begin{abstract}
-This article estimates the causal impact of Hawaii's March 2020 mandatory quarantine on its tourism industry and labor market using the Synthetic Historical Control method. Analyzing visitor days, hotel occupancy, accommodations employment, and the Coincident Economic Activity Index (all in annualized year-over-year growth rates), I find substantial negative impacts from the quarantine. Observed outcomes fall significantly outside 90\% conformal out-of-sample prediction intervals, indicating a treatment effect. Placebo tests further validate the model's internal credibility. This research demonstrates the method's utility and informs the broader debate on economic impacts of anti-COVID policy.
+I estimate the causal impact of Hawaii's March 2020 mandatory quarantine on its tourism industry and labor market using the Synthetic Historical Control method. Analyzing visitor days, hotel occupancy, accommodations employment, and the Coincident Economic Activity Index (all in annualized year-over-year growth rates), I find substantial negative impacts from the quarantine. Observed outcomes fall significantly outside 90\% conformal out-of-sample prediction intervals, indicating a treatment effect. Placebo tests further validate the model's internal credibility. This research demonstrates the method's utility and informs the broader debate on economic impacts of anti-COVID policy.
 \keywords{Synthetic Controls, Policy Evaluation, COVID-19}
 \end{abstract}
 
