@@ -43,6 +43,17 @@
 \renewcommand{\theexample}{\arabic{section}.\arabic{example}}
 \renewcommand{\theremark}{\arabic{section}.\arabic{remark}}
 
+
+% Add xcolor package for colors
+\usepackage{xcolor}
+
+% Define custom colors
+\definecolor{npicolor}{RGB}{0,128,128}      % teal
+\definecolor{vacccolor}{RGB}{255,165,0}    % orange
+\definecolor{variantcolor}{RGB}{220,20,60} % crimson
+\definecolor{mandatecolor}{RGB}{128,0,128} % purple
+
+
 % Custom proof environment with explicit reference to theorem/corollary/etc.
 \makeatletter
 \newenvironment{customproof}[1]{%
