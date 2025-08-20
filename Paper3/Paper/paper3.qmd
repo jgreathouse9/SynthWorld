@@ -1,0 +1,67 @@
+---
+title: "Locking Away Prosperity? Evaluating Economic Impact of the Key to NYC Program"
+format: 
+  pdf:
+    documentclass: article
+    fontsize: 12pt
+    geometry: verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in
+    include-in-header: prelim.tex
+    keep-tex: true
+    cite-method: natbib
+    pdf-engine: pdflatex   # force pdfLaTeX instead of XeLaTeX
+number-sections: true
+bibliography: ktc.bib
+---
+
+# Introduction
+
+The onset of the COVID-19 pandemic triggered a global wave of non-pharmaceutical interventions (NPIs), as governments acted swiftly to limit viral transmission. Early research focused heavily on the public health rationale behind these policies—particularly the importance of acting early to contain exponential spread. For example, \citet{pamscmcali} and \citet{yang2021does} evaluate the effects of lockdowns in California and Wuhan, emphasizing the critical role of timing. \citet{bayat2020syntheticcontrolsyntheticinterventions} estimate that New York City could have reduced COVID-19 deaths by over 80\% had its first lockdown been enacted just ten days earlier.
+
+Over time, attention turned to the economic consequences of these policies. While many NPIs helped flatten the curve, they also generated concerns about business closures, layoffs, and long-term economic scarring. Studies such as \citet{gibson2023synthetic} and \citet{lee2022pandemic} document the labor market costs of early lockdowns, while \citet{hubeipda} use a panel data approach to examine the short-run economic toll of Hubei’s province-wide shutdown. These papers illustrate the inherent tradeoffs between public health benefits and economic costs embedded in pandemic interventions.
+
+Vaccine mandates, unlike lockdowns or school closures, have received comparatively less economic scrutiny, especially regarding their effects on labor markets. These policies aimed to reduce transmission without broadly restricting business operations or movement. Nevertheless, critics warned mandates could hamper fragile economic recoveries by alienating customers and straining staffing in consumer-facing sectors like restaurants and hospitality. Proponents countered that mandates would enhance public safety and bolster consumer confidence. New York City’s “Key to NYC” program—the first large-scale vaccine mandate for indoor commercial activity in the U.S., implemented in August 2021—sparked national debate along these lines \citep{towey2021nycvax, rogers2021restaurants, kevin2022unintended}. This controversy highlights the empirical question: *Did the mandate harm employment in NYC’s restaurant sector?*  
+
+This paper treats the Key to NYC program as a natural experiment, exploiting its sudden rollout to identify its causal impact on full-service restaurant employment—the segment most directly affected. While prior research has focused on mandates’ effects on health outcomes and vaccination rates \citep{CohnKTC, vaccmandatelotto, lang2023ohio}, few have rigorously examined labor market consequences in the places most likely to be affected by them. Estimating these effects is complicated by overlapping pandemic trends and economic shifts. While prior research has evaluated the Key to NYC program’s effects on vaccination uptake and public health, this study is among the first to isolate its economic impact on the full-service restaurant sector—the area arguably most exposed to the policy’s constraints.
+
+
+Randomized experiments are infeasible and unethical for assigning vaccine mandates to cities, so we must estimate counterfactuals using observational data. These counterfactuals can never be directly observed, but they can be approximated. I construct a synthetic control for the year-over-year growth rate of full-service restaurant employment in New York City using seasonally adjusted MSA-level data from the Federal Reserve Bank of St. Louis. The dataset spans January 1991 to August 2022, allowing for a long pre-treatment window. This is particularly valuable given the properties of the synthetic control method, which is most reliable in the fixed-N, large-T setting. A longer pre-treatment period helps improve the stability and credibility of counterfactual estimates, provided there are no structural breaks affecting only the treated unit. There are 29 donor units that FRED reports on to construct the counterfactual from.\footnote{For example, one such series is 'All Employees: Leisure and Hospitality: Full-Service Restaurants in District of Columbia (SMU11000007072251101SA)' or 'SMU08197407072251101SA' for Denver-Aurora-Centennial, CO (MSA). These cities did not implement similar mandates during the same period, and thus serve as a “donor pool” for constructing the counterfactual.} As a robustness check, I also examine employment in the broader Leisure and Hospitality sector, which may capture indirect spillover effects or broader sectoral shocks correlated with restaurant trends.
+
+
+# Policy Background
+
+\tikzset{
+  phase/.style = {rectangle, draw, rounded corners, minimum height=1.2em, minimum width=5cm, align=center, fill=#1, text=white},
+  arrow/.style = {->, thick},
+  npicolor/.style = {fill=npicolor},
+  vacccolor/.style = {fill=vacccolor},
+  variantcolor/.style = {fill=variantcolor},
+  mandatecolor/.style = {fill=mandatecolor},
+}
+
+\begin{tikzpicture}[font=\small, node distance=1cm]
+
+\node (npi) [phase=npicolor] {NPIs \\ \small (Masks, Lockdowns) \\ \small Early 2020};
+\draw[arrow] (npi.east) -- ++(0.4,0) coordinate (arrow1);
+\node (vaccine) [phase=vacccolor, right=0.5cm of arrow1, anchor=west] {Vaccine Rollout \\ \small (Late 2020)};
+\draw[arrow] (vaccine.east) -- ++(0.4,0) coordinate (arrow2);
+\node (incent) [phase=vacccolor, right=0.5cm of arrow2, anchor=west] {Incentives \\ \small (Cash, Lotteries) \\ \small Early 2021};
+
+\node (delta) [phase=variantcolor, below=1.5cm of npi] {Delta Variant \\ \small (May–June 2021)};
+\draw[arrow] (delta.east) -- ++(0.4,0) coordinate (arrow3);
+\node (soft) [phase=mandatecolor, right=0.5cm of arrow3, anchor=west] {Soft Mandates \\ \small (Occupational) \\ \small Summer 2021};
+\draw[arrow] (soft.east) -- ++(0.4,0) coordinate (arrow4);
+\node (nyc) [phase=mandatecolor, right=0.5cm of arrow4, anchor=west] {Key to NYC \\ \small (General Mandate) \\ \small Aug 2021};
+
+\end{tikzpicture}
+\noindent\textit{Timeline of major pandemic policy phases}
+
+
+Building on early reliance on non-pharmaceutical interventions (NPIs) such as lockdowns and masking, the arrival of vaccines in late 2020 ushered in a new phase of pandemic governance. NPIs had aimed to reduce transmission by limiting contact or promoting respiratory barriers. Mask mandates were widely adopted due to their low cost and direct mechanism of action \citep{HANSEN2023102721, chernozhukov2021causal, mitze2020face}, while lockdowns—though effective—provoked political and economic backlash due to their disruptive nature.
+
+With vaccines came the promise of exit, and initial uptake was high, particularly among older adults and healthcare workers. However, as eligibility expanded in early 2021, demand slowed amid misinformation, mistrust, and logistical barriers. In response, policymakers deployed incentive-based strategies to encourage vaccination \citep{barber2022conditional, robertson2021vaccine}. These included direct cash payments, vaccine lotteries (e.g., Ohio’s “Vax-a-Million” \citep{fullervam}), and smaller symbolic giveaways—ranging from donuts and beer to cannabis and firearms. One paper famously dubbed this the era of “donuts, drugs, booze, and guns,” reflecting the extraordinary lengths to which governments went to boost uptake through rewards rather than requirements \citep{Tinarin1737}.
+
+Despite their creativity, most incentives had modest or short-lived effects \citep{SABAN2021106763, lottoohio, KHAZANOV2023107538}. Many were poorly targeted, administratively complex, or insufficient to overcome deeper resistance. The emergence of the highly transmissible Delta variant in mid-2021 raised the stakes. Initially identified in India, Delta reached the United States by May and accounted for the majority of new cases by June. Unlike in 2020, officials now had vaccines at scale—but not enough vaccinated people.
+
+Public health responses escalated. Soft mandates emerged, targeting workers in high-risk occupations such as healthcare and education. These policies were not general mandates but did make vaccination a condition of continued employment \citep{healthvaccwork}. Over the summer, local governments expanded this approach. By August 2021, New York City introduced the Key to NYC program—one of the first large-scale vaccine mandates in the U.S. applied to the general public. Unlike prior efforts that relied on encouragement, Key to NYC made access to indoor dining, fitness, and entertainment conditional on vaccination status. It represented a new policy mechanism: exclusion rather than incentive.
+
+
