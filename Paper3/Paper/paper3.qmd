@@ -8,7 +8,7 @@ format:
     include-in-header: prelim.tex
     keep-tex: true
     cite-method: natbib
-    pdf-engine: pdflatex   # force pdfLaTeX instead of XeLaTeX
+    pdf-engine: pdflatex   
 number-sections: true
 bibliography: ktc.bib
 ---
