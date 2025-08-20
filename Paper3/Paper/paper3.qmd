@@ -64,4 +64,39 @@ Despite their creativity, most incentives had modest or short-lived effects \cit
 
 Public health responses escalated. Soft mandates emerged, targeting workers in high-risk occupations such as healthcare and education. These policies were not general mandates but did make vaccination a condition of continued employment \citep{healthvaccwork}. Over the summer, local governments expanded this approach. By August 2021, New York City introduced the Key to NYC program—one of the first large-scale vaccine mandates in the U.S. applied to the general public. Unlike prior efforts that relied on encouragement, Key to NYC made access to indoor dining, fitness, and entertainment conditional on vaccination status. It represented a new policy mechanism: exclusion rather than incentive.
 
+# Dataset
+
+We use monthly MSA–level employment series from the Federal Reserve Bank of St. Louis (FRED). The sample runs from January 1991 through August 2022, yielding $T=380$ monthly observations per unit. Units are indexed by $j \in \mathbb{N}$ and time by $t \in \mathbb{N}$. Unit $j=1$ is the treated unit (New York City MSA). The donor pool is $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with cardinality $N_0$; in the baseline sample $N_0=29$ (so $N=30$ total MSAs).
+
+Let $e_{jt}$ denote employment in full-service restaurants in unit $j$ at month $t$. The primary outcome is the year-over-year growth rate (in percentage points),
+$$
+y_{jt} = 100 \cdot \frac{e_{jt} - e_{j,t-12}}{e_{j,t-12}}, \qquad j=1,\dots,N,\; t=13,\dots,T.
+$$
+Collect outcomes into vectors $\mathbf{y}_j = (y_{j1},\dots,y_{jT})^\top \in \mathbb{R}^T$ and the donor matrix
+$$
+\mathbf{Y}_0 = \big[\mathbf{y}_j\big]_{j \in \mathcal{N}_0} \in \mathbb{R}^{T \times N_0}.
+$$
+
+The *Key to NYC* policy was implemented in August 2021. Let $T_0$ denote the last pre-treatment month (July 2021). Define the pre- and post-treatment index sets $\mathcal{T}_1 = \{t \le T_0\}$ and $\mathcal{T}_2 = \{t > T_0\}$. For convenience we partition vectors and matrices into pre/post blocks, e.g. $\mathbf{y}_j = (\mathbf{y}_{j,\mathcal{T}_1}^\top,\mathbf{y}_{j,\mathcal{T}_2}^\top)^\top$.
+
+Let $y_{jt}(0)$ and $y_{jt}(1)$ denote the potential outcomes for unit $j$ at time $t$ under no treatment and treatment, respectively. Define the observed treatment indicator
+$$
+d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\},
+$$
+so only the treated unit is exposed in the post period. The observed outcome satisfies the switching equation (fundamental problem of causal inference):
+$$
+y_{jt} = (1-d_{jt}) \, y_{jt}(0) + d_{jt} \, y_{jt}(1).
+$$
+
+Consequently only one of $\{y_{jt}(0), y_{jt}(1)\}$ is observed for each $(j,t)$, and the causal effect for unit $j$ at time $t$ is
+$$
+\tau_{jt} = y_{jt}(1) - y_{jt}(0).
+$$
+
+Our primary object of interest is the post-treatment average treatment effect on the treated (ATT) for the treated unit $j=1$:
+$$
+\text{ATT} = \frac{1}{|\mathcal{T}_2|} \sum_{t \in \mathcal{T}_2} \left[ y_{1t}(1) - y_{1t}(0) \right].
+$$
+
+
 
