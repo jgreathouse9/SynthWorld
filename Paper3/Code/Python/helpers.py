@@ -101,4 +101,19 @@ def fetch_multiple_series(series_id_list, cookies, headers):
 
     # Drop rows with missing YoY growth
     final_df = final_df.dropna(subset=['yoy_growth'])
+    
+    # Define August 2022 as the cutoff
+    cutoff = pd.to_datetime('2022-08-01')
+    
+    # Drop unwanted rows
+    final_df = final_df[~final_df['MSA'].str.contains("Jersey City", na=False)]
+    final_df = final_df[final_df['Time'] <= cutoff]
+
+    start_ktc = pd.to_datetime('2021-08-01')
+
+    final_df['Key to NYC'] = (
+        (final_df['MSA'].str.contains("New York City", na=False)) &
+        (final_df['Time'] >= start_ktc)
+    ).astype(int)
+
     return final_df
