@@ -13,7 +13,7 @@ number-sections: true
 bibliography: ktc.bib
 ---
 
-# Introduction  {#sec-intro}
+# Introduction  {#sec:intro}
 
 The COVID-19 pandemic triggered a global wave of non-pharmaceutical interventions (NPIs) as governments acted swiftly to limit viral transmission. Much early research focused on the public health rationale for these policies—especially the importance of early action to contain exponential spread. For instance, \citet{pamscmcali} and \citet{yang2021does} use synthetic control methods to evaluate lockdowns in California and Wuhan, emphasizing the critical role of timing. Similarly, \citet{bayat2020syntheticcontrolsyntheticinterventions} estimate that New York City could have reduced COVID-19 deaths by over 80\% had its first lockdown occurred just ten days earlier.
 
@@ -25,8 +25,7 @@ This paper evaluates the causal effect of the Key to NYC mandate on employment i
 
 Because randomized experiments are infeasible, this paper adopts a synthetic control approach to estimate the counterfactual trajectory of employment absent the mandate. Using MSA-level monthly data from the Federal Reserve Bank of St. Louis, I construct a synthetic control for NYC’s year-over-year growth in full-service restaurant employment. The data span January 1991 to August 2022, offering a long pre-treatment window—crucial for the synthetic control method, which performs best in the fixed-$N$, large-$T$ setting. The donor pool consists of 29 MSAs that did not implement similar mandates during the same period.\footnote{For example, 'SMU11000007072251101SA' (Washington, DC) or 'SMU08197407072251101SA' (Denver MSA).} As a robustness check, I also examine employment in the broader Leisure and Hospitality sector.
 
-The rest of the paper is organized as follows. Section \@ref(sec-policy) provides background on the evolution of pandemic interventions and the Key to NYC program. Section \@ref(sec-data) describes the employment data and outcome construction. Section \@ref(sec-method) outlines the empirical strategy, including the synthetic control methodology. Section \@ref(sec-results) presents the main findings and robustness checks. Section \@ref(sec-discussion) interprets the results and discusses limitations. Section \@ref(sec-conclusion) concludes.
-
+The rest of the paper is organized as follows. Section \ref{sec:policy} provides background on the evolution of pandemic interventions and the Key to NYC program. Section \ref{sec:data} describes the employment data and outcome construction. Section \ref{sec:method} outlines the empirical strategy, including the synthetic control methodology. Section \ref{sec:results} presents the main findings and robustness checks. Section \ref{sec:discussion} interprets the results and discusses limitations. Section \ref{sec:conclusion} concludes.
 
 # Policy Background {#sec-policy}
 
