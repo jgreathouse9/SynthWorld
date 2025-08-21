@@ -1,4 +1,4 @@
-from .helpers import fetch_multiple_series, get_msa_restaurant_series_ids
+from helpers import fetch_multiple_series, get_msa_restaurant_series_ids
 import os
 from pathlib import Path
 
