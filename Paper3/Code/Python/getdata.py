@@ -1,6 +1,6 @@
 from .helpers import fetch_multiple_series, get_msa_restaurant_series_ids
-
-
+import os
+from pathlib import Path
 
 cookies = {
     'cookiesession1': '678A3E1FBF92D0C91576F31EC42DE74B',
@@ -33,4 +33,17 @@ headers = {
 }
 
 final_df = fetch_multiple_series(get_msa_restaurant_series_ids(), cookies, headers)
-print("done!")
+
+
+# Absolute path to the root of the project (i.e., Paper3/)
+project_root = Path(__file__).resolve().parents[2]
+
+# Path to Data folder
+data_dir = project_root / 'Data'
+data_dir.mkdir(parents=True, exist_ok=True)  # create if not exists
+
+
+filename = "msa_full_service_rest.csv"
+output_path = data_dir / filename
+final_df.to_csv(output_path, index=False)
+
