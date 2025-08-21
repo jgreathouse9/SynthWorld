@@ -13,7 +13,8 @@ number-sections: true
 bibliography: ktc.bib
 ---
 
-# Introduction  {#sec:intro}
+# Introduction
+\label{sec:intro}
 
 The COVID-19 pandemic triggered a global wave of non-pharmaceutical interventions (NPIs) as governments acted swiftly to limit viral transmission. Much early research focused on the public health rationale for these policies—especially the importance of early action to contain exponential spread. For instance, \citet{pamscmcali} and \citet{yang2021does} use synthetic control methods to evaluate lockdowns in California and Wuhan, emphasizing the critical role of timing. Similarly, \citet{bayat2020syntheticcontrolsyntheticinterventions} estimate that New York City could have reduced COVID-19 deaths by over 80\% had its first lockdown occurred just ten days earlier.
 
@@ -27,7 +28,8 @@ Because randomized experiments are infeasible, this paper adopts a synthetic con
 
 The rest of the paper is organized as follows. Section \ref{sec:policy} provides background on the evolution of pandemic interventions and the Key to NYC program. Section \ref{sec:data} describes the employment data and outcome construction. Section \ref{sec:method} outlines the empirical strategy, including the synthetic control methodology. Section \ref{sec:results} presents the main findings and robustness checks. Section \ref{sec:discussion} interprets the results and discusses limitations. Section \ref{sec:conclusion} concludes.
 
-# Policy Background {#sec-policy}
+# Policy Background
+\label{sec:policy}
 
 \tikzset{
   phase/.style = {rectangle, draw, rounded corners, minimum height=1.2em, minimum width=5cm, align=center, fill=#1, text=white},
@@ -66,7 +68,8 @@ Public health responses escalated. Soft mandates emerged, targeting workers in h
 
 Per the above, vaccine mandates could influence employment in full-service restaurants through both supply- and demand-side channels, with theoretically ambiguous net effects. On the supply side, some workers may exit the labor force or shift sectors if unwilling to comply, especially in lower-wage service jobs where vaccine hesitancy may be higher. However, others may comply with the mandate precisely *because* they wish to keep their jobs, choosing continued employment over personal objection. That is, the employment effect may hinge less on individual preferences in isolation and more on the strength of the economic incentives at stake. Employers, meanwhile, may face frictional costs from enforcing mandates or accommodating staffing turnover. On the demand side, mandates may increase consumer confidence by signaling a safer environment, thereby encouraging more patrons to return to indoor dining. For a sector like full-service restaurants, where both interpersonal contact and discretionary spending are central, mandates could plausibly stimulate demand even as they introduce short-run supply constraints. Whether employment rises or falls in net depends on which margin dominates. In short, this analysis seeks to quantify the net effect of the mandate on restaurant employment, capturing the balance between these potentially opposing forces.
 
-# Dataset {#sec-data}
+# Dataset
+\label{sec:data}
 
 We use monthly MSA–level employment series from the Federal Reserve Bank of St. Louis (FRED). The sample runs from January 1991 through August 2022, yielding $T=380$ monthly observations per unit. Units are indexed by $j \in \mathbb{N}$ and time by $t \in \mathbb{N}$. Unit $j=1$ is the treated unit (New York City MSA). The donor pool is $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with cardinality $N_0$; in the baseline sample $N_0=29$ (so $N=30$ total MSAs).
 
@@ -101,11 +104,15 @@ $$
 $$
 
 
-# Econometric Methodology {#sec-method}
+# Econometric Methodology
+\label{sec:method}
 
-# Results {#sec-results}
+# Results
+\label{sec:results}
 
-# Discussion {#sec-discussion}
+# Discussion
+\label{sec:discussion}
 
-# Conclusion {#sec-conclusion}
+# Conclusion
+\label{sec:conclusion}
 
