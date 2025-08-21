@@ -1,5 +1,5 @@
 ---
-title: "Locking Away Prosperity? Evaluating Economic Impact of the Key to NYC Program"
+title: "Locking Away Prosperity? Evaluating the Economic Impact of the Key to NYC Program"
 format: 
   pdf:
     documentclass: article
