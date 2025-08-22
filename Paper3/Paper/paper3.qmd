@@ -79,45 +79,46 @@ $$
 \mathbf{Y}_0 = \big[\mathbf{y}_j\big]_{j \in \mathcal{N}_0} \in \mathbb{R}^{T \times N_0}.
 $$
 
-The *Key to NYC* policy was implemented in August 2021. Let $T_0$ denote the last pre-treatment month (July 2021). Define the pre- and post-treatment index sets $\mathcal{T}_1 = \{t \le T_0\}$ and $\mathcal{T}_2 = \{t > T_0\}$. For convenience we partition vectors and matrices into pre/post blocks, e.g. $\mathbf{y}_j = (\mathbf{y}_{j,\mathcal{T}_1}^\top,\mathbf{y}_{j,\mathcal{T}_2}^\top)^\top$.
-
-Let $y_{jt}(0)$ and $y_{jt}(1)$ denote the potential outcomes for unit $j$ at time $t$ under no treatment and treatment, respectively. Define the observed treatment indicator
+The *Key to NYC* policy was implemented in August 2021. Let $T_0$ denote the last pre-treatment month (July 2021). Define the pre- and post-treatment index sets $\mathcal{T}_1 = \{t \le T_0\}$ and $\mathcal{T}_2 = \{t > T_0\}$. The observed treatment indicator is
 $$
-d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\},
+d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\}.
 $$
-so only the treated unit is exposed in the post period. The observed outcome satisfies the switching equation
+The observed outcome satisfies
 $$
-y_{jt} = (1-d_{jt}) \, y_{jt}(0) + d_{jt} \, y_{jt}(1).
+y_{jt} = (1-d_{jt}) \, y_{jt}(0) + d_{jt} \, y_{jt}(1),
 $$
-
-Consequently only one of $\{y_{jt}(0), y_{jt}(1)\}$ is observed for each $(j,t)$, and the causal effect for unit $j$ at time $t$ is
+with causal effect
 $$
-\tau_{jt} = y_{jt}(1) - y_{jt}(0).
+\tau_{jt} = y_{jt}(1) - y_{jt}(0),
 $$
-
-Our primary object of interest is the post-treatment average treatment effect on the treated (ATT) for the treated unit $j=1$:
+and the post-treatment ATT is
 $$
 \text{ATT} = \frac{1}{|\mathcal{T}_2|} \sum_{t \in \mathcal{T}_2} \left[ y_{1t}(1) - y_{1t}(0) \right].
 $$
 
-We additionally aggregate MSA growth rates to the level of Combined Statistical Areas (CSAs) in order to reduce noise, exploit the structure of contiguous labor markets, and construct more stable counterfactuals. Each donor MSA $j \in \mathcal{N}_0$ belongs to a CSA $c \in \mathcal{C}$. Let $w_{jt}$ denote the relative employment weight of MSA $j$ within its CSA at month $t$,
+To reduce noise and exploit contiguous labor-market structure, we aggregate MSA growth rates to the level of Combined Statistical Areas (CSAs). Each donor MSA $j \in \mathcal{N}_0$ belongs to a CSA $c \in \mathcal{C}$. Let $w_{jt}$ denote the relative employment weight of MSA $j$ within its CSA at month $t$,
 $$
 w_{jt} = \frac{e_{j,t-12}}{\sum_{k \in \mathcal{N}_c} e_{k,t-12}}, \qquad j \in \mathcal{N}_c,
 $$
-where $\mathcal{N}_c \subseteq \mathcal{N}_0$ indexes MSAs in CSA $c$, and $e_{j,t-12}$ is the employment level lagged by 12 months. These weights satisfy $w_{jt} \ge 0$ and $\sum_{j \in \mathcal{N}_c} w_{jt} = 1$ for each $t$.
+where $\mathcal{N}_c \subseteq \mathcal{N}_0$ indexes MSAs in CSA $c$. These weights satisfy $w_{jt} \ge 0$ and $\sum_{j \in \mathcal{N}_c} w_{jt} = 1$.
 
-The Törnqvist (logarithmic) growth rate of CSA $c$ at month $t$ is then computed as the convex combination of its component MSAs' growth rates:
+The Törnqvist quantity index for CSA $c$ at month $t$, denoted $Q_{c,t}$, is a weighted geometric mean of the year-over-year employment growth factors of its constituent MSAs:
 $$
-y_{ct}^{\text{CSA}} = \sum_{j \in \mathcal{N}_c} \frac{w_{jt} + w_{j,t-1}}{2} \cdot y_{jt}.
+Q_{c,t} = \prod_{j \in \mathcal{N}_c} \left( \frac{e_{jt}}{e_{j,t-12}} \right)^{\bar{w}_{jt}}, 
+\qquad \bar{w}_{jt} = \frac{w_{jt} + w_{j,t-1}}{2}.
 $$
-This approach allows the CSA growth rate to reflect the contributions of individual MSAs in a way that is proportional to their size while remaining insensitive to extreme employment levels, providing a theoretically grounded way to aggregate growth rates.
+The corresponding CSA growth rate in percentage points is
+$$
+y_{ct}^{\text{CSA}} = 100 \cdot (Q_{c,t} - 1) \approx \sum_{j \in \mathcal{N}_c} \bar{w}_{jt} \, y_{jt},
+$$
+where the last approximation holds because $\ln Q_{c,t} \approx \sum_j \bar{w}_{jt} \ln(1 + y_{jt}/100) \approx \sum_j \bar{w}_{jt} \, y_{jt}/100$ for typical growth magnitudes. This formulation ensures the CSA growth rate accounts for the relative size of MSAs without being dominated by extreme employment levels.
 
 Stacking these vectors over $t=13,\dots,T$ gives the CSA growth matrix
 $$
 \mathbf{Y}_{\text{CSA}} = \big[ \mathbf{y}_c^{\text{CSA}} \big]_{c \in \mathcal{C}} \in \mathbb{R}^{T \times |\mathcal{C}|}.
 $$
 
-We can also express this using matrix notation. Define $\mathbf{W}_t \in \mathbb{R}^{N_0 \times |\mathcal{C}|}$ as the MSA-to-CSA membership/weight matrix at month $t$, with entries
+Equivalently, using matrix notation, define $\mathbf{W}_t \in \mathbb{R}^{N_0 \times |\mathcal{C}|}$ as the MSA-to-CSA weight matrix at month $t$, with entries
 $$
 (\mathbf{W}_t)_{jc} =
 \begin{cases}
@@ -125,11 +126,11 @@ $$
 0 & \text{otherwise}.
 \end{cases}
 $$
-The CSA growth vector at month $t$ is
+Let $\mathbf{\bar W}_t = (\mathbf{W}_t + \mathbf{W}_{t-1})/2$. Then the CSA growth vector at month $t$ can be expressed as
 $$
-\mathbf{y}_t^{\text{CSA}} = \mathbf{Y}_t^\top \mathbf{\bar W}_t,
+\mathbf{y}_t^{\text{CSA}} \approx \mathbf{Y}_t^\top \mathbf{\bar W}_t,
 $$
-where $\mathbf{Y}_t = (y_{1t}, \dots, y_{N_0 t})^\top$ and $\mathbf{\bar W}_t = (\mathbf{W}_t + \mathbf{W}_{t-1})/2$ is the matrix of averaged weights. Stacking these vectors over all $t$ yields $\mathbf{Y}_{\text{CSA}}$, which provides CSA-level growth series suitable for constructing more stable synthetic controls.
+where $\mathbf{Y}_t = (y_{1t}, \dots, y_{N_0 t})^\top$. Stacking these vectors over all $t$ yields $\mathbf{Y}_{\text{CSA}}$, providing CSA-level growth series suitable for constructing stable synthetic controls.
 
 
 # Econometric Methodology
