@@ -65,12 +65,12 @@ Despite their creativity, most incentives had modest or short-lived effects \cit
 
 Per the above, vaccine mandates could influence employment in full-service restaurants through both supply- and demand-side channels, with theoretically ambiguous net effects. On the supply side, some workers may exit the labor force or shift sectors if unwilling to comply, especially in lower-wage service jobs where vaccine hesitancy may be higher. However, others may comply with the mandate precisely *because* they wish to keep their jobs, choosing continued employment over personal objection. That is, the employment effect may hinge less on individual preferences in isolation and more on the strength of the economic incentives at stake. Employers, meanwhile, may face frictional costs from enforcing mandates or accommodating staffing turnover. On the demand side, mandates may increase consumer confidence by signaling a safer environment, thereby encouraging more patrons to return to indoor dining. For a sector like full-service restaurants, where both interpersonal contact and discretionary spending are central, mandates could plausibly stimulate demand even as they introduce short-run supply constraints. Whether employment rises or falls in net depends on which margin dominates. In short, this analysis seeks to quantify the net effect of the mandate on restaurant employment, capturing the balance between these potentially opposing forces.
 
-
-
 # Dataset
 \label{sec:data}
 
-We use monthly MSA-level employment series from the Federal Reserve Bank of St. Louis (FRED) and, by extension, the Bureau of Labor Statistics, spanning January 1991 through December 2022, yielding $T=384$ monthly observations per unit. Our analysis focuses on three related outcome sets: (1) full-service restaurant employment for 30 MSAs including New York City as the treated unit with 29 donor MSAs; (2) broader leisure industry employment at the MSA level for approximately 255 MSAs from 1991 to December 2022. For the broader leisure employment analysis, New York City (FRED code SMU36935617072251101SA) is the treated unit, with the remaining MSAs as the donor pool. The broader leisure industry MSA analysis extends this framework to approximately 255 MSAs observed through December 2022 (FRED code SMU36000007072200001SA), providing a larger donor pool and outcome set.
+We use monthly MSA-level employment series from the Federal Reserve Bank of St. Louis (FRED) and, by extension, the Bureau of Labor Statistics, spanning January 1991 through December 2022, yielding $T=384$ monthly observations per unit. The pre-treatment period consists of  the set  $\mathcal{T}_1 = \{ t \in \mathbb{N} : t \leq T_0 \},$ where $T_0$ is the final period before treatment. Similarly, the post-treatment period is given by  $\mathcal{T}_2 = \{ t \in \mathbb{N} : t > T_0 \}.$  
+
+Our analysis focuses on three related outcome sets: (1) full-service restaurant employment for 30 MSAs including New York City as the treated unit with 29 donor MSAs; (2) broader leisure industry employment at the MSA level for approximately 255 MSAs from 1991 to December 2022. For the broader leisure employment analysis, New York City (FRED code SMU36935617072251101SA) is the treated unit, with the remaining MSAs as the donor pool. The broader leisure industry MSA analysis extends this framework to approximately 255 MSAs observed through December 2022 (FRED code SMU36000007072200001SA), providing a larger donor pool and outcome set.
 
 Let $e_{jt}$ denote employment in unit $j$ at month $t$. For both the full-service restaurant analysis and broader leisure market analysis, the outcome is cobstructed as the year-over-year growth rate in percentage points,
 
@@ -78,7 +78,7 @@ $$
 y_{jt} = 100 \cdot \frac{e_{jt} - e_{j,t-12}}{e_{j,t-12}}, \qquad j=1,\dots,N,\; t=13,\dots,T.
 $$
 
-of the smoothed and seasonally adjusted values. Outcomes are collected into vectors $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top$, and the donor pool is defined as $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with $N_0=29$. The *Key to NYC* policy, implemented in August 2021, designates July 2021 as the last pre-treatment month $T_0$, with the treatment indicator defined by
+of the smoothed and seasonally adjusted values. Outcomes are collected into vectors $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top$, and the donor pool is defined as $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with $N_0=29$. The Key to NYC policy, implemented in August 2021, designates July 2021 as the last pre-treatment month $T_0$, with the treatment indicator defined by
 
 $$
 d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\}.
