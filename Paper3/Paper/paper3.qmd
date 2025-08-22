@@ -85,7 +85,7 @@ Let $y_{jt}(0)$ and $y_{jt}(1)$ denote the potential outcomes for unit $j$ at ti
 $$
 d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\},
 $$
-so only the treated unit is exposed in the post period. The observed outcome satisfies the switching equation (fundamental problem of causal inference):
+so only the treated unit is exposed in the post period. The observed outcome satisfies the switching equation
 $$
 y_{jt} = (1-d_{jt}) \, y_{jt}(0) + d_{jt} \, y_{jt}(1).
 $$
@@ -99,6 +99,37 @@ Our primary object of interest is the post-treatment average treatment effect on
 $$
 \text{ATT} = \frac{1}{|\mathcal{T}_2|} \sum_{t \in \mathcal{T}_2} \left[ y_{1t}(1) - y_{1t}(0) \right].
 $$
+
+We additionally aggregate MSA growth rates to the level of Combined Statistical Areas (CSAs) in order to reduce noise, exploit the structure of contiguous labor markets, and construct more stable counterfactuals. Each donor MSA $j \in \mathcal{N}_0$ belongs to a CSA $c \in \mathcal{C}$. Let $w_{jt}$ denote the relative employment weight of MSA $j$ within its CSA at month $t$,
+$$
+w_{jt} = \frac{e_{j,t-12}}{\sum_{k \in \mathcal{N}_c} e_{k,t-12}}, \qquad j \in \mathcal{N}_c,
+$$
+where $\mathcal{N}_c \subseteq \mathcal{N}_0$ indexes MSAs in CSA $c$, and $e_{j,t-12}$ is the employment level lagged by 12 months. These weights satisfy $w_{jt} \ge 0$ and $\sum_{j \in \mathcal{N}_c} w_{jt} = 1$ for each $t$.
+
+The Törnqvist (logarithmic) growth rate of CSA $c$ at month $t$ is then computed as the convex combination of its component MSAs' growth rates:
+$$
+y_{ct}^{\text{CSA}} = \sum_{j \in \mathcal{N}_c} \frac{w_{jt} + w_{j,t-1}}{2} \cdot y_{jt}.
+$$
+This approach allows the CSA growth rate to reflect the contributions of individual MSAs in a way that is proportional to their size while remaining insensitive to extreme employment levels, providing a theoretically grounded way to aggregate growth rates.
+
+Stacking these vectors over $t=13,\dots,T$ gives the CSA growth matrix
+$$
+\mathbf{Y}_{\text{CSA}} = \big[ \mathbf{y}_c^{\text{CSA}} \big]_{c \in \mathcal{C}} \in \mathbb{R}^{T \times |\mathcal{C}|}.
+$$
+
+We can also express this using matrix notation. Define $\mathbf{W}_t \in \mathbb{R}^{N_0 \times |\mathcal{C}|}$ as the MSA-to-CSA membership/weight matrix at month $t$, with entries
+$$
+(\mathbf{W}_t)_{jc} =
+\begin{cases}
+\frac{e_{j,t-12}}{\sum_{k \in \mathcal{N}_c} e_{k,t-12}} & j \in \mathcal{N}_c, \\
+0 & \text{otherwise}.
+\end{cases}
+$$
+The CSA growth vector at month $t$ is
+$$
+\mathbf{y}_t^{\text{CSA}} = \mathbf{Y}_t^\top \mathbf{\bar W}_t,
+$$
+where $\mathbf{Y}_t = (y_{1t}, \dots, y_{N_0 t})^\top$ and $\mathbf{\bar W}_t = (\mathbf{W}_t + \mathbf{W}_{t-1})/2$ is the matrix of averaged weights. Stacking these vectors over all $t$ yields $\mathbf{Y}_{\text{CSA}}$, which provides CSA-level growth series suitable for constructing more stable synthetic controls.
 
 
 # Econometric Methodology
