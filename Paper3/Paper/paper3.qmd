@@ -65,78 +65,71 @@ Despite their creativity, most incentives had modest or short-lived effects \cit
 
 Per the above, vaccine mandates could influence employment in full-service restaurants through both supply- and demand-side channels, with theoretically ambiguous net effects. On the supply side, some workers may exit the labor force or shift sectors if unwilling to comply, especially in lower-wage service jobs where vaccine hesitancy may be higher. However, others may comply with the mandate precisely *because* they wish to keep their jobs, choosing continued employment over personal objection. That is, the employment effect may hinge less on individual preferences in isolation and more on the strength of the economic incentives at stake. Employers, meanwhile, may face frictional costs from enforcing mandates or accommodating staffing turnover. On the demand side, mandates may increase consumer confidence by signaling a safer environment, thereby encouraging more patrons to return to indoor dining. For a sector like full-service restaurants, where both interpersonal contact and discretionary spending are central, mandates could plausibly stimulate demand even as they introduce short-run supply constraints. Whether employment rises or falls in net depends on which margin dominates. In short, this analysis seeks to quantify the net effect of the mandate on restaurant employment, capturing the balance between these potentially opposing forces.
 
+
+
 # Dataset
 \label{sec:data}
 
-We use monthly MSA–level employment series from the Federal Reserve Bank of St. Louis (FRED). The sample runs from January 1991 through August 2022, yielding $T=380$ monthly observations per unit. Units are indexed by $j \in \mathbb{N}$ and time by $t \in \mathbb{N}$. Unit $j=1$ is the treated unit (New York City MSA). The donor pool is $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with cardinality $N_0$; in the baseline sample $N_0=29$ (so $N=30$ total MSAs).
+We use monthly MSA-level employment series from the Federal Reserve Bank of St. Louis (FRED) spanning January 1991 through August 2022, yielding $T=380$ monthly observations per unit. Our analysis focuses on three related outcome sets: (1) full-service restaurant employment for 30 MSAs including New York City as the treated unit with 29 donor MSAs; (2) broader leisure industry employment at the MSA level for approximately 255 MSAs from 1991 to December 2022; and (3) the same broader leisure industry data aggregated from MSAs into 154 Combined Statistical Areas (CSAs). 
 
-Let $e_{jt}$ denote employment in full-service restaurants in unit $j$ at month $t$. The primary outcome is the year-over-year growth rate (in percentage points),
+Let $e_{jt}$ denote employment in unit $j$ at month $t$. For the full-service restaurant analysis, the primary outcome is the year-over-year growth rate in percentage points,
+
 $$
 y_{jt} = 100 \cdot \frac{e_{jt} - e_{j,t-12}}{e_{j,t-12}}, \qquad j=1,\dots,N,\; t=13,\dots,T.
 $$
-Collect outcomes into vectors $\mathbf{y}_j = (y_{j1},\dots,y_{jT})^\top \in \mathbb{R}^T$ and the donor matrix
+
+Outcomes are collected into vectors $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top$, and the donor pool is defined as $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with $N_0=29$. The *Key to NYC* policy, implemented in August 2021, designates July 2021 as the last pre-treatment month $T_0$, with the treatment indicator defined by
+
 $$
-\mathbf{Y}_0 = \big[\mathbf{y}_j\big]_{j \in \mathcal{N}_0} \in \mathbb{R}^{T \times N_0}.
+d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\}.
 $$
 
-The *Key to NYC* policy was implemented in August 2021. Let $T_0$ denote the last pre-treatment month (July 2021). Define the pre- and post-treatment index sets $\mathcal{T}_1 = \{t \le T_0\}$ and $\mathcal{T}_2 = \{t > T_0\}$. The observed treatment indicator is
+Observed outcomes satisfy
+
 $$
-d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\},
-$$
-so only the treated unit is exposed in the post period. Observed outcomes satisfy
-$$
-y_{jt} = (1-d_{jt}) \, y_{jt}(0) + d_{jt} \, y_{jt}(1),
-$$
-with causal effect
-$$
-\tau_{jt} = y_{jt}(1) - y_{jt}(0),
-$$
-and post-treatment average treatment effect on the treated (ATT)
-$$
-\text{ATT} = \frac{1}{|\mathcal{T}_2|} \sum_{t \in \mathcal{T}_2} \tau_{1t}.
+y_{jt} = (1 - d_{jt}) y_{jt}(0) + d_{jt} y_{jt}(1),
 $$
 
-To reduce noise and construct more stable counterfactuals, we aggregate MSA growth rates to the level of Combined Statistical Areas (CSAs). Let $\mathcal{C}$ index CSAs and $\mathcal{N}_c \subseteq \mathcal{N}_0$ be the set of donor MSAs in CSA $c \in \mathcal{C}$. Define lagged relative employment weights
+with causal effects $\tau_{jt} = y_{jt}(1) - y_{jt}(0)$ and post-treatment average treatment effect on the treated (ATT)
+
 $$
-w_{jt} = \frac{e_{j,t-12}}{\sum_{k \in \mathcal{N}_c} e_{k,t-12}}, \quad j \in \mathcal{N}_c,
-$$
-and averaged weights
-$$
-\bar{w}_{jt} = \frac{w_{jt} + w_{j,t-1}}{2}.
+\text{ATT} = \frac{1}{|\mathcal{T}_2|} \sum_{t \in \mathcal{T}_2} \tau_{1t},
 $$
 
-The CSA-level Törnqvist growth factor $Q_{ct}$ is the weighted geometric mean of its constituent MSA growth factors:
-$$
-Q_{ct} = \prod_{j \in \mathcal{N}_c} \left( \frac{e_{jt}}{e_{j,t-12}} \right)^{\bar{w}_{jt}}, \quad
-y_{ct}^{\text{CSA}} = 100 \cdot (Q_{ct}-1).
-$$
-This formulation ensures that larger MSAs contribute proportionally to the CSA growth rate while avoiding bias toward the absolute largest units.
+where $\mathcal{T}_2 = \{t > T_0\}$.
 
-Let $\mathbf{W}_t \in \mathbb{R}^{N_0 \times |\mathcal{C}|}$ be the MSA-to-CSA weight matrix at month $t$, with entries
+## MSA analysis
+
+The full-service restaurant analysis is performed at the MSA level with balanced panels ensuring complete monthly coverage. Year-over-year growth rates are calculated from smoothed and seasonally adjusted employment data, excluding observations missing the 12-month lag. New York City (FRED code SMU36935617072251101SA) is the treated unit, with the remaining MSAs as the donor pool. The broader leisure industry MSA analysis extends this framework to approximately 255 MSAs observed through December 2022 (FRED code SMU36000007072200001SA), providing a larger donor pool and outcome set.
+
+## CSA analysis
+
+To capture broader regional economic dynamics, we aggregate MSA-level leisure industry data into 154 CSAs covering the same period. Let $\mathcal{I}$ denote the set of all MSAs and $\mathcal{C}$ the set of all CSAs. Each CSA $c \in \mathcal{C}$ is defined as the union of its constituent MSAs, i.e.,
+
 $$
-(\mathbf{W}_t)_{jc} =
-\begin{cases}
-w_{jt}, & j \in \mathcal{N}_c,\\
-0, & \text{otherwise},
-\end{cases}
+c = \bigcup_{i \in \mathcal{I}_c} \{i\},
 $$
-and define the averaged matrix
+
+where $\mathcal{I}_c \subseteq \mathcal{I}$ is the subset of MSAs nested within CSA $c$. Equivalently, the sets $\{\mathcal{I}_c : c \in \mathcal{C}\}$ form a partition of $\mathcal{I}$ such that
+
 $$
-\mathbf{\bar W}_t = \frac{\mathbf{W}_t + \mathbf{W}_{t-1}}{2}.
+\mathcal{I} = \bigcup_{c \in \mathcal{C}} \mathcal{I}_c, \quad \text{and} \quad \mathcal{I}_c \cap \mathcal{I}_{c^{\prime}} = \emptyset \text{ for } c \neq c^{\prime}.
 $$
-Let $\mathbf{E}_t \in \mathbb{R}^{N_0}$ be the vector of current-to-lagged employment ratios,
+
+We apply a Törnqvist index to compute CSA-level year-over-year growth rates that account for changing relative employment shares of constituent MSAs. For CSA $c$ at month $t$, the growth rate is
+
+
 $$
-(\mathbf{E}_t)_j = \frac{e_{jt}}{e_{j,t-12}}.
+g_{ct} = \exp\left( \sum_{i \in c} w_{i,t} \ln \left( \frac{e_{i,t}}{e_{i,t-12}} \right) \right) - 1,
 $$
-Then CSA growth factors and growth rates can be computed vectorially as
+
+where weights $w_{i,t}$ are the average of MSA $i$’s employment share in CSA $c$ at months $t$ and $t-12$:
+
 $$
-\mathbf{Q}_t = \prod_{j=1}^{N_0} (\mathbf{E}_t)_j^{(\mathbf{\bar W}_t)_{jc}}, \quad
-\mathbf{y}_t^{\text{CSA}} = 100 \cdot (\mathbf{Q}_t - 1),
+w_{i,t} = \frac{1}{2} \left( \frac{e_{i,t}}{\sum_{j \in c} e_{j,t}} + \frac{e_{i,t-12}}{\sum_{j \in c} e_{j,t-12}} \right).
 $$
-and stacking over $t$ gives the CSA growth matrix
-$$
-\mathbf{Y}_{\text{CSA}} = \big[ \mathbf{y}_t^{\text{CSA}} \big]_{t=13}^{T} \in \mathbb{R}^{T \times |\mathcal{C}|}.
-$$
+
+This weighted log-growth aggregation mitigates distortions from simple averaging and reflects the evolving composition of CSAs over time.
 
 # Econometric Methodology
 \label{sec:method}
