@@ -96,23 +96,34 @@ $$
 \text{ATT} = \frac{1}{|\mathcal{T}_2|} \sum_{t \in \mathcal{T}_2} \tau_{1t}.
 $$
 
-Each donor MSA $j \in \mathcal{N}_0$ belongs to a CSA $c \in \mathcal{C}$. Let $\mathcal{N}_c \subseteq \mathcal{N}_0$ index MSAs in CSA $c$. Define lagged relative employment weights
+## Aggregation to Combined Statistical Areas (CSAs)
+
+Each donor MSA $j \in \mathcal{N}_0$ belongs to exactly one CSA $c \in \mathcal{C}$. Formally, let
+$$
+\mathcal{N}_c \subseteq \mathcal{N}_0, \quad \text{with} \quad \bigcup_{c \in \mathcal{C}} \mathcal{N}_c = \mathcal{N}_0 \quad \text{and} \quad \mathcal{N}_c \cap \mathcal{N}_{c'} = \emptyset \text{ for } c \neq c'.
+$$
+
+We define lagged employment weights for each MSA within its CSA:
 $$
 w_{jt} = \frac{e_{j,t-12}}{\sum_{k \in \mathcal{N}_c} e_{k,t-12}}, \quad j \in \mathcal{N}_c,
 $$
-and the average weights
+and average weights
 $$
 \bar{w}_{jt} = \frac{w_{jt} + w_{j,t-1}}{2}.
 $$
 
 The CSA-level Törnqvist growth factor $Q_{ct}$ is the weighted geometric mean of the MSA-level growth factors:
 $$
-Q_{ct} = \prod_{j \in \mathcal{N}_c} \left( \frac{e_{jt}}{e_{j,t-12}} \right)^{\bar{w}_{jt}}.
+Q_{ct} = \prod_{j \in \mathcal{N}_c} \left( \frac{e_{jt}}{e_{j,t-12}} \right)^{\bar{w}_{jt}}, \quad c \in \mathcal{C}.
 $$
 The corresponding CSA-level growth rate in percentage points is
 $$
 y_{ct}^{\text{CSA}} = 100 \cdot (Q_{ct} - 1).
 $$
+
+This aggregation reduces noise, exploits the structure of contiguous labor markets, and stabilizes counterfactual estimates by weighting MSA growth according to size while avoiding bias toward the largest MSAs.
+
+## Matrix Formulation
 
 Define $\mathbf{W}_t \in \mathbb{R}^{N_0 \times |\mathcal{C}|}$ with entries
 $$
@@ -134,6 +145,7 @@ Stacking over $t$ gives the matrix of CSA growth rates
 $$
 \mathbf{Y}_{\text{CSA}} = \big[ \mathbf{y}_t^{\text{CSA}} \big]_{t=13}^{T} \in \mathbb{R}^{T \times |\mathcal{C}|}.
 $$
+
 
 # Econometric Methodology
 \label{sec:method}
