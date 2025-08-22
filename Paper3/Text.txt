@@ -1,0 +1,27 @@
+%## CSA analysis
+
+%To capture broader regional economic dynamics, we aggregate MSA-level leisure industry data into 154 CSAs covering the same period. Let $\mathcal{I}$ denote the set of all MSAs and $\mathcal{C}$ the set of all CSAs. Each CSA $c \in \mathcal{C}$ is defined as the union of its constituent MSAs, i.e.,
+
+%$$
+%c = \bigcup_{i \in \mathcal{I}_c} \{i\},
+%$$
+
+%where $\mathcal{I}_c \subseteq \mathcal{I}$ is the subset of MSAs nested within CSA $c$. Equivalently, the sets $\{\mathcal{I}_c : c \in \mathcal{C}\}$ form a partition of $\mathcal{I}$ such that
+%$$
+%\mathcal{I} = \bigcup_{c \in \mathcal{C}} \mathcal{I}_c, \quad \text{and} \quad \mathcal{I}_c \cap \mathcal{I}_{c^{\prime}} = \emptyset \text{ for } c \neq c^{\prime}.
+%$$
+
+%We apply a Törnqvist index to compute CSA-level year-over-year growth rates that account for changing relative employment shares of constituent MSAs. For CSA $c$ at month $t$, the growth rate is
+
+
+%$$
+%g_{ct} = \exp\left( \sum_{i \in c} w_{i,t} \ln \left( \frac{e_{i,t}}{e_{i,t-12}} \right) \right) - 1,
+%$$
+
+%where weights $w_{i,t}$ are the average of MSA $i$’s employment share in CSA $c$ at months $t$ and $t-12$:
+
+%$$
+%w_{i,t} = \frac{1}{2} \left( \frac{e_{i,t}}{\sum_{j \in c} e_{j,t}} + \frac{e_{i,t-12}}{\sum_{j \in c} e_{j,t-12}} \right).
+%$$
+
+%This weighted log-growth aggregation mitigates distortions from simple averaging and reflects the evolving composition of CSAs over time.
