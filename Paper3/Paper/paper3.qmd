@@ -70,15 +70,15 @@ Per the above, vaccine mandates could influence employment in full-service resta
 # Dataset
 \label{sec:data}
 
-We use monthly MSA-level employment series from the Federal Reserve Bank of St. Louis (FRED) spanning January 1991 through August 2022, yielding $T=380$ monthly observations per unit. Our analysis focuses on three related outcome sets: (1) full-service restaurant employment for 30 MSAs including New York City as the treated unit with 29 donor MSAs; (2) broader leisure industry employment at the MSA level for approximately 255 MSAs from 1991 to December 2022; and (3) the same broader leisure industry data aggregated from MSAs into 154 Combined Statistical Areas (CSAs). 
+We use monthly MSA-level employment series from the Federal Reserve Bank of St. Louis (FRED) and the Bureau of Labor Statistics, spanning January 1991 through August 2022, yielding $T=380$ monthly observations per unit. Our analysis focuses on three related outcome sets: (1) full-service restaurant employment for 30 MSAs including New York City as the treated unit with 29 donor MSAs; (2) broader leisure industry employment at the MSA level for approximately 255 MSAs from 1991 to December 2022. For the broader leisure employment analysis, New York City (FRED code SMU36935617072251101SA) is the treated unit, with the remaining MSAs as the donor pool. The broader leisure industry MSA analysis extends this framework to approximately 255 MSAs observed through December 2022 (FRED code SMU36000007072200001SA), providing a larger donor pool and outcome set.
 
-Let $e_{jt}$ denote employment in unit $j$ at month $t$. For the full-service restaurant analysis, the primary outcome is the year-over-year growth rate in percentage points,
+Let $e_{jt}$ denote employment in unit $j$ at month $t$. For both the full-service restaurant analysis and broader leisure market analysis, the outcome is cobstructed as the year-over-year growth rate in percentage points,
 
 $$
 y_{jt} = 100 \cdot \frac{e_{jt} - e_{j,t-12}}{e_{j,t-12}}, \qquad j=1,\dots,N,\; t=13,\dots,T.
 $$
 
-Outcomes are collected into vectors $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top$, and the donor pool is defined as $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with $N_0=29$. The *Key to NYC* policy, implemented in August 2021, designates July 2021 as the last pre-treatment month $T_0$, with the treatment indicator defined by
+of the smoothed and seasonally adjusted values. Outcomes are collected into vectors $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top$, and the donor pool is defined as $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with $N_0=29$. The *Key to NYC* policy, implemented in August 2021, designates July 2021 as the last pre-treatment month $T_0$, with the treatment indicator defined by
 
 $$
 d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\}.
@@ -98,38 +98,33 @@ $$
 
 where $\mathcal{T}_2 = \{t > T_0\}$.
 
-## MSA analysis
+%## CSA analysis
 
-The full-service restaurant analysis is performed at the MSA level with balanced panels ensuring complete monthly coverage. Year-over-year growth rates are calculated from smoothed and seasonally adjusted employment data, excluding observations missing the 12-month lag. New York City (FRED code SMU36935617072251101SA) is the treated unit, with the remaining MSAs as the donor pool. The broader leisure industry MSA analysis extends this framework to approximately 255 MSAs observed through December 2022 (FRED code SMU36000007072200001SA), providing a larger donor pool and outcome set.
+%To capture broader regional economic dynamics, we aggregate MSA-level leisure industry data into 154 CSAs covering the same period. Let $\mathcal{I}$ denote the set of all MSAs and $\mathcal{C}$ the set of all CSAs. Each CSA $c \in \mathcal{C}$ is defined as the union of its constituent MSAs, i.e.,
 
-## CSA analysis
+%$$
+%c = \bigcup_{i \in \mathcal{I}_c} \{i\},
+%$$
 
-To capture broader regional economic dynamics, we aggregate MSA-level leisure industry data into 154 CSAs covering the same period. Let $\mathcal{I}$ denote the set of all MSAs and $\mathcal{C}$ the set of all CSAs. Each CSA $c \in \mathcal{C}$ is defined as the union of its constituent MSAs, i.e.,
+%where $\mathcal{I}_c \subseteq \mathcal{I}$ is the subset of MSAs nested within CSA $c$. Equivalently, the sets $\{\mathcal{I}_c : c \in \mathcal{C}\}$ form a partition of $\mathcal{I}$ such that
+%$$
+%\mathcal{I} = \bigcup_{c \in \mathcal{C}} \mathcal{I}_c, \quad \text{and} \quad \mathcal{I}_c \cap \mathcal{I}_{c^{\prime}} = \emptyset \text{ for } c \neq c^{\prime}.
+%$$
 
-$$
-c = \bigcup_{i \in \mathcal{I}_c} \{i\},
-$$
-
-where $\mathcal{I}_c \subseteq \mathcal{I}$ is the subset of MSAs nested within CSA $c$. Equivalently, the sets $\{\mathcal{I}_c : c \in \mathcal{C}\}$ form a partition of $\mathcal{I}$ such that
-
-$$
-\mathcal{I} = \bigcup_{c \in \mathcal{C}} \mathcal{I}_c, \quad \text{and} \quad \mathcal{I}_c \cap \mathcal{I}_{c^{\prime}} = \emptyset \text{ for } c \neq c^{\prime}.
-$$
-
-We apply a Törnqvist index to compute CSA-level year-over-year growth rates that account for changing relative employment shares of constituent MSAs. For CSA $c$ at month $t$, the growth rate is
+%We apply a Törnqvist index to compute CSA-level year-over-year growth rates that account for changing relative employment shares of constituent MSAs. For CSA $c$ at month $t$, the growth rate is
 
 
-$$
-g_{ct} = \exp\left( \sum_{i \in c} w_{i,t} \ln \left( \frac{e_{i,t}}{e_{i,t-12}} \right) \right) - 1,
-$$
+%$$
+%g_{ct} = \exp\left( \sum_{i \in c} w_{i,t} \ln \left( \frac{e_{i,t}}{e_{i,t-12}} \right) \right) - 1,
+%$$
 
-where weights $w_{i,t}$ are the average of MSA $i$’s employment share in CSA $c$ at months $t$ and $t-12$:
+%where weights $w_{i,t}$ are the average of MSA $i$’s employment share in CSA $c$ at months $t$ and $t-12$:
 
-$$
-w_{i,t} = \frac{1}{2} \left( \frac{e_{i,t}}{\sum_{j \in c} e_{j,t}} + \frac{e_{i,t-12}}{\sum_{j \in c} e_{j,t-12}} \right).
-$$
+%$$
+%w_{i,t} = \frac{1}{2} \left( \frac{e_{i,t}}{\sum_{j \in c} e_{j,t}} + \frac{e_{i,t-12}}{\sum_{j \in c} e_{j,t-12}} \right).
+%$$
 
-This weighted log-growth aggregation mitigates distortions from simple averaging and reflects the evolving composition of CSAs over time.
+%This weighted log-growth aggregation mitigates distortions from simple averaging and reflects the evolving composition of CSAs over time.
 
 # Econometric Methodology  
 \label{sec:method}
@@ -148,9 +143,9 @@ $$
 
 is the probability simplex. This finds the weights $\mathbf{w}^{\mathrm{SCM}}$ that best reconstruct the treated unit’s pre-treatment outcomes as a convex combination of donor outcomes.
 
-## Forward Selection SCM (FSCM)
+## Forward Selection SCM
 
-*Forward Selection SCM (FSCM)* constructs the synthetic control iteratively by adding donor units one at a time. Starting with an empty selected donor set $\mathcal{S} = \emptyset$, at each iteration the algorithm evaluates each candidate donor $j \in \mathcal{N}_0 \setminus \mathcal{S}$ by forming an expanded set $\mathcal{S}' = \mathcal{S} \cup \{j\}$. For each $\mathcal{S}'$, it solves the restricted SCM problem over the donor submatrix $\mathbf{Y}_0^{\mathcal{S}'}$, consisting of columns corresponding to units in $\mathcal{S}'$:
+FSCM constructs the synthetic control iteratively by adding donor units one at a time. Starting with an empty selected donor set $\mathcal{S} = \emptyset$, at each iteration the algorithm evaluates each candidate donor $j \in \mathcal{N}_0 \setminus \mathcal{S}$ by forming an expanded set $\mathcal{S}' = \mathcal{S} \cup \{j\}$. For each $\mathcal{S}'$, it solves the restricted SCM problem over the donor submatrix $\mathbf{Y}_0^{\mathcal{S}'}$, consisting of columns corresponding to units in $\mathcal{S}'$:
 
 $$
 \mathbf{w}_{\mathcal{S}'}^* = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{conv}}(\mathcal{S}')} {\operatorname*{argmin}} \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1, \mathcal{S}'} \mathbf{w} \right\|_2^2,
@@ -178,7 +173,7 @@ $$
 
 This forward selection continues until a stopping criterion is met, such as reaching a maximum number of donors, a minimum improvement threshold, or an information criterion like modified BIC.
 
-## The Augmented Synthetic Control Estimator (ASCM)
+## The Augmented Synthetic Control Estimator
 
 Building on the baseline SCM, ASCM relaxes the convex weight restriction by allowing affine weights and adds a regularization penalty that shrinks the solution towards a reference weight vector $\mathbf{w}_0$, typically the SCM or FSCM solution. The augmented objective is
 
@@ -194,7 +189,7 @@ $$
 
 is the affine subspace of weights summing to one, but not restricted to be non-negative. The intuition is that when $\mathbf{w}_0$ (e.g., FSCM weights) provides a good fit, $\lambda$ will be large to maintain interpretability; when fit needs improvement, $\lambda$ can be small to allow extrapolation beyond the convex hull.
 
-## Forward Augmented Synthetic Control (FASC)
+## Forward Augmented Synthetic Control
 
 FASC integrates the interpretability of FSCM with the flexibility of ASCM by first performing forward selection to obtain $\mathbf{w}^{\mathrm{FSCM}}$, then solving
 
