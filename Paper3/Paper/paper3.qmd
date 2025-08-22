@@ -131,8 +131,102 @@ $$
 
 This weighted log-growth aggregation mitigates distortions from simple averaging and reflects the evolving composition of CSAs over time.
 
-# Econometric Methodology
+# Econometric Methodology  
 \label{sec:method}
+
+To estimate the counterfactual employment trajectory for NYC’s full-service restaurant sector and the broader employment trends in the leisure labor market, I employ a synthetic control approach that hybridizes Forward Selection SCM (FSCM) and the Augmented SCM (ASCM) estimators. The classical Synthetic Control Method (SCM) solves
+
+$$
+\mathbf{w}^{\mathrm{SCM}} = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{conv}}}{\operatorname*{argmin}} \; \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w} \right\|_2^2,
+$$
+
+where 
+
+$$
+\mathcal{W}_{\mathrm{conv}} = \left\{ \mathbf{w} \in \mathbb{R}_{\geq 0}^{N_0} \;\middle|\; \mathbf{1}^\top \mathbf{w} = 1 \right\}
+$$
+
+is the probability simplex. This finds the weights $\mathbf{w}^{\mathrm{SCM}}$ that best reconstruct the treated unit’s pre-treatment outcomes as a convex combination of donor outcomes.
+
+## Forward Selection SCM (FSCM)
+
+*Forward Selection SCM (FSCM)* constructs the synthetic control iteratively by adding donor units one at a time. Starting with an empty selected donor set $\mathcal{S} = \emptyset$, at each iteration the algorithm evaluates each candidate donor $j \in \mathcal{N}_0 \setminus \mathcal{S}$ by forming an expanded set $\mathcal{S}' = \mathcal{S} \cup \{j\}$. For each $\mathcal{S}'$, it solves the restricted SCM problem over the donor submatrix $\mathbf{Y}_0^{\mathcal{S}'}$, consisting of columns corresponding to units in $\mathcal{S}'$:
+
+$$
+\mathbf{w}_{\mathcal{S}'}^* = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{conv}}(\mathcal{S}')} {\operatorname*{argmin}} \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1, \mathcal{S}'} \mathbf{w} \right\|_2^2,
+$$
+
+where
+
+$$
+\mathcal{W}_{\mathrm{conv}}(\mathcal{S}') = \left\{ \mathbf{w} \in \mathbb{R}_{\geq 0}^{|\mathcal{S}'|} \mid \mathbf{1}^\top \mathbf{w} = 1 \right\}.
+$$
+
+The donor selected at iteration $k$ is
+
+$$
+j^* = \underset{j \in \mathcal{N}_0 \setminus \mathcal{S}}{\operatorname*{argmin}} \; 
+\min_{\mathbf{w} \in \mathcal{W}_{\mathrm{conv}}(\mathcal{S} \cup \{j\})} 
+\left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1, \mathcal{S} \cup \{j\}} \mathbf{w} \right\|_2^2,
+$$
+
+and $\mathcal{S}$ is updated as
+
+$$
+\mathcal{S} \leftarrow \mathcal{S} \cup \{j^*\}.
+$$
+
+This forward selection continues until a stopping criterion is met, such as reaching a maximum number of donors, a minimum improvement threshold, or an information criterion like modified BIC.
+
+## The Augmented Synthetic Control Estimator (ASCM)
+
+Building on the baseline SCM, ASCM relaxes the convex weight restriction by allowing affine weights and adds a regularization penalty that shrinks the solution towards a reference weight vector $\mathbf{w}_0$, typically the SCM or FSCM solution. The augmented objective is
+
+$$
+\mathbf{w}^{\mathrm{aug}} = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{aff}}}{\operatorname*{argmin}} \; \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w} \right\|_2^2 + \lambda \left\| \mathbf{w} - \mathbf{w}_0 \right\|_2^2,
+$$
+
+where $\lambda \geq 0$ controls the penalty strength and
+
+$$
+\mathcal{W}_{\mathrm{aff}} = \left\{ \mathbf{w} \in \mathbb{R}^{N_0} \mid \mathbf{1}^\top \mathbf{w} = 1 \right\}
+$$
+
+is the affine subspace of weights summing to one, but not restricted to be non-negative. The intuition is that when $\mathbf{w}_0$ (e.g., FSCM weights) provides a good fit, $\lambda$ will be large to maintain interpretability; when fit needs improvement, $\lambda$ can be small to allow extrapolation beyond the convex hull.
+
+## Forward Augmented Synthetic Control (FASC)
+
+FASC integrates the interpretability of FSCM with the flexibility of ASCM by first performing forward selection to obtain $\mathbf{w}^{\mathrm{FSCM}}$, then solving
+
+$$
+\mathbf{w}^{\mathrm{FASC}} = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{aff}}}{\operatorname*{argmin}} \; \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w} \right\|_2^2 + \lambda \left\| \mathbf{w} - \mathbf{w}^{\mathrm{FSCM}} \right\|_2^2,
+$$
+
+where $\lambda \geq 0$ balances fidelity to the sparse forward-selected weights and pre-treatment fit.
+
+Large $\lambda$ yields a solution close to $\mathbf{w}^{\mathrm{FSCM}}$, preserving sparsity and interpretability, whereas small $\lambda$ prioritizes fit, allowing positive or negative weights outside the original selected donors.
+
+### Cross-Validation for $\lambda$
+
+The hyperparameter $\lambda$ is chosen by time-split cross-validation over the pre-treatment period. The training set (first half of pre-treatment) is used to estimate
+
+$$
+\mathbf{w}^{\mathrm{FASC}}(\lambda) = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{aff}}}{\operatorname*{argmin}} \left\| \mathbf{y}_{\mathrm{train}} - \mathbf{Y}_{0,\mathrm{train}} \mathbf{w} \right\|_2^2 + \lambda \left\| \mathbf{w} - \mathbf{w}^{\mathrm{FSCM}} \right\|_2^2,
+$$
+
+while the validation set (second half of pre-treatment) evaluates out-of-sample error via
+
+$$
+\mathrm{CV\text{-}RMSE}(\lambda) = \left\| \mathbf{y}_{\mathrm{val}} - \mathbf{Y}_{0,\mathrm{val}} \mathbf{w}^{\mathrm{FASC}}(\lambda) \right\|_2.
+$$
+
+The $\lambda$ minimizing $\mathrm{CV\text{-}RMSE}$ balances interpretability and fit. Bayesian optimization over $\log_{10}(\lambda) \in [-2,3]$ with Gaussian Process surrogates and Expected Improvement acquisition efficiently explores this space. Since $\mathbf{w}^{\mathrm{FSCM}}$ is feasible in the FASC optimization, the in-sample Mean Squared Error (MSE) satisfies
+
+$$
+\mathrm{MSE}^{\mathrm{FASC}} = \frac{1}{T_0} \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w}^{\mathrm{FASC}} \right\|_2^2 \leq \frac{1}{T_0} \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w}^{\mathrm{FSCM}} \right\|_2^2 = \mathrm{MSE}^{\mathrm{FSCM}},
+$$
+
+ensuring FASC’s fit is never worse and typically better than FSCM.
 
 # Results
 \label{sec:results}
