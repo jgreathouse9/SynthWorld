@@ -25,11 +25,6 @@ The rest of the paper is organized as follows. Section \ref{sec:policy} provides
 # Policy Background
 \label{sec:policy}
 
-\definecolor{npicolor}{HTML}{008080} % Teal for NPIs
-\definecolor{vacccolor}{HTML}{FFA500} % Orange for Vaccine phases
-\definecolor{variantcolor}{HTML}{FF0000} % Red for Delta Variant
-\definecolor{mandatecolor}{HTML}{800080} % Purple for Mandates
-
 \tikzset{
   phase/.style = {rectangle, draw, rounded corners, minimum height=1.2em, minimum width=5cm, align=center, fill=#1, text=white},
   arrow/.style = {->, thick},
