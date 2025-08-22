@@ -79,53 +79,40 @@ $$
 \mathbf{Y}_0 = \big[\mathbf{y}_j\big]_{j \in \mathcal{N}_0} \in \mathbb{R}^{T \times N_0}.
 $$
 
-The *Key to NYC* policy was implemented in August 2021. Let $T_0$ denote the last pre-treatment month (July 2021). Define the pre- and post-treatment index sets $\mathcal{T}_1 = \{t \le T_0\}$ and $\mathcal{T}_2 = \{t > T_0\}$. Define the observed treatment indicator
+The *Key to NYC* policy was implemented in August 2021. Let $T_0$ denote the last pre-treatment month (July 2021). Define the pre- and post-treatment index sets $\mathcal{T}_1 = \{t \le T_0\}$ and $\mathcal{T}_2 = \{t > T_0\}$. The observed treatment indicator is
 $$
-d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\}.
+d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\},
 $$
-The observed outcome satisfies the switching equation
+so only the treated unit is exposed in the post period. Observed outcomes satisfy
 $$
 y_{jt} = (1-d_{jt}) \, y_{jt}(0) + d_{jt} \, y_{jt}(1),
 $$
 with causal effect
 $$
-\tau_{jt} = y_{jt}(1) - y_{jt}(0).
+\tau_{jt} = y_{jt}(1) - y_{jt}(0),
 $$
-The post-treatment ATT is
+and post-treatment average treatment effect on the treated (ATT)
 $$
 \text{ATT} = \frac{1}{|\mathcal{T}_2|} \sum_{t \in \mathcal{T}_2} \tau_{1t}.
 $$
 
-## Aggregation to Combined Statistical Areas (CSAs)
-
-Each donor MSA $j \in \mathcal{N}_0$ belongs to exactly one CSA $c \in \mathcal{C}$. Formally, let
-$$
-\mathcal{N}_c \subseteq \mathcal{N}_0, \quad \text{with} \quad \bigcup_{c \in \mathcal{C}} \mathcal{N}_c = \mathcal{N}_0 \quad \text{and} \quad \mathcal{N}_c \cap \mathcal{N}_{c'} = \emptyset \text{ for } c \neq c'.
-$$
-
-We define lagged employment weights for each MSA within its CSA:
+To reduce noise and construct more stable counterfactuals, we aggregate MSA growth rates to the level of Combined Statistical Areas (CSAs). Let $\mathcal{C}$ index CSAs and $\mathcal{N}_c \subseteq \mathcal{N}_0$ be the set of donor MSAs in CSA $c \in \mathcal{C}$. Define lagged relative employment weights
 $$
 w_{jt} = \frac{e_{j,t-12}}{\sum_{k \in \mathcal{N}_c} e_{k,t-12}}, \quad j \in \mathcal{N}_c,
 $$
-and average weights
+and averaged weights
 $$
 \bar{w}_{jt} = \frac{w_{jt} + w_{j,t-1}}{2}.
 $$
 
-The CSA-level Törnqvist growth factor $Q_{ct}$ is the weighted geometric mean of the MSA-level growth factors:
+The CSA-level Törnqvist growth factor $Q_{ct}$ is the weighted geometric mean of its constituent MSA growth factors:
 $$
-Q_{ct} = \prod_{j \in \mathcal{N}_c} \left( \frac{e_{jt}}{e_{j,t-12}} \right)^{\bar{w}_{jt}}, \quad c \in \mathcal{C}.
+Q_{ct} = \prod_{j \in \mathcal{N}_c} \left( \frac{e_{jt}}{e_{j,t-12}} \right)^{\bar{w}_{jt}}, \quad
+y_{ct}^{\text{CSA}} = 100 \cdot (Q_{ct}-1).
 $$
-The corresponding CSA-level growth rate in percentage points is
-$$
-y_{ct}^{\text{CSA}} = 100 \cdot (Q_{ct} - 1).
-$$
+This formulation ensures that larger MSAs contribute proportionally to the CSA growth rate while avoiding bias toward the absolute largest units.
 
-This aggregation reduces noise, exploits the structure of contiguous labor markets, and stabilizes counterfactual estimates by weighting MSA growth according to size while avoiding bias toward the largest MSAs.
-
-## Matrix Formulation
-
-Define $\mathbf{W}_t \in \mathbb{R}^{N_0 \times |\mathcal{C}|}$ with entries
+Let $\mathbf{W}_t \in \mathbb{R}^{N_0 \times |\mathcal{C}|}$ be the MSA-to-CSA weight matrix at month $t$, with entries
 $$
 (\mathbf{W}_t)_{jc} =
 \begin{cases}
@@ -133,19 +120,23 @@ w_{jt}, & j \in \mathcal{N}_c,\\
 0, & \text{otherwise},
 \end{cases}
 $$
-and let $\mathbf{\bar W}_t = (\mathbf{W}_t + \mathbf{W}_{t-1})/2$ be the matrix of averaged weights. Let $\mathbf{E}_t \in \mathbb{R}^{N_0}$ be the vector of current-to-lagged employment ratios, $(\mathbf{E}_t)_j = e_{jt}/e_{j,t-12}$. Then CSA growth factors can be computed vectorially as
+and define the averaged matrix
 $$
-\mathbf{Q}_t = \prod_{j=1}^{N_0} (\mathbf{E}_t)_j^{(\mathbf{\bar W}_t)_{jc}}, \quad c=1,\dots,|\mathcal{C}|,
+\mathbf{\bar W}_t = \frac{\mathbf{W}_t + \mathbf{W}_{t-1}}{2}.
 $$
-and the CSA-level growth rates are
+Let $\mathbf{E}_t \in \mathbb{R}^{N_0}$ be the vector of current-to-lagged employment ratios,
 $$
-\mathbf{y}_t^{\text{CSA}} = 100 \cdot (\mathbf{Q}_t - 1).
+(\mathbf{E}_t)_j = \frac{e_{jt}}{e_{j,t-12}}.
 $$
-Stacking over $t$ gives the matrix of CSA growth rates
+Then CSA growth factors and growth rates can be computed vectorially as
+$$
+\mathbf{Q}_t = \prod_{j=1}^{N_0} (\mathbf{E}_t)_j^{(\mathbf{\bar W}_t)_{jc}}, \quad
+\mathbf{y}_t^{\text{CSA}} = 100 \cdot (\mathbf{Q}_t - 1),
+$$
+and stacking over $t$ gives the CSA growth matrix
 $$
 \mathbf{Y}_{\text{CSA}} = \big[ \mathbf{y}_t^{\text{CSA}} \big]_{t=13}^{T} \in \mathbb{R}^{T \times |\mathcal{C}|}.
 $$
-
 
 # Econometric Methodology
 \label{sec:method}
