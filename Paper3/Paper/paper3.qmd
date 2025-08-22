@@ -93,7 +93,9 @@ $$
 y_{jt} = 100 \cdot \frac{e_{jt} - e_{j,t-12}}{e_{j,t-12}}, \qquad j=1,\dots,N,\; t=13,\dots,T.
 $$
 
-of the smoothed and seasonally adjusted values. Outcomes are collected into vectors $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top$, and the donor pool is defined as $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with $N_0=29$. The Key to NYC policy, implemented in August 2021, designates July 2021 as the last pre-treatment month $T_0$, with the treatment indicator defined by
+of the smoothed and seasonally adjusted values. Outcomes are collected into vectors $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top$, and the donor pool is defined as $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with $N_0=29$ MSAs as donors for the full-service restaurant industry. The reason there are 29 donors instead of more is because BLS only takes *full service restaurant* data for only a few MSAs. Beyond this, we focus on full-service restaurants due to their direct exposure to the mandate, which required vaccination proof for indoor dining, unlike limited-service establishments where takeout predominates.
+
+The Key to NYC policy, implemented in August 2021, designates July 2021 as the last pre-treatment month $T_0$, with the treatment indicator defined by
 
 $$
 d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\}.
@@ -116,7 +118,7 @@ where $\mathcal{T}_2 = \{t > T_0\}$.
 # Econometric Methodology  
 \label{sec:method}
 
-To estimate the counterfactual employment trajectory for NYC’s full-service restaurant sector and the broader employment trends in the leisure labor market, I employ a synthetic control approach that hybridizes Forward Selection SCM (FSCM) and the Augmented SCM (ASCM) estimators. The classical Synthetic Control Method (SCM) solves
+Unfortunately, Standard SCM yielded inadequate pre-treatment fit. In order to generate the counterfactual, I needed to allow extrapolation beyond the convex hull. To estimate the counterfactual employment trajectory for NYC’s full-service restaurant sector and the broader employment trends in the leisure labor market, I therefore employ a synthetic control approach that hybridizes Forward Selection SCM (FSCM) and the Augmented SCM (ASCM) estimators. The classical Synthetic Control Method (SCM) solves
 
 $$
 \mathbf{w}^{\mathrm{SCM}} = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{conv}}}{\operatorname*{argmin}} \; \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w} \right\|_2^2,
