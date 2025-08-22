@@ -82,7 +82,7 @@ We use monthly MSA-level employment series from the Federal Reserve Bank of St. 
 
 Our analysis focuses on two related outcome sets: (1) full-service restaurant employment for 30 MSAs and New York City (FRED Code: SMU36935617072251101SA) and (2) broader leisure industry employment at the MSA level for approximately 255 MSAs from 1991 to December 2022, with New York City (FRED code SMU36935617072251101SA) as the treated unit.
 
-Let $e_{jt}$ denote employment in unit $j$ at month $t$. For both the full-service restaurant analysis and broader leisure market analysis, the outcome is cobstructed as the year-over-year growth rate in percentage points,
+Let $e_{jt}$ denote employment in unit $j$ at month $t$. For both the full-service restaurant analysis and broader leisure market analysis, the outcome is constructed as the year-over-year growth rate in percentage points,
 
 $$
 y_{jt} = 100 \cdot \frac{e_{jt} - e_{j,t-12}}{e_{j,t-12}}, \qquad j=1,\dots,N,\; t=13,\dots,T.
