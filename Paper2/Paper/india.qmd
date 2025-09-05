@@ -23,8 +23,7 @@ The rest of the paper is organized as follows. Section \ref{sec:policy} provides
 # Background and Previous Work
 
 ## Policy Context
-
-\label{sec\:policy}
+\label{sec:policy}
 
 Air pollution is one of India’s most pressing environmental and public health challenges. This section provides context on pollutant sources, exposure levels, health and economic impacts, and how the COVID-19 lockdown created a natural experiment for studying air quality.
 
@@ -53,8 +52,7 @@ Although temporary, these reductions highlight the potential of targeted interve
 India’s lockdown, enacted under the Disaster Management Act of 2005, unfolded in multiple phases. Phase 1 (March 25–April 14) involved a complete nationwide shutdown, prohibiting non-essential movement, closing factories, and suspending public transport. Phase 2 (April 15 onwards) allowed a gradual reopening of essential services and agriculture, with color-coded zoning based on infection rates. While primarily a public health measure, the lockdown served as a large-scale experiment in emission control, revealing the disproportionate contribution of human activities to PM2.5 levels.
 
 ## Literature Review
-
-\label{sec\:lit}
+\label{sec:lit}
 
 ### Methodological Aspects of Prior Literature
 
