@@ -68,14 +68,64 @@ Synthetic Control methods (SCM) improve on this by constructing a counterfactual
 
 In contrast, the SHC method avoids these limitations by constructing counterfactuals directly from historical patterns, without assuming complete covariate measurement. This study extends SHC to an Augmented SHC (ASHC) framework, allowing limited extrapolation to improve pre-treatment fit while maintaining stability. By applying ASHC to India’s national and city-level PM2.5 data, this work provides the first rigorous causal estimates of the 2020 lockdown’s air quality impacts in a country of India’s scale.
  
- 
-# Methodology
+ # Methodology
 \label{sec:method}
 
-Below I describe the Synthetic Historical Control Methodology from \citet{SHC}. I then describe my extension to this methodology for settings where pre-treatment fit is poor, the Augmented Synthetic Historical Control. The ASHCM is applied separately to the national average of PM25 for India, as well as Delhi, Mumbai, Bangalore, and Kolkata.
+Below I describe the Synthetic Historical Control (SHC) methodology from \citet{SHC}. I then extend this framework to settings where pre-treatment fit is poor, yielding the Augmented Synthetic Historical Control (ASHC). The ASHCM is applied separately to the national average of PM2.5 for India, as well as Delhi, Mumbai, Bangalore, and Kolkata.
 
 ## The Synthetic Historical Control Method
 \label{sec:shc}
+
+SHC estimates the causal effect of an intervention by constructing counterfactual outcomes from historical segments of the treated unit itself, rather than from contemporaneous control units. This makes it well-suited for national-scale interventions such as India’s 2020 lockdown, where no valid donor pool of untreated countries exists. Before presenting the estimator, I state the assumptions that guarantee SHC’s validity.
+
+### Assumptions
+
+\begin{assumption}[Error Properties]
+\label{assump:errors}
+\begin{equation}
+\mathbb{E}[\varepsilon_t] = 0, 
+\quad 
+\mathbb{E}[\varepsilon_t^2] < \infty 
+\qquad \forall\, t \in \mathcal{T}.
+\end{equation}
+\end{assumption}
+
+\noindent
+This ensures that noise is well-behaved. The mean-zero condition rules out systematic bias, while the finite variance condition prevents extreme fluctuations.
+
+\begin{assumption}[Latent Smoothness and Matching]
+\label{assump:matching}
+\begin{equation}
+\widetilde{y}(t) \in C^{H+1}, \quad H \geq 3,
+\qquad 
+\sup_t \left| \frac{d^k}{dt^k}\widetilde{y}(t) \right| < \infty \;\; \forall\, k \leq H+1,
+\end{equation}
+and there exists 
+\begin{equation}
+\mathbf{w}^\ast \in \Delta^{N-1}
+\qquad \text{such that} \qquad 
+\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast.
+\end{equation}
+\end{assumption}
+
+\noindent
+Smoothness ensures that the latent process can be approximated by a finite expansion. The matching condition guarantees that some convex combination of historical donor segments can reproduce the evaluation period. This parallels the “existence of weights” assumption in the SCM literature \citep{Abadie2010,Amjad2018}. Importantly, persistent factors such as meteorology are implicitly matched so long as they appear in the historical trajectory.
+
+\begin{assumption}[Feasibility and Stability]
+\label{assump:estimation}
+\begin{equation}
+\exists\, \mathbf{w} \in \Delta^{N-1} \;\; \text{sparse, such that} \;\;
+\mathbf{y}_{\text{eval}} \approx \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w},
+\qquad 
+\widetilde{\mathbf{Y}}_{\text{pre}}^\top \widetilde{\mathbf{Y}}_{\text{pre}} \succ 0.
+\end{equation}
+\end{assumption}
+
+\noindent
+Sparsity reflects that only a small number of donor segments are relevant. Positive definiteness prevents collinearity and ensures stable weights.
+In plain terms, SHC gives us a valid estimate of the lockdown’s impact as long as three conditions hold. First, the random “noise” in pollution measurements behaves well — it averages out and does not swamp the real signal. Second, the history of pollution before the lockdown is smooth and informative enough that past patterns can be combined to mimic what would have happened in the absence of the lockdown. This means that unobserved influences like weather are implicitly accounted for, so long as they leave a stable footprint in the historical data. Third, the relevant pieces of history we draw on to form the counterfactual are not redundant, so the weights we place on them are stable rather than erratic. Under these conditions, SHC can reliably construct the missing counterfactual trajectory and deliver a valid estimate of the average treatment effect of the lockdown.
+
+### Estimator 
 
 Let $\mathcal{T} = \{1, \dots, T\}$ index time, with pre-treatment period $\mathcal{T}_1 = \{t \in \mathcal{T} : t \leq T_0\}$ and post-treatment period $\mathcal{T}_2 = \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$, and an evaluation window of length $m$ is defined as the final $m$ pre-treatment periods $\mathcal{T}_{\text{eval}} = \{T_0 - m + 1, \dots, T_0\}$. Let $\mathbf{y} = (y_1, \dots, y_T)^\top$ denote the observed outcome series. The evaluation subvector is $\mathbf{y}_{\text{eval}} = \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector is $\mathbf{y}_{\text{post}} = \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$. For each $t \in \mathcal{T}$, let $y_t^1$ and $y_t^0$ denote the potential outcomes under treatment and no treatment, respectively. The observed outcome is 
 \begin{equation}
@@ -97,41 +147,26 @@ The implementation of SHC begins by smoothing the pre-treatment outcome series $
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[scale=0.9, every node/.style={font=\small}]
-
-% Timeline for the pre-treatment series
+% timeline
 \draw[thick, -] (0,0) -- (12,0);
 \foreach \x in {0,...,12}
   \draw[thin] (\x,0.1) -- (\x,-0.1);
-
-% Label the series
 \node[below] at (6,-0.3) {Smoothed pre-treatment series $\widetilde{\mathbf{y}}$};
-
-% First sliding window
+% windows
 \draw[fill=blue!20,rounded corners] (0,0.2) rectangle (4,0.8);
 \node at (2,0.5) {$\widetilde{\mathbf{y}}_{[1,m]}$};
-
-% Second sliding window
 \draw[fill=green!20,rounded corners] (1,1.0) rectangle (5,1.6);
 \node at (3,1.3) {$\widetilde{\mathbf{y}}_{[2,m+1]}$};
-
-% Third sliding window
 \draw[fill=orange!20,rounded corners] (2,1.8) rectangle (6,2.4);
 \node at (4,2.1) {$\widetilde{\mathbf{y}}_{[3,m+2]}$};
-
-% Dots for continuation
 \node at (7,2.2) {$\cdots$};
-
-% Last sliding window
 \draw[fill=red!20,rounded corners] (8,2.8) rectangle (12,3.4);
 \node at (10,3.1) {$\widetilde{\mathbf{y}}_{[N,\,N+m-1]}$};
-
-% Arrow pointing to donor matrix
+% arrow
 \draw[->, thick] (6,3.6) -- (6,5);
-
-% Donor matrix representation
+% donor matrix
 \draw[fill=gray!10,rounded corners] (3,5) rectangle (9,7);
 \node at (6,6) {$\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$};
-
 \end{tikzpicture}
 \caption{Constructing the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}}$ 
 by sliding overlapping windows of length $m$ across the smoothed 
@@ -141,17 +176,16 @@ corresponds to a column in the donor matrix.}
 \end{figure}
 
 The evaluation vector $\mathbf{y}_{\text{eval}}$ is reconstructed as a convex combination of the donor segments by solving the quadratic program
-
 $$
 \mathbf{w}^\ast = \arg\min_{\mathbf{w} \in \mathbb{R}^N} 
 \left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
 + \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2,
 \qquad \text{s.t. } \mathbf{w} \geq 0, \; \mathbf{1}^\top \mathbf{w} = 1,
 $$
-
 where $\mathbf{C}_0$ contains the eigenvectors of the donor Gram matrix associated with small eigenvalues. The second term penalizes directions of low variance, improving numerical stability when donor segments are collinear.  
 
-In practice, only a few donor segments contribute meaningfully to the reconstruction of $\mathbf{y}_{\text{eval}}$. To identify these, I use the forward selection algorithm described by \citet{SHC}: starting from an empty set, the donor segment that most reduces the pre-treatment mean squared error is added iteratively until no further improvement is achieved. The final donor matrix includes only the selected segments, with all unselected segments effectively assigned a weight of zero. Applying the resulting weight vector $\mathbf{w}^\ast$ to the aligned post-treatment donor matrix produces $\widehat{\mathbf{y}}_{\text{post}}^0$, the SHC estimate of the untreated counterfactual trajectory.
+In practice, only a few donor segments contribute meaningfully to the reconstruction of $\mathbf{y}_{\text{eval}}$. To identify these, I use the forward selection algorithm described by \citet{SHC}. Applying the resulting weight vector $\mathbf{w}^\ast$ to the aligned post-treatment donor matrix produces $\widehat{\mathbf{y}}_{\text{post}}^0$, the SHC estimate of the untreated counterfactual trajectory.
+
 
 ## The Augmented Synthetic Historical Control Method
 \label{sec:ashc}
