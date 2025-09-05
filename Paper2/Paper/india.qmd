@@ -186,6 +186,7 @@ where $\mathbf{C}_0$ contains the eigenvectors of the donor Gram matrix associat
 
 In practice, only a few donor segments contribute meaningfully to the reconstruction of $\mathbf{y}_{\text{eval}}$. To identify these, I use the forward selection algorithm described by \citet{SHC}. Applying the resulting weight vector $\mathbf{w}^\ast$ to the aligned post-treatment donor matrix produces $\widehat{\mathbf{y}}_{\text{post}}^0$, the SHC estimate of the untreated counterfactual trajectory.
 
+A further advantage of SHC in this setting is that it naturally accommodates nonlinear dynamics in the pre-treatment pollution series. Because SHC begins with a local linear smoother, short-term fluctuations and seasonal nonlinearities (many of which are driven by meteorology such as temperature inversions, wind, or rainfall) are already captured in the donor segments. In contrast, standard interrupted time series designs often require explicitly specifying and fitting complex parametric models such as SARIMA to handle the same effects. Thus, identification in SHC setting rests only on the modest assumption of local smoothness and weight matching, with the primary tuning choice being the bandwidth of the kernel smoother. This makes the method flexible enough to capture weather-driven variation while remaining relatively simple to implement in practice.
 
 ## The Augmented Synthetic Historical Control Method
 \label{sec:ashc}
