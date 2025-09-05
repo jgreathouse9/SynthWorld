@@ -14,28 +14,29 @@ bibliography: delhi.bib
 
 # Introduction
 
-The COVID-19 pandemic prompted governments worldwide to implement non-pharmaceutical interventions (NPIs), such as mass lockdowns, to curb virus spread and protect public health systems. India’s nationwide lockdown, starting March 25, 2020, was among the strictest in the world since the lockdown in Wuhan, China, halting mobility, industry, and construction for 1.3 billion people. While early research in the policy literature focused on virus outcomes \citep{yang2021does, bayat2020syntheticcontrolsyntheticinterventions} and economic impacts \citep{gong2024economic,WU2023151}, lockdowns also likely influenced air quality, a critical public health factor. Popular media reported improved air quality during lockdowns \citep{watts2020airpollution}, and atmospheric studies later confirmed reductions in pollutants like PM2.5 \citep{venter2020covid, kumari2021revisiting}. Given that India has some of the most polluted cities in the world, it is of interest to know how large scale government interventions like this one could affect pollution levels. However, many studies are often descriptive and do not estimate counterfactual scenarios—what air quality would have been without lockdowns—limiting their policy relevance, or rely on strict assumptions for valid identification \citep{milman2025congestion}.
+The COVID-19 pandemic prompted governments worldwide to implement non-pharmaceutical interventions (NPIs), such as mass lockdowns, to curb virus spread and protect public health systems. India’s nationwide lockdown, beginning on March 25, 2020, was among the strictest globally since the Wuhan lockdown in China, halting mobility, industry, and construction for 1.3 billion people. Early research focused on virus outcomes \citep{yang2021does, bayat2020syntheticcontrolsyntheticinterventions} and economic impacts \citep{gong2024economic,WU2023151}, but lockdowns also likely influenced air quality, a critical public health factor. Popular media reported improved air quality during lockdowns, later confirmed by studies documenting reductions in pollutants such as PM2.5 \citep{watts2020airpollution, venter2020covid, kumari2021revisiting}. Given that India has some of the most polluted cities in the world, understanding how large-scale interventions affect pollution levels is of great interest. However, many studies are descriptive and do not estimate counterfactual scenarios—what air quality would have been without lockdowns—limiting their policy relevance, or rely on strict assumptions for identification \citep{milman2025congestion}.
 
-This study quantifies the causal impact of India’s 2020 national lockdown on PM2.5 levels nationally and in major cities using synthetic historical control (SHC) methods by \citet{SHC}. In contrast to other studies that rely on untreated comparison groups (unvible in the COVID-19 context) or some form of conditioning on covariates, I develop a novel extension to the SHC method by \citet{SHC} that allows for setting where we have imperfect pre-treatment fit. By constructing counterfactuals from historical data using flexible non-parametric methods, SHC isolates the lockdown's effects without relying on unexposed control units. In addition to the national analysis, this study also examines Delhi, Mumbai, Bangalore, and Kolkata. These megacities consistently ranked among the world’s most polluted, and are large hubs of finance and commerce in their own right. Embedding these cases in a unified causal framework moves beyond simple pre–post comparisons and addresses a key policy question: what happens to air pollution when a country of India’s scale implements a nationwide shutdown? These findings could inform sustainable air quality management in India and offer lessons for urban planning and climate change mitigation globally.
+This study quantifies the causal impact of India’s 2020 national lockdown on PM2.5 levels nationally and in major cities using the Synthetic Historical Control (SHC) method \citep{SHC}. Unlike studies that rely on untreated comparison groups—which are unviable in the COVID-19 context—or on covariate conditioning, I develop an extension of SHC that accommodates imperfect pre-treatment fit. By constructing counterfactuals from historical data with flexible, non-parametric methods, SHC isolates the lockdown's effects without requiring unexposed control units. In addition to the national analysis, this study examines Delhi, Mumbai, Bangalore, and Kolkata—megacities consistently among the world’s most polluted, and major hubs of finance and commerce. Embedding these cases in a unified causal framework moves beyond simple pre–post comparisons and addresses a key policy question: what happens to air pollution when a country of India’s scale implements a nationwide shutdown? These findings can inform sustainable air quality management in India and provide lessons for urban planning and climate change mitigation globally.
 
-The rest of the paper is organized as follows. Section \ref{sec:policy} provides background on the context of air pollution in India, taking special note of its health and economic costs. Section \ref{sec:lit} summarizes the existing literature, taking note of its general findings as well as methodological gaps. Section \ref{sec:method} outlines the empirical strategy, including the synthetic historical control methodology as well as the Augmented version of it that I propose. Section \ref{sec:data} details the data collection and cleaning process.
+The rest of the paper is organized as follows. Section \ref{sec:policy} provides background on air pollution in India, highlighting its health and economic costs. Section \ref{sec:lit} summarizes existing literature and methodological gaps. Section \ref{sec:method} outlines the empirical strategy, including SHC and the augmented version proposed here. Section \ref{sec:data} details data collection and processing.
 
 # Background and Previous Work
 
 ## Policy Context
-\label{sec:policy}
+
+\label{sec\:policy}
 
 Air pollution is one of India’s most pressing environmental and public health challenges. This section provides context on pollutant sources, exposure levels, health and economic impacts, and how the COVID-19 lockdown created a natural experiment for studying air quality.
 
 ### Sources and Severity of Air Pollution
 
-Fine particulate matter (PM2.5), which penetrates deep into the lungs and bloodstream, is a primary pollutant of concern. Major contributors include vehicular emissions, industrial activities, construction dust, biomass burning for cooking and heating, and agricultural residue burning, particularly in northern states during winter. Natural factors, such as dust storms and seasonal weather patterns, exacerbate pollution levels. Rapid urbanization and population growth have intensified exposure, affecting over 1.4 billion people.
+Fine particulate matter (PM2.5), which penetrates deep into the lungs and bloodstream, is a primary pollutant of concern. Major contributors include vehicular emissions, industrial activities, construction dust, biomass burning for cooking and heating, and agricultural residue burning, particularly in northern states during winter. Natural factors such as dust storms and seasonal weather patterns exacerbate pollution levels. Rapid urbanization and population growth have intensified exposure, affecting over 1.4 billion people.
 
-Recent data highlight the severity: in 2024, India’s average annual PM2.5 concentration was 50.6 $\mu g/m^3$, far exceeding the WHO guideline of 5 $\mu g/m^3$ \citep{statista_airpollution_india}. Regional variation is significant—cities in the Indo-Gangetic Plain, like Delhi, often exceed 100 $\mu g/m^3$ during peak winter, while southern cities such as Chennai frequently surpass both WHO and national standards \citep{bhuyan2025assessing,SINGH2021141461}.
+Recent data highlight the severity: in 2024, India’s average annual PM2.5 concentration was 50.6 \$\mu g/m^3\$, far exceeding the WHO guideline of 5 \$\mu g/m^3\$ \citep{statista_airpollution_india}. Regional variation is significant—cities in the Indo-Gangetic Plain, like Delhi, often exceed 100 \$\mu g/m^3\$ during peak winter, while southern cities such as Chennai frequently surpass both WHO and national standards \citep{bhuyan2025assessing,SINGH2021141461}.
 
 ### Health Impacts
 
-The health consequences of chronic PM2.5 exposure are substantial. Long-term exposure increases risks for respiratory and cardiovascular diseases, including COPD, asthma, lung cancer, stroke, and heart disease \citep{JOSHI2025101215}. In India, air pollution causes roughly 1.5 million premature deaths annually, with each 10 $\mu g/m^3$ rise in PM2.5 linked to an 8.6% increase in mortality \citep{jaganathan2024pm25}. Vulnerable populations—children, the elderly, and those with pre-existing conditions—are most affected. Fine particulate pollution reduces average life expectancy by 5.3 years compared to WHO guidelines, with residents in Delhi facing up to a 10-year reduction \citep{bbcairquality2022}. Short-term PM2.5 spikes also increase daily death rates by 1.42–3.57% per 10 $\mu g/m^3$ \citep{debont2024daily}.
+The health consequences of chronic PM2.5 exposure are substantial. Long-term exposure increases the risk of respiratory and cardiovascular diseases, including COPD, asthma, lung cancer, stroke, and heart disease \citep{JOSHI2025101215}. In India, air pollution causes roughly 1.5 million premature deaths annually, with each 10 \$\mu g/m^3\$ rise in PM2.5 linked to an 8.6% increase in mortality \citep{jaganathan2024pm25}. Vulnerable populations—children, the elderly, and those with pre-existing conditions—are most affected. Fine particulate pollution reduces average life expectancy by 5.3 years compared to WHO guidelines, with residents in Delhi facing up to a 10-year reduction \citep{bbcairquality2022}. Short-term PM2.5 spikes also increase daily death rates by 1.42–3.57% per 10 \$\mu g/m^3\$ \citep{debont2024daily}.
 
 ### Economic Impacts
 
@@ -43,21 +44,23 @@ Air pollution imposes significant economic costs through healthcare expenditures
 
 ### The COVID-19 Lockdown as a Natural Experiment
 
-The 2020 nationwide COVID-19 lockdown provides a unique opportunity to study rapid air quality improvements. Imposed on March 25, the lockdown halted transportation, industrial operations, and construction, leading to reductions in PM2.5 by 31–43%, with some cities experiencing drops up to 50% \citep{SALEEM2024114255,nigam2021covid,mishra2021effect}. In megacities like Delhi and Mumbai, the Air Quality Index (AQI) improved by as much as 58%, primarily due to lower vehicular and industrial emissions \citep{zhang2020impact}.  
+The 2020 nationwide COVID-19 lockdown provides a unique opportunity to study rapid air quality improvements. Imposed on March 25, the lockdown halted transportation, industrial operations, and construction, leading to reductions in PM2.5 by 31–43%, with some cities experiencing drops up to 50% \citep{SALEEM2024114255,nigam2021covid,mishra2021effect}. In megacities like Delhi and Mumbai, the Air Quality Index (AQI) improved by as much as 58%, primarily due to lower vehicular and industrial emissions \citep{zhang2020impact}.
 
-Although temporary, these reductions highlight the potential for targeted interventions. PM2.5 reductions were most pronounced in early lockdown phases, averaging 30–50% across monitored sites, with occasional spikes due to meteorology \citep{rs14081869,Goel2021,wang2020covidairquality}. Other pollutants, including NO2 and PM10, also decreased, aligning India with global lockdown trends \citep{venter2020covid}. Understanding these dynamics is crucial for causal evaluation and future policy planning.
+Although temporary, these reductions highlight the potential of targeted interventions. PM2.5 reductions were most pronounced in early lockdown phases, averaging 30–50% across monitored sites, with occasional spikes due to meteorology \citep{rs14081869,Goel2021,wang2020covidairquality}. Other pollutants, including NO2 and PM10, also decreased, consistent with global lockdown trends \citep{venter2020covid}. Understanding these dynamics is crucial for causal evaluation and future policy planning.
 
 ### Lockdown Policy Phases
 
-India’s lockdown, enacted under the Disaster Management Act of 2005, unfolded in multiple phases. In Phase 1 (March 25–April 14), there was a complete nationwide shutdown, prohibiting non-essential movement, closing factories, and suspending public transport. In Phase 2 (April 15 onwards), there was a gradual reopening of essential services and agriculture, with color-coded zoning based on infection rates.   While primarily a public health measure, the lockdown served as a large-scale experiment in emission control, revealing the disproportionate contribution of human activities to PM2.5 levels.
-
+India’s lockdown, enacted under the Disaster Management Act of 2005, unfolded in multiple phases. Phase 1 (March 25–April 14) involved a complete nationwide shutdown, prohibiting non-essential movement, closing factories, and suspending public transport. Phase 2 (April 15 onwards) allowed a gradual reopening of essential services and agriculture, with color-coded zoning based on infection rates. While primarily a public health measure, the lockdown served as a large-scale experiment in emission control, revealing the disproportionate contribution of human activities to PM2.5 levels.
 
 ## Literature Review
-\label{sec:lit}
+
+\label{sec\:lit}
 
 ### Methodological Aspects of Prior Literature
 
-To contextualize our approach, we first review existing studies on lockdown-related air quality changes and highlight key methodological gaps. Early studies primarily relied on descriptive pre–post comparisons or satellite imagery without causal adjustment \citep{mahato2020effect,pathakoti2021assessment,srivastava2020effects,he2022diurnal,wang2020covidairquality}. These approaches document reductions in pollutants but cannot answer counterfactual questions—what would air quality have been absent the lockdown? Some studies applied causal models. For example, \citet{heffernan2025causal} use causal machine learning and interrupted time series (ITS) methods to find reductions in NO2 levels. ITS was applied in Italy \citep{CAMELETTI2020117794}, finding no meaningful changes in air pollutants. Augmented Synthetic Control methods were used for Wuhan \citep{cole2020impact}, showing a 63% reduction in NO2. Despite these examples, a recent systematic review finds that most lockdown–air pollution studies remain descriptive/non-causal \citep{ijerph19041950}. This limits their policy relevance, since they do not estimate counterfactual outcomes.
+To contextualize our approach, we review existing studies on lockdown-related air quality changes and highlight key methodological gaps. Early studies primarily relied on descriptive pre–post comparisons or satellite imagery without causal adjustment \citep{mahato2020effect,pathakoti2021assessment,srivastava2020effects,he2022diurnal,wang2020covidairquality}. These approaches document reductions in pollutants but cannot answer counterfactual questions—what would air quality have been absent the lockdown?
+
+Some studies applied causal models. For example, \citet{heffernan2025causal} use causal machine learning and interrupted time series (ITS) methods to find reductions in NO2 levels. ITS was applied in Italy \citep{CAMELETTI2020117794}, finding no meaningful changes in air pollutants. Augmented Synthetic Control methods were used for Wuhan \citep{cole2020impact}, showing a 63% reduction in NO2. Despite these examples, a recent systematic review finds that most lockdown–air pollution studies remain descriptive or non-causal \citep{ijerph19041950}, limiting their policy relevance.
 
 ### Gaps and Contribution of This Study
 
@@ -65,8 +68,7 @@ A central gap is the lack of causal designs for national-scale interventions. Ma
 
 Synthetic Control methods (SCM) improve on this by constructing a counterfactual from untreated donor units \citep{BenMichael2021}. However, SCM is limited when studying national policies, where no valid donor pool exists. Similarly, causal machine learning approaches \citep{heffernan2025causal} rely on strong ignorability assumptions that may not hold for air pollution data with unmeasured year-specific factors.
 
-In contrast, the Synthetic Historical Control (SHC) method avoids these limitations by constructing counterfactuals directly from historical patterns, without assuming complete covariate measurement. This study extends SHC to an Augmented Synthetic Historical Control (ASHC) framework, which allows limited extrapolation to improve pre-treatment fit while maintaining stability. By applying ASHC to India’s national and city-level PM2.5 data, this work provides the first rigorous causal estimates of the 2020 lockdown’s air quality impacts in a country of India’s scale.
-
+In contrast, the SHC method avoids these limitations by constructing counterfactuals directly from historical patterns, without assuming complete covariate measurement. This study extends SHC to an Augmented SHC (ASHC) framework, allowing limited extrapolation to improve pre-treatment fit while maintaining stability. By applying ASHC to India’s national and city-level PM2.5 data, this work provides the first rigorous causal estimates of the 2020 lockdown’s air quality impacts in a country of India’s scale.
  
  
 # Methodology
@@ -141,13 +143,17 @@ corresponds to a column in the donor matrix.}
 \end{figure}
 
 The evaluation vector $\mathbf{y}_{\text{eval}}$ is reconstructed as a convex combination of the donor segments by solving the quadratic program
-\begin{equation}
+
+$$
 \mathbf{w}^\ast = \arg\min_{\mathbf{w} \in \mathbb{R}^N} 
 \left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
 + \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2,
-\qquad \text{subject to } \mathbf{w} \geq \mathbf{0}, \; \mathbf{1}^\top \mathbf{w} = 1,
-\end{equation}
-where $\mathbf{C}_0$ contains the eigenvectors of the donor Gram matrix associated with eigenvalues below a threshold $\tau$. The additional penalty shrinks weights along low-variance directions, mitigating instability from collinearity. Applying $\mathbf{w}^\ast$ to the aligned post-treatment donor matrix yields $\widehat{\mathbf{y}}_{\text{post}}^0$, which serves as the SHC estimate of the untreated counterfactual trajectory.
+\qquad \text{s.t. } \mathbf{w} \geq 0, \; \mathbf{1}^\top \mathbf{w} = 1,
+$$
+
+where $\mathbf{C}_0$ contains the eigenvectors of the donor Gram matrix associated with small eigenvalues. The second term penalizes directions of low variance, improving numerical stability when donor segments are collinear.  
+
+In practice, only a few donor segments contribute meaningfully to the reconstruction of $\mathbf{y}_{\text{eval}}$. To identify these, I use the forward selection algorithm described by \citet{SHC}: starting from an empty set, the donor segment that most reduces the pre-treatment mean squared error is added iteratively until no further improvement is achieved. The final donor matrix includes only the selected segments, with all unselected segments effectively assigned a weight of zero. Applying the resulting weight vector $\mathbf{w}^\ast$ to the aligned post-treatment donor matrix produces $\widehat{\mathbf{y}}_{\text{post}}^0$, the SHC estimate of the untreated counterfactual trajectory.
 
 ## The Augmented Synthetic Historical Control Method
 \label{sec:ashc}
@@ -167,7 +173,7 @@ is a proximity penalty. This term discourages the ASHC solution from deviating t
 ## Bandwidth and Regularization Parameter Selection
 \label{sec:hyperparams}
 
-The performance of ASHC depends critically on two hyperparameters: the smoothing bandwidth $h$ and the proximity penalty parameter $\lambda$. Both are chosen via cross-validation. First I discuss the bandwidth for the kernel smoothing. Let $\mathbf{y}_{\text{pre}} = (y_1,\dots,y_{T_0})^\top$ denote the pre-treatment series. For a candidate bandwidth $h > 0$, define the local linear smoother estimate $\widehat{y}_i^{(-i)}(h)$ as the fitted intercept obtained by regressing $\{y_j : j \neq i\}$ on $\{j - i : j \neq i\}$ with kernel weights
+The performance of SHC depends critically on two hyperparameters: the smoothing bandwidth $h$ and the proximity penalty parameter $\lambda$. Both are chosen via cross-validation. First I discuss the bandwidth for the kernel smoothing. Let $\mathbf{y}_{\text{pre}} = (y_1,\dots,y_{T_0})^\top$ denote the pre-treatment series. For a candidate bandwidth $h > 0$, define the local linear smoother estimate $\widehat{y}_i^{(-i)}(h)$ as the fitted intercept obtained by regressing $\{y_j : j \neq i\}$ on $\{j - i : j \neq i\}$ with kernel weights
 $$
 K_h(j - i) \;=\; \exp\!\left(-\tfrac{1}{2}\left(\tfrac{j-i}{h}\right)^2\right),
 $$
@@ -177,7 +183,7 @@ $$
 = \arg\min_{\beta_0,\beta_1}
 \sum_{j \neq i} K_h(j-i)\,\Big(y_j - \beta_0 - \beta_1 (j-i)\Big)^2,
 $$
-and the leave-one-out prediction is $\widehat{y}_i^{(-i)}(h) \;=\; \widehat{\beta}_0(h)^{(-i)}$. The LOOCV error is $\text{CV}(h) \;=\; \frac{1}{T_0}\sum_{i=1}^{T_0} \Big(y_i - \widehat{y}_i^{(-i)}(h)\Big)^2.$ The optimal bandwidth is then chosen as $h^\ast = \arg\min_{h \in \mathcal{H}} \text{CV}(h),$ where $\mathcal{H}$ is a prespecified candidate grid. This is part of the normal SHC method.
+and the leave-one-out prediction is $\widehat{y}_i^{(-i)}(h) \;=\; \widehat{\beta}_0(h)^{(-i)}$. The LOOCV error is $\text{CV}(h) \;=\; \frac{1}{T_0}\sum_{i=1}^{T_0} \Big(y_i - \widehat{y}_i^{(-i)}(h)\Big)^2.$ The optimal bandwidth is then chosen as $h^\ast = \arg\min_{h \in \mathcal{H}} \text{CV}(h),$ where $\mathcal{H}$ is a prespecified candidate grid. This is chosen before the SHC estimates weights for any of the time periods, and this carries over to the ASHC method.
 
 Next we discuss $\lambda$, exclusive to the ASHC. Recall the ASHC objective
 \begin{equation}
