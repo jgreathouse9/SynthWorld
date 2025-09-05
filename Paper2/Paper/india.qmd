@@ -9,7 +9,7 @@ format:
     cite-method: natbib
     pdf-engine: pdflatex
 number-sections: true
-bibliography: delhi2.bib
+bibliography: delhi.bib
 ---
 
 # Introduction
