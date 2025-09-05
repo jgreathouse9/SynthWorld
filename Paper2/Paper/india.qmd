@@ -14,17 +14,16 @@ bibliography: delhi.bib
 
 # Introduction
 
-The COVID-19 pandemic prompted governments worldwide to implement non-pharmaceutical interventions (NPIs), such as mass lockdowns, to curb virus spread and protect public health systems. India’s nationwide lockdown, starting March 25, 2020, was among the strictest, halting mobility, industry, and construction for 1.3 billion people. While early research focused on virus outcomes \citep{yang2021does, bayat2020syntheticcontrolsyntheticinterventions} and economic impacts \citep{gong2024economic,WU2023151}, lockdowns also likely influenced air quality, a critical public health factor.
+The COVID-19 pandemic prompted governments worldwide to implement non-pharmaceutical interventions (NPIs), such as mass lockdowns, to curb virus spread and protect public health systems. India’s nationwide lockdown, starting March 25, 2020, was among the strictest in the world since the lockdown in Wuhan, China, halting mobility, industry, and construction for 1.3 billion people. While early research in the policy literature focused on virus outcomes \citep{yang2021does, bayat2020syntheticcontrolsyntheticinterventions} and economic impacts \citep{gong2024economic,WU2023151}, lockdowns also likely influenced air quality, a critical public health factor. Popular media reported improved air quality during lockdowns \citep{watts2020airpollution}, and atmospheric studies later confirmed reductions in pollutants like PM2.5 \citep{venter2020covid, kumari2021revisiting}. Given that India has some of the most polluted cities in the world, it is of interest to know how large scale government interventions like this one could affect pollution levels. However, many studies are often descriptive and do not estimate counterfactual scenarios—what air quality would have been without lockdowns—limiting their policy relevance, or rely on strict assumptions for valid identification \citep{milman2025congestion}.
 
-Popular media reported improved air quality during lockdowns \citep{watts2020airpollution}, and atmospheric studies later confirmed reductions in pollutants like PM2.5 \citep{venter2020covid, kumari2021revisiting}. However, these studies are often descriptive and do not estimate counterfactual scenarios—what air quality would have been without lockdowns—limiting their policy relevance \citep{milman2025congestion}.
+This study quantifies the causal impact of India’s 2020 national lockdown on PM2.5 levels nationally and in major cities using synthetic historical control (SHC) methods by \citet{SHC}. In contrast to other studies that rely on untreated comparison groups (unvible in the COVID-19 context) or some form of conditioning on covariates, I develop a novel extension to the SHC method by \citet{SHC} that allows for setting where we have imperfect pre-treatment fit. By constructing counterfactuals from historical data using flexible non-parametric methods, SHC isolates the lockdown's effects without relying on unexposed control units. In addition to the national analysis, this study also examines Delhi, Mumbai, Bangalore, and Kolkata. These megacities consistently ranked among the world’s most polluted, and are large hubs of finance and commerce in their own right. Embedding these cases in a unified causal framework moves beyond simple pre–post comparisons and addresses a key policy question: what happens to air pollution when a country of India’s scale implements a nationwide shutdown? These findings could inform sustainable air quality management in India and offer lessons for urban planning and climate change mitigation globally.
 
-This study quantifies the causal impact of India’s 2020 lockdown on PM2.5 levels nationally and in major cities using synthetic historical control (SHC) methods. By constructing counterfactuals from historical data, SHC isolates the lockdown’s effects without relying on unexposed control units. Descriptive reports suggest PM2.5 reductions of 20–50%, but rigorous causal analysis is required to confirm the magnitude and persistence of these effects.
-
-In addition to the national analysis, this study examines Delhi, Mumbai, Bangalore, and Kolkata—megacities consistently ranked among the world’s most polluted. Embedding these cases in a unified causal framework moves beyond simple pre–post comparisons and addresses a key policy question: what happens to air pollution when a country of India’s scale implements a nationwide shutdown? These findings could inform sustainable air quality management in India and offer lessons for urban planning and climate change mitigation globally.
+The rest of the paper is organized as follows. Section \ref{sec:policy} provides background on the context of air pollution in India, taking special note of its health and economic costs. Section \ref{sec:lit} summarizes the existing literature, taking note of its general findings as well as methodological gaps. Section \ref{sec:method} outlines the empirical strategy, including the synthetic historical control methodology as well as the Augmented version of it that I propose. Section \ref{sec:data} details the data collection and cleaning process.
 
 # Background and Previous Work
 
 ## Policy Context
+\label{sec:policy}
 
 Air pollution is one of India’s most pressing environmental and public health challenges. This section provides context on pollutant sources, exposure levels, health and economic impacts, and how the COVID-19 lockdown created a natural experiment for studying air quality.
 
@@ -54,6 +53,7 @@ India’s lockdown, enacted under the Disaster Management Act of 2005, unfolded 
 
 
 ## Literature Review
+\label{sec:lit}
 
 ### Methodological Aspects of Prior Literature
 
@@ -70,6 +70,7 @@ In contrast, the Synthetic Historical Control (SHC) method avoids these limitati
  
  
 # Methodology
+\label{sec:method}
 
 Below I describe the Synthetic Historical Control Methodology from \citet{SHC}. I then describe my extension to this methodology for settings where pre-treatment fit is poor, the Augmented Synthetic Historical Control. The ASHCM is applied separately to the national average of PM25 for India, as well as Delhi, Mumbai, Bangalore, and Kolkata.
 
@@ -236,6 +237,7 @@ Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs
  
 
 # Data
+\label{sec:data}
 
 My data on PM2.5 are derived from \cite{batra2025indblockpm25}, who keep data collected from SHRUG. We have the full district-level PM2.5 matrix:  
 
@@ -250,19 +252,19 @@ y_{N,1} & y_{N,2} & \cdots & y_{N,T} \\
 \quad N = 635, \; T = 312
 $$
 
-where rows are districts (\(i = 1,\dots,N\)) and columns are monthly population weighted averages of PM2.5 observations (\(t = 1,\dots,T\)). For the national level of analysis, we compute the population-weighted average across all rows  
+where rows are districts ($i = 1,\dots,N$) and columns are monthly population weighted averages of PM2.5 observations ($t = 1,\dots,T$). For the national level of analysis, we compute the population-weighted average across all rows  
 
 $$
 \mathbf{y}_{\text{India}} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{Y}_{i,\cdot} \in \mathbb{R}^{T}.
 $$
 
-For our city-level treated units ($c \in \{\text{Delhi}, \text{Mumbai}, \text{Bangalore}, \text{Kolkata}\}$), we extract subvector(s) corresponding to the city  
+For our district-level treated units ($c \in \{\text{Delhi}, \text{Mumbai}, \text{Bangalore}, \text{Kolkata}\}$), we extract subvector(s) corresponding to the district  
 
 $$
 \mathbf{y}_c = \frac{1}{|S_c|} \sum_{i \in S_c} \mathbf{Y}_{i,\cdot} \in \mathbb{R}^{T}.
 $$
 
-where $S_c$ is the set of subdistricts belonging to city $c$. Across all units, my final outcome is the year-over-year (YoY) growth rate of the PM25 levels: for any series $\mathbf{\bar{y}}$, the monthly YoY growth from month $t$ relative to the same month in the previous year is
+where $S_c$ is the set of subdistricts belonging to district $c$. Across all units, my final outcome is the year-over-year (YoY) growth rate of the PM25 levels: for any series $\mathbf{\bar{y}}$, the monthly YoY growth from month $t$ relative to the same month in the previous year is
 
 $$
 g_t = \frac{\bar{y}_t - \bar{y}_{t-12}}{\bar{y}_{t-12}}, \quad t = 13, \dots, T
