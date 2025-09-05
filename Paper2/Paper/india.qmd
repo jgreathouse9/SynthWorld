@@ -1,0 +1,283 @@
+--- 
+title: "Clearing the Air: How India's 2020 lockdown impacted air quality"
+format: 
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    include-in-header: prelim.tex
+    keep-tex: true
+    cite-method: natbib
+    pdf-engine: pdflatex
+number-sections: true
+bibliography: delhi2.bib
+---
+
+# Introduction
+
+The COVID-19 pandemic prompted governments worldwide to implement non-pharmaceutical interventions (NPIs), such as mass lockdowns, to curb virus spread and protect public health systems. India’s nationwide lockdown, starting March 25, 2020, was among the strictest, halting mobility, industry, and construction for 1.3 billion people. While early research focused on virus outcomes \citep{yang2021does, bayat2020syntheticcontrolsyntheticinterventions} and economic impacts \citep{gong2024economic,WU2023151}, lockdowns also likely influenced air quality, a critical public health factor.
+
+Popular media reported improved air quality during lockdowns \citep{watts2020airpollution}, and atmospheric studies later confirmed reductions in pollutants like PM2.5 \citep{venter2020covid, kumari2021revisiting}. However, these studies are often descriptive and do not estimate counterfactual scenarios—what air quality would have been without lockdowns—limiting their policy relevance \citep{milman2025congestion}.
+
+This study quantifies the causal impact of India’s 2020 lockdown on PM2.5 levels nationally and in major cities using synthetic historical control (SHC) methods. By constructing counterfactuals from historical data, SHC isolates the lockdown’s effects without relying on unexposed control units. Descriptive reports suggest PM2.5 reductions of 20–50%, but rigorous causal analysis is required to confirm the magnitude and persistence of these effects.
+
+In addition to the national analysis, this study examines Delhi, Mumbai, Bangalore, and Kolkata—megacities consistently ranked among the world’s most polluted. Embedding these cases in a unified causal framework moves beyond simple pre–post comparisons and addresses a key policy question: what happens to air pollution when a country of India’s scale implements a nationwide shutdown? These findings could inform sustainable air quality management in India and offer lessons for urban planning and climate change mitigation globally.
+
+# Background and Previous Work
+
+## Policy Context
+
+Air pollution is one of India’s most pressing environmental and public health challenges. This section provides context on pollutant sources, exposure levels, health and economic impacts, and how the COVID-19 lockdown created a natural experiment for studying air quality.
+
+### Sources and Severity of Air Pollution
+
+Fine particulate matter (PM2.5), which penetrates deep into the lungs and bloodstream, is a primary pollutant of concern. Major contributors include vehicular emissions, industrial activities, construction dust, biomass burning for cooking and heating, and agricultural residue burning, particularly in northern states during winter. Natural factors, such as dust storms and seasonal weather patterns, exacerbate pollution levels. Rapid urbanization and population growth have intensified exposure, affecting over 1.4 billion people.
+
+Recent data highlight the severity: in 2024, India’s average annual PM2.5 concentration was 50.6 $\mu g/m^3$, far exceeding the WHO guideline of 5 $\mu g/m^3$ \citep{statista_airpollution_india}. Regional variation is significant—cities in the Indo-Gangetic Plain, like Delhi, often exceed 100 $\mu g/m^3$ during peak winter, while southern cities such as Chennai frequently surpass both WHO and national standards \citep{bhuyan2025assessing,SINGH2021141461}.
+
+### Health Impacts
+
+The health consequences of chronic PM2.5 exposure are substantial. Long-term exposure increases risks for respiratory and cardiovascular diseases, including COPD, asthma, lung cancer, stroke, and heart disease \citep{JOSHI2025101215}. In India, air pollution causes roughly 1.5 million premature deaths annually, with each 10 $\mu g/m^3$ rise in PM2.5 linked to an 8.6% increase in mortality \citep{jaganathan2024pm25}. Vulnerable populations—children, the elderly, and those with pre-existing conditions—are most affected. Fine particulate pollution reduces average life expectancy by 5.3 years compared to WHO guidelines, with residents in Delhi facing up to a 10-year reduction \citep{bbcairquality2022}. Short-term PM2.5 spikes also increase daily death rates by 1.42–3.57% per 10 $\mu g/m^3$ \citep{debont2024daily}.
+
+### Economic Impacts
+
+Air pollution imposes significant economic costs through healthcare expenditures, lost labor productivity, and impacts on sectors such as tourism and agriculture. Estimates suggest annual losses of USD 95 billion, roughly 1.36% of GDP \citep{india2020gbd,gupta2021airpollution}. In the Delhi NCR, productivity declines and reduced tourist arrivals contribute substantially to these costs \citep{dalberg2021airpollution,ourcommonair2024}. Efforts like the National Clean Air Programme (NCAP), launched in 2019, aim to reduce PM2.5 and PM10 concentrations by 20–30% in 131 non-attainment cities by 2024–25 \citep{ineqair}.
+
+### The COVID-19 Lockdown as a Natural Experiment
+
+The 2020 nationwide COVID-19 lockdown provides a unique opportunity to study rapid air quality improvements. Imposed on March 25, the lockdown halted transportation, industrial operations, and construction, leading to reductions in PM2.5 by 31–43%, with some cities experiencing drops up to 50% \citep{SALEEM2024114255,nigam2021covid,mishra2021effect}. In megacities like Delhi and Mumbai, the Air Quality Index (AQI) improved by as much as 58%, primarily due to lower vehicular and industrial emissions \citep{zhang2020impact}.  
+
+Although temporary, these reductions highlight the potential for targeted interventions. PM2.5 reductions were most pronounced in early lockdown phases, averaging 30–50% across monitored sites, with occasional spikes due to meteorology \citep{rs14081869,Goel2021,wang2020covidairquality}. Other pollutants, including NO2 and PM10, also decreased, aligning India with global lockdown trends \citep{venter2020covid}. Understanding these dynamics is crucial for causal evaluation and future policy planning.
+
+### Lockdown Policy Phases
+
+India’s lockdown, enacted under the Disaster Management Act of 2005, unfolded in multiple phases. In Phase 1 (March 25–April 14), there was a complete nationwide shutdown, prohibiting non-essential movement, closing factories, and suspending public transport. In Phase 2 (April 15 onwards), there was a gradual reopening of essential services and agriculture, with color-coded zoning based on infection rates.   While primarily a public health measure, the lockdown served as a large-scale experiment in emission control, revealing the disproportionate contribution of human activities to PM2.5 levels.
+
+
+## Literature Review
+
+### Methodological Aspects of Prior Literature
+
+To contextualize our approach, we first review existing studies on lockdown-related air quality changes and highlight key methodological gaps. Early studies primarily relied on descriptive pre–post comparisons or satellite imagery without causal adjustment \citep{mahato2020effect,pathakoti2021assessment,srivastava2020effects,he2022diurnal,wang2020covidairquality}. These approaches document reductions in pollutants but cannot answer counterfactual questions—what would air quality have been absent the lockdown? Some studies applied causal models. For example, \citet{heffernan2025causal} use causal machine learning and interrupted time series (ITS) methods to find reductions in NO2 levels. ITS was applied in Italy \citep{CAMELETTI2020117794}, finding no meaningful changes in air pollutants. Augmented Synthetic Control methods were used for Wuhan \citep{cole2020impact}, showing a 63% reduction in NO2. Despite these examples, a recent systematic review finds that most lockdown–air pollution studies remain descriptive/non-causal \citep{ijerph19041950}. This limits their policy relevance, since they do not estimate counterfactual outcomes.
+
+### Gaps and Contribution of This Study
+
+A central gap is the lack of causal designs for national-scale interventions. Many studies use simple pre–post t-tests \citep{Goel2021}, graphical analyses \citep{kumari2020impact,benchrif2021aerosol}, year-over-year comparisons \citep{le2020temporary}, or OLS regressions \citep{PAL2022101368}. These methods cannot fully account for confounding trends or temporal patterns, reducing confidence in policy-relevant estimates.
+
+Synthetic Control methods (SCM) improve on this by constructing a counterfactual from untreated donor units \citep{BenMichael2021}. However, SCM is limited when studying national policies, where no valid donor pool exists. Similarly, causal machine learning approaches \citep{heffernan2025causal} rely on strong ignorability assumptions that may not hold for air pollution data with unmeasured year-specific factors.
+
+In contrast, the Synthetic Historical Control (SHC) method avoids these limitations by constructing counterfactuals directly from historical patterns, without assuming complete covariate measurement. This study extends SHC to an Augmented Synthetic Historical Control (ASHC) framework, which allows limited extrapolation to improve pre-treatment fit while maintaining stability. By applying ASHC to India’s national and city-level PM2.5 data, this work provides the first rigorous causal estimates of the 2020 lockdown’s air quality impacts in a country of India’s scale.
+
+ 
+ 
+# Methodology
+
+Below I describe the Synthetic Historical Control Methodology from \citet{SHC}. I then describe my extension to this methodology for settings where pre-treatment fit is poor, the Augmented Synthetic Historical Control. The ASHCM is applied separately to the national average of PM25 for India, as well as Delhi, Mumbai, Bangalore, and Kolkata.
+
+## The Synthetic Historical Control Method
+\label{sec:shc}
+
+Let $\mathcal{T} = \{1, \dots, T\}$ index time, with pre-treatment period $\mathcal{T}_1 = \{t \in \mathcal{T} : t \leq T_0\}$ and post-treatment period $\mathcal{T}_2 = \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$, and an evaluation window of length $m$ is defined as the final $m$ pre-treatment periods $\mathcal{T}_{\text{eval}} = \{T_0 - m + 1, \dots, T_0\}$. Let $\mathbf{y} = (y_1, \dots, y_T)^\top$ denote the observed outcome series. The evaluation subvector is $\mathbf{y}_{\text{eval}} = \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector is $\mathbf{y}_{\text{post}} = \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$. For each $t \in \mathcal{T}$, let $y_t^1$ and $y_t^0$ denote the potential outcomes under treatment and no treatment, respectively. The observed outcome is 
+\begin{equation}
+y_t = d_t y_t^1 + (1-d_t)y_t^0, 
+\qquad d_t = \mathbf{1}\{t > T_0\}.
+\end{equation}
+For $t > T_0$, only $y_t^1$ is observed. SHC provides an estimate $\widehat{y}_t^0$ for the missing counterfactual, and the treatment effect is estimated as 
+\begin{equation}
+\widehat{\alpha}_t = y_t - \widehat{y}_t^0, 
+\qquad t \in \mathcal{T}_2,
+\end{equation}
+with the average treatment effect on the treated (ATT) defined as 
+\begin{equation}
+\widehat{\text{ATT}} = \frac{1}{n}\sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.
+\end{equation}
+
+The implementation of SHC begins by smoothing the pre-treatment outcome series $\mathbf{y}_{\text{pre}}$ using local linear regression with a Gaussian kernel, yielding a smooth trajectory $\widetilde{\mathbf{y}}$ \citep{fan1992variable}. From this smoothed series, we construct the donor matrix by extracting $N$ overlapping segments, each of length $m$. 
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[scale=0.9, every node/.style={font=\small}]
+
+% Timeline for the pre-treatment series
+\draw[thick, -] (0,0) -- (12,0);
+\foreach \x in {0,...,12}
+  \draw[thin] (\x,0.1) -- (\x,-0.1);
+
+% Label the series
+\node[below] at (6,-0.3) {Smoothed pre-treatment series $\widetilde{\mathbf{y}}$};
+
+% First sliding window
+\draw[fill=blue!20,rounded corners] (0,0.2) rectangle (4,0.8);
+\node at (2,0.5) {$\widetilde{\mathbf{y}}_{[1,m]}$};
+
+% Second sliding window
+\draw[fill=green!20,rounded corners] (1,1.0) rectangle (5,1.6);
+\node at (3,1.3) {$\widetilde{\mathbf{y}}_{[2,m+1]}$};
+
+% Third sliding window
+\draw[fill=orange!20,rounded corners] (2,1.8) rectangle (6,2.4);
+\node at (4,2.1) {$\widetilde{\mathbf{y}}_{[3,m+2]}$};
+
+% Dots for continuation
+\node at (7,2.2) {$\cdots$};
+
+% Last sliding window
+\draw[fill=red!20,rounded corners] (8,2.8) rectangle (12,3.4);
+\node at (10,3.1) {$\widetilde{\mathbf{y}}_{[N,\,N+m-1]}$};
+
+% Arrow pointing to donor matrix
+\draw[->, thick] (6,3.6) -- (6,5);
+
+% Donor matrix representation
+\draw[fill=gray!10,rounded corners] (3,5) rectangle (9,7);
+\node at (6,6) {$\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$};
+
+\end{tikzpicture}
+\caption{Constructing the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}}$ 
+by sliding overlapping windows of length $m$ across the smoothed 
+pre-treatment series $\widetilde{\mathbf{y}}$. Each colored segment 
+corresponds to a column in the donor matrix.}
+\label{fig:donor-matrix-construction}
+\end{figure}
+
+The evaluation vector $\mathbf{y}_{\text{eval}}$ is reconstructed as a convex combination of the donor segments by solving the quadratic program
+\begin{equation}
+\mathbf{w}^\ast = \arg\min_{\mathbf{w} \in \mathbb{R}^N} 
+\left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
++ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2,
+\qquad \text{subject to } \mathbf{w} \geq \mathbf{0}, \; \mathbf{1}^\top \mathbf{w} = 1,
+\end{equation}
+where $\mathbf{C}_0$ contains the eigenvectors of the donor Gram matrix associated with eigenvalues below a threshold $\tau$. The additional penalty shrinks weights along low-variance directions, mitigating instability from collinearity. Applying $\mathbf{w}^\ast$ to the aligned post-treatment donor matrix yields $\widehat{\mathbf{y}}_{\text{post}}^0$, which serves as the SHC estimate of the untreated counterfactual trajectory.
+
+## The Augmented Synthetic Historical Control Method
+\label{sec:ashc}
+
+The augmented synthetic historical control (ASHC) method extends SHC by permitting limited extrapolation beyond the convex hull of historical segments, while stabilizing the solution through a proximity penalty. This modification is motivated by cases where the simplex constraint of SHC is too restrictive to achieve adequate pre-treatment fit. By allowing negative weights under an affine constraint and penalizing deviations from the SHC solution, ASHC balances improved fit with regularization. Let $\mathbf{w}^{\text{SHC}}$ denote the SHC weight vector. The ASHC estimator solves
+\begin{equation}
+\mathbf{w}^{\text{ASHC}} 
+= \arg\min_{\mathbf{w} \in \mathbb{R}^N} \underbrace{\left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2}_{\text{Fit Term}} + \underbrace{\varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2}_{\text{Low-variance term}} + \underbrace{\lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2}_{\text{Proximity term}}, \qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1.
+\end{equation}
+As we can see, the first two terms are essentially unchanged from the original SHC method. The third term in the ASHC objective, 
+$$
+\lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2,
+$$
+is a proximity penalty. This term discourages the ASHC solution from deviating too far from the original SHC weights. The penalty plays a dual role. Conceptually, it regularizes the affine extension of SHC by shrinking the solution back toward the purely convex combination used in SHC. However, the additional flexibility provided by negative weights is only exercised when it leads to a substantial reduction in pre-treatment error. The tuning parameter $\lambda \geq 0$ controls the degree of shrinkage: when $\lambda$ is very large, the ASHC solution converges to $\mathbf{w}^{\text{SHC}}$, while when $\lambda=0$ the penalty vanishes and the estimator reduces to an unpenalized affine extension of SHC. Thus, the proximity penalty creates a continuum between SHC and its affine relaxation, allowing researchers to balance interpretability and stability against the potential gains in fit from extrapolation. The ASHC counterfactual is obtained as  $\widehat{\mathbf{y}}_{\text{post}}^{0,\text{ASHC}} 
+= \widetilde{\mathbf{Y}}_{\text{post}} \, \mathbf{w}^{\text{ASHC}},$ with treatment effects estimated analogously to SHC.
+
+## Bandwidth and Regularization Parameter Selection
+\label{sec:hyperparams}
+
+The performance of ASHC depends critically on two hyperparameters: the smoothing bandwidth $h$ and the proximity penalty parameter $\lambda$. Both are chosen via cross-validation. First I discuss the bandwidth for the kernel smoothing. Let $\mathbf{y}_{\text{pre}} = (y_1,\dots,y_{T_0})^\top$ denote the pre-treatment series. For a candidate bandwidth $h > 0$, define the local linear smoother estimate $\widehat{y}_i^{(-i)}(h)$ as the fitted intercept obtained by regressing $\{y_j : j \neq i\}$ on $\{j - i : j \neq i\}$ with kernel weights
+$$
+K_h(j - i) \;=\; \exp\!\left(-\tfrac{1}{2}\left(\tfrac{j-i}{h}\right)^2\right),
+$$
+normalized so that $\sum_{j \neq i} K_h(j - i) = 1$. Formally, for each $i \in \{1,\dots,T_0\}$,
+$$
+\widehat{\beta}(h)^{(-i)} 
+= \arg\min_{\beta_0,\beta_1}
+\sum_{j \neq i} K_h(j-i)\,\Big(y_j - \beta_0 - \beta_1 (j-i)\Big)^2,
+$$
+and the leave-one-out prediction is $\widehat{y}_i^{(-i)}(h) \;=\; \widehat{\beta}_0(h)^{(-i)}$. The LOOCV error is $\text{CV}(h) \;=\; \frac{1}{T_0}\sum_{i=1}^{T_0} \Big(y_i - \widehat{y}_i^{(-i)}(h)\Big)^2.$ The optimal bandwidth is then chosen as $h^\ast = \arg\min_{h \in \mathcal{H}} \text{CV}(h),$ where $\mathcal{H}$ is a prespecified candidate grid. This is part of the normal SHC method.
+
+Next we discuss $\lambda$, exclusive to the ASHC. Recall the ASHC objective
+\begin{equation}
+Q(\mathbf{w};\lambda)
+= \left\|\mathbf{y}_{\text{train}} - \widetilde{\mathbf{Y}}_{\text{train}}\mathbf{w}\right\|_2^2
++ \varsigma \left\|\mathbf{C}_0^\top\mathbf{w}\right\|_2^2
++ \lambda \left\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\right\|_2^2,
+\qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1.
+\end{equation}
+
+Let the evaluation window $\mathcal{T}_{\text{eval}}$ be split into a training set 
+$\mathcal{T}_{\text{train}}$ and a validation set $\mathcal{T}_{\text{val}}$, with corresponding 
+subvectors $\mathbf{y}_{\text{train}}, \mathbf{y}_{\text{val}}$ and donor matrices 
+$\widetilde{\mathbf{Y}}_{\text{train}}, \widetilde{\mathbf{Y}}_{\text{val}}$.  
+
+We construct a logarithmically spaced grid of candidate values
+\begin{equation}
+\Lambda 
+= \left\{ \lambda_j \;:\; 
+\lambda_j \;=\; \lambda_{\max}\,\rho^{\,j},\;\; j=0,1,\dots,n_\lambda-1 \right\},
+\end{equation}
+where
+\begin{equation}
+\lambda_{\max} \;=\; \sigma_{\max}^2, 
+\qquad
+\lambda_{\min} \;=\; \lambda_{\max} \cdot \kappa,
+\qquad
+\rho \;=\; \left(\frac{\lambda_{\min}}{\lambda_{\max}}\right)^{\frac{1}{n_\lambda-1}}.
+\end{equation}
+Here $\sigma_{\max}$ denotes the largest singular value of 
+$\widetilde{\mathbf{Y}}_{\text{train}}$, and $\kappa > 0$ is a user-chosen constant 
+controlling the lower bound of the grid.\footnote{In practice, we set 
+$\kappa = 10^{-8}$, ensuring that the grid spans from strong shrinkage 
+($\lambda_{\max}$) to nearly unpenalized fits ($\lambda_{\min}$).} 
+Thus $\Lambda$ spans values from 
+$\lambda_{\max}$ (very strong shrinkage toward $\mathbf{w}^{\text{SHC}}$) 
+down to $\lambda_{\min}$ (minimal shrinkage).
+
+For each $\lambda \in \Lambda$, the estimator is
+\begin{equation}
+\widehat{\mathbf{w}}(\lambda) 
+= \arg\min_{\mathbf{w} \in \mathbb{R}^N} Q(\mathbf{w};\lambda),
+\end{equation}
+and the validation error is
+\begin{equation}
+\text{Val}(\lambda) 
+= \frac{1}{|\mathcal{T}_{\text{val}}|}
+\;\big\|\mathbf{y}_{\text{val}} - \widetilde{\mathbf{Y}}_{\text{val}}\,\widehat{\mathbf{w}}(\lambda)\big\|_2^2.
+\end{equation}
+
+The optimal penalty parameter is selected as
+\begin{equation}
+\lambda^\ast 
+= \arg\min_{\lambda \in \Lambda} \text{Val}(\lambda).
+\end{equation}
+Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs of ASHC: smoothing bias versus noise, and extrapolation bias versus instability.
+ 
+
+# Data
+
+My data on PM2.5 are derived from \cite{batra2025indblockpm25}, who keep data collected from SHRUG. We have the full district-level PM2.5 matrix:  
+
+$$
+\mathbf{Y} =
+\begin{bmatrix}
+y_{1,1} & y_{1,2} & \cdots & y_{1,T} \\
+y_{2,1} & y_{2,2} & \cdots & y_{2,T} \\
+\vdots  & \vdots  & \ddots & \vdots \\
+y_{N,1} & y_{N,2} & \cdots & y_{N,T} \\
+\end{bmatrix}, 
+\quad N = 635, \; T = 312
+$$
+
+where rows are districts (\(i = 1,\dots,N\)) and columns are monthly population weighted averages of PM2.5 observations (\(t = 1,\dots,T\)). For the national level of analysis, we compute the population-weighted average across all rows  
+
+$$
+\mathbf{y}_{\text{India}} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{Y}_{i,\cdot} \in \mathbb{R}^{T}.
+$$
+
+For our city-level treated units ($c \in \{\text{Delhi}, \text{Mumbai}, \text{Bangalore}, \text{Kolkata}\}$), we extract subvector(s) corresponding to the city  
+
+$$
+\mathbf{y}_c = \frac{1}{|S_c|} \sum_{i \in S_c} \mathbf{Y}_{i,\cdot} \in \mathbb{R}^{T}.
+$$
+
+where $S_c$ is the set of subdistricts belonging to city $c$. Across all units, my final outcome is the year-over-year (YoY) growth rate of the PM25 levels: for any series $\mathbf{\bar{y}}$, the monthly YoY growth from month $t$ relative to the same month in the previous year is
+
+$$
+g_t = \frac{\bar{y}_t - \bar{y}_{t-12}}{\bar{y}_{t-12}}, \quad t = 13, \dots, T
+$$
+so that the final treated units for analysis are
+
+$$
+\mathbf{g}_{\text{India}} = [g_{13}, \dots, g_T], \quad
+\mathbf{g}_c = [g_{13}, \dots, g_T] \: \forall \, c.
+$$
+
+This restricts the analysis to 1999–2020, corresponding to months 13 through 312 in the original dataset.
+
+
+
+
+
+ 
