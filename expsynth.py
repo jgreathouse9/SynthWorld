@@ -1,106 +1,5 @@
 import numpy as np
 import cvxpy as cp
-import pandas as pd
-
-def generate_synthetic_hotel_data(
-        N_units=15,
-        T_naught=104-28,
-        T_total=104,
-        r_ob_covariates_dim=7,
-        F_unob_covariates_dim=5,
-        noise_variance=.05,
-        random_seed=123456
-    ):
-    """
-    Generate synthetic panel data for N_units hotels across T_total time periods.
-
-    Returns:
-        Y_N_df : pd.DataFrame of shape (N_units, T_total)
-                 Observed potential outcomes (N units x T_total periods)
-        Z_ob_covariates_df : pd.DataFrame (r_ob_covariates_dim x N_units)
-        mu_unob_covariates_df : pd.DataFrame (F_unob_covariates_dim x N_units)
-    """
-    np.random.seed(random_seed)
-
-    # Initialize matrices
-    Z_ob_covariates_matrix = np.full((r_ob_covariates_dim, N_units), np.nan)
-    mu_unob_covariates_matrix = np.full((F_unob_covariates_dim, N_units), np.nan)
-
-    theta_ob_N_matrix = np.full((r_ob_covariates_dim, T_total), np.nan)
-    gamma_ob_I_matrix = np.full((r_ob_covariates_dim, T_total), np.nan)
-    lambda_unob_N_matrix = np.full((F_unob_covariates_dim, T_total), np.nan)
-    eta_unob_I_matrix = np.full((F_unob_covariates_dim, T_total), np.nan)
-
-    epsilon_N_matrix = np.full((N_units, T_total), np.nan)
-    xi_I_matrix = np.full((N_units, T_total), np.nan)
-
-    Y_N_matrix = np.full((N_units, T_total), np.nan)
-    Y_I_matrix = np.full((N_units, T_total), np.nan)
-
-    # Population weights (just for completeness)
-    beta_temp = np.random.uniform(0, 1, N_units)
-    beta_vector = beta_temp / np.sum(beta_temp)
-
-    # Constants
-    range_intercept_max = 20
-    delta_N_vector = np.sort(np.concatenate([
-        range_intercept_max * np.random.uniform(0, 1, T_naught),
-        range_intercept_max * np.random.uniform(0, 1, T_total - T_naught)
-    ]))
-    upsilon_I_vector = np.concatenate([
-        np.full(T_naught, np.nan),
-        np.sort(range_intercept_max * np.random.uniform(0, 1, T_total - T_naught))
-    ])
-
-    # Covariates
-    range_covariates_max = 1
-    for j in range(N_units):
-        Z_ob_covariates_matrix[:, j] = range_covariates_max * np.random.uniform(0, 1, r_ob_covariates_dim)
-        mu_unob_covariates_matrix[:, j] = range_covariates_max * np.random.uniform(0, 1, F_unob_covariates_dim)
-
-    Z_ob_covariates_df = pd.DataFrame(Z_ob_covariates_matrix, columns=range(1, N_units + 1))
-    mu_unob_covariates_df = pd.DataFrame(mu_unob_covariates_matrix, columns=range(1, N_units + 1))
-
-    # Coefficients
-    range_coefficients_max = 10
-    for t in range(T_total):
-        theta_ob_N_matrix[:, t] = range_coefficients_max * np.random.uniform(0, 1, r_ob_covariates_dim)
-        lambda_unob_N_matrix[:, t] = range_coefficients_max * np.random.uniform(0, 1, F_unob_covariates_dim)
-        if t < T_naught:
-            gamma_ob_I_matrix[:, t] = np.full(r_ob_covariates_dim, np.nan)
-            eta_unob_I_matrix[:, t] = np.full(F_unob_covariates_dim, np.nan)
-        else:
-            gamma_ob_I_matrix[:, t] = range_coefficients_max * np.random.uniform(0, 1, r_ob_covariates_dim)
-            eta_unob_I_matrix[:, t] = range_coefficients_max * np.random.uniform(0, 1, F_unob_covariates_dim)
-
-    # Noise
-    for t in range(T_total):
-        epsilon_N_matrix[:, t] = np.random.normal(0, noise_variance, N_units)
-        if t < T_naught:
-            xi_I_matrix[:, t] = np.full(N_units, np.nan)
-        else:
-            xi_I_matrix[:, t] = np.random.normal(0, noise_variance, N_units)
-
-    # Generate potential outcomes
-    for j in range(N_units):
-        for t in range(T_total):
-            Y_N_matrix[j, t] = (
-                delta_N_vector[t] +
-                np.dot(theta_ob_N_matrix[:, t], Z_ob_covariates_matrix[:, j]) +
-                np.dot(lambda_unob_N_matrix[:, t], mu_unob_covariates_matrix[:, j]) +
-                epsilon_N_matrix[j, t]
-            )
-            Y_I_matrix[j, t] = (
-                upsilon_I_vector[t] +
-                np.dot(gamma_ob_I_matrix[:, t], Z_ob_covariates_matrix[:, j]) +
-                np.dot(eta_unob_I_matrix[:, t], mu_unob_covariates_matrix[:, j]) +
-                xi_I_matrix[j, t]
-            )
-    # Build full DataFrame: pre-period observed + post-period potential
-    Y_pre_df = pd.DataFrame(Y_N_matrix[:, :T_naught], columns=[f"Week {t+1}" for t in range(T_naught)])
-    Y_post_df = pd.DataFrame(Y_I_matrix[:, T_naught:], columns=[f"Week {t+1}" for t in range(T_naught, T_total)])
-    return {"data": pd.concat([Y_pre_df, Y_post_df], axis=1), "pre_periods": T_naught}, Z_ob_covariates_df, mu_unob_covariates_df
-
 
 def _get_per_cluster_param(param, klabel, default=None):
     """Helper: param may be None, scalar, or dict {klabel: val}."""
@@ -110,58 +9,80 @@ def _get_per_cluster_param(param, klabel, default=None):
         return param.get(klabel, default)
     return param  # scalar
 
-def SCMEXP(Y,
-                                     clusters,
-                                     m_eq=None,
-                                     m_min=None,
-                                     m_max=None,
-                                     exclusive=False,
-                                     weakly_targeted=False,
-                                     beta=1e-6,  # Default small value; adjustable if weakly_targeted
-                                     solver=cp.ECOS_BB,
-                                     verbose=False):
+def SCMEXP(
+    Y_full,
+    T0,
+    clusters,
+    blank_periods=0,
+    m_eq=None,
+    m_min=None,
+    m_max=None,
+    exclusive=False,
+    # design selector (mutually exclusive modes): 'base', 'weak', 'eq11', 'unit'
+    design="base",
+    # weak-targeted param (only used when design == "weak")
+    beta=1e-6,
+    # eq11 params (only used when design == "eq11")
+    lambda1=0.0,
+    lambda2=0.0,
+    # unit-level params (only used when design == "unit")
+    xi=0.0,        # OA.1
+    lambda1_unit=0.0,  # OA.2 (treated side)
+    lambda2_unit=0.0,  # OA.3 pairwise (treated-control pairwise term)
+    solver=cp.ECOS_BB,
+    verbose=False
+):
     """
-    Clustered synthetic control that matches each cluster's population mean, with optional weakly-targeted design.
-    Args:
-        Y : np.ndarray, shape (N, T)   -- rows = units, cols = time.
-        clusters : array-like length N -- cluster label (ints or strings) for each unit.
-        m_eq / m_min / m_max : int or dict(cluster_label->int) or None
-            Constraints for number of selected (treated) units PER CLUSTER.
-        exclusive : bool
-            If True, enforce sum_k z[j,k] <= 1 (a unit can be chosen in at most one cluster).
-        weakly_targeted : bool
-            If True, replace control-to-population match with control-to-treated match (beta-weighted).
-        beta : float > 0 -- Trade-off parameter for weakly-targeted design (ignored if weakly_targeted=False).
-        solver : cvxpy solver (default ECOS_BB)
-        verbose : bool, pass to prob.solve(...)
-    Returns:
-        dict with keys:
-            - w_opt (N x K) treated weights per cluster
-            - v_opt (N x K) control weights per cluster
-            - z_opt (N x K) binary selection indicators per cluster
-            - y_syn_treated_clusters list length K (each shape (T,))
-            - y_syn_control_clusters list length K (each shape (T,))
-            - Xbar_clusters list length K (each shape (T,))
-            - cluster_labels list of unique cluster labels (in order)
+    Clustered SCM with selectable sub-designs.
+    design: one of {'base', 'weak', 'eq11', 'unit'}
+      - 'base' : plain cluster-targeted (treated & control fit to cluster mean)
+      - 'weak' : weakly-targeted: control is fit to treated with weight beta
+      - 'eq11' : equation (11) style penalized: lambda1 * sum_j w_j ||Xbar - X_j||^2 + lambda2 * sum_j v_j ||Xbar - X_j||^2
+      - 'unit' : OA.1 + OA.2 + OA.3 combined (xi, lambda1_unit, lambda2_unit)
+    Notes:
+      - Exactly one design must be selected.
+      - m_eq / m_min / m_max accepted per-cluster (scalar or dict).
+    Returns: result dict similar to previous versions.
     """
-    Y = np.asarray(Y)
-    N, T = Y.shape
+    # --- validation of mutually exclusive design selection ---
+    valid_designs = {"base", "weak", "eq11", "unit"}
+    if design not in valid_designs:
+        raise ValueError(f"design must be one of {valid_designs}; got '{design}'")
+
+    # --- basic shape checks ---
+    if T0 <= 0 or T0 >= Y_full.shape[1]:
+        raise ValueError("T0 must be 1 <= T0 < Y_full.shape[1]")
+    if blank_periods < 0 or blank_periods >= T0:
+        raise ValueError("blank_periods must be 0 <= blank_periods < T0 (need at least 1 fit period)")
+
+    # check incompatible parameter usage (help the user avoid accidental mixes)
+    if design != "weak" and beta != 1e-6:
+        raise ValueError("beta is only valid when design == 'weak'")
+    if design != "eq11" and (lambda1 != 0.0 or lambda2 != 0.0):
+        raise ValueError("lambda1/lambda2 are only valid when design == 'eq11'")
+    if design != "unit" and (xi != 0.0 or lambda1_unit != 0.0 or lambda2_unit != 0.0):
+        raise ValueError("xi/lambda1_unit/lambda2_unit are only valid when design == 'unit'")
+
+    # --- prepare data slices ---
+    T_fit = T0 - blank_periods
+    Y_fit = Y_full[:, :T_fit]  # shape (N, T_fit)
+    Y_blank = Y_full[:, T_fit:T0] if blank_periods > 0 else None
+
+    N, T_fit_actual = Y_fit.shape
     clusters = np.asarray(clusters)
     if clusters.shape[0] != N:
         raise ValueError("clusters must have length N (rows of Y).")
 
     cluster_labels = np.unique(clusters)
     K = len(cluster_labels)
-
-    # Map label -> column index (0..K-1) for consistent ordering
     label_to_k = {lab: i for i, lab in enumerate(cluster_labels)}
 
-    # boolean mask M: shape (N, K) where M[j,k] True if unit j in cluster k
+    # membership mask M: shape (N, K)
     M = np.zeros((N, K), dtype=bool)
     for j in range(N):
         M[j, label_to_k[clusters[j]]] = True
 
-    # Compute cluster-level population means Xbar_k (shape (T,))
+    # cluster-level means and membership lists
     Xbar_clusters = []
     cluster_members = []
     for k_idx, lab in enumerate(cluster_labels):
@@ -169,31 +90,41 @@ def SCMEXP(Y,
         if members.size == 0:
             raise ValueError(f"Cluster '{lab}' has no members.")
         cluster_members.append(members)
-        Xbar_k = Y[members, :].mean(axis=0)  # shape (T,)
-        Xbar_clusters.append(Xbar_k)
+        Xbar_clusters.append(Y_fit[members, :].mean(axis=0))  # shape (T_fit,)
 
-    # CVXPY variables: per-cluster
-    w = cp.Variable((N, K), nonneg=True)   # treated weights per cluster
-    v = cp.Variable((N, K), nonneg=True)   # control weights per cluster
-    z = cp.Variable((N, K), boolean=True)  # selection indicators per cluster
+    # Precompute D1 = || Xbar_k - X_j ||^2 (N x K) if needed for eq11 or unit
+    D1 = np.zeros((N, K))
+    for k_idx in range(K):
+        diffs = Y_fit - Xbar_clusters[k_idx][None, :]  # (N, T_fit)
+        D1[:, k_idx] = np.sum(diffs**2, axis=1)
+
+    # Precompute D2 per cluster (pairwise squared distances among members) used by 'unit' design
+    D2_list = []
+    for k_idx in range(K):
+        members = cluster_members[k_idx]
+        Xm = Y_fit[members, :]  # (m, T_fit)
+        diff = Xm[:, None, :] - Xm[None, :, :]  # (m, m, T_fit)
+        D2 = np.sum(diff**2, axis=2)  # (m, m)
+        D2_list.append(D2)
+
+    # CVXPY variables
+    w = cp.Variable((N, K), nonneg=True)
+    v = cp.Variable((N, K), nonneg=True)
+    z = cp.Variable((N, K), boolean=True)
 
     constraints = []
-
-    # Enforce mask: non-members can't have weights/selections for that cluster
+    # enforce membership zeros
     for k in range(K):
         for j in range(N):
             if not M[j, k]:
                 constraints += [w[j, k] == 0, v[j, k] == 0, z[j, k] == 0]
 
-    # Per-cluster constraints: weights sum to 1 over cluster members; link w/v to z
+    # per-cluster normalization + cardinality + linking constraints
     for k_idx, lab in enumerate(cluster_labels):
         members = cluster_members[k_idx]
-
-        # weight sums = 1 inside cluster
         constraints += [cp.sum(w[members, k_idx]) == 1]
         constraints += [cp.sum(v[members, k_idx]) == 1]
 
-        # selection cardinality constraints (flexible)
         m_eq_k = _get_per_cluster_param(m_eq, lab, default=None)
         m_min_k = _get_per_cluster_param(m_min, lab, default=None)
         m_max_k = _get_per_cluster_param(m_max, lab, default=None)
@@ -205,51 +136,129 @@ def SCMEXP(Y,
         if m_max_k is not None:
             constraints += [cp.sum(z[members, k_idx]) <= int(m_max_k)]
 
-        # link weights to selection indicators
         for j in members:
             constraints += [w[j, k_idx] <= z[j, k_idx]]
             constraints += [v[j, k_idx] <= 1 - z[j, k_idx]]
 
-    # Optional exclusivity across clusters: a unit can't be selected in more than one cluster
     if exclusive:
         for j in range(N):
             constraints += [cp.sum(z[j, :]) <= 1]
 
-    # Build objective: sum of cluster-level matching errors (treated + control)
-    Y_T = Y.T  # shape (T, N)
+    # Build objective depending on design
+    Y_T = Y_fit.T  # (T_fit, N)
     obj_terms = []
-    for k_idx in range(K):
-        Xbar_k = Xbar_clusters[k_idx]  # numpy array (T,)
-        syn_treated_k = Y_T @ w[:, k_idx]  # shape (T,)
-        syn_control_k = Y_T @ v[:, k_idx]  # shape (T,)
-        obj_terms.append(cp.sum_squares(Xbar_k - syn_treated_k))  # Match treated to population
 
-        # Replace control match based on weakly_targeted flag
-        if weakly_targeted:
-            obj_terms.append(beta * cp.sum_squares(syn_treated_k - syn_control_k))  # Match control to treated
-        else:
-            obj_terms.append(cp.sum_squares(Xbar_k - syn_control_k))  # Match control to population
+    if design == "base":
+        # Plain cluster-targeted: both treated & control fit to cluster mean
+        for k_idx in range(K):
+            Xbar_k = Xbar_clusters[k_idx]
+            syn_treated_k = Y_T @ w[:, k_idx]
+            syn_control_k = Y_T @ v[:, k_idx]
+            obj_terms.append(cp.sum_squares(Xbar_k - syn_treated_k))
+            obj_terms.append(cp.sum_squares(Xbar_k - syn_control_k))
+
+    elif design == "weak":
+        # Weakly targeted: control is fit to treated (beta * ||treated - control||^2)
+        for k_idx in range(K):
+            Xbar_k = Xbar_clusters[k_idx]
+            syn_treated_k = Y_T @ w[:, k_idx]
+            syn_control_k = Y_T @ v[:, k_idx]
+            obj_terms.append(cp.sum_squares(Xbar_k - syn_treated_k))
+            obj_terms.append(beta * cp.sum_squares(syn_treated_k - syn_control_k))
+
+    elif design == "eq11":
+        # Equation (11) style penalized: base fits + lambda1 on w distances, lambda2 on v distances
+        for k_idx in range(K):
+            Xbar_k = Xbar_clusters[k_idx]
+            syn_treated_k = Y_T @ w[:, k_idx]
+            syn_control_k = Y_T @ v[:, k_idx]
+            obj_terms.append(cp.sum_squares(Xbar_k - syn_treated_k))
+            obj_terms.append(cp.sum_squares(Xbar_k - syn_control_k))
+            if lambda1 > 0:
+                obj_terms.append(lambda1 * cp.sum(cp.multiply(w[:, k_idx], D1[:, k_idx])))
+            if lambda2 > 0:
+                obj_terms.append(lambda2 * cp.sum(cp.multiply(v[:, k_idx], D1[:, k_idx])))
+
+    elif design == "unit":
+        # Unit-level penalized design (OA.1 + OA.2 + OA.3)
+        # OA.1 (xi): sum_j w_j * || X_j - (Y_fit^T v) ||^2
+        # OA.2 (lambda1_unit): sum_j w_j ||Xbar - X_j||^2
+        # OA.3 (lambda2_unit): sum_j w_j * sum_i v_i ||X_j - X_i||^2  (pairwise inside cluster)
+        for k_idx in range(K):
+            members = cluster_members[k_idx]
+            Xbar_k = Xbar_clusters[k_idx]
+            syn_treated_k = Y_T @ w[:, k_idx]    # (T_fit,)
+            syn_control_k = Y_T @ v[:, k_idx]    # (T_fit,)
+
+            # cluster-level fits
+            obj_terms.append(cp.sum_squares(Xbar_k - syn_treated_k))
+            obj_terms.append(cp.sum_squares(Xbar_k - syn_control_k))
+
+            # OA.1: xi * sum_{j in members} w_jk * || X_j - syn_control_k ||^2
+            if xi > 0:
+                for local_idx, j in enumerate(members):
+                    X_j = Y_fit[j, :]  # numpy (T_fit,)
+                    # cp expression: xi * w[j,k] * || X_j - syn_control_k ||^2
+                    obj_terms.append(xi * w[j, k_idx] * cp.sum_squares(X_j - syn_control_k))
+
+            # OA.2: lambda1_unit * sum_j w_jk * || Xbar_k - X_j ||^2
+            if lambda1_unit > 0:
+                obj_terms.append(lambda1_unit * cp.sum(cp.multiply(w[:, k_idx], D1[:, k_idx])))
+
+            # OA.3: lambda2_unit * sum_j w_jk * ( Dmat @ v_m )_j
+            if lambda2_unit > 0:
+                # D2_list[k_idx] is (m,m) for members
+                if len(members) > 0:
+                    Dmat = D2_list[k_idx]               # numpy (m, m)
+                    v_m = v[members, k_idx]            # cp (m,)
+                    inner_vec = Dmat.dot(v_m)          # yields cp expression (m,)
+                    w_m = w[members, k_idx]            # cp (m,)
+                    obj_terms.append(lambda2_unit * cp.sum(cp.multiply(w_m, inner_vec)))
+
+    else:
+        raise RuntimeError("unhandled design branch (this should not happen)")
 
     objective = cp.Minimize(cp.sum(obj_terms))
-
     prob = cp.Problem(objective, constraints)
     prob.solve(solver=solver, verbose=verbose)
 
-    # Extract values
-    w_opt = w.value  # shape (N, K)
+    # extract
+    w_opt = w.value
     v_opt = v.value
     z_opt = z.value
 
-    # Build cluster-level synthetic series
+    # full predictions on Y_full
+    Y_full_T = Y_full.T
     y_syn_treated_clusters = []
     y_syn_control_clusters = []
     for k_idx in range(K):
         w_k = w_opt[:, k_idx]
         v_k = v_opt[:, k_idx]
-        y_syn_treated_clusters.append(Y_T @ w_k)   # shape (T,)
-        y_syn_control_clusters.append(Y_T @ v_k)
+        y_syn_treated_clusters.append(Y_full_T @ w_k)
+        y_syn_control_clusters.append(Y_full_T @ v_k)
 
-    return {
+    # cluster rmse on fit period (treated vs control)
+    rmse_cluster = []
+    for k_idx in range(K):
+        treated_idx = np.where(w_opt[:, k_idx] > 1e-8)[0]
+        if len(treated_idx) > 0:
+            y_treated = (Y_fit[treated_idx, :].T @ w_opt[treated_idx, k_idx]) / np.sum(w_opt[treated_idx, k_idx])
+        else:
+            y_treated = np.zeros(T_fit)
+        y_control = Y_fit.T @ v_opt[:, k_idx]
+        rmse_cluster.append(np.sqrt(np.mean((y_treated - y_control) ** 2)))
+
+    # aggregate weights
+    cluster_sizes = [len(m) for m in cluster_members]
+    total_size = sum(cluster_sizes)
+    agg_weights = np.array(cluster_sizes) / total_size
+    w_agg = np.zeros(N)
+    v_agg = np.zeros(N)
+    for k_idx in range(K):
+        w_agg += agg_weights[k_idx] * w_opt[:, k_idx]
+        v_agg += agg_weights[k_idx] * v_opt[:, k_idx]
+
+    result = {
         "w_opt": w_opt,
         "v_opt": v_opt,
         "z_opt": z_opt,
@@ -257,59 +266,20 @@ def SCMEXP(Y,
         "y_syn_control_clusters": y_syn_control_clusters,
         "Xbar_clusters": Xbar_clusters,
         "cluster_labels": list(cluster_labels),
-        "cluster_members": cluster_members
+        "cluster_members": cluster_members,
+        "w_agg": w_agg,
+        "v_agg": v_agg,
+        "cluster_sizes": cluster_sizes,
+        "T0": T0,
+        "blank_periods": blank_periods,
+        "T_fit": T_fit,
+        "Y_fit": Y_fit,
+        "Y_blank": Y_blank,
+        "rmse_cluster": rmse_cluster,
+        "design": design,
+        "beta": beta if design == "weak" else None,
+        "lambda1": (lambda1 if design == "eq11" else (lambda1_unit if design == "unit" else None)),
+        "lambda2": (lambda2 if design == "eq11" else (lambda2_unit if design == "unit" else None)),
+        "xi": (xi if design == "unit" else None)
     }
-
-
-
-
-import numpy as np
-from congestprice import SCMEXP, generate_synthetic_hotel_data
-import matplotlib.pyplot as plt
-
-from mlsynth.utils.estutils import effects
-
-# Example usage
-dataset, Z_cov, mu_cov  = generate_synthetic_hotel_data()
-
-Y =dataset['data'].iloc[:, :dataset["pre_periods"]].to_numpy()
-
-result = SCMEXP(Y, np.array(["Group1"] * Y.shape[0]), m_min=1, m_max=2, weakly_targeted=True, beta=1.0)
-
-
-
-# Recompute full-period cluster means from original dataset
-Y_full = dataset["data"].to_numpy()
-Xbar_full = []
-for members in result["cluster_members"]:
-    Xbar_full.append(Y_full[members, :].mean(axis=0))  # shape (T_total,)
-
-# Apply weights to get synthetic treated/control across the full horizon
-Y_full_T = Y_full.T
-synthetics_full = []
-for k_idx, lab in enumerate(result["cluster_labels"]):
-    w_k = result["w_opt"][:, k_idx]
-    v_k = result["v_opt"][:, k_idx]
-    syn_treated = Y_full_T @ w_k
-    syn_control = Y_full_T @ v_k
-    synthetics_full.append((syn_treated, syn_control))
-
-postperiod = Y_full.shape[1]-dataset["pre_periods"]
-
-attdict, fitdict, Vectors = effects.calculate(synthetics_full[0][0], synthetics_full[0][1],dataset["pre_periods"], postperiod)
-
-# Example plot for cluster 0
-weeks = dataset["data"].columns
-T_total = dataset["data"].shape[1]
-x_axis = np.arange(1, T_total + 1)
-
-plt.plot(x_axis, synthetics_full[0][0], label="Synthetic treated")
-plt.plot(x_axis, synthetics_full[0][1], label="Synthetic control")
-
-# Intervention marker
-plt.axvline(x=dataset["pre_periods"], color="k", linestyle="--", label="Intervention")
-
-plt.xlabel("Time period")
-plt.ylabel("Outcome")
-plt.legend()
-plt.show()
+    return result
