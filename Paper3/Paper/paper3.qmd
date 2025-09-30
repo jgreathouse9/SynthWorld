@@ -13,7 +13,7 @@ number-sections: true
 bibliography: ktc.bib
 ---
 
-## Introduction
+# Introduction
 
 The COVID-19 pandemic triggered a global wave of non-pharmaceutical interventions (NPIs) as governments acted swiftly to limit viral transmission. Much early research focused on the public health rationale for these policies—especially the importance of early action to contain exponential spread. For instance, \citet{pamscmcali} and \citet{yang2021does} use synthetic control methods to evaluate lockdowns in California and Wuhan, emphasizing the critical role of timing. Similarly, \citet{bayat2020syntheticcontrolsyntheticinterventions} estimate that New York City could have reduced COVID-19 deaths by over 80\% had its first lockdown occurred just ten days earlier. Subsequent work examined the economic consequences of such interventions. While NPIs helped flatten the curve, they also raised concerns about business closures, layoffs, and lasting economic scarring. Studies like \citet{gibson2023synthetic} and \citet{lee2022pandemic} document labor market costs of lockdowns, while \citet{hubeipda} show that although strict NPIs incur short-term economic losses, those effects may be temporary. 
 
