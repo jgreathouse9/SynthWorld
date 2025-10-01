@@ -1,5 +1,5 @@
 ---
-title: "Locking Away Prosperity? Evaluating the Economic Impact of the Key to NYC Program"
+title: "Locking Away Prosperity? Evaluating the Labor Impacts of Vaccine Mnadates"
 format: 
   pdf:
     documentclass: article
