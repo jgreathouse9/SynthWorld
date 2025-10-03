@@ -1,10 +1,9 @@
 ---
-
 title: "Synthetic Control — Estimation Error Derivation"
 author: "Jared Greathouse — derived from Abadie et al. style slides"
 date: "2025-10-03"
 format: html
-------------
+---
 
 # Practice Problem: Deriving the Estimation Error in Synthetic Control
 
@@ -94,7 +93,7 @@ $$
 In matrix form, stack the pre-treatment factor vectors into
 
 $$
-\Lambda = \begin{bmatrix}\lambda_1'\ \lambda_2'\ \vdots \ \lambda_{T_0}' \end{bmatrix} \quad T_0\times F,
+\Lambda = \begin{bmatrix}\lambda_1'\\ \lambda_2'\\ \vdots \\ \lambda_{T_0}' \end{bmatrix} \quad T_0\times F,
 $$
 
 and $e=(e_1,\dots,e_{T_0})'$. Then
@@ -115,7 +114,7 @@ For a post-treatment time $t>T_0$, the part of the counterfactual coming from th
 
 $$
 \lambda_t'\beta = \lambda_t'(\Lambda'\Lambda)^{-1}\Lambda'e
-=\sum_{s=1}^{T_0}\underbrace{\lambda_t'(\Lambda'\Lambda)^{-1}\lambda_s}*{\pi*{ts}},e_s,
+=\sum_{s=1}^{T_0}\underbrace{\lambda_t'(\Lambda'\Lambda)^{-1}\lambda_s}_{\pi_{ts}}\, e_s,
 $$
 
 where we define the projection kernel $\pi_{ts}:=\lambda_t'(\Lambda'\Lambda)^{-1}\lambda_s$.
@@ -131,17 +130,17 @@ $$
 Write $e_t=\sum_{j=2}^{J+1}w_j^*\varepsilon_{jt}-\varepsilon_{1t}$ (consistent with the pre-treatment definition). Then
 
 $$
-\text{error}*t = \lambda_t'(\Lambda'\Lambda)^{-1}\Lambda'e - e_t \
-=\sum*{s=1}^{T_0}\pi_{ts} e_s - e_t.
+\text{error}_t = \lambda_t'(\Lambda'\Lambda)^{-1}\Lambda'e - e_t
+= \sum_{s=1}^{T_0}\pi_{ts} e_s - e_t.
 $$
 
 Substituting $e_s=\sum_{j=2}^{J+1}w_j^*(\varepsilon_{js}-\varepsilon_{1s})$ gives the expanded form:
 
 $$
-\text{error}*t = \sum*{j=2}^{J+1}w_j^*\sum_{s=1}^{T_0}\pi_{ts}(\varepsilon_{js}-\varepsilon_{1s}) - \sum_{j=2}^{J+1}w_j^*(\varepsilon_{jt}-\varepsilon_{1t}).
+\text{error}_t = \sum_{j=2}^{J+1}w_j^*\sum_{s=1}^{T_0}\pi_{ts}(\varepsilon_{js}-\varepsilon_{1s}) - \sum_{j=2}^{J+1}w_j^*(\varepsilon_{jt}-\varepsilon_{1t}).
 $$
 
-Interpretation:
+**Interpretation:**
 
 * The first term projects **pre-treatment idiosyncratic differences** into the post-treatment period via the factor dynamics (matrix $\pi$).
 * The second term is the contemporaneous idiosyncratic difference between the synthetic control and the treated unit at $t$.
