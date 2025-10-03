@@ -1,0 +1,161 @@
+---
+
+title: "Synthetic Control — Estimation Error Derivation"
+author: "Jared Greathouse — derived from Abadie et al. style slides"
+date: "2025-10-03"
+format: html
+------------
+
+# Practice Problem: Deriving the Estimation Error in Synthetic Control
+
+This document derives the estimation error for synthetic control under **exact pre-treatment fit** using the standard factor model. The goal is a compact, sign-consistent derivation suitable for inclusion in a Quarto document or slide.
+
+## 1. Setup and definitions
+
+We have $J+1$ units: unit $1$ is treated, units $2,\dots,J+1$ form the donor pool. Time runs $t=1,\dots,T$ with treatment starting after $T_0$ (so pre-treatment $t=1,\dots,T_0$, post-treatment $t>T_0$).
+
+* Counterfactual (no treatment) outcome: $Y_{it}^N$.
+* Observed treated outcome for unit 1 (post-treatment): $Y_{1t}=Y_{1t}^N+\tau_{1t}$.
+* Observed controls: $Y_{jt}=Y_{jt}^N$ for all $j\ge 2$.
+
+Synthetic control weights: $W^*=(w_2^*,\dots,w_{J+1}^*)'$ with $w_j^*\ge0$ and $\sum_{j=2}^{J+1}w_j^*=1$.
+
+Predicted counterfactual for treated unit at time $t$:
+
+$$
+\widehat Y_{1t}^0=\sum_{j=2}^{J+1}w_j^*Y_{jt}.
+$$
+
+Estimated treatment effect:
+
+$$
+\widehat\tau_{1t}=Y_{1t}-\widehat Y_{1t}^0.
+$$
+
+Estimation error (difference between estimator and true effect):
+
+$$
+\widehat\tau_{1t}-\tau_{1t}=Y_{1t}^N-\widehat Y_{1t}^0.
+$$
+
+## 2. Factor model
+
+Assume the usual factor structure for the no-treatment outcomes:
+
+$$
+Y_{it}^N=\delta_t+\theta_t'Z_i+\lambda_t'\mu_i+\varepsilon_{it},
+$$
+
+where
+
+* $\delta_t$ is a common time intercept,
+* $Z_i$ are observed (time-invariant) covariates with time-varying coefficients $\theta_t$,
+* $\lambda_t$ is an $F\times1$ vector of common factors,
+* $\mu_i$ is an $F\times1$ vector of unit-specific factor loadings,
+* $\varepsilon_{it}$ is an idiosyncratic shock with $E[\varepsilon_{it}]=0$.
+
+(We use column-vector conventions: $\lambda_t,\mu_i$ are columns and inner products are $\lambda_t'\mu_i$.)
+
+## 3. Exact pre-treatment fit
+
+Exact fit means the synthetic control reproduces the treated unit's pre-treatment covariates and outcomes exactly:
+
+$$
+\sum_{j=2}^{J+1} w_j^* Z_j = Z_1,
+\qquad
+\sum_{j=2}^{J+1} w_j^* Y_{js} = Y_{1s},\quad s=1,\dots,T_0.
+$$
+
+Plug the factor model into the pre-treatment matching condition for each $s\le T_0$:
+
+$$
+\sum_{j=2}^{J+1} w_j^* \bigl(\delta_s+\theta_s'Z_j+\lambda_s'\mu_j+\varepsilon_{js}\bigr)
+=\delta_s+\theta_s'Z_1+\lambda_s'\mu_1+\varepsilon_{1s}.
+$$
+
+Using $\sum_j w_j^*=1$ and the covariate match $\sum w_j^*Z_j=Z_1$, the intercept and $\theta_s'Z_i$ terms cancel, leaving
+
+$$
+\lambda_s'\Bigl(\mu_1-\sum_{j=2}^{J+1}w_j^*\mu_j\Bigr) = \sum_{j=2}^{J+1}w_j^*\varepsilon_{js} - \varepsilon_{1s}.
+$$
+
+Define
+
+$$
+\beta := \mu_1-\sum_{j=2}^{J+1}w_j^*\mu_j,\qquad e_s := \sum_{j=2}^{J+1}w_j^*\varepsilon_{js}-\varepsilon_{1s}.
+$$
+
+Then the pre-treatment system is
+
+$$
+\lambda_s'\beta = e_s, \quad s=1,\dots,T_0.
+$$
+
+In matrix form, stack the pre-treatment factor vectors into
+
+$$
+\Lambda = \begin{bmatrix}\lambda_1'\ \lambda_2'\ \vdots \ \lambda_{T_0}' \end{bmatrix} \quad T_0\times F,
+$$
+
+and $e=(e_1,\dots,e_{T_0})'$. Then
+
+$$
+\Lambda\beta = e.
+$$
+
+## 4. Solve for $\beta$ (projection) and compute post-treatment projection
+
+Assume the Gram matrix $\Lambda'\Lambda$ is invertible (i.e. pre-treatment factors span $\mathbb{R}^F$). Then the least-squares solution is
+
+$$
+\beta=(\Lambda'\Lambda)^{-1}\Lambda'e.
+$$
+
+For a post-treatment time $t>T_0$, the part of the counterfactual coming from the factor mismatch is
+
+$$
+\lambda_t'\beta = \lambda_t'(\Lambda'\Lambda)^{-1}\Lambda'e
+=\sum_{s=1}^{T_0}\underbrace{\lambda_t'(\Lambda'\Lambda)^{-1}\lambda_s}*{\pi*{ts}},e_s,
+$$
+
+where we define the projection kernel $\pi_{ts}:=\lambda_t'(\Lambda'\Lambda)^{-1}\lambda_s$.
+
+## 5. Full expression for the estimation error ($t>T_0$)
+
+The estimation error equals
+
+$$
+Y_{1t}^N-\widehat Y_{1t}^0 = \bigl(\lambda_t'\beta + \varepsilon_{1t}\bigr) - \sum_{j=2}^{J+1}w_j^*\varepsilon_{jt}.
+$$
+
+Write $e_t=\sum_{j=2}^{J+1}w_j^*\varepsilon_{jt}-\varepsilon_{1t}$ (consistent with the pre-treatment definition). Then
+
+$$
+\text{error}*t = \lambda_t'(\Lambda'\Lambda)^{-1}\Lambda'e - e_t \
+=\sum*{s=1}^{T_0}\pi_{ts} e_s - e_t.
+$$
+
+Substituting $e_s=\sum_{j=2}^{J+1}w_j^*(\varepsilon_{js}-\varepsilon_{1s})$ gives the expanded form:
+
+$$
+\text{error}*t = \sum*{j=2}^{J+1}w_j^*\sum_{s=1}^{T_0}\pi_{ts}(\varepsilon_{js}-\varepsilon_{1s}) - \sum_{j=2}^{J+1}w_j^*(\varepsilon_{jt}-\varepsilon_{1t}).
+$$
+
+Interpretation:
+
+* The first term projects **pre-treatment idiosyncratic differences** into the post-treatment period via the factor dynamics (matrix $\pi$).
+* The second term is the contemporaneous idiosyncratic difference between the synthetic control and the treated unit at $t$.
+
+If idiosyncratic shocks $\varepsilon_{it}$ are negligible (or mean-zero and uncorrelated across units), the right-hand side is small in expectation; otherwise the formula quantifies the bias/variance induced by those shocks and the quality of extrapolation.
+
+## 6. Remarks and caveats
+
+* **Transpose convention.** This derivation uses column-vector conventions for $\lambda_t,\mu_i$. If you prefer row-vector notation, adjust transposes accordingly; the algebraic content is identical.
+
+* **Rank / invertibility.** If $\Lambda'\Lambda$ is singular (e.g. $T_0<F$), use the Moore–Penrose inverse $(\Lambda'\Lambda)^+$ and interpret $\lambda_t'(\Lambda'\Lambda)^+\Lambda'$ as the projection operator onto the column space of $\Lambda$.
+
+* **Exact fit is idealized.** Exact pre-treatment fit rarely holds perfectly in practice; the argument shows the *conditional* error given exact fit and illustrates how pre-treatment shocks are carried forward.
+
+---
+
+*End of derivation.*
