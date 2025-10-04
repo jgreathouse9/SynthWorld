@@ -83,37 +83,59 @@ Per the above, vaccine mandates could influence employment in full-service resta
 # Dataset
 \label{sec:data}
 
-We use monthly MSA-level employment series from the Federal Reserve Bank of St. Louis (FRED) and, by extension, the Bureau of Labor Statistics, spanning January 1991 through December 2022, yielding $T=384$ monthly observations per unit. The pre-treatment period consists of  the set  $\mathcal{T}_1 = \{ t \in \mathbb{N} : t \leq T_0 \},$ where $T_0$ is the final period before treatment. Similarly, the post-treatment period is given by  $\mathcal{T}_2 = \{ t \in \mathbb{N} : t > T_0 \}.$  
-
-Our analysis focuses on two related outcome sets: (1) full-service restaurant employment for 30 MSAs and New York City (FRED Code: SMU36935617072251101SA) and (2) broader leisure industry employment at the MSA level for approximately 255 MSAs from 1991 to December 2022, with New York City (FRED code SMU36935617072251101SA) as the treated unit.
-
-Let $e_{jt}$ denote employment in unit $j$ at month $t$. For both the full-service restaurant analysis and broader leisure market analysis, the outcome is constructed as the year-over-year growth rate in percentage points,
+We use monthly MSA-level employment series from the Federal Reserve Bank of St. Louis (FRED) and, by extension, the Bureau of Labor Statistics, spanning January 1991 through December 2022, yielding $T=384$ monthly observations per unit. Let $\mathcal{J} = \{1, \dots, J\}$ denote the set of treated units, corresponding to New York City, San Francisco, New Orleans, and Los Angeles. For treated unit $j \in \mathcal{J}$, the pre-treatment period is defined as 
 
 $$
-y_{jt} = 100 \cdot \frac{e_{jt} - e_{j,t-12}}{e_{j,t-12}}, \qquad j=1,\dots,N,\; t=13,\dots,T.
+\mathcal{T}_1^{(j)} = \{ t \in \mathbb{N} : t \leq T_0^{(j)} \},
 $$
 
-of the smoothed and seasonally adjusted values. Outcomes are collected into vectors $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top$, and the donor pool is defined as $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$ with $N_0=29$ MSAs as donors for the full-service restaurant industry. The reason there are 29 donors instead of more is because BLS only takes *full service restaurant* data for only a few MSAs. Beyond this, we focus on full-service restaurants due to their direct exposure to the mandate, which required vaccination proof for indoor dining, unlike limited-service establishments where takeout predominates.
-
-The Key to NYC policy, implemented in August 2021, designates July 2021 as the last pre-treatment month $T_0$, with the treatment indicator defined by
+where $T_0^{(j)}$ is the final period before the mandate in city $j$. Similarly, the post-treatment period is 
 
 $$
-d_{jt} = \mathbf{1}\{j=1 \wedge t > T_0\}.
+\mathcal{T}_2^{(j)} = \{ t \in \mathbb{N} : t > T_0^{(j)} \}.
 $$
 
-Observed outcomes satisfy
+Our analysis focuses on two related outcome sets: (1) full-service restaurant employment for the treated cities and 30 additional MSAs, and (2) broader leisure industry employment at the MSA level for approximately 255 MSAs from 1991 to December 2022.  
+
+Let $e_{jt}$ denote employment in unit $j$ at month $t$, and define the year-over-year growth rate in percentage points as
+
+$$
+y_{jt} = 100 \cdot \frac{e_{jt} - e_{j,t-12}}{e_{j,t-12}}, \qquad j = 1,\dots,N, \; t=13,\dots,T,
+$$
+
+using smoothed and seasonally adjusted values. Outcomes for each unit are collected into vectors $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top$.  
+
+For each treated city $j \in \mathcal{J}$, a separate synthetic control is estimated using a donor pool 
+
+$$
+\mathcal{N}_0^{(j)} = \mathcal{N} \setminus \big( \{j\} \cup \mathcal{J} \setminus \{j\} \big),
+$$
+
+which excludes the treated unit itself as well as the other treated units. The treatment indicator is now
+
+$$
+d_{jt} = \mathbf{1}\{ j \in \mathcal{J} \wedge t > T_0^{(j)} \},
+$$
+
+so observed outcomes satisfy
 
 $$
 y_{jt} = (1 - d_{jt}) y_{jt}(0) + d_{jt} y_{jt}(1),
 $$
 
-with causal effects $\tau_{jt} = y_{jt}(1) - y_{jt}(0)$ and post-treatment average treatment effect on the treated (ATT)
+with causal effects 
 
 $$
-\text{ATT} = \frac{1}{|\mathcal{T}_2|} \sum_{t \in \mathcal{T}_2} \tau_{1t},
+\tau_{jt} = y_{jt}(1) - y_{jt}(0).
 $$
 
-where $\mathcal{T}_2 = \{t > T_0\}$.
+The post-treatment average treatment effect on the treated (ATT) is
+
+$$
+\text{ATT} = \frac{1}{J} \sum_{j \in \mathcal{J}} \frac{1}{|\mathcal{T}_2^{(j)}|} \sum_{t \in \mathcal{T}_2^{(j)}} \tau_{jt},
+$$
+
+averaging first over the post-treatment months within each city and then across all treated cities.
 
 # Econometric Methodology  
 \label{sec:method}
