@@ -49,7 +49,7 @@ Although temporary, these reductions highlight the potential of targeted interve
 
 ### Lockdown Policy Phases
 
-India’s lockdown, enacted under the Disaster Management Act of 2005, unfolded in multiple phases. Phase 1 (March 25–April 14) involved a complete nationwide shutdown, prohibiting non-essential movement, closing factories, and suspending public transport. Phase 2 (April 15 onwards) allowed a gradual reopening of essential services and agriculture, with color-coded zoning based on infection rates. While primarily a public health measure, the lockdown served as a large-scale experiment in emission control, revealing the disproportionate contribution of human activities to PM2.5 levels.
+India’s lockdown, enacted under the Disaster Management Act of 2005, unfolded in multiple phases. Phase 1 (March 25–April 14) involved a complete nationwide shutdown, prohibiting non-essential movement, closing factories, and suspending public transport. Phase 2 (April 15 onwards) allowed a gradual reopening of essential services and agriculture, with color-coded zoning based on infection rates \citep{deshpande2022disaster,RANJAN2020141024}. While primarily a public health measure, the lockdown served as a large-scale quasi-experiment in emission control, revealing the disproportionate contribution of human activities to PM2.5 levels.
 
 ## Literature Review
 \label{sec:lit}
