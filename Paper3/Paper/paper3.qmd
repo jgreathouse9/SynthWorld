@@ -1,5 +1,5 @@
 ---
-title: "Locking Away Prosperity? Evaluating the Labor Impacts of Vaccine Mnadates"
+title: "Locking Away Prosperity? Evaluating the Labor Impacts of Vaccine Mandates"
 format: 
   pdf:
     documentclass: article
