@@ -67,8 +67,10 @@ A central gap is the lack of causal designs for national-scale interventions. Ma
 SCM improves on this by constructing a counterfactual from untreated donor units as a weighted average \citep{BenMichael2021}. However, SCM is limited when studying national policies, where no valid donor pool exists, given that SCM requires untreated control units in order to be viable. Similarly, causal machine learning approaches \citep{heffernan2025causal} rely on strong ignorability assumptions that may not hold for air pollution data with unmeasured year-specific factors.
 
 In contrast, the SHC method avoids these limitations by constructing counterfactuals directly from historical patterns, without assuming complete covariate measurement. This study extends SHC to an Augmented SHC (ASHC) framework, allowing limited extrapolation to improve pre-treatment fit while maintaining stability. By applying ASHC to India’s national and city-level PM2.5 data, this work provides the first rigorous causal estimates of the 2020 lockdown’s air quality impacts in a country of India’s scale.
+
  
- # Methodology \label{sec:method}
+ # Methodology
+\label{sec:method}
 
 Below I describe the Synthetic Historical Control (SHC) methodology from \citet{SHC}. I then extend this framework to settings where pre-treatment fit is poor, yielding the Augmented Synthetic Historical Control (ASHC). The ASHCM is applied separately to the national average of PM2.5 for India, as well as Delhi, Mumbai, Bangalore, and Kolkata.
 
