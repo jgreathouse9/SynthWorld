@@ -56,17 +56,11 @@ India’s lockdown, enacted under the Disaster Management Act of 2005, unfolded 
 
 ### Methodological Aspects of Prior Literature
 
-To contextualize our approach, we review existing studies on lockdown-related air quality changes and highlight key methodological gaps. Early studies primarily relied on descriptive pre–post comparisons or satellite imagery without causal adjustment \citep{mahato2020effect,pathakoti2021assessment,srivastava2020effects,he2022diurnal,wang2020covidairquality}. These approaches document reductions in pollutants but cannot answer counterfactual questions—what would air quality have been absent the lockdown?
-
-Some studies applied causal models. For example, \citet{heffernan2025causal} use causal machine learning and interrupted time series (ITS) methods to find reductions in NO2 levels. ITS was applied in Italy \citep{CAMELETTI2020117794}, finding no meaningful changes in air pollutants. Augmented Synthetic Control methods were used for Wuhan \citep{cole2020impact}, showing a 63% reduction in NO2. Despite these examples, a recent systematic review finds that most lockdown–air pollution studies remain descriptive or non-causal \citep{ijerph19041950}, limiting their policy relevance.
+To contextualize our approach, we review existing studies on lockdown-related air quality changes and highlight key methodological gaps. Early studies primarily relied on descriptive pre–post comparisons or satellite imagery without causal adjustment \citep{mahato2020effect,pathakoti2021assessment,srivastava2020effects,he2022diurnal,wang2020covidairquality}. These approaches document reductions in pollutants but cannot answer counterfactual questions—what would air quality have been absent the lockdown? Some studies have applied causal models. For example, \citet{heffernan2025causal} use causal machine learning and interrupted time series (ITS) methods to find reductions in NO2 levels. ITS was applied in Italy \citep{CAMELETTI2020117794}, finding no meaningful changes in air pollutants. Augmented Synthetic Control methods were used for Wuhan \citep{cole2020impact}, showing a 63% reduction in NO2. Despite these examples, a recent systematic review finds that most lockdown–air pollution studies remain descriptive or non-causal \citep{ijerph19041950}, limiting their policy relevance.
 
 ### Gaps and Contribution of This Study
 
-A central gap is the lack of causal designs for national-scale interventions. Many studies use simple pre–post t-tests \citep{Goel2021}, graphical analyses \citep{kumari2020impact,benchrif2021aerosol}, year-over-year comparisons \citep{le2020temporary}, or OLS regressions \citep{PAL2022101368}. These methods cannot fully account for confounding trends or temporal patterns, reducing confidence in policy-relevant estimates.
-
-SCM improves on this by constructing a counterfactual from untreated donor units as a weighted average \citep{BenMichael2021}. However, SCM is limited when studying national policies, where no valid donor pool exists, given that SCM requires untreated control units in order to be viable. Similarly, causal machine learning approaches \citep{heffernan2025causal} rely on strong ignorability assumptions that may not hold for air pollution data with unmeasured year-specific factors.
-
-In contrast, the SHC method avoids these limitations by constructing counterfactuals directly from historical patterns, without assuming complete covariate measurement. This study extends SHC to an Augmented SHC (ASHC) framework, allowing limited extrapolation to improve pre-treatment fit while maintaining stability. By applying ASHC to India’s national and city-level PM2.5 data, this work provides the first rigorous causal estimates of the 2020 lockdown’s air quality impacts in a country of India’s scale.
+A central gap is the lack of causal designs for national-scale interventions. Many studies use simple pre–post t-tests \citep{Goel2021}, graphical analyses \citep{kumari2020impact,benchrif2021aerosol}, year-over-year comparisons \citep{le2020temporary}, or OLS regressions \citep{PAL2022101368}. These methods cannot fully account for confounding trends or temporal patterns, reducing confidence in policy-relevant estimates. SCM improves on this by constructing a counterfactual from untreated donor units as a weighted average \citep{BenMichael2021}. However, SCM is limited when studying national policies, where no valid donor pool exists, given that SCM requires untreated control units in order to be viable. Similarly, causal machine learning approaches \citep{heffernan2025causal} rely on strong ignorability assumptions that may not hold for air pollution data with unmeasured year-specific factors. In contrast, the SHC method avoids these limitations by constructing counterfactuals directly from historical patterns, without assuming complete covariate measurement. This study extends SHC to an Augmented SHC (ASHC) framework, allowing limited extrapolation to improve pre-treatment fit while maintaining stability. By applying ASHC to India’s national and city-level PM2.5 data, this work provides the first rigorous causal estimates of the 2020 lockdown’s air quality impacts in a country of India’s scale.
 
  
  # Methodology
@@ -123,8 +117,7 @@ Smoothness ensures that the latent process can be approximated by a finite expan
 \end{assumption}
 
 \noindent
-Sparsity reflects that only a small number of donor segments are relevant. Positive definiteness prevents collinearity and ensures stable weights.
-In plain terms, SHC gives us a valid estimate of the lockdown’s impact as long as three conditions hold. First, the random “noise” in pollution measurements behaves well — it averages out and does not swamp the real signal. Second, the history of pollution before the lockdown is smooth and informative enough that past patterns can be combined to mimic what would have happened in the absence of the lockdown. This means that unobserved influences like weather are implicitly accounted for, so long as they leave a stable footprint in the historical data. Third, the relevant pieces of history we draw on to form the counterfactual are not redundant, so the weights we place on them are stable rather than erratic. Under these conditions, SHC can reliably construct the missing counterfactual trajectory and deliver a valid estimate of the average treatment effect of the lockdown.
+Sparsity means that only a small number of donor segments are relevant. Positive definiteness prevents collinearity and ensures stable weights. In plain terms, SHC gives us a valid estimate of the lockdown’s impact as long as three conditions hold. First, the random “noise” in pollution measurements behaves well — it averages out and does not swamp the real signal. Second, the history of pollution before the lockdown is smooth and informative enough that past patterns can be combined to mimic what would have happened in the absence of the lockdown. This means that unobserved influences like weather are implicitly accounted for, so long as they leave a stable footprint in the historical data. Third, the relevant pieces of history we draw on to form the counterfactual are not redundant, so the weights we place on them are stable rather than erratic. Under these conditions, SHC can reliably construct the missing counterfactual trajectory and deliver a valid estimate of the average treatment effect of the lockdown.
 
 ### Estimator 
 
@@ -279,7 +272,7 @@ Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs
 # Data
 \label{sec:data}
 
-My data on PM2.5 are derived from \cite{batra2025indblockpm25}, who keep data collected from SHRUG. We have the full district-level PM2.5 matrix:  
+My data on PM2.5 are derived from \cite{batra2025indblockpm25}, who keep data collected from the Socioeconomic High-resolution Rural-Urban Geographic Data Platform for India (SHRUG). We have the full district-level PM2.5 matrix:  
 
 $$
 \mathbf{Y} =
@@ -298,13 +291,13 @@ $$
 \mathbf{y}_{\text{India}} = \frac{1}{N} \sum_{i=1}^{N} \mathbf{Y}_{i,\cdot} \in \mathbb{R}^{T}.
 $$
 
-For our district-level treated units ($c \in \{\text{Delhi}, \text{Mumbai}, \text{Bangalore}, \text{Kolkata}\}$), we extract subvector(s) corresponding to the district  
+This returns a single time series of the empirical mean of PM2.5 across India for the full time series. For our district-level treated units ($c \in \{\text{Delhi}, \text{Mumbai}, \text{Bangalore}, \text{Kolkata}\}$), we extract subvector(s) corresponding to the district  
 
 $$
 \mathbf{y}_c = \frac{1}{|S_c|} \sum_{i \in S_c} \mathbf{Y}_{i,\cdot} \in \mathbb{R}^{T}.
 $$
 
-where $S_c$ is the set of subdistricts belonging to district $c$. Across all units, my final outcome is the year-over-year (YoY) growth rate of the PM25 levels: for any series $\mathbf{\bar{y}}$, the monthly YoY growth from month $t$ relative to the same month in the previous year is
+where $S_c$ is the set of subdistricts belonging to district $c$. My final outcome is the year-over-year (YoY) growth rate of the PM25 levels: for any series $\mathbf{\bar{y}}$, the monthly YoY growth from month $t$ relative to the same month in the previous year is
 
 $$
 g_t = \frac{\bar{y}_t - \bar{y}_{t-12}}{\bar{y}_{t-12}}, \quad t = 13, \dots, T
