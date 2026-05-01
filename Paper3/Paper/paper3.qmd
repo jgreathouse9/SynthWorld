@@ -142,101 +142,49 @@ averaging first over the post-treatment months within each city and then across 
 # Econometric Methodology  
 \label{sec:method}
 
-Unfortunately, Standard SCM yielded inadequate pre-treatment fit. In order to generate the counterfactual, I needed to allow extrapolation beyond the convex hull. To estimate the counterfactual employment trajectory for NYC’s full-service restaurant sector and the broader employment trends in the leisure labor market, I therefore employ a synthetic control approach that hybridizes Forward Selection SCM (FSCM) and the Augmented SCM (ASCM) estimators. The classical Synthetic Control Method (SCM) solves
+\subsection{Classical Synthetic Control Method}
+
+The Synthetic Control Method (SCM), introduced by \citet{Abadie2010} and extended by \citet{Abadie2021}, constructs a counterfactual for a treated unit as a weighted average of untreated donor units. For treated unit $j$, let $\mathbf{y}_j^{\mathcal{T}_1}$ denote the vector of pre-treatment outcomes and $\mathbf{Y}_0^{\mathcal{T}_1}$ the matrix of pre-treatment outcomes for the donor pool. The classical SCM finds the optimal weights $\mathbf{w}_j$ by solving
 
 $$
-\mathbf{w}^{\mathrm{SCM}} = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{conv}}}{\operatorname*{argmin}} \; \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w} \right\|_2^2,
+\mathbf{w}_j^{\text{SCM}} = \underset{\mathbf{w} \in \mathcal{W}_{\text{conv}}}{\operatorname*{argmin}} \left\| \mathbf{y}_j^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w} \right\|_2^2
 $$
 
-where 
+subject to $\mathbf{w} \geq \mathbf{0}$ and $\mathbf{1}^\top \mathbf{w} = 1$, where $\mathcal{W}_{\text{conv}}$ is the probability simplex. The resulting synthetic control is used to generate the post-treatment counterfactual:
 
 $$
-\mathcal{W}_{\mathrm{conv}} = \left\{ \mathbf{w} \in \mathbb{R}_{\geq 0}^{N_0} \;\middle|\; \mathbf{1}^\top \mathbf{w} = 1 \right\}
+\widehat{y}_{jt}(0) = \mathbf{Y}_{0t} \mathbf{w}_j^{\text{SCM}}, \quad t > T_0^{(j)}.
 $$
 
-is the probability simplex. This finds the weights $\mathbf{w}^{\mathrm{SCM}}$ that best reconstruct the treated unit’s pre-treatment outcomes as a convex combination of donor outcomes.
+The treatment effect at time $t$ is then estimated as $\widehat{\tau}_{jt} = y_{jt} - \widehat{y}_{jt}(0)$.
 
-## Forward Selection SCM
+While classical SCM performs well when a convex combination of donors closely matches the treated unit’s pre-treatment trajectory, it produced inadequate pre-treatment fit in this application. The unique characteristics of large, coastal, tourism-dependent cities often place them near or outside the convex hull of the donor pool (other MSAs). Poor pre-treatment fit weakens confidence in the post-treatment counterfactuals.
 
-FSCM constructs the synthetic control iteratively by adding donor units one at a time. Starting with an empty selected donor set $\mathcal{S} = \emptyset$, at each iteration the algorithm evaluates each candidate donor $j \in \mathcal{N}_0 \setminus \mathcal{S}$ by forming an expanded set $\mathcal{S}' = \mathcal{S} \cup \{j\}$. For each $\mathcal{S}'$, it solves the restricted SCM problem over the donor submatrix $\mathbf{Y}_0^{\mathcal{S}'}$, consisting of columns corresponding to units in $\mathcal{S}'$:
+\subsection{Partially Pooled Synthetic Control}
 
-$$
-\mathbf{w}_{\mathcal{S}'}^* = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{conv}}(\mathcal{S}')} {\operatorname*{argmin}} \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1, \mathcal{S}'} \mathbf{w} \right\|_2^2,
-$$
+To address this limitation while exploiting the similarity across the four treated cities, I implement a **partially pooled synthetic control estimator**. This method jointly estimates donor weights across the treated units, allowing controlled information sharing among New York City, San Francisco, New Orleans, and Los Angeles, which faced similar vaccine mandate policies targeting the leisure and hospitality sector during the 2021 Delta variant wave.
 
-where
+Let $\mathbf{Y}_1 \in \mathbb{R}^{T \times J}$ be the outcome matrix for the $J=4$ treated cities and $\mathbf{Y}_0 \in \mathbb{R}^{T \times N_0}$ the donor matrix. The estimator solves for a weight matrix $\boldsymbol{\Theta} \in \mathbb{R}^{N_0 \times J}$ (each column contains the donor weights for one city) and a vector of city-specific intercepts $\boldsymbol{\alpha} \in \mathbb{R}^J$.
 
-$$
-\mathcal{W}_{\mathrm{conv}}(\mathcal{S}') = \left\{ \mathbf{w} \in \mathbb{R}_{\geq 0}^{|\mathcal{S}'|} \mid \mathbf{1}^\top \mathbf{w} = 1 \right\}.
-$$
+The procedure consists of two steps. First, a pooling intensity parameter $\nu \in [0,1]$ is estimated from the pre-treatment data. This parameter determines the relative weight placed on fitting each city separately versus fitting them jointly. It is computed by comparing the mean squared errors from fully separate SCM estimations against a pooled estimation (see Appendix for details). A value of $\nu$ close to 1 implies strong pooling (similar donor weights across cities), while a value close to 0 allows nearly independent weights for each city.
 
-The donor selected at iteration $k$ is
+Second, the estimator minimizes the following objective function:
 
 $$
-j^* = \underset{j \in \mathcal{N}_0 \setminus \mathcal{S}}{\operatorname*{argmin}} \; 
-\min_{\mathbf{w} \in \mathcal{W}_{\mathrm{conv}}(\mathcal{S} \cup \{j\})} 
-\left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1, \mathcal{S} \cup \{j\}} \mathbf{w} \right\|_2^2,
+(1 - \nu) \cdot \left( \frac{1}{J} \sum_{j=1}^J \left\| \mathbf{M}_j \odot (\mathbf{y}_j - \mathbf{Y}_0 \boldsymbol{\theta}_j - \alpha_j \mathbf{1}) \right\|_2^2 \right) 
++ \nu \cdot \left( \frac{1}{T^*} \sum_{t} \bar{r}_t^2 \right) 
++ \lambda \| \boldsymbol{\Theta} \|_F^2
 $$
 
-and $\mathcal{S}$ is updated as
+subject to $\boldsymbol{\Theta} \geq \mathbf{0}$ and $\mathbf{1}^\top \boldsymbol{\theta}_j = 1$ for each column $j$. Here, $\mathbf{M}_j$ is a binary mask selecting pre-treatment periods for city $j$, $\bar{r}_t$ denotes the average residual across treated cities at time $t$ (among those still in the pre-treatment window), and $\lambda > 0$ is a small ridge regularization term that stabilizes the solution.
 
-$$
-\mathcal{S} \leftarrow \mathcal{S} \cup \{j^*\}.
-$$
+This partially pooled approach offers important advantages. It borrows statistical strength across the four related policy experiments, often yielding better pre-treatment fit than separate SCMs. It naturally accommodates staggered treatment timing across cities. Additionally, the data-driven estimate of $\nu$ reveals the degree of commonality in how the mandates influenced restaurant employment dynamics.
 
-This forward selection continues until a stopping criterion is met, such as reaching a maximum number of donors, a minimum improvement threshold, or an information criterion like modified BIC.
+Counterfactuals generated from this estimator are used to compute city-specific treatment effects as well as an overall average treatment effect on the treated (ATT), calculated by first averaging post-treatment gaps within each city and then across the four cities. Inference relies primarily on placebo tests, in which each donor MSA is iteratively assigned a placebo treatment and the distribution of placebo effects is compared to the estimated effects for the treated cities.
 
-## The Augmented Synthetic Control Estimator
+All estimations use year-over-year growth rates (in percentage points) of full-service restaurant employment to remove seasonality and long-term trends. Robustness checks include alternative donor pools, broader leisure and hospitality employment measures, and sensitivity to the regularization parameter $\lambda$. Full implementation details and code for the partially pooled estimator are provided in the Appendix.
 
-Building on the baseline SCM, ASCM relaxes the convex weight restriction by allowing affine weights and adds a regularization penalty that shrinks the solution towards a reference weight vector $\mathbf{w}_0$, typically the SCM or FSCM solution. The augmented objective is
 
-$$
-\mathbf{w}^{\mathrm{aug}} = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{aff}}}{\operatorname*{argmin}} \; \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w} \right\|_2^2 + \lambda \left\| \mathbf{w} - \mathbf{w}_0 \right\|_2^2,
-$$
-
-where $\lambda \geq 0$ controls the penalty strength and
-
-$$
-\mathcal{W}_{\mathrm{aff}} = \left\{ \mathbf{w} \in \mathbb{R}^{N_0} \mid \mathbf{1}^\top \mathbf{w} = 1 \right\}
-$$
-
-is the affine subspace of weights summing to one, but not restricted to be non-negative. The intuition is that when $\mathbf{w}_0$ (e.g., FSCM weights) provides a good fit, $\lambda$ will be large to maintain interpretability; when fit needs improvement, $\lambda$ can be small to allow extrapolation beyond the convex hull.
-
-## Forward Augmented Synthetic Control
-
-FASC integrates the interpretability of FSCM with the flexibility of ASCM by first performing forward selection to obtain $\mathbf{w}^{\mathrm{FSCM}}$, then solving
-
-$$
-\mathbf{w}^{\mathrm{FASC}} = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{aff}}}{\operatorname*{argmin}} \; \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w} \right\|_2^2 + \lambda \left\| \mathbf{w} - \mathbf{w}^{\mathrm{FSCM}} \right\|_2^2,
-$$
-
-where $\lambda \geq 0$ balances fidelity to the sparse forward-selected weights and pre-treatment fit.
-
-Large $\lambda$ yields a solution close to $\mathbf{w}^{\mathrm{FSCM}}$, preserving sparsity and interpretability, whereas small $\lambda$ prioritizes fit, allowing positive or negative weights outside the original selected donors.
-
-### Cross-Validation for $\lambda$
-
-The hyperparameter $\lambda$ is chosen by time-split cross-validation over the pre-treatment period. The training set (first half of pre-treatment) is used to estimate
-
-$$
-\mathbf{w}^{\mathrm{FASC}}(\lambda) = \underset{\mathbf{w} \in \mathcal{W}_{\mathrm{aff}}}{\operatorname*{argmin}} \left\| \mathbf{y}_{\mathrm{train}} - \mathbf{Y}_{0,\mathrm{train}} \mathbf{w} \right\|_2^2 + \lambda \left\| \mathbf{w} - \mathbf{w}^{\mathrm{FSCM}} \right\|_2^2,
-$$
-
-while the validation set (second half of pre-treatment) evaluates out-of-sample error via
-
-$$
-\mathrm{CV\text{-}RMSE}(\lambda) = \left\| \mathbf{y}_{\mathrm{val}} - \mathbf{Y}_{0,\mathrm{val}} \mathbf{w}^{\mathrm{FASC}}(\lambda) \right\|_2.
-$$
-
-The $\lambda$ minimizing $\mathrm{CV\text{-}RMSE}$ balances interpretability and fit. Bayesian optimization over $\log_{10}(\lambda) \in [-2,3]$ with Gaussian Process surrogates and Expected Improvement acquisition efficiently explores this space. Since $\mathbf{w}^{\mathrm{FSCM}}$ is feasible in the FASC optimization, the in-sample Mean Squared Error (MSE) satisfies
-
-$$
-\mathrm{MSE}^{\mathrm{FASC}} = \frac{1}{T_0} \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w}^{\mathrm{FASC}} \right\|_2^2 \leq \frac{1}{T_0} \left\| \mathbf{y}_1^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w}^{\mathrm{FSCM}} \right\|_2^2 = \mathrm{MSE}^{\mathrm{FSCM}},
-$$
-
-ensuring FASC’s fit is never worse and typically better than FSCM.
-
-# Results
 \label{sec:results}
 
 # Discussion
