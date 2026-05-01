@@ -708,6 +708,22 @@ This study does not estimate public health benefits directly, nor does it claim 
 
 
 
+# Conclusion
+
+This paper estimates the short-run economic consequences of Hawaii's March 2020 mandatory quarantine using the Synthetic Historical Control (SHC) method. By leveraging the state's own pre-treatment time series to construct credible counterfactuals, I document large negative impacts on tourism demand and related labor markets. Visitor days and hotel occupancy experienced dramatic collapses—estimated at roughly 85 and 76 percentage points below their synthetic historical benchmarks, respectively—while accommodations employment and the broader coincident economic activity index also declined sharply. These effects were statistically distinguishable from normal variation, as observed outcomes consistently fell outside 90\% conformal prediction intervals. Placebo tests using a pre-pandemic intervention date confirm the model's ability to avoid spurious detection of effects, lending credibility to the causal interpretation.
+
+The findings highlight both the severity and the transience of the economic shock. Although the initial downturn was severe, most indicators began recovering by late 2020 and into early 2021. This pattern of front-loaded costs followed by rebound is consistent with the logic of aggressive early intervention: by severely restricting inbound travel when the virus threat was still uncertain, Hawaii absorbed a concentrated economic hit that appears to have been relatively short-lived compared to more prolonged disruptions observed elsewhere. In this sense, the results provide empirical support for the ``pay now, benefit later'' nature of decisive containment strategies during emerging crises.
+
+Methodologically, this study demonstrates the value of the Synthetic Historical Control approach in settings where traditional synthetic control or difference-in-differences designs are infeasible due to the absence of suitable untreated units. Hawaii's extreme geographic isolation and tourism-dependent economy make it a particularly challenging case for cross-sectional comparison; SHC overcomes this limitation by borrowing strength from the treated unit's own historical dynamics. The strong pre-treatment fit, robust results across different evaluation windows, and transparent inference via conformal prediction intervals highlight SHC's promise for evaluating one-off, systemic policy shocks—whether pandemic-related, climate-induced, or stemming from other large-scale disruptions.
+
+From a public policy perspective, Hawaii's experience offers a concrete data point in the enduring debate over balancing public health imperatives against immediate economic costs. While this analysis focuses exclusively on economic outcomes and does not quantify lives saved, hospital capacity preserved, or long-term epidemiological advantages, it clarifies the magnitude of the short-run trade-off. Policymakers facing future crises—be they novel pathogens, natural disasters, or supply-chain shocks—should weigh these front-loaded economic costs against the potential for avoiding more persistent damage from delayed or uncoordinated responses. The results also underscore the particular vulnerability of tourism-dependent economies to border and mobility restrictions, suggesting that targeted support for hospitality sectors may be warranted when similar containment measures are deployed.
+
+Several limitations remain. First, the analysis captures only short-run effects through the end of 2020; longer-term scarring or differential recovery trajectories fall outside the scope of this study. Second, while SHC provides a credible counterfactual under its stated assumptions, it cannot fully account for nationwide or global confounders that may have differentially affected Hawaii. Finally, this paper does not conduct a full cost-benefit analysis incorporating public health outcomes. Future work should integrate these economic estimates with epidemiological modeling to better assess the net welfare effects of early, stringent interventions.
+
+Overall, Hawaii's ``Great Isolation with Aloha characteristics'' illustrates both the power and the pain of decisive action under uncertainty. By providing rigorous, methodologically innovative evidence on its economic consequences, this paper contributes to a more complete understanding of crisis response and equips policymakers with better tools for navigating the difficult trade-offs that future emergencies will inevitably demand.
+
+
+
 ```{=latex}
 \bibliography{pl}
 ```
