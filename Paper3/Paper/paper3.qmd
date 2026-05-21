@@ -139,57 +139,350 @@ $$
 
 averaging first over the post-treatment months within each city and then across all treated cities.
 
-# Econometric Methodology  
+
+\section{Econometric Methodology}
 \label{sec:method}
 
-\subsection{Classical Synthetic Control Method}
+The four city-level mandates form a staggered-adoption panel with three
+treated units (after dropping New Orleans for data availability) and a
+donor pool of metropolitan areas that did not enact comparable indoor
+vaccine-verification policies. Treatment timing differs across cities,
+and the cities themselves --- large, coastal, tourism-dependent
+metropolitan economies --- often lie near or outside the convex hull
+of the donor pool. Classical synthetic control \citep{Abadie2010},
+which fits a separate convex combination of donors to each treated
+unit, fails on both counts: it tolerates only one adoption date at a
+time and produces poor pre-treatment fit whenever the treated unit is
+geometrically extreme. I therefore deploy two estimators specifically
+designed for staggered adoption with potentially poor unit-level fit:
+the Synthetic Difference-in-Differences (SDID) estimator of
+\citet{Arkhangelsky2021}, with the event-study disaggregation of
+\citet{Ciccia2024}, and the partially pooled synthetic control (PPSCM)
+estimator of \citet{BenMichael2022}. The two methods share the
+synthetic-control philosophy of fitting a counterfactual by
+data-driven weighting but differ in what they weight and how they
+trade off competing imbalance criteria; reporting both lets the
+estimated effect be triangulated rather than identified by a single
+modeling choice.
 
-The Synthetic Control Method (SCM), introduced by \citet{Abadie2010} and extended by \citet{Abadie2021}, constructs a counterfactual for a treated unit as a weighted average of untreated donor units. For treated unit $j$, let $\mathbf{y}_j^{\mathcal{T}_1}$ denote the vector of pre-treatment outcomes and $\mathbf{Y}_0^{\mathcal{T}_1}$ the matrix of pre-treatment outcomes for the donor pool. The classical SCM finds the optimal weights $\mathbf{w}_j$ by solving
+\subsection{Synthetic Difference-in-Differences}
+\label{sec:method:sdid}
 
+SDID generalizes the canonical SCM idea by introducing time weights
+alongside unit weights and embedding both in a weighted two-way
+fixed-effects regression. For a given cohort $a$ of treated units
+(here, one cohort per treated city), unit weights
+$\widehat{\boldsymbol{\omega}}^{\,sdid}$ are chosen on the simplex to
+make the donor pool's pre-treatment trajectory parallel to that of
+the treated unit, and time weights
+$\widehat{\boldsymbol{\lambda}}^{\,sdid}$ are chosen on the simplex
+to make the donor pool's pre- and post-treatment average outcomes
+agree apart from a constant. Concretely,
+$\widehat{\boldsymbol{\omega}}^{\,sdid}$ solves
 $$
-\mathbf{w}_j^{\text{SCM}} = \underset{\mathbf{w} \in \mathcal{W}_{\text{conv}}}{\operatorname*{argmin}} \left\| \mathbf{y}_j^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1} \mathbf{w} \right\|_2^2
+\widehat{\omega}_0,\; \widehat{\boldsymbol{\omega}}^{\,sdid}
+\;=\;
+\underset{\omega_0 \in \mathbb{R},\; \boldsymbol{\omega} \in \Omega}{\operatorname*{argmin}}
+\;
+\sum_{t = 1}^{T_0}
+\left( \omega_0 + \sum_{i = 1}^{N_{co}} \omega_i Y_{it}
+       - \frac{1}{N_{tr}} \sum_{i \in \mathcal{I}^a} Y_{it} \right)^{\!2}
+\;+\;\zeta^{2}\, T_0\, \| \boldsymbol{\omega} \|_2^{2},
 $$
-
-subject to $\mathbf{w} \geq \mathbf{0}$ and $\mathbf{1}^\top \mathbf{w} = 1$, where $\mathcal{W}_{\text{conv}}$ is the probability simplex. The resulting synthetic control is used to generate the post-treatment counterfactual:
-
+with the simplex constraint $\boldsymbol{\omega} \geq \mathbf{0}$,
+$\mathbf{1}^\top \boldsymbol{\omega} = 1$, and $\zeta$ a ridge term
+calibrated to the standard deviation of first-differenced donor
+outcomes \citep{Arkhangelsky2021}. The time-weight problem is
+analogous, with no ridge penalty. The cohort-specific SDID estimator
+is then a weighted double-difference:
 $$
-\widehat{y}_{jt}(0) = \mathbf{Y}_{0t} \mathbf{w}_j^{\text{SCM}}, \quad t > T_0^{(j)}.
+\widehat{\tau}_{a}^{\,sdid}
+\;=\;
+\frac{1}{T_{tr}^{a}}
+\sum_{t = a}^{T} \!\left(
+   \frac{1}{N_{tr}^{a}} \sum_{i \in \mathcal{I}^a} Y_{it}
+   - \sum_{i = 1}^{N_{co}} \widehat{\omega}_i Y_{it}
+\right)
+\;-\;
+\sum_{t = 1}^{a - 1} \widehat{\lambda}_t
+\!\left(
+   \frac{1}{N_{tr}^{a}} \sum_{i \in \mathcal{I}^a} Y_{it}
+   - \sum_{i = 1}^{N_{co}} \widehat{\omega}_i Y_{it}
+\right),
 $$
+i.e., the post-treatment gap between treated and synthetic control
+minus a time-weighted baseline computed on the pre-treatment window.
+Cohort-specific effects are aggregated into an overall ATT via the
+treated-unit-weighted scheme of \citet{Clarke2023}, equivalent to the
+event-study aggregation of \citet{Ciccia2024} when applied with
+uniform horizon weights.
 
-The treatment effect at time $t$ is then estimated as $\widehat{\tau}_{jt} = y_{jt} - \widehat{y}_{jt}(0)$.
-
-While classical SCM performs well when a convex combination of donors closely matches the treated unit’s pre-treatment trajectory, it produced inadequate pre-treatment fit in this application. The unique characteristics of large, coastal, tourism-dependent cities often place them near or outside the convex hull of the donor pool (other MSAs). Poor pre-treatment fit weakens confidence in the post-treatment counterfactuals.
+The estimator's appeal in this setting is twofold. First, the time
+weights $\widehat{\boldsymbol{\lambda}}^{\,sdid}$ implicitly
+down-weight pre-treatment months whose outcome dynamics look unlike
+the post-treatment window. In a panel that straddles the
+COVID-induced labor-market trough of 2020, this is non-trivial:
+months in which restaurant employment fell catastrophically below
+trend are mechanically down-weighted relative to months in which
+year-over-year growth was more typical, so the synthetic control is
+not anchored to a counterfactual dominated by the worst of the
+pandemic. Second, the two-way fixed effects absorb common
+time-invariant unit shifts and common contemporaneous shocks,
+weakening the parallel-trends assumption that DiD strategies usually
+require. Inference is conducted by placebo permutation, in which
+each donor MSA is iteratively reassigned as a pseudo-treated unit,
+SDID is re-fit, and the resulting ATT distribution is used to form a
+standard error and a two-sided p-value
+$p = (\#\{|\hat\tau^*| \geq |\hat\tau|\} + 1) / (B + 1)$ with
+$B = 500$ placebo replications.
 
 \subsection{Partially Pooled Synthetic Control}
+\label{sec:method:ppscm}
 
-To address this limitation while exploiting the similarity across the four treated cities, I implement a **partially pooled synthetic control estimator**. This method jointly estimates donor weights across the treated units, allowing controlled information sharing among New York City, San Francisco, New Orleans, and Los Angeles, which faced similar vaccine mandate policies targeting the leisure and hospitality sector during the 2021 Delta variant wave.
-
-Let $\mathbf{Y}_1 \in \mathbb{R}^{T \times J}$ be the outcome matrix for the $J=4$ treated cities and $\mathbf{Y}_0 \in \mathbb{R}^{T \times N_0}$ the donor matrix. The estimator solves for a weight matrix $\boldsymbol{\Theta} \in \mathbb{R}^{N_0 \times J}$ (each column contains the donor weights for one city) and a vector of city-specific intercepts $\boldsymbol{\alpha} \in \mathbb{R}^J$.
-
-The procedure consists of two steps. First, a pooling intensity parameter $\nu \in [0,1]$ is estimated from the pre-treatment data. This parameter determines the relative weight placed on fitting each city separately versus fitting them jointly. It is computed by comparing the mean squared errors from fully separate SCM estimations against a pooled estimation (see Appendix for details). A value of $\nu$ close to 1 implies strong pooling (similar donor weights across cities), while a value close to 0 allows nearly independent weights for each city.
-
-Second, the estimator minimizes the following objective function:
-
+Partially pooled SCM \citep{BenMichael2022} addresses the same
+staggered-adoption problem from a different angle. Rather than
+augmenting SCM with time weights and fixed effects, it generalizes
+SCM by jointly estimating a weight matrix
+$\boldsymbol{\Gamma} \in \mathbb{R}^{N_0 \times J}$ across all treated
+units and balancing two distinct pre-treatment imbalance criteria.
+Let $\mathbf{y}_j^{\mathcal{T}_1}$ denote treated unit $j$'s
+pre-treatment outcome vector and $\mathbf{Y}_0^{\mathcal{T}_1}$ the
+aligned donor matrix. Define
+\begin{align*}
+q_{\text{sep}}(\boldsymbol{\Gamma})^{2}
+&= \frac{1}{J} \sum_{j = 1}^{J}
+   \frac{1}{L}\, \left\|\, \mathbf{y}_j^{\mathcal{T}_1}
+                            - \mathbf{Y}_0^{\mathcal{T}_1}\, \boldsymbol{\gamma}_j \,\right\|_2^{2},
+\\
+q_{\text{pool}}(\boldsymbol{\Gamma})^{2}
+&= \frac{1}{L}\, \left\|\, \frac{1}{J} \sum_{j = 1}^{J}
+       \left( \mathbf{y}_j^{\mathcal{T}_1} - \mathbf{Y}_0^{\mathcal{T}_1}\, \boldsymbol{\gamma}_j \right) \,\right\|_2^{2},
+\end{align*}
+where the first quantity averages pre-treatment fit error across
+treated units (penalizing weak unit-level fits) and the second
+averages residuals first and then computes error (penalizing weak fit
+to the average treated unit). The two measures are not redundant:
+$q_{\text{pool}} \leq q_{\text{sep}}$ always, and the gap is large
+when treatment timing or unit characteristics vary across the treated
+group. PPSCM solves a normalized convex combination,
 $$
-(1 - \nu) \cdot \left( \frac{1}{J} \sum_{j=1}^J \left\| \mathbf{M}_j \odot (\mathbf{y}_j - \mathbf{Y}_0 \boldsymbol{\theta}_j - \alpha_j \mathbf{1}) \right\|_2^2 \right) 
-+ \nu \cdot \left( \frac{1}{T^*} \sum_{t} \bar{r}_t^2 \right) 
-+ \lambda \| \boldsymbol{\Theta} \|_F^2
+\widehat{\boldsymbol{\Gamma}}
+\;=\;
+\underset{\boldsymbol{\Gamma}\, \in\, \Delta_{\text{scm}}^{J}}{\operatorname*{argmin}}
+\;
+\nu \cdot \widetilde q_{\text{pool}}(\boldsymbol{\Gamma})^{2}
+\;+\;
+(1 - \nu) \cdot \widetilde q_{\text{sep}}(\boldsymbol{\Gamma})^{2}
+\;+\;
+\lambda\, \|\boldsymbol{\Gamma}\|_F^{2},
 $$
+with $\widetilde q_{\text{sep}}$ and $\widetilde q_{\text{pool}}$
+normalized by their values at the $\nu = 0$ (separate-SCM)
+baseline. The pooling intensity $\nu \in [0, 1]$ governs the
+trade-off: $\nu = 0$ recovers separate SCM on each treated city
+followed by averaging, $\nu = 1$ recovers fully pooled SCM in which
+the treated cities are averaged first and a single synthetic control
+is fit to the average, and intermediate $\nu$ moves smoothly along
+the convex frontier of the two imbalances. I select $\nu$
+data-adaptively as the value that minimizes the sum
+$\widetilde q_{\text{sep}}(\boldsymbol{\Gamma}_\nu)
+ + \widetilde q_{\text{pool}}(\boldsymbol{\Gamma}_\nu)$ over a
+21-point grid on $[0, 1]$ --- the balance-frontier knee that
+\citet{BenMichael2022} recommend in the absence of error-bound
+parameters. The Frobenius-norm penalty $\lambda \|\Gamma\|_F^{2}$
+stabilizes the weights and is set to a small numerical value to
+break degeneracies without materially shifting the fit. I report
+results both with and without the paper's "intercept shift"
+extension, which subtracts each unit's pre-treatment mean before
+fitting; the toggle has minimal effect on the headline estimate,
+which I treat as a passed robustness check on the demeaning choice.
 
-subject to $\boldsymbol{\Theta} \geq \mathbf{0}$ and $\mathbf{1}^\top \boldsymbol{\theta}_j = 1$ for each column $j$. Here, $\mathbf{M}_j$ is a binary mask selecting pre-treatment periods for city $j$, $\bar{r}_t$ denotes the average residual across treated cities at time $t$ (among those still in the pre-treatment window), and $\lambda > 0$ is a small ridge regularization term that stabilizes the solution.
+Inference for PPSCM uses leave-one-treated-unit-out jackknife: each
+treated city is dropped in turn, the estimator is refit on the
+remaining $J - 1$ cities, and the sample standard deviation of the
+leave-one-out ATTs serves as the standard error. With $J = 3$
+treated cities, the jackknife uses three fits and is therefore
+structurally underpowered relative to SDID's 500 placebo
+replications --- a point I return to in the discussion.
 
-This partially pooled approach offers important advantages. It borrows statistical strength across the four related policy experiments, often yielding better pre-treatment fit than separate SCMs. It naturally accommodates staggered treatment timing across cities. Additionally, the data-driven estimate of $\nu$ reveals the degree of commonality in how the mandates influenced restaurant employment dynamics.
+\subsection{Triangulation Strategy}
+\label{sec:method:triang}
 
-Counterfactuals generated from this estimator are used to compute city-specific treatment effects as well as an overall average treatment effect on the treated (ATT), calculated by first averaging post-treatment gaps within each city and then across the four cities. Inference relies primarily on placebo tests, in which each donor MSA is iteratively assigned a placebo treatment and the distribution of placebo effects is compared to the estimated effects for the treated cities.
+The two estimators are complementary rather than substitutable. SDID
+relaxes parallel trends via time weights and two-way fixed effects;
+PPSCM relaxes the convex-hull restriction of classical SCM via
+controlled information-sharing across treated units. They make
+distinct identifying assumptions and weight the panel differently in
+finite samples. Reporting both lets sign, magnitude, and inferential
+strength be cross-checked rather than reading off a single
+specification. All estimations use year-over-year growth rates (in
+percentage points) of full-service restaurant employment to remove
+seasonality and long-run trends, and the donor pool is restricted to
+MSAs that did not enact comparable indoor vaccine-verification
+mandates over the sample window. Both estimators are implemented in
+the \texttt{mlsynth} package for Python.
 
-All estimations use year-over-year growth rates (in percentage points) of full-service restaurant employment to remove seasonality and long-term trends. Robustness checks include alternative donor pools, broader leisure and hospitality employment measures, and sensitivity to the regularization parameter $\lambda$. Full implementation details and code for the partially pooled estimator are provided in the Appendix.
 
-
+# Results
 \label{sec:results}
+
+Table~\ref{tab:main} reports the aggregate ATT estimates across the
+three treated cities (NYC, SF, LA), in units of percentage-point
+year-over-year growth in full-service restaurant employment. Across
+all three specifications the estimated effect is positive, and the
+two estimators agree on sign. SDID yields an ATT of
+$+3.47$ percentage points with a placebo-based standard error of
+$0.71$, a 95\% confidence interval of $[+2.07, +4.86]$, and a
+two-sided p-value of $0.002$. PPSCM yields a smaller point estimate
+of $+1.93$ percentage points with a jackknife standard error of
+$1.13$ and a 95\% confidence interval of $[-0.29, +4.14]$ that
+includes zero at conventional levels. Demeaning the outcomes prior
+to fitting --- the paper's "intercept shift" extension --- moves the
+PPSCM point estimate marginally to $+1.82$ percentage points and
+leaves the CI essentially unchanged at $[-0.46, +4.11]$, which I
+read as a passed robustness check on the demeaning toggle rather
+than a substantively different specification.
+
+\begin{table}[h]
+\centering
+\caption{Estimated effect of city-level vaccine mandates on
+year-over-year full-service restaurant employment growth. ATT and
+confidence intervals are reported in percentage points.
+$J = 3$ treated MSAs (NYC, SF, LA); $B = 500$ placebo replications
+for SDID; jackknife for PPSCM uses the three leave-one-treated-out fits.}
+\label{tab:main}
+\begin{tabular}{lcccc}
+\toprule
+Estimator                  & ATT (pp)  & SE      & 95\% CI                 & Inference \\
+\midrule
+SDID                       & $+3.47$   & $0.71$  & $[+2.07,\; +4.86]$      & Placebo ($p = 0.002$) \\
+PPSCM                      & $+1.93$   & $1.13$  & $[-0.29,\; +4.14]$      & Jackknife \\
+PPSCM (demeaned)           & $+1.82$   & $1.16$  & $[-0.46,\; +4.11]$      & Jackknife \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three features of the table merit comment. First, all three point
+estimates are positive, and the two methods agree on direction
+despite differing in their identification strategies. There is no
+specification in which the estimated effect is negative. Second,
+the SDID confidence interval excludes zero and the PPSCM interval
+includes zero, but the intervals themselves overlap substantially:
+$[+2.07, +4.86]$ for SDID and $[-0.29, +4.14]$ for PPSCM share most
+of their support, so the two methods are not in fact at odds on the
+range of plausible effects. Third, the SDID estimate is roughly
+$1.5$ percentage points larger than the PPSCM estimate, which is
+consistent with the way the two methods treat pre-treatment
+heterogeneity: SDID's time weights $\widehat{\boldsymbol{\lambda}}$
+implicitly down-weight pre-treatment months in which donor and
+treated outcomes diverged most --- including the depths of the 2020
+trough --- whereas PPSCM weights all pre-treatment months equally
+within the chosen pre-window. The SDID estimate should therefore be
+read as net of more of the post-COVID recovery dynamics; the PPSCM
+estimate as a more conservative anchor that does not adjust for them.
+
+Inference deserves particular care here. With $J = 3$ treated units
+the PPSCM jackknife rests on a three-observation sample variance
+estimate, and even a true effect of $\sim 2$ percentage points may
+fail to clear a conventional Wald threshold given that small a
+degrees-of-freedom denominator. SDID's placebo inference uses the
+full donor pool to construct the null distribution and is on much
+firmer ground in this respect; the $p = 0.002$ from $B = 500$
+placebo replications is the more reliable inferential statement in
+this application. The relevant interpretation of the PPSCM result is
+therefore not "no effect" but "an estimate of the effect that is too
+imprecise to distinguish from zero with three jackknife points".
+
 
 # Discussion
 \label{sec:discussion}
 
+The substantive finding of this paper is that city-level vaccine
+mandates did not appreciably damage local restaurant labor markets,
+and may have modestly improved them. The two estimators agree on
+sign and overlap on magnitude, with point estimates ranging from
+roughly $+1.8$ to $+3.5$ percentage points of year-over-year
+employment growth. Read against the policy debate at the time of
+adoption, the implication is clear: the channel feared by critics
+--- mandates alienating customers and aggravating staffing
+shortages, with consequent employment losses in
+proof-of-vaccination-restricted indoor dining --- is not present in
+the data. If anything, the data are more consistent with the
+opposite channel of \citet{Jones2021}, in which the mandates
+restored consumer confidence in indoor commerce sufficiently to
+support faster employment recovery in the treated cities than in
+otherwise-similar comparison MSAs.
+
+Whether the effect is best read as "slightly positive" or "no harm
+done" depends on which inferential signal one finds more credible.
+SDID's tightly identified $+3.47$ percentage-point estimate, with a
+placebo p-value of $0.002$, supports the slightly-positive reading.
+PPSCM's $+1.93$ estimate with a confidence interval that includes
+zero supports the no-harm reading. Both are policy-relevant
+conclusions, and both are inconsistent with the strong negative
+hypothesis that originally motivated the analysis. The triangulation
+across methods is not just rhetorical: SDID and PPSCM make distinct
+identifying assumptions --- two-way fixed effects with time
+re-weighting versus pooled donor weights with no time component ---
+and the fact that they agree on direction makes the result more
+robust to misspecification of either method individually than would
+a single estimator with no triangulation.
+
+Several caveats temper the strength of the conclusion. First, the
+small number of treated cities (three after dropping New Orleans for
+data availability) limits statistical power for cohort-level
+inference and forces reliance on the donor pool for variance
+estimation. Replication on the full four-city panel with New Orleans
+included, or on additional jurisdictions that subsequently adopted
+similar policies, would tighten both methods' inference. Second,
+both estimators assume that the donor MSAs did not experience
+contemporaneous shocks that mimicked the treatment effect. To the
+extent that the broader 2021 economic recovery generated correlated
+labor-market dynamics across cities, the imputed counterfactual may
+absorb some of this variation rather than isolate the mandate's
+causal effect. Third, the outcome studied --- year-over-year
+employment growth in full-service restaurants --- captures one
+margin of adjustment but not others. Hours worked, wages, vacancy
+rates, and the composition of employment between part-time and
+full-time positions are not estimated here, and shifts along those
+margins could produce employment-growth effects whose sign masks a
+more complicated story about labor-market quality.
+
+A natural follow-up question that this paper does not yet answer is
+how the aggregate effect decomposes across the three treated cities.
+Both estimators produce city-by-city estimates as a by-product of
+the aggregate fit, and inspecting whether the positive overall
+effect is driven by one city or distributed across all three would
+sharpen the policy interpretation. I defer that decomposition to
+future work.
+
+
 # Conclusion
 \label{sec:conclusion}
+
+This paper estimates the causal effect of city-level indoor vaccine
+mandates on year-over-year growth in full-service restaurant
+employment in the three U.S. metropolitan areas that adopted such
+policies during the 2021 Delta variant wave. Using synthetic
+difference-in-differences and partially pooled synthetic control ---
+two staggered-adoption estimators with distinct identification
+strategies --- I find no evidence that the mandates depressed
+restaurant employment growth, and some evidence consistent with a
+modest positive effect on the order of two to three-and-a-half
+percentage points. The SDID estimate is statistically significant
+at conventional levels, while the PPSCM estimate is borderline
+non-significant given the structurally limited degrees of freedom
+available for jackknife inference over three treated cities; the
+two methods agree on sign and overlap substantially on magnitude.
+
+For policymakers, the result has a clear takeaway. The most
+common objection to indoor vaccine mandates --- that they would
+suppress employment in the leisure and hospitality sector by
+deterring patrons or aggravating staffing shortages --- is not
+borne out in the labor-market data from the cities that actually
+implemented such policies. Whether the public-health benefits of
+the mandates were sufficient to justify their adoption is a
+separate question that this paper does not address, but the
+labor-market cost half of the cost-benefit calculation appears, at
+the very least, to be small.
 
