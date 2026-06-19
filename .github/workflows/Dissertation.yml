@@ -42,8 +42,9 @@ jobs:
 
       - name: Install LaTeX packages the GSU class needs
         run: |
-          export PATH="$(dirname "$(find "$HOME/.TinyTeX" -name tlmgr -type f | head -1)"):$PATH"
-          tlmgr install \
+          TLMGR="$(command -v tlmgr || find "$HOME" -name tlmgr -type f 2>/dev/null | head -1)"
+          echo "Using tlmgr at: $TLMGR"
+          "$TLMGR" install \
             titlesec tocloft relsize xspace bbm bbm-macros \
             natbib etoolbox booktabs mathtools adjustbox pgf \
             upgreek nccmath mathrsfs was bigfoot ec \
