@@ -243,6 +243,80 @@ def _pp(x):
     return f"{abs(x):.1f}"
 ```
 
+## Robustness: Quarterly Aggregation
+\label{p2-sec:robustness}
+
+Monthly PM2.5 growth rates are inherently noisy: meteorology, episodic events
+(festivals, crop-residue burning), and measurement error all inject
+high-frequency variation that can exaggerate or mask any single month's
+estimated effect---the September 2020 rebound visible in @fig-india-national is
+one such idiosyncratic spike. To confirm that the headline results are not an
+artifact of this monthly noise, I re-estimate every model on quarterly data:
+the population-weighted PM2.5 series is averaged into calendar quarters before
+the year-over-year growth rate is formed and the SHC estimator is re-run. Because
+the strict lockdown spanned the entire second quarter of 2020, quarterly
+aggregation smooths out month-to-month shocks while preserving the policy signal.
+
+```{python}
+#| echo: false
+#| output: false
+# Quarterly re-estimation: average monthly levels into quarters, then YoY (lag 4).
+def _quarterly(levels):
+    return pd.Series(levels, index=_dates).resample("QS").mean()
+def _yoyq(q):
+    v = q.to_numpy()
+    return pd.Series((v[4:] - v[:-4]) / v[:-4], index=q.index[4:])
+_LOCKQ, _ENDQ = pd.Timestamp("2020-04-01"), pd.Timestamp("2020-10-01")
+def _panelq(rows, name):
+    g = _yoyq(_quarterly(_popwt(rows)))
+    p = pd.DataFrame({"time": g.index, "unit": name, "y": g.to_numpy()})
+    p = p[p["time"] <= _ENDQ].reset_index(drop=True)
+    p["treated"] = (p["time"] >= _LOCKQ).astype(int)
+    return p
+_ATTQ = {}
+for _nm, _rw in _UNITS.items():
+    _rq = SHC({"df": _panelq(_rw, _nm), "outcome": "y", "treat": "treated",
+               "unitid": "unit", "time": "time", "m": 8, "use_augmented": False,
+               "display_graphs": False}).fit()
+    _ATTQ[_nm] = 100 * _rq.effects.att
+```
+
+```{python}
+#| echo: false
+#| label: fig-india-quarterly
+#| fig-cap: "Robustness of the SHC estimates to temporal aggregation: the average treatment effect (percentage points of year-over-year PM2.5 growth) estimated at the monthly frequency versus the same estimator on quarterly data, for India and the four megacities."
+_names = list(_UNITS.keys())
+_mvals = [_ATT[n] for n in _names]
+_qvals = [_ATTQ[n] for n in _names]
+_x = np.arange(len(_names)); _w = 0.38
+fig, ax = plt.subplots(figsize=(9, 3.8))
+ax.bar(_x - _w/2, _mvals, _w, label="Monthly", color="C0")
+ax.bar(_x + _w/2, _qvals, _w, label="Quarterly", color="C3")
+ax.axhline(0, color="grey", lw=0.6)
+ax.set_xticks(_x); ax.set_xticklabels(_names)
+ax.set_ylabel("SHC ATT (pp of YoY growth)", fontsize=9)
+ax.legend(fontsize=8)
+for _xi, (_mv, _qv) in enumerate(zip(_mvals, _qvals)):
+    ax.annotate(f"{_mv:.0f}", (_xi - _w/2, _mv), ha="center", va="top",
+                fontsize=7, xytext=(0, -2), textcoords="offset points")
+    ax.annotate(f"{_qv:.0f}", (_xi + _w/2, _qv), ha="center", va="top",
+                fontsize=7, xytext=(0, -2), textcoords="offset points")
+fig.tight_layout(); plt.show()
+```
+
+@fig-india-quarterly compares the monthly and quarterly SHC estimates for all
+five units, and the two are strikingly close. Nationally, the quarterly ATT is
+`{python} _pp(_ATTQ['India'])` pp against `{python} _pp(_ATT['India'])` pp at the
+monthly frequency; the city estimates likewise track their monthly counterparts
+to within about two percentage points (Delhi `{python} _pp(_ATTQ['Delhi'])`,
+Mumbai `{python} _pp(_ATTQ['Mumbai'])`, Bangalore `{python} _pp(_ATTQ['Bangalore'])`,
+and Kolkata `{python} _pp(_ATTQ['Kolkata'])` pp). The cross-city ordering is
+preserved---Kolkata largest, Bangalore smallest---and every effect remains a
+substantial reduction. Because the point estimates are essentially invariant to
+whether the data are analyzed monthly or quarterly, the measured lockdown effect
+reflects a genuine, sustained shift in particulate pollution rather than a
+handful of anomalous months.
+
 ## Discussion
 \label{p2-sec:discussion}
 
@@ -299,8 +373,10 @@ counterfactual rather than a level reduction per se. The figures report the
 convex SHC estimator; the augmented variant of Section \ref{p2-sec:ashc} is
 available where pre-treatment fit is poor, and the September rebound is a
 reminder that the design recovers net effects, including any offsetting seasonal
-forces. Finally, formal uncertainty quantification is not reported alongside
-these point estimates and is a natural next step.
+forces---though aggregating to quarters (Section \ref{p2-sec:robustness})
+averages out this high-frequency variation and leaves the point estimates
+essentially unchanged. Finally, formal uncertainty quantification is not
+reported alongside these point estimates and is a natural next step.
 
 ## Conclusion
 \label{p2-sec:conclusion}

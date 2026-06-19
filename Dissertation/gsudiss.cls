@@ -523,10 +523,10 @@
   \@ifnextchar({\committee@iv(#1)[#2](#3)}{\committee@iv(#1)[#2](#3)(Neils Bohr)}%)
 }
 \def\committee@iv(#1)[#2](#3)(#4){%
-  \@ifnextchar({\committee@v(#1)[#2](#3)(#4)}{\committee@v(#1)[#2](#3)(#4)(Alvin Das)}%)
+  \@ifnextchar({\committee@v(#1)[#2](#3)(#4)}{\committee@v(#1)[#2](#3)(#4)()}%)
 }
 \def\committee@v(#1)[#2](#3)(#4)(#5){%
-  \@ifnextchar({\committee@vi(#1)[#2](#3)(#4)(#5)}{\committee@vi(#1)[#2](#3)(#4)(#5)(Albert Einstein)}%)
+  \@ifnextchar({\committee@vi(#1)[#2](#3)(#4)(#5)}{\committee@vi(#1)[#2](#3)(#4)(#5)()}%)
 }
 \def\committee@vi(#1)[#2](#3)(#4)(#5)(#6){%
   \@ifnextchar({\committee@vii(#1)[#2](#3)(#4)(#5)(#6)}{\committee@vii(#1)[#2](#3)(#4)(#5)(#6)()}%)
@@ -545,7 +545,7 @@
 %    \centerline{\parbox[t]{0.2\textwidth}{\setstretch{1} Major Professor:\\Committee:}
     \centerline{\parbox[t]{0.3\textwidth}{\setstretch{2} Committee Chair:\\Committee:}
 %      \hspace{1cm}\parbox[t]{0.3\textwidth}{\setstretch{1}
-      \hspace{1cm} \parbox[t]{0.3\textwidth}{\raggedleft \setstretch{2}        { #1}\\\ifthenelse{\equal{#2}{}}{}{{ #2}\\}{ #3}\\{#4}\\{ #5}\\{ #6}
+      \hspace{1cm} \parbox[t]{0.3\textwidth}{\raggedleft \setstretch{2}        { #1}\\\ifthenelse{\equal{#2}{}}{}{{ #2}\\}{ #3}\\{#4}\ifthenelse{\equal{#5}{}}{}{\\{ #5}}\ifthenelse{\equal{#6}{}}{}{\\{ #6}}
         \ifthenelse{\equal{#7}{}}{}{\\{#7}}\ifthenelse{\equal{ #8}{}}{}{\\{#8}}}}\vspace{1cm}}
 
 
@@ -565,10 +565,8 @@
       \signline\\
       {Dr. #4}, Member\\[0.4cm]
       \signline\\
-      {Dr. #5}, Member\\[0.4cm]
-      \signline\\
-      {Dr. #6}, Member\\[0.4cm]
-      \signline\\
+      \ifthenelse{\equal{#5}{}}{}{{Dr. #5}, Member\\[0.4cm]\signline\\}
+      \ifthenelse{\equal{#6}{}}{}{{Dr. #6}, Member\\[0.4cm]\signline\\}
       \ifthenelse{\equal{#7}{}}{}{{Dr. #7}, Member\\[0.4cm]\signline\\}
       \ifthenelse{\equal{#8}{}}{}{{Dr. #8}, Member\\[0.4cm]\signline\\}
       Date\\[0.4cm]
