@@ -30,6 +30,11 @@
 \PassOptionsToClass{openany}{report}
 \NeedsTeXFormat{LaTeX2e}[2005/07/01]
 \ProvidesClass{gsudiss}[2006/07/01]
+% This class defines its own \@makecaption, which otherwise pushes the
+% caption package into "compatibility mode" and makes subcaption (auto-loaded
+% by Quarto) abort at \begin{document}. Force caption to take over instead so
+% the document builds. Must run before caption/subcaption are loaded.
+\PassOptionsToPackage{compatibility=false}{caption}
 \typeout{}
 \typeout{++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++}
 \typeout{Dissertation class file (gsudiss.cls) version 1.00, July 2006}
