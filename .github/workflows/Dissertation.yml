@@ -2,7 +2,6 @@ name: Render Dissertation and Commit
 
 on:
   push:
-    branches: [dissertation, main]
     paths:
       - 'Paper1/Paper/paper1.qmd'
       - 'Paper2/Paper/india.qmd'
@@ -32,7 +31,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies (mlsynth + analysis stack)
-        run: pip install -r Dissertation/requirements.txt
+        run: pip install -r Dissertation/build-requirements.txt
 
       - name: Set up Quarto with TinyTeX
         uses: quarto-dev/quarto-actions/setup@v2

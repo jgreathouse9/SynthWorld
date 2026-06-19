@@ -16,7 +16,7 @@ Produces `dissertation.pdf`. On push, `.github/workflows/Dissertation.yml` does
 the same and commits the PDF (mirrors the Paper2/Paper3 workflows).
 
 Requirements: Quarto, a LaTeX engine (TinyTeX), and the Python stack in
-`requirements.txt` (mlsynth + pandas/numpy/matplotlib/openpyxl/pyarrow/jupyter),
+`build-requirements.txt` (mlsynth + pandas/numpy/matplotlib/openpyxl/pyarrow/jupyter),
 because Chapters 1 and 2 execute their SHC code to produce real figures.
 
 ## How it fits together
