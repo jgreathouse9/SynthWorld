@@ -51,13 +51,14 @@ jobs:
           # Quarto's bundled tlmgr can lag CTAN's tlnet; self-update first or
           # installs fail with "tlmgr itself needs to be updated".
           "$TLMGR" update --self
-          # Note: xspace ships in the "tools" bundle and upgreek in "was";
-          # there are no standalone tlmgr packages by those names.
+          # Some .sty files live in bundles, not eponymous packages:
+          # xspace->tools, upgreek->was, nccmath->ncctools, mathrsfs->jknapltx.
+          # apalike.bst ships with base bibtex, so it needs no package.
           "$TLMGR" install \
             titlesec tocloft relsize tools bbm bbm-macros \
             natbib etoolbox booktabs mathtools adjustbox pgf \
-            nccmath mathrsfs was bigfoot ec \
-            apalike fancyvrb lipsum
+            ncctools jknapltx was bigfoot ec \
+            fancyvrb lipsum
 
       - name: Build chapters from the source papers, figure, and render
         working-directory: Dissertation
