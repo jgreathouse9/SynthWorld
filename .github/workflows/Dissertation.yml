@@ -1,0 +1,70 @@
+name: Render Dissertation and Commit
+
+on:
+  push:
+    branches: [dissertation, main]
+    paths:
+      - 'Paper1/Paper/paper1.qmd'
+      - 'Paper2/Paper/india.qmd'
+      - 'Paper3/Paper/paper3.qmd'
+      - 'Paper1/Paper/pl.bib'
+      - 'Paper2/Paper/delhi.bib'
+      - 'Paper3/Paper/ktc.bib'
+      - 'Dissertation/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-dissertation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies (mlsynth + analysis stack)
+        run: pip install -r Dissertation/requirements.txt
+
+      - name: Set up Quarto with TinyTeX
+        uses: quarto-dev/quarto-actions/setup@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tinytex: true
+
+      - name: Install LaTeX packages the GSU class needs
+        run: |
+          tlmgr install \
+            titlesec tocloft relsize xspace bbm bbm-macros \
+            natbib etoolbox booktabs mathtools adjustbox pgf \
+            upgreek nccmath mathrsfs was bigfoot ec \
+            apalike fancyvrb lipsum
+
+      - name: Build chapters from the source papers, figure, and render
+        working-directory: Dissertation
+        run: |
+          python3 build_chapters.py
+          python3 gen_ch3_threecity.py
+          quarto render dissertation.qmd --to pdf
+
+      - name: Commit rendered dissertation PDF
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Render dissertation.pdf [auto]'
+          file_pattern: 'Dissertation/dissertation.pdf'
+
+      - name: Upload PDF artifact (for verification)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dissertation-pdf
+          path: Dissertation/dissertation.pdf

@@ -1,0 +1,7 @@
+pandas
+numpy
+matplotlib
+openpyxl
+pyarrow
+jupyter
+mlsynth @ git+https://github.com/jgreathouse9/mlsynth.git
