@@ -48,6 +48,9 @@ jobs:
             exit 1
           fi
           echo "Using tlmgr at: $TLMGR"
+          # Quarto's bundled tlmgr can lag CTAN's tlnet; self-update first or
+          # installs fail with "tlmgr itself needs to be updated".
+          "$TLMGR" update --self
           "$TLMGR" install \
             titlesec tocloft relsize xspace bbm bbm-macros \
             natbib etoolbox booktabs mathtools adjustbox pgf \
