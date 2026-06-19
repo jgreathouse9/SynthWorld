@@ -42,7 +42,7 @@ jobs:
 
       - name: Install LaTeX packages the GSU class needs
         run: |
-          TLMGR="$(command -v tlmgr || find / -name tlmgr -type f 2>/dev/null | head -1)"
+          TLMGR="$(command -v tlmgr || find "$HOME" / -name tlmgr 2>/dev/null | head -1)"
           if [ -z "$TLMGR" ]; then
             echo "::error::tlmgr not found anywhere on the runner" >&2
             exit 1
