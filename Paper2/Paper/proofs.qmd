@@ -8,816 +8,535 @@ format:
     keep-tex: true
     cite-method: natbib
     pdf-engine: pdflatex
-    number-sections: true # Add this line
+    number-sections: true
 bibliography: pl.bib
 ---
 
 # Setup and Assumptions
 
-For the purposes of self-containment, let $\mathcal{T} = \{1, 2, \dots, T\}$ index time at a monthly frequency. Define the pre-treatment period as $\mathcal{T}_1 \defeq \{t \in \mathcal{T} : t \leq T_0\}$ and the post-treatment period as $\mathcal{T}_2 \defeq \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$. Let $m \in \mathbb{N}$ denote the evaluation window length. Define the evaluation period as the final $m$ months of the pre-treatment period $\mathcal{T}_{\text{eval}} \defeq \{T_0 - m + 1, \dots, T_0\} \subset \mathcal{T}_1$.
+For self-containment, let $\mathcal{T} = \{1, 2, \dots, T\}$ index time at a
+monthly frequency. The pre-treatment period is
+$\mathcal{T}_1 \defeq \{t \in \mathcal{T} : t \leq T_0\}$ and the post-treatment
+period is $\mathcal{T}_2 \defeq \{t \in \mathcal{T} : t > T_0\}$, with
+$n \defeq T - T_0$ post-treatment months. Let $m \in \mathbb{N}$ be the
+evaluation-window length and define the evaluation block as the final $m$
+pre-treatment months, $\mathcal{T}_{\text{eval}} \defeq \{T_0 - m + 1, \dots, T_0\} \subset \mathcal{T}_1$.
 
-Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector $\mathbf{y}_{\text{pre}} \defeq \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}$, the evaluation subvector $\mathbf{y}_{\text{eval}} \defeq \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector $\mathbf{y}_{\text{post}} \defeq \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$. The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period. SHC by \cite{SHC} constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series, forming the donor matrix
-$$\widetilde{\mathbf{Y}}_{\text{pre}} 
-\defeq 
-\begin{bmatrix} 
-\widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} 
-\end{bmatrix} 
+Throughout, $\widetilde{\mathbf{y}}$ and $\widetilde{\mathbf{Y}}_{\text{pre}}$
+denote the *kernel-smoothed* treated series, not the raw one. Writing the
+smoothed pre-treatment series as $\widetilde{\mathbf y}$, SHC by \cite{SHC}
+forms $N \defeq T_0 - m - n + 1$ overlapping length-$m$ segments
+$\widetilde{\mathbf{y}}_{[i,\,i+m-1]}$ and stacks them into the donor matrix
+$$
+\widetilde{\mathbf{Y}}_{\text{pre}}
+\defeq
+\begin{bmatrix}
+\widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]}
+\end{bmatrix}
 \in \mathbb{R}^{m \times N}.
 $$
+The evaluation subvector $\widetilde{\mathbf{y}}_{\text{eval}} \in \mathbb{R}^m$
+is the target pattern we reconstruct from these earlier segments. To keep the
+notation light in the proofs we write $\widetilde{\mathbf{Y}} \equiv \widetilde{\mathbf{Y}}_{\text{pre}}$
+and $\widetilde{\mathbf{y}} \equiv \widetilde{\mathbf{y}}_{\text{eval}}$ whenever
+no confusion can arise; both live in the evaluation block.
 
 \begin{example}
-If $T_0 = 60$ and we want the segment length to be $m = 12$ months to predict a post-treatment horizon of $n = 6$ months, $N = 60 - 12 - 6 + 1 = 43,$ where each segment is 12 months long.
+If $T_0 = 60$, the segment length is $m = 12$ months, and the post-treatment
+horizon is $n = 6$ months, then $N = 60 - 12 - 6 + 1 = 43$ donor segments, each
+$12$ months long.
 \end{example}
 
-Respectively, SHC and ASHC solve:
-
+SHC and ASHC solve, respectively,
 $$
-\begin{aligned}
-\mathbf{w}^{\text{SHC}} = \ & \underset{\mathbf{w} \in \mathbb{R}^N}{\operatorname*{argmin}} 
-& & \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
-+ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \quad \text{subject to } \mathbf{w} \geq \mathbf{0}, \quad \mathbf{1}^\top \mathbf{w} = 1.
-\end{aligned}
+\mathbf{w}^{\text{SHC}}
+= \underset{\mathbf{w} \in \mathbb{R}^N}{\operatorname*{argmin}}
+\ \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2
++ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2
+\quad \text{s.t. } \mathbf{w} \geq \mathbf{0}, \ \mathbf{1}^\top \mathbf{w} = 1,
 $$
 $$
 \mathbf{w}^{\text{ASHC}}
-= \arg\min_{\mathbf{w} \in \mathbb{R}^N}
-\left\{
-\frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|^2
-+ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
+= \underset{\mathbf{w} \in \mathbb{R}^N}{\operatorname*{argmin}}
+\ \frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|_2^2
++ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|_2^2
 + \varsigma \|\mathbf{C}_0^\top \mathbf{w}\|_2^2
-\right\}
-\quad \text{s.t. } \sum_{i=1}^N w_i = 1.
+\quad \text{s.t. } \mathbf{1}^\top \mathbf{w} = 1.
 $$
+Here $\lambda > 0$ is the proximity (regularization) parameter, $\varsigma > 0$
+is a small low-variance penalty weight, and $\mathbf{C}_0 \in \mathbb{R}^{N \times k}$
+holds the *orthonormal* eigenvectors of the donor Gram matrix
+$\mathbf{G} = \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}$ whose
+eigenvalues fall below a threshold $\tau > 0$ (the directions in which the
+overlapping segments are nearly collinear). Two facts about $\mathbf{C}_0$ are
+used repeatedly and worth stating now. Because its columns are orthonormal,
+$\mathbf{C}_0^\top \mathbf{C}_0 = \mathbf{I}_k$, so the operator norm
+$\|\mathbf{C}_0\| = 1$; and $\mathbf{C}_0 \mathbf{C}_0^\top$ is the orthogonal
+projector onto $\operatorname{col}(\mathbf{C}_0)$, whose eigenvalues are exactly
+$1$ (with multiplicity $k$) and $0$ (with multiplicity $N - k$). In particular
+$\lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) = 0$ whenever $k < N$.
 
-Here, $\lambda > 0$ is the regularization parameter, $\varsigma > 0$ is a penalty parameter, and $\mathbf{C}_0 \in \mathbb{R}^{N \times k}$ contains the eigenvectors of $\mathbf{G} = \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}$ corresponding to eigenvalues less than a threshold $\tau > 0$.
+Two differences between the programs drive everything below. First, ASHC
+replaces the simplex by the *affine* constraint $\mathbf{1}^\top \mathbf{w} = 1$
+(it drops $\mathbf{w} \geq \mathbf{0}$), which lets it extrapolate slightly past
+the convex hull. Second, ASHC adds the proximity penalty
+$\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2$, which tethers it to the baseline SHC
+solution. The proximity penalty is the source of all of ASHC's stability, as we
+will see: it is what makes the objective strongly convex.
 
 ## Assumptions
 
-\begin{assumption}[Linearity with noise]
-There exists $\mathbf{w}^* \in \mathbb{R}^N$ such that $ \widetilde{\mathbf{y}} = \widetilde{\mathbf{Y}} \mathbf{w}^* + \bm{\eta},$ where $\bm{\eta} \in \mathbb{R}^m$ is a mean-zero noise vector.
+\begin{assumption}[Smoothed linear representation]\label{a:lin}
+There exists $\mathbf{w}^* \in \mathbb{R}^N$ with
+$\widetilde{\mathbf{y}} = \widetilde{\mathbf{Y}} \mathbf{w}^* + \bm{\eta}$, where
+$\bm{\eta} \in \mathbb{R}^m$ is the mean-zero residual of the \emph{smoothed}
+evaluation block left over after the best affine match.
 \end{assumption}
 
-\begin{assumption}[Bounded noise]
-$\|\bm{\eta}\| \leq \delta$ for some $\delta > 0$.
+\begin{assumption}[Bounded smoothed residual]\label{a:noise}
+$\|\bm{\eta}\| \leq \delta$ for some $\delta > 0$. Because $\bm{\eta}$ is a
+residual of the smoothed series, $\delta$ shrinks as the smoothing window grows;
+we make this quantitative in Section 3.
 \end{assumption}
 
-\begin{assumption}[Smoothness of latent trend, from \citet{SHC}]
-Let $\ell(t)$ denote the latent smooth component of the treated potential outcome. Suppose $\ell(t)$ is $H+1$ times differentiable with $|\ell^{(H+1)}(t)| < \epsilon$ for all $t$ and some $H \geq 3$.
+\begin{assumption}[Smoothness of the latent trend, from \citet{SHC}]\label{a:smooth}
+The latent component $\ell(t)$ of the treated potential outcome is $H+1$ times
+differentiable with $|\ell^{(H+1)}(t)| < \epsilon$ for all $t$ and some
+$H \geq 3$.
 \end{assumption}
 
-\begin{assumption}[Operator norm bound]
+\begin{assumption}[Operator-norm bound]\label{a:op}
 $\|\widetilde{\mathbf{Y}}\| \leq \gamma$.
 \end{assumption}
 
-\begin{assumption}[Simplex feasibility]
-$\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} \defeq \{\mathbf{w} \in \mathbb{R}^N : \sum w_i = 1,\; w_i \geq 0\}$.
+\begin{assumption}[Simplex feasibility of SHC]\label{a:simplex}
+$\mathbf{w}^{\text{SHC}} \in \Delta^{N-1} \defeq \{\mathbf{w} \in \mathbb{R}^N : \mathbf{1}^\top\mathbf{w} = 1,\ \mathbf{w} \geq \mathbf{0}\}$.
 \end{assumption}
 
+We refer to these as (A1)--(A5) in the order above, matching
+Assumptions~\ref{a:lin}--\ref{a:simplex}.
 
-\begin{lemma}[Deviation from SHC]
-\label{lem:delta}
-Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$. Then
+A word on $\mathbf{w}^*$. With $N > m$ the system
+$\widetilde{\mathbf{y}} = \widetilde{\mathbf{Y}}\mathbf{w}^* + \bm\eta$ is
+under-determined, so $\mathbf{w}^*$ is not unique as a bare algebraic object.
+We will therefore \emph{not} anchor any bound to $\mathbf{w}^*$ directly. Every
+deviation below is measured against $\mathbf{w}^{\text{SHC}}$, which is a genuine
+minimizer of a well-posed (strictly convex on its active face) program and is
+the object we actually compute. This is the main structural change from a
+naive oracle-based argument, and it is what keeps the proofs honest.
+
+
+# In-Sample Analysis: Deviation From SHC
+
+The plan for this section has two steps. First we bound how far the ASHC weight
+vector can move away from the SHC weight vector --- call this deviation
+$\Delta$. Then we translate that weight deviation into a deviation in the fitted
+evaluation block, using the operator norm of the donor matrix. The tools are the
+first-order (KKT) conditions, the Cauchy--Schwarz inequality, and Weyl's
+eigenvalue inequality.
+
+\begin{lemma}[Deviation from SHC]\label{lem:delta}
+Let $\Delta \defeq \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ and
+$\epsilon_{\text{SHC}} \defeq \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$.
+Write $\rho \defeq \|\mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}\|$, the size of the
+SHC weights along the penalized low-variance directions. Then
 \[
-\|\Delta\| 
-\;\leq\; \frac{\gamma}{2\lambda + 2\varsigma\|\mathbf{C}_0\|^2}\,\epsilon_{\text{SHC}}.
+\|\Delta\| \;\leq\; \frac{\gamma}{2\lambda}\,\epsilon_{\text{SHC}} \;+\; \varsigma\,\rho,
+\qquad \text{and since } \rho \leq 1, \qquad
+\|\Delta\| \;\leq\; \frac{\gamma}{2\lambda}\,\epsilon_{\text{SHC}} + \varsigma.
 \]
-where $\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}\|$ and 
-$\|\mathbf{C}_0\|^2$ is the operator norm of $\mathbf{C}_0^\top \mathbf{C}_0$.
+In particular, when the low-variance penalty is switched off
+($\varsigma = 0$), $\|\Delta\| \leq \gamma\,\epsilon_{\text{SHC}}/(2\lambda)$.
 \end{lemma}
 
 \begin{proof}
-
-To analyze the ASHC optimization problem, recall the objective function:
-\begin{equation}
-J(\mathbf{w}) = \frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|^2 
-+ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
+\textbf{Step 1: the objective and its gradient.} Recall the ASHC objective,
+\begin{equation}\label{eq:J}
+J(\mathbf{w}) = \frac{1}{2\lambda} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}\|^2
++ \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2
 + \varsigma \|\mathbf{C}_0^\top \mathbf{w}\|^2,
 \end{equation}
-subject to the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$.
+minimized subject to $\mathbf{1}^\top \mathbf{w} = 1$. We attach a multiplier
+$\mu$ to the constraint and form the Lagrangian
+$\mathcal{L}(\mathbf{w}, \mu) = J(\mathbf{w}) + \mu(\mathbf{1}^\top \mathbf{w} - 1)$,
+then differentiate term by term.
 
-To enforce this constraint, we form th Lagrangian:
-\begin{equation}
-\mathcal{L}(\mathbf{w}, \mu) 
-= J(\mathbf{w}) + \mu (\mathbf{1}^\top \mathbf{w} - 1),
-\end{equation}
-where $\mu$ is a Lagrange multiplier ensuring feasibility of $\mathbf{w}$. We compute the gradient of $\mathcal{L}$ with respect to $\mathbf{w}$ by differentiating each term separately.
-
-For the first term, define the residual vector:
-\begin{equation}
-r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}.
-\end{equation}
-The fit term is then:
-\begin{equation}
-\frac{1}{2\lambda} \|r(\mathbf{w})\|^2 
-= \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}).
-\end{equation}
-
-We can see that this is a standard quadratic form. We begin by applying the Chain Rule for vector calculus. The chain rule for a composite function $f(g(\mathbf{w}))$ is given by:
-$$\nabla_{\mathbf{w}} f(g(\mathbf{w})) = \left( \nabla_{g(\mathbf{w})} f \right)^\top \nabla_{\mathbf{w}} g(\mathbf{w})$$
-In our case, the inner function is the residual vector $g(\mathbf{w}) = r(\mathbf{w})$, and the outer function is the squared norm $f(r) = \frac{1}{2\lambda} r^\top r$. First, let's find the gradient of the outer function with respect to the residual vector $r$.
-$$\nabla_{r} \left( \frac{1}{2\lambda} r^\top r \right) = \frac{1}{2\lambda} \nabla_{r} \left( \sum_{i} r_i^2 \right) = \frac{1}{2\lambda} \begin{pmatrix} 2r_1 \\ 2r_2 \\ \vdots \end{pmatrix} = \frac{1}{\lambda} r$$
-This is a well-known result: the gradient of $\|r\|^2$ is $2r$. The $\frac{1}{2\lambda}$ is a constant scaling factor.
-
-Next, we need to find the gradient of the inner function, $r(\mathbf{w})$, with respect to the weight vector $\mathbf{w}$. This is the Jacobian matrix of the transformation.
-$$\nabla_{\mathbf{w}} r(\mathbf{w}) = \nabla_{\mathbf{w}} (\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w})$$
-Since $\widetilde{\mathbf{y}}$ is a constant vector with respect to $\mathbf{w}$, its gradient is zero. We only need to compute the gradient of $-\widetilde{\mathbf{Y}} \mathbf{w}$.
-$$\nabla_{\mathbf{w}} (-\widetilde{\mathbf{Y}} \mathbf{w}) = -\widetilde{\mathbf{Y}}$$
-This result comes from the general rule that for a linear function $A\mathbf{x}$, the gradient with respect to $\mathbf{x}$ is just the matrix $A$. Here, our linear function is a negative, so the gradient is $-\widetilde{\mathbf{Y}}$.
-
-Now we plug the results from the above back into the chain rule formula.
-$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \left( \nabla_{r(\mathbf{w})} \frac{1}{2\lambda} r(\mathbf{w})^\top r(\mathbf{w}) \right)^\top \nabla_{\mathbf{w}} r(\mathbf{w})$$
-$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \left( \frac{1}{\lambda} r(\mathbf{w}) \right)^\top (-\widetilde{\mathbf{Y}})$$
-Using the property that $(A\mathbf{x})^\top = \mathbf{x}^\top A^\top$, we get:
-$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \frac{1}{\lambda} r(\mathbf{w})^\top (-\widetilde{\mathbf{Y}}) = -\frac{1}{\lambda} r(\mathbf{w})^\top \widetilde{\mathbf{Y}}$$
-This is equivalent to:
-$$\nabla_{\mathbf{w}} J(\mathbf{w}) = -\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top r(\mathbf{w})$$
-
-Finally, we substitute the definition of the residual vector, $r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}$, back into the gradient expression.
-$$\nabla_{\mathbf{w}} J(\mathbf{w}) = -\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w})$$
-Distributing the negative sign gives us the final form:
-$$\nabla_{\mathbf{w}} J(\mathbf{w}) = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}})$$
-
-Next, consider the deviation penalty term:
-\begin{equation}
-\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
-= (\mathbf{w} - \mathbf{w}^{\text{SHC}})^\top 
-(\mathbf{w} - \mathbf{w}^{\text{SHC}}).
-\end{equation}
-Its gradient with respect to $\mathbf{w}$ is:
-\begin{equation}
-\nabla_{\mathbf{w}} \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 
-= 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}}).
-\end{equation}
-
-Notice that the Hessian of this term is $2\mathbf{I}$, because differentiating again with respect to $\mathbf{w}$ gives:
-\begin{equation}
-\nabla^2_{\mathbf{w}} \|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2 = 2 \mathbf{I}.
-\end{equation}
-Here $\mathbf{I}$ is the identity matrix, representing curvature equally in all coordinate directions. 
-Thus the $2\mathbf{I}$ in $M$ directly reflects the Hessian of this quadratic deviation penalty.
-
-For the Gram penalty term, rewrite it as:
-\begin{equation}
-\varsigma \|\mathbf{C}_0^\top \mathbf{w}\|^2 
-= \varsigma \mathbf{w}^\top \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}.
-\end{equation}
-Since $\mathbf{C}_0 \mathbf{C}_0^\top$ is symmetric, its gradient is:
-\begin{equation}
-\nabla_{\mathbf{w}} 
-\varsigma \mathbf{w}^\top \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} 
-= 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}.
-\end{equation}
-
-Finally, the affine constraint term differentiates as:
-\begin{equation}
-\nabla_{\mathbf{w}} \mu (\mathbf{1}^\top \mathbf{w} - 1) = \mu \mathbf{1}.
-\end{equation}
-
-We now have the first-order condition from the gradient of the Lagrangian:
-\begin{equation}
-\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top 
-(\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}}) 
-+ 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}}) 
-+ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} 
+For the fit term, set $r(\mathbf{w}) = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}$.
+The gradient of $\tfrac{1}{2\lambda}\|r\|^2$ is, by the chain rule,
+$\tfrac{1}{2\lambda}\,(\nabla_r \|r\|^2)^\top \nabla_{\mathbf w} r
+= \tfrac{1}{2\lambda}(2r)^\top(-\widetilde{\mathbf{Y}})
+= -\tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top r
+= \tfrac{1}{\lambda}\widetilde{\mathbf{Y}}^\top(\widetilde{\mathbf{Y}}\mathbf{w} - \widetilde{\mathbf{y}})$.
+The proximity term contributes $2(\mathbf{w} - \mathbf{w}^{\text{SHC}})$; the
+low-variance term, written $\varsigma\,\mathbf{w}^\top \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}$,
+contributes $2\varsigma \mathbf{C}_0\mathbf{C}_0^\top \mathbf{w}$; and the
+constraint contributes $\mu\mathbf{1}$. Setting the total to zero gives the
+first-order condition
+\begin{equation}\label{eq:foc}
+\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top (\widetilde{\mathbf{Y}} \mathbf{w} - \widetilde{\mathbf{y}})
++ 2 (\mathbf{w} - \mathbf{w}^{\text{SHC}})
++ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}
 + \mu \mathbf{1} = \mathbf{0}.
 \end{equation}
 
-Expanding the deviation penalty term gives
-\begin{equation}
-2 (\mathbf{w} - \mathbf{w}^{\text{SHC}})
-= 2\mathbf{w} - 2\mathbf{w}^{\text{SHC}}.
+\textbf{Step 2: collect into a matrix.} Define the (symmetric) matrix
+\begin{equation}\label{eq:M}
+\mathbf{M} \defeq \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}
++ 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top,
+\end{equation}
+which is exactly the Hessian of $J$. Gathering the $\mathbf{w}$ terms in
+\eqref{eq:foc}, the ASHC solution satisfies
+\begin{equation}\label{eq:Mashc}
+\mathbf{M}\,\mathbf{w}^{\text{ASHC}} = \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{y}} + 2\mathbf{w}^{\text{SHC}} - \mu\mathbf{1}.
+\end{equation}
+Now apply the *same* matrix $\mathbf{M}$ to $\mathbf{w}^{\text{SHC}}$ --- this is
+just the identity $\mathbf{M}\mathbf{w}^{\text{SHC}} = \mathbf{M}\mathbf{w}^{\text{SHC}}$,
+written out:
+\begin{equation}\label{eq:Mshc}
+\mathbf{M}\,\mathbf{w}^{\text{SHC}} = \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}} + 2\mathbf{w}^{\text{SHC}} + 2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}^{\text{SHC}}.
+\end{equation}
+Subtract \eqref{eq:Mshc} from \eqref{eq:Mashc}. The $2\mathbf{w}^{\text{SHC}}$
+terms cancel, but --- and this is the step that must be done carefully --- the
+$2\varsigma\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}^{\text{SHC}}$ term does
+\emph{not} cancel, because the ASHC side has no matching $\varsigma$ term at
+$\mathbf{w}^{\text{SHC}}$. Writing $r = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$,
+\begin{equation}\label{eq:MDelta}
+\mathbf{M}\Delta
+= \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top r - \mu\mathbf{1} - 2\varsigma\,\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}^{\text{SHC}}.
 \end{equation}
 
-Substituting back, the condition becomes
-\begin{equation}
-\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w} 
-- \frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}}
-+ 2\mathbf{w} - 2\mathbf{w}^{\text{SHC}}
-+ 2\varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w} 
-+ \mu\mathbf{1} = \mathbf{0}.
+\textbf{Step 3: the energy identity.} Both $\mathbf{w}^{\text{ASHC}}$ and
+$\mathbf{w}^{\text{SHC}}$ satisfy $\mathbf{1}^\top\mathbf{w} = 1$, so their
+difference is orthogonal to $\mathbf{1}$: $\mathbf{1}^\top\Delta = 0$. Take the
+inner product of \eqref{eq:MDelta} with $\Delta$; the multiplier term drops out:
+\begin{equation}\label{eq:energy}
+\Delta^\top \mathbf{M}\Delta = \frac{1}{\lambda}\Delta^\top\widetilde{\mathbf{Y}}^\top r - 2\varsigma\,\Delta^\top\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}^{\text{SHC}}.
 \end{equation}
 
-Now collect all the terms involving $\mathbf{w}$ on the left-hand side:
-\begin{equation}
-\left(
-\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}
-+ 2\mathbf{I}
-+ 2\varsigma \mathbf{C}_0 \mathbf{C}_0^\top
-\right)\mathbf{w}
-\end{equation}
-and move all the other terms to the right-hand side:
-\begin{equation}
-\frac{1}{\lambda}\widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}}
-+ 2\mathbf{w}^{\text{SHC}}
-- \mu\mathbf{1}.
-\end{equation}
-
-Thus we obtain the compact matrix form:
-\begin{equation}
-\left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} 
-+ 2 \mathbf{I} 
-+ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \right)\mathbf{w} 
-= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} 
-+ 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
+\textbf{Step 4: bound the right-hand side.} Two inner products to control. For
+the first, Cauchy--Schwarz and the operator-norm bound (A4) give
+$|\Delta^\top\widetilde{\mathbf{Y}}^\top r| \leq \|\Delta\|\,\|\widetilde{\mathbf{Y}}^\top r\| \leq \|\Delta\|\,\|\widetilde{\mathbf{Y}}\|\,\|r\| \leq \gamma\,\epsilon_{\text{SHC}}\,\|\Delta\|$.
+For the second, since $\mathbf{C}_0$ has orthonormal columns
+($\|\mathbf{C}_0^\top \mathbf v\| \le \|\mathbf v\|$),
+$|\Delta^\top\mathbf{C}_0\mathbf{C}_0^\top\mathbf{w}^{\text{SHC}}|
+= |(\mathbf{C}_0^\top\Delta)^\top(\mathbf{C}_0^\top\mathbf{w}^{\text{SHC}})|
+\leq \|\mathbf{C}_0^\top\Delta\|\,\|\mathbf{C}_0^\top\mathbf{w}^{\text{SHC}}\|
+\leq \|\Delta\|\,\rho$, where $\rho = \|\mathbf{C}_0^\top\mathbf{w}^{\text{SHC}}\|$.
+Therefore
+\begin{equation}\label{eq:rhsbound}
+\Delta^\top\mathbf{M}\Delta \;\leq\; \frac{\gamma}{\lambda}\epsilon_{\text{SHC}}\|\Delta\| + 2\varsigma\rho\|\Delta\|.
 \end{equation}
 
-Here the $2\mathbf{I}$ arises directly from the quadratic penalty 
-$\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\|^2$, 
-whose gradient contributes $2\mathbf{w}$, corresponding in matrix form to $2\mathbf{I}\cdot\mathbf{w}$.
-
-
-Next, define the matrix
-\begin{equation}
-M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} 
-+ 2 \mathbf{I} 
-+ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top.
-\end{equation}
-$M$ corresponds to the Hessian of the objective function $J(\mathbf{w})$ plus the identity-weighted contribution of the deviation penalty.
-
-The solution $\mathbf{w}^{\text{ASHC}}$ satisfies the first-order condition:
-\begin{equation}
-M \mathbf{w}^{\text{ASHC}} 
-= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} 
-+ 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1}.
-\end{equation}
-
-Evaluating the same matrix $M$ at $\mathbf{w}^{\text{SHC}}$, which is not necessarily the ASHC solution, gives:
-\begin{equation}
-M \mathbf{w}^{\text{SHC}} 
-= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} 
-+ 2 \mathbf{w}^{\text{SHC}} 
-+ 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}}.
-\end{equation}
-
-Subtracting this equation from the previous one, we get
-\begin{equation}
-M \mathbf{w}^{\text{ASHC}} - M \mathbf{w}^{\text{SHC}} 
-= \left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{y}} + 2 \mathbf{w}^{\text{SHC}} - \mu \mathbf{1} \right) 
-- \left( \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} + 2 \mathbf{w}^{\text{SHC}} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top \mathbf{w}^{\text{SHC}} \right).
-\end{equation}
-
-Simplifying the right-hand side by canceling the $2 \mathbf{w}^{\text{SHC}}$ terms, we obtain
-\begin{equation}
-M (\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}) 
-= \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \left( \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} \right) 
-- \mu \mathbf{1}.
-\end{equation}
-
-Define the deviation
-\begin{equation}
-\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}},
-\end{equation}
-and the residual vector
-\begin{equation}
-r = \widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}.
-\end{equation}
-
-Since both $\mathbf{w}^{\text{ASHC}}$ and $\mathbf{w}^{\text{SHC}}$ satisfy the affine constraint $\mathbf{1}^\top \mathbf{w} = 1$, their difference $\Delta$ lies in the hyperplane orthogonal to $\mathbf{1}$:
-\begin{equation}
-\mathbf{1}^\top \Delta = 0.
-\end{equation}
-
-Taking the inner product of both sides of the previous equation with $\Delta$ gives
-\begin{equation}
-\Delta^\top M \Delta 
-= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top r - \mu \underbrace{\Delta^\top \mathbf{1}}_{=0} 
-= \frac{1}{\lambda} \Delta^\top \widetilde{\mathbf{Y}}^\top r.
-\end{equation}
-
-Here, the right-hand side is an inner product between the deviation vector $\Delta$ 
-and the vector $\widetilde{\mathbf{Y}}^\top r$. 
-Because inner products can be difficult to control directly, 
-we apply the Cauchy--Schwarz inequality to bound it:
-\begin{equation}
-|\Delta^\top \widetilde{\mathbf{Y}}^\top r| 
-\leq \|\Delta\| \, \|\widetilde{\mathbf{Y}}^\top r\|.
-\end{equation}
-
-Thus, $\Delta^\top M \Delta 
-\leq \frac{1}{\lambda} \|\Delta\| \, \| \widetilde{\mathbf{Y}}^\top r \|$. By assumption, the operator norm of $\widetilde{\mathbf{Y}}$ is bounded by $\gamma$, and the residual norm is $\epsilon_{\text{SHC}} = \|r\|$, so
-\begin{equation}
-\| \widetilde{\mathbf{Y}}^\top r \| \leq \|\widetilde{\mathbf{Y}}\| \|r\| \leq \gamma \epsilon_{\text{SHC}}.
-\end{equation}
-
-Thus, $\Delta^\top M \Delta \leq \frac{\gamma}{\lambda} \|\Delta\| \epsilon_{\text{SHC}}$. On the other hand, since $M$ is positive definite, its smallest eigenvalue $\lambda_{\min}(M)$ guarantees $\Delta^\top M \Delta \geq \lambda_{\min}(M) \|\Delta\|^2.$ Putting these two inequalities together, we sandwich the quadratic form: $ \lambda_{\min}(M) \|\Delta\|^2 \le \Delta^\top M \Delta \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}$.
-
-The left-hand side is the lower bound derived from the smallest eigenvalue of the positive definite matrix $M$. The right-hand side is the upper bound derived from the Cauchy-Schwarz and operator norm inequalities. We can now discard the middle term to focus on the key inequality between the two bounds: $\lambda_{\min}(M) \|\Delta\|^2 \le \frac{\gamma}{\lambda} \|\Delta\| \, \epsilon_{\text{SHC}}$. Assuming $\|\Delta\| > 0$ (the trivial case where the weights are identical is already clear), we can divide both sides of the inequality by $\|\Delta\|$ to isolate the term of interest. $ \lambda_{\min}(M) \|\Delta\| \le \frac{\gamma}{\lambda} \epsilon_{\text{SHC}}$. Rearranging this inequality to solve for $\|\Delta\|$ gives us an intermediate bound: $ \|\Delta\| \le \frac{\gamma}{\lambda \lambda_{\min}(M)} \epsilon_{\text{SHC}}$. Next, we establish a lower bound for the smallest eigenvalue of the matrix $M$. Recall that the matrix $M$ is defined as: $M = \frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}} + 2 \mathbf{I} + 2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top$. The smallest eigenvalue of a sum of positive semi-definite matrices is at least the sum of their smallest eigenvalues. Since the first term's smallest eigenvalue is non-negative, and the second term's is 2, we have:
-$$ \lambda_{\min}(M) \ge \lambda_{\min}\left(\frac{1}{\lambda} \widetilde{\mathbf{Y}}^\top \widetilde{\mathbf{Y}}\right) + \lambda_{\min}(2 \mathbf{I}) + \lambda_{\min}(2 \varsigma \mathbf{C}_0 \mathbf{C}_0^\top) $$
-$$ \lambda_{\min}(M) \ge 0 + 2 + 2\varsigma \lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) $$
-By the assumption that $\lambda_{\min}(\mathbf{C}_0 \mathbf{C}_0^\top) \ge \|\mathbf{C}_0\|^2$, we get the lower bound for the smallest eigenvalue of M:
-$$ \lambda_{\min}(M) \ge 2 + 2\varsigma \|\mathbf{C}_0\|^2 $$
-
-Finally, we substitute this lower bound for $\lambda_{\min}(M)$ back into the intermediate bound for $\|\Delta\|$. A smaller value in the denominator leads to a larger (and therefore valid) upper bound on the expression. This gives us the final bound on the deviation:
-$$ \|\Delta\| \le \frac{\gamma}{\lambda (2 + 2\varsigma \|\mathbf{C}_0\|^2)} \epsilon_{\text{SHC}} = \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \epsilon_{\text{SHC}} $$
-
-This final expression shows that the deviation between the ASHC and SHC weights is controlled by the SHC residual error, scaled by a factor that depends on the regularization parameters $\lambda$ and $\varsigma$.
-\end{proof}
-
-\begin{corollary}
-The primary driver of the deviation $\|\Delta\|$ between the ASHC and SHC weights is the SHC residual error $\epsilon_{\text{SHC}}$. The terms $\lambda$ and $\lambda_{\min}(M)$ appear in the denominator and therefore act only as scaling factors: stronger regularization ($\lambda$ large) or greater curvature of the Hessian ($\lambda_{\min}(M)$ large) shrink the deviation, but cannot generate deviation on their own. In contrast, $\epsilon_{\text{SHC}}$ enters multiplicatively in the numerator. Thus, if the SHC fit is already tight (so that $\epsilon_{\text{SHC}}$ is small), the deviation $\|\Delta\|$ is necessarily small. Conversely, if SHC exhibits poor fit, then $\epsilon_{\text{SHC}}$ is large, and ASHC permits correspondingly larger deviations, though still bounded by the regularization terms. In this way, ASHC improves stability without moving far from the baseline SHC solution unless the SHC fit leaves room for meaningful improvement.
-\end{corollary}
-
-To analyze the ASHC estimator relative to the SHC estimator, we aim to bound how much the ASHC predictions can deviate given a change in the weight vector. We do this using the operator norm of the donor matrix $\widetilde{\mathbf{Y}}$, which measures the largest possible amplification of weight deviations into prediction deviations.
-
-Practically, this bound is useful because it quantifies the worst-case sensitivity of the ASHC predictions to perturbations from the SHC weights, providing a guarantee on prediction stability.
-
-\begin{lemma}\label{lem:gamma}
-Under Assumption (A4), the error from deviating off SHC weights satisfies
+\textbf{Step 5: bound the left-hand side via Weyl.} The matrix $\mathbf{M}$ in
+\eqref{eq:M} is a sum of three symmetric positive-\emph{semi}definite pieces.
+Weyl's inequality, $\lambda_{\min}(\mathbf A + \mathbf B) \geq \lambda_{\min}(\mathbf A) + \lambda_{\min}(\mathbf B)$,
+applied twice gives
 \[
-\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|,
+\lambda_{\min}(\mathbf{M})
+\geq \lambda_{\min}\!\Big(\tfrac1\lambda\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}\Big)
++ \lambda_{\min}(2\mathbf{I})
++ \lambda_{\min}(2\varsigma\mathbf{C}_0\mathbf{C}_0^\top)
+= 0 + 2 + 0 = 2.
 \]
-where $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$.
-\end{lemma}
+The first term is $0$ because $\widetilde{\mathbf{Y}}^\top\widetilde{\mathbf{Y}}$
+has rank at most $m < N$, hence a zero eigenvalue; the third is $0$ because
+$\mathbf{C}_0\mathbf{C}_0^\top$ is a rank-$k$ projector, whose smallest
+eigenvalue is $0$. So the $\varsigma$-penalty does \emph{not} raise the
+curvature floor --- all of the strong convexity comes from the proximity term's
+$2\mathbf{I}$. Consequently $\mathbf{M} \succeq 2\mathbf{I} \succ 0$, and
+\begin{equation}\label{eq:lhsbound}
+\Delta^\top\mathbf{M}\Delta \geq 2\|\Delta\|^2.
+\end{equation}
 
-\begin{proof}
-We begin by recalling the definition of the operator (spectral) norm of a matrix.
-For a real matrix $A \in \mathbb{R}^{m \times N}$,
+\textbf{Step 6: combine.} Putting \eqref{eq:lhsbound} and \eqref{eq:rhsbound}
+together and assuming $\|\Delta\| > 0$ (otherwise the claim is trivial), divide
+through by $\|\Delta\|$:
 \[
-\|A\| \;\defeq\; \sup_{\mathbf{v} \in \mathbb{R}^N \setminus \{0\}}
-\frac{\|A \mathbf{v}\|}{\|\mathbf{v}\|}.
+2\|\Delta\| \;\leq\; \frac{\gamma}{\lambda}\epsilon_{\text{SHC}} + 2\varsigma\rho
+\qquad\Longrightarrow\qquad
+\|\Delta\| \;\leq\; \frac{\gamma}{2\lambda}\epsilon_{\text{SHC}} + \varsigma\rho.
 \]
-This means $\|A\|$ measures the largest possible multiplicative factor 
-by which $A$ can increase the Euclidean norm of a vector.
-
-Now let $A = \widetilde{\mathbf{Y}}$ and $\mathbf{v} = \Delta$, 
-where $\Delta = \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}} \in \mathbb{R}^N$ is the deviation 
-of the ASHC weight vector from the SHC weight vector.
-
-By the definition of the operator norm, we have
-\[
-\frac{\|\widetilde{\mathbf{Y}} \Delta\|}{\|\Delta\|}
-\;\leq\; \|\widetilde{\mathbf{Y}}\|, 
-\quad \text{for all } \Delta \neq \mathbf{0}.
-\]
-Multiplying through by $\|\Delta\|$ yields
-\[
-\|\widetilde{\mathbf{Y}}\Delta\| 
-\;\leq\; \|\widetilde{\mathbf{Y}}\| \, \|\Delta\|.
-\]
-
-Finally, Assumption (A4) gives us the explicit bound
-\[
-\|\widetilde{\mathbf{Y}}\| \;\leq\; \gamma,
-\]
-so that
-\[
-\|\widetilde{\mathbf{Y}}\Delta\| 
-\;\leq\; \gamma \|\Delta\|.
-\]
-
-In words: although ASHC may choose weights that differ from SHC,
-the resulting perturbation in the reconstructed donor outcomes
-is controlled in magnitude, with the constant of proportionality $\gamma$
-coming directly from the operator norm bound in Assumption (A4).
-\end{proof}
-
-
-\begin{remark}
-This lemma directly links the deviation in the weights, $\|\Delta\|$, to the change in the fitted donor outcomes, $\|\widetilde{\mathbf{Y}}\Delta\|$. It uses the operator norm of the donor matrix $\widetilde{\mathbf{Y}}$. The operator norm, $\gamma$, measures the maximum possible "stretching" effect that the donor matrix can have on any vector. It tells us that even if the ASHC weights differ from the SHC weights, the resulting change in the fitted donor outcomes is bounded. Specifically, it cannot exceed the magnitude of the weight deviation multiplied by $\gamma$. This is important because it ensures that the model is well-behaved. If the donor matrix had a very large operator norm, a small change in the weights could lead to a huge, uncontrolled change in the fitted outcomes. By bounding this norm with $\gamma$, the lemma guarantees that the impact of weight deviations on the fitted outcomes is predictable and proportional.
-\end{remark}
-
-\begin{lemma}\label{lem:smoothness}
-Under (A3), for horizon $k > 0$,
-\[
-|\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)| 
-\;\leq\; 
-b_\epsilon(H,k) \;\defeq\; \frac{2\epsilon |k|^{H+1}}{(H+1)!}.
-\]
-\end{lemma}
-
-\begin{proof}
-See Proposition 1 of \cite{SHC}.
+Finally $\rho = \|\mathbf{C}_0^\top\mathbf{w}^{\text{SHC}}\| \leq \|\mathbf{C}_0^\top\|\,\|\mathbf{w}^{\text{SHC}}\| = \|\mathbf{w}^{\text{SHC}}\| \leq \|\mathbf{w}^{\text{SHC}}\|_1 = 1$,
+using simplex feasibility (A5). This gives the stated bounds.
 \end{proof}
 
 \begin{remark}
-Lemma~\ref{lem:smoothness} formalizes the idea that the SHC predictor inherits 
-the smoothness of the latent trend $\ell(\cdot)$.  
-Because SHC is built from overlapping donor segments that reflect the same 
-underlying smooth dynamics, the approximation reproduces the first $H$ terms 
-of the Taylor expansion around $T_0$.  
-The only discrepancy comes from the $(H+1)$-st order remainder, which is small 
-when the latent trend is sufficiently smooth.  
-Thus, the difference between $\ell$ and $\ell^{\text{SHC}}$ grows only 
-polynomially in the forecast horizon $k$, and the error is of order 
-$|k|^{H+1}$ rather than linear or quadratic in $k$.  
-This ensures that SHC extrapolates the smooth component accurately over short 
-to moderate horizons.
+The shape of the bound is the point. The deviation is governed by
+$\epsilon_{\text{SHC}}$ --- the SHC residual --- scaled by $\gamma/(2\lambda)$.
+The proximity strength $\lambda$ sits in the denominator, so a tighter leash
+(small $\lambda$) forces ASHC to stay near SHC, while $\gamma$ in the numerator
+says a more amplifying donor matrix permits larger swings. The penalty term
+contributes only the additive $\varsigma\rho$, and even that is benign: SHC's
+own objective penalizes $\|\mathbf{C}_0^\top\mathbf w\|^2$, so $\rho$ is small by
+construction, and $\varsigma$ is a tiny numerical safeguard (in practice
+$\varsigma = 10^{-6}$). The honest reading is therefore: ASHC moves away from
+SHC only to the extent that SHC fit poorly ($\epsilon_{\text{SHC}}$ large), and
+the proximity penalty --- not the low-variance penalty --- is what guarantees
+the movement is controlled. This corrects a tempting but false intuition that
+the $\varsigma$ penalty appears in the denominator: it does not, because
+$\mathbf{C}_0\mathbf{C}_0^\top$ is rank-deficient and contributes nothing to
+$\lambda_{\min}(\mathbf{M})$.
 \end{remark}
 
-# Finite Sample Bound
+We now translate a weight deviation into a fitted-outcome deviation.
 
-\begin{proposition}\label{prop:ashc}
-Under assumptions (A1)--(A5), the ASHC prediction error is bounded by
+\begin{lemma}[Operator-norm propagation]\label{lem:gamma}
+Under (A4), $\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma\|\Delta\|$.
+\end{lemma}
+
+\begin{proof}
+The operator norm is defined as
+$\|\widetilde{\mathbf{Y}}\| = \sup_{\mathbf{v}\neq\mathbf 0}\|\widetilde{\mathbf{Y}}\mathbf{v}\|/\|\mathbf{v}\|$,
+the largest factor by which $\widetilde{\mathbf{Y}}$ can stretch a vector. Taking
+$\mathbf v = \Delta$ gives
+$\|\widetilde{\mathbf{Y}}\Delta\| \leq \|\widetilde{\mathbf{Y}}\|\,\|\Delta\|$,
+and (A4) bounds $\|\widetilde{\mathbf{Y}}\| \leq \gamma$. In words: even though
+ASHC's weights differ from SHC's, the change they induce in the reconstructed
+evaluation block cannot exceed the weight change amplified by $\gamma$.
+\end{proof}
+
+\begin{proposition}[In-sample fit of ASHC]\label{prop:insample}
+Under (A4)--(A5), the ASHC evaluation-block fit satisfies
 \[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
-\;\leq\;
-\epsilon_{\text{SHC}}
-\left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2} \right)
-+ b_\epsilon(H,k) + \delta.
+\big\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\big\|
+\;\leq\; \epsilon_{\text{SHC}}\left(1 + \frac{\gamma^2}{2\lambda}\right) + \gamma\,\varsigma\rho.
 \]
 \end{proposition}
 
 \begin{proof}
-
-We want to control the error of the ASHC estimator, given by
+Add and subtract $\widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}$ and use the
+triangle inequality:
 \[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|.
+\big\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\big\|
+= \big\|(\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{SHC}}) - \widetilde{\mathbf{Y}}\Delta\big\|
+\leq \epsilon_{\text{SHC}} + \|\widetilde{\mathbf{Y}}\Delta\|.
 \]
-Directly analyzing this is difficult because the weights $\mathbf{w}^{\text{ASHC}}$ are defined through a penalized optimization problem. To make progress, we first recall the triangle inequality, which states that for any vectors $\mathbf{a}$ and $\mathbf{b}$,
+By Lemma~\ref{lem:gamma}, $\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma\|\Delta\|$,
+and by Lemma~\ref{lem:delta}, $\|\Delta\| \leq \gamma\epsilon_{\text{SHC}}/(2\lambda) + \varsigma\rho$.
+Substituting,
 \[
-\|\mathbf{a} + \mathbf{b}\| \leq \|\mathbf{a}\| + \|\mathbf{b}\|.
+\big\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\big\|
+\leq \epsilon_{\text{SHC}} + \gamma\Big(\tfrac{\gamma}{2\lambda}\epsilon_{\text{SHC}} + \varsigma\rho\Big)
+= \epsilon_{\text{SHC}}\Big(1 + \tfrac{\gamma^2}{2\lambda}\Big) + \gamma\varsigma\rho. \qedhere
 \]
-This allows us to introduce the SHC weights into the expression and split the ASHC error into two pieces: the SHC prediction error, which we already know how to bound, and the extra error due to the deviation of ASHC from SHC.
-
-Let $\Delta := \mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}$ denote the difference between the two weight vectors. Then we can write
-\[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| 
-= \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}} 
-+ \widetilde{\mathbf{Y}}(\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}})\|.
-\]
-Applying the triangle inequality gives
-\[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
-\;\leq\;
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|
-+ \|\widetilde{\mathbf{Y}}(\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}})\|.
-\]
-Since $\mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} = -\Delta$, the second term becomes $\|\widetilde{\mathbf{Y}}\Delta\|$. Denoting the SHC error by
-\[
-\epsilon_{\text{SHC}} := \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{SHC}}\|,
-\]
-we obtain
-\[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\| \;\leq\; \epsilon_{\text{SHC}} + \|\widetilde{\mathbf{Y}}\Delta\|.
-\]
-
-The challenge now reduces to bounding $\|\widetilde{\mathbf{Y}}\Delta\|$. For this, we use the operator norm. Recall that for a matrix $A$,
-\[
-\|A\| := \sup_{\mathbf{v} \neq 0} \frac{\|A\mathbf{v}\|}{\|\mathbf{v}\|}.
-\]
-This definition guarantees that for any vector $\mathbf{v}$,
-\[
-\|A\mathbf{v}\| \leq \|A\| \cdot \|\mathbf{v}\|.
-\]
-Taking $A = \widetilde{\mathbf{Y}}$ and $\mathbf{v} = \Delta$, we have
-\[
-\|\widetilde{\mathbf{Y}}\Delta\| \leq \|\widetilde{\mathbf{Y}}\|\cdot \|\Delta\|.
-\]
-By Assumption (A4), the operator norm of $\widetilde{\mathbf{Y}}$ is bounded by $\gamma$, so
-\[
-\|\widetilde{\mathbf{Y}}\Delta\| \leq \gamma \|\Delta\|.
-\]
-
-To proceed, we need a bound on the size of the deviation $\Delta$. Lemma~\ref{lem:delta} provides exactly this, showing that
-\[
-\|\Delta\| \leq \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
-\]
-
-Substituting this into the previous inequality, we obtain
-\[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
-\leq \epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}.
-\]
-
-Finally, we incorporate the other two sources of error. Lemma~\ref{lem:smoothness} bounds the bias due to imperfect smoothness of the latent trend by
-\[
-b_\epsilon(H,k) = \frac{2\epsilon |k|^{H+1}}{(H+1)!},
-\]
-and Assumption (A2) ensures that the noise term contributes at most $\delta$. Adding these yields
-\[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
-\leq \epsilon_{\text{SHC}}
-+ \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}
-+ b_\epsilon(H,k) + \delta.
-\]
-
-It remains only to factor out $\epsilon_{\text{SHC}}$ from the first two terms:
-\[
-\epsilon_{\text{SHC}} + \gamma \cdot \frac{\epsilon_{\text{SHC}}}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}
-= \epsilon_{\text{SHC}} \left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}\right).
-\]
-
-Thus we conclude that
-\[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} \mathbf{w}^{\text{ASHC}}\|
-\;\leq\;
-\epsilon_{\text{SHC}}
-\left(1 + \frac{\gamma}{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}\right)
-+ b_\epsilon(H,k) + \delta,
-\]
-which completes the proof.
-
 \end{proof}
-
-
 
 \begin{remark}
-The proof explicitly shows how each component contributes to the final bound:  
-(1) the SHC baseline error,  
-(2) the ASHC deviation penalty controlled by $\lambda$ and $\varsigma$,  
-(3) the smoothness bias from Taylor approximation, and  
-(4) the bounded noise.  
-Factoring $\epsilon_{\text{SHC}}$ at the end highlights how ASHC scales the SHC error by at most a small multiplicative factor depending on the regularization strength. It is worth emphasizing that the ASHC estimator is guaranteed to perform at least as well as SHC within the evaluation window, since its objective explicitly penalizes deviations from the SHC solution. The bound above quantifies how much its predictions may differ, depending on the donor matrix and the penalty strength. However, this guarantee applies in-sample. Out-of-sample performance in the post-treatment period depends on smoothness of the latent trend and the boundedness of noise, as reflected in the $b_{\epsilon(H,k)}$ and $\delta$ terms.
+Note what this bound does and does \emph{not} say. It is a purely in-sample
+statement: it controls the fit on the evaluation block, where ASHC's own
+objective explicitly contains the matching term, so ASHC can do no worse than a
+bounded multiple of the SHC fit. The smoothness bias and noise of the
+post-treatment forecast do \emph{not} belong here --- they enter only when we
+extrapolate past $T_0$, which is the subject of the next section. Keeping the
+in-sample and out-of-sample errors separate is the cleanest way to see where
+each source of error comes from.
 \end{remark}
 
-\begin{lemma}[Post-treatment smoothness bias and noise]\label{lem:smoothness_post}
-Under Assumptions (A2) and (A3), the approximation error in the post-treatment period satisfies
+
+# Out-of-Sample Analysis: Post-Treatment Prediction and the ATT
+
+Past $T_0$ we no longer observe the matching target, so two new error sources
+appear: the Taylor remainder from extrapolating the smooth latent trend, and the
+post-treatment noise. We import the first from \cite{SHC} and bound everything
+against $\mathbf{w}^{\text{SHC}}$ --- never against the unidentified
+$\mathbf{w}^*$.
+
+\begin{lemma}[Latent extrapolation bias, from \citet{SHC}]\label{lem:smooth}
+Under (A3), for any horizon $k > 0$,
 \[
-\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\| \leq b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}},
+\big|\ell(T_0 + k) - \ell^{\text{SHC}}(T_0 + k)\big|
+\;\leq\; b_\epsilon(H,k) \;\defeq\; \frac{2\epsilon\,|k|^{H+1}}{(H+1)!}.
 \]
-where $b_{\epsilon,\text{post}}(H,k)$ is a smoothness bias term similar to the pre-treatment case, and $\delta_{\text{post}}$ bounds the noise in the post-treatment outcomes.
 \end{lemma}
 
 \begin{proof}
-Recall from Assumption (A1) that the treated unit’s latent potential outcome $\ell(t)$ is $H+1$ times differentiable, and its $(H+1)$-th derivative is bounded by $\epsilon$. By a Taylor expansion argument, the latent outcome over the post-treatment period can be approximated by the linear combination of donor segments with a bias bounded by the smoothness term $b_{\epsilon,\text{post}}(H,k)$.
-
-Additionally, from Assumption (A2), the noise vector $\bm{\eta}_{\text{post}}$ satisfies $\|\bm{\eta}_{\text{post}}\| \leq \delta_{\text{post}}$.
-
-Thus,
-\[
-\mathbf{y}_{\text{post}} = \mathbf{Y}_{\text{post}} \mathbf{w}^* + \bm{\eta}_{\text{post}} + \text{smoothness bias},
-\]
-where the smoothness bias norm is at most $b_{\epsilon,\text{post}}(H,k)$.
-
-Applying the triangle inequality,
-\[
-\left\|\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^*\right\|
-\leq
-\|\bm{\eta}_{\text{post}}\| + b_{\epsilon,\text{post}}(H,k)
-\leq \delta_{\text{post}} + b_{\epsilon,\text{post}}(H,k).
-\]
-
-This completes the proof.
+This is Proposition 1 of \cite{SHC}. The intuition: SHC reproduces the first
+$H$ terms of the Taylor expansion of $\ell$ around $T_0$ from the historical
+segments, so the only discrepancy is the $(H+1)$-st order remainder, which (A3)
+bounds by $\epsilon|k|^{H+1}/(H+1)!$ up to the constant $2$ coming from
+combining the treated and reconstructed remainders.
 \end{proof}
 
-\begin{assumption}[Post-treatment operator norm]\label{assump:operator_post}
-There exists $\gamma_{\text{post}} > 0$ such that
+Stacking Lemma~\ref{lem:smooth} over the post-treatment block gives the SHC
+counterfactual error directly.
+
+\begin{lemma}[SHC post-treatment error]\label{lem:shc_post}
+Under (A2)--(A3), the SHC counterfactual error over $\mathcal{T}_2$ satisfies
 \[
-\| \mathbf{Y}_{\text{post}} \| \leq \gamma_{\text{post}}.
+\big\|\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}}\mathbf{w}^{\text{SHC}}\big\|
+\;\leq\; b_{\epsilon,\text{post}}(H) + \delta_{\text{post}},
 \]
+where $b_{\epsilon,\text{post}}(H) \defeq \big(\sum_{k=1}^{n} b_\epsilon(H,k)^2\big)^{1/2}$
+collects the per-horizon extrapolation biases of Lemma~\ref{lem:smooth}, and
+$\delta_{\text{post}}$ bounds the post-treatment noise $\bm\eta_{\text{post}}$.
+\end{lemma}
+
+\begin{proof}
+Write $\mathbf{y}_{\text{post}} = \mathbf{Y}_{\text{post}}\mathbf{w}^{\text{SHC}} + \mathbf{b}_{\text{post}} + \bm\eta_{\text{post}}$,
+where $\mathbf{b}_{\text{post}}$ is the vector of latent extrapolation errors
+($k = 1, \dots, n$) and $\bm\eta_{\text{post}}$ is the post-treatment noise. The
+triangle inequality gives
+$\|\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}}\mathbf{w}^{\text{SHC}}\| \leq \|\mathbf{b}_{\text{post}}\| + \|\bm\eta_{\text{post}}\|$.
+By Lemma~\ref{lem:smooth}, the $k$-th entry of $\mathbf{b}_{\text{post}}$ is at
+most $b_\epsilon(H,k)$, so $\|\mathbf{b}_{\text{post}}\| \leq b_{\epsilon,\text{post}}(H)$;
+by (A2), $\|\bm\eta_{\text{post}}\| \leq \delta_{\text{post}}$.
+\end{proof}
+
+\begin{assumption}[Post-treatment operator norm]\label{a:op_post}
+There exists $\gamma_{\text{post}} > 0$ with $\|\mathbf{Y}_{\text{post}}\| \leq \gamma_{\text{post}}$.
 \end{assumption}
 
-\begin{lemma}[Weight deviation between oracle and SHC]\label{lem:weight_diff}
-Under Assumptions (A1)--(A5), the difference between the oracle weights $\mathbf{w}^*$ and the SHC weights $\mathbf{w}^{\text{SHC}}$ is bounded by
+\begin{proposition}[Post-treatment prediction and ATT error]\label{prop:att}
+Under (A1)--(A5) and Assumption~\ref{a:op_post}, the ASHC counterfactual error
+satisfies
 \[
-\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| \leq \eta,
+\big\|\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}}\mathbf{w}^{\text{ASHC}}\big\|
+\;\leq\;
+b_{\epsilon,\text{post}}(H) + \delta_{\text{post}}
++ \gamma_{\text{post}}\Big(\frac{\gamma}{2\lambda}\epsilon_{\text{SHC}} + \varsigma\rho\Big),
 \]
-for some $\eta > 0$ depending on the data and model.
-\end{lemma}
-
-\begin{proof}
-This follows from the stability and consistency properties of the SHC estimator under Assumptions (A1)--(A5). Since $\mathbf{w}^{\text{SHC}}$ solves a constrained least squares problem minimizing
+and consequently the ATT estimate obeys
 \[
-\left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{eval}} \mathbf{w} \right\|^2 + \varsigma \| \mathbf{C}_0^\top \mathbf{w} \|^2,
-\]
-and $\mathbf{w}^*$ satisfies the noiseless model $\widetilde{\mathbf{y}}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{eval}} \mathbf{w}^* + \bm{\eta}$ with $\|\bm{\eta}\| \leq \delta$, standard results on constrained least squares imply $\mathbf{w}^{\text{SHC}}$ is close to $\mathbf{w}^*$ within a ball whose radius depends on $\delta$ and model parameters.
-
-More explicitly, since the problem is strictly convex and well-conditioned by assumption (due to the regularization and eigenvalue structure),
-\[
-\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| \leq \eta,
-\]
-where $\eta$ depends on the noise bound $\delta$, the regularization parameter $\varsigma$, and the spectral properties of $\widetilde{\mathbf{Y}}_{\text{eval}}$.
-
-A detailed exact expression can be derived by comparing the KKT conditions for $\mathbf{w}^*$ and $\mathbf{w}^{\text{SHC}}$, but for the purposes here, it suffices to assert the existence of such $\eta$.
-
-\end{proof}
-
-\begin{lemma}[Total weight deviation bound]\label{lem:total_weight_dev}
-We have
-\[
-\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \| \leq \| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \| + \| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \|.
-\]
-\end{lemma}
-
-\begin{proof}
-This is a direct application of the triangle inequality for vector norms. For any vectors $\mathbf{a}, \mathbf{b}, \mathbf{c}$ in a normed vector space,
-\[
-\|\mathbf{a} - \mathbf{c}\| \leq \|\mathbf{a} - \mathbf{b}\| + \|\mathbf{b} - \mathbf{c}\|.
-\]
-Setting $\mathbf{a} = \mathbf{w}^*$, $\mathbf{b} = \mathbf{w}^{\text{SHC}}$, and $\mathbf{c} = \mathbf{w}^{\text{ASHC}}$ yields the stated result.
-\end{proof}
-
-\begin{proposition}[Out-of-sample prediction and ATT error bound]\label{prop:att_error_bound}
-Under Assumptions (A1)--(A5) and Assumption~\ref{assump:operator_post}, the ASHC estimator's post-treatment prediction error satisfies
-\[
-\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
-\leq
-b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right),
-\]
-where $\eta$ bounds the difference $\|\mathbf{w}^* - \mathbf{w}^{\text{SHC}}\|$ and $\epsilon_{\text{SHC}}$ is the SHC in-sample fit error.
-
-Moreover, the error in the average treatment effect on the treated (ATT) estimate is bounded by
-\[
-\left| \widehat{\text{ATT}} - \text{ATT} \right|
-\leq
-\frac{1}{\sqrt{n}} \left[
-b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right)
+\big|\widehat{\mathrm{ATT}} - \mathrm{ATT}\big|
+\;\leq\;
+\frac{1}{\sqrt{n}}\left[
+b_{\epsilon,\text{post}}(H) + \delta_{\text{post}}
++ \gamma_{\text{post}}\Big(\frac{\gamma}{2\lambda}\epsilon_{\text{SHC}} + \varsigma\rho\Big)
 \right].
 \]
 \end{proposition}
 
 \begin{proof}
-We want to bound the out-of-sample prediction error
+\textbf{Prediction error.} Decompose against $\mathbf{w}^{\text{SHC}}$ (not the
+oracle), then use the triangle inequality:
 \[
-\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
+\big\|\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}}\mathbf{w}^{\text{ASHC}}\big\|
+= \big\|(\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}}\mathbf{w}^{\text{SHC}}) - \mathbf{Y}_{\text{post}}\Delta\big\|
+\leq \underbrace{\big\|\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}}\mathbf{w}^{\text{SHC}}\big\|}_{\text{SHC counterfactual error}}
++ \underbrace{\big\|\mathbf{Y}_{\text{post}}\Delta\big\|}_{\text{ASHC's extra move}}.
 \]
+The first term is bounded by $b_{\epsilon,\text{post}}(H) + \delta_{\text{post}}$
+(Lemma~\ref{lem:shc_post}). For the second, Assumption~\ref{a:op_post} gives
+$\|\mathbf{Y}_{\text{post}}\Delta\| \leq \gamma_{\text{post}}\|\Delta\|$, and
+Lemma~\ref{lem:delta} bounds $\|\Delta\| \leq \gamma\epsilon_{\text{SHC}}/(2\lambda) + \varsigma\rho$.
+Adding the two pieces yields the prediction bound. Note that everything is
+anchored at $\mathbf{w}^{\text{SHC}}$, so no claim about the non-unique
+$\mathbf{w}^*$ is needed.
 
-Add and subtract the oracle weights prediction $\mathbf{Y}_{\text{post}} \mathbf{w}^*$ inside the norm:
+\textbf{ATT error.} The estimated and true ATT differ only through the
+counterfactual:
+$\widehat{\mathrm{ATT}} - \mathrm{ATT} = \tfrac1n \sum_{t \in \mathcal{T}_2}\big(y_t(0) - \widehat{y}_t(0)\big)$.
+Taking absolute values and applying the Cauchy--Schwarz inequality
+$\sum_{t}|a_t| \leq \sqrt{n}\,\|\mathbf a\|$,
 \[
-\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
-= \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* + \mathbf{Y}_{\text{post}} \mathbf{w}^* - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
+\big|\widehat{\mathrm{ATT}} - \mathrm{ATT}\big|
+\leq \frac1n \sum_{t \in \mathcal{T}_2}\big|y_t(0) - \widehat{y}_t(0)\big|
+\leq \frac{1}{\sqrt n}\big\|\mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}}\mathbf{w}^{\text{ASHC}}\big\|.
 \]
-
-By the triangle inequality,
-\[
-\leq
-\underbrace{\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\|}_{\text{smoothness bias + noise}}
-+
-\underbrace{\left\| \mathbf{Y}_{\text{post}} \left(\mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right) \right\|}_{\text{weight deviation effect}}.
-\]
-
-Using Lemma~\ref{lem:smoothness_post}, the first term is bounded by
-\[
-\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^* \right\| \leq b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}}.
-\]
-
-For the second term, apply the operator norm bound from Assumption~\ref{assump:operator_post}:
-\[
-\left\| \mathbf{Y}_{\text{post}} (\mathbf{w}^* - \mathbf{w}^{\text{ASHC}}) \right\| \leq \gamma_{\text{post}} \left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\|.
-\]
-
-By Lemma~\ref{lem:total_weight_dev}, decompose the weight difference:
-\[
-\left\| \mathbf{w}^* - \mathbf{w}^{\text{ASHC}} \right\| \leq \left\| \mathbf{w}^* - \mathbf{w}^{\text{SHC}} \right\| + \left\| \mathbf{w}^{\text{SHC}} - \mathbf{w}^{\text{ASHC}} \right\|.
-\]
-
-Use Lemma~\ref{lem:weight_diff} and your existing bound on \(\|\mathbf{w}^{\text{ASHC}} - \mathbf{w}^{\text{SHC}}\|\) (from Lemma~\ref{lem:delta} or your prior proof):
-\[
-\leq \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2}.
-\]
-
-Combining all parts,
-\[
-\left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|
-\leq
-b_{\epsilon,\text{post}}(H,k) + \delta_{\text{post}} + \gamma_{\text{post}} \left( \eta + \frac{\epsilon_{\text{SHC}}}{2 \lambda + 2 \varsigma \| \mathbf{C}_0 \|^2} \right).
-\]
-
-To bound the ATT estimation error, recall
-\[
-\widehat{\text{ATT}} - \text{ATT} = \frac{1}{n} \sum_{t \in \mathcal{T}_2} \left( y_t(0) - \hat{y}_t(0) \right).
-\]
-
-Applying Jensen’s inequality and Cauchy–Schwarz,
-\[
-\left| \widehat{\text{ATT}} - \text{ATT} \right|
-\leq
-\frac{1}{n} \sum_{t \in \mathcal{T}_2} \left| y_t(0) - \hat{y}_t(0) \right|
-\leq
-\frac{1}{\sqrt{n}} \left\| \mathbf{y}_{\text{post}} - \mathbf{Y}_{\text{post}} \mathbf{w}^{\text{ASHC}} \right\|.
-\]
-
-Substitute the bound for the prediction error to complete the ATT bound.
-
+Substituting the prediction bound finishes the proof.
 \end{proof}
+
+\begin{remark}
+The $1/\sqrt{n}$ in the ATT bound is doing real work. The prediction error is an
+$n$-vector whose Euclidean norm grows like $\sqrt n$ when the per-period errors
+are $O(1)$; averaging into a scalar ATT and bounding by Cauchy--Schwarz puts
+back exactly one factor of $\sqrt n$, leaving a per-period quantity. This is the
+right scale on which to ask for consistency, and it is why the asymptotics below
+are stated for the per-period (root-mean-square) error rather than the raw
+Euclidean norm.
+\end{remark}
 
 
 # Asymptotic Results
 
-\begin{theorem}\label{thm:ashc-asymptotics}
-Under (A1)--(A5), as $m \to \infty$ and $H \to \infty$, for fixed $k > 0$,
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \longrightarrow \delta.
-$$
-If $\bm{\eta}$ consists of independent mean-zero sub-Gaussian entries, then
-$$
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \xrightarrow{p} 0.
-$$
+Two warnings shape this section. First, $\epsilon_{\text{SHC}} = \|\widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}}\mathbf{w}^{\text{SHC}}\|$
+is the Euclidean norm of an $m$-vector; if we let $m \to \infty$ with $O(1)$
+per-period residuals, this norm grows like $\sqrt m$ and cannot converge to
+zero. The quantity that can converge is the per-period root-mean-square error
+\[
+\bar\epsilon_{\text{SHC}} \defeq \frac{1}{\sqrt m}\,\epsilon_{\text{SHC}}.
+\]
+Second, $\widetilde{\mathbf y}$ is the \emph{smoothed} series, so the residual
+$\bm\eta$ in (A1)--(A2) is a smoothing residual, not raw noise; its per-period
+size is reduced by the kernel and goes to zero, which is what makes consistency
+possible. We state results for $\bar\epsilon_{\text{SHC}}$ and for the ATT.
+
+\begin{theorem}[Consistency]\label{thm:consistency}
+Under (A1)--(A5), suppose the kernel bandwidth $h_m \to 0$ with $m h_m \to \infty$
+as $m \to \infty$, and let $H \to \infty$. Then the per-period ASHC fit error
+satisfies
+\[
+\frac{1}{\sqrt m}\big\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\big\| \xrightarrow{p} 0.
+\]
+If in addition $\mathbf{Y}_{\text{post}}$ obeys Assumption~\ref{a:op_post} with
+$\gamma_{\text{post}} = O(\sqrt n)$ and the post-treatment noise has per-period
+variance vanishing under smoothing, then
+$\big|\widehat{\mathrm{ATT}} - \mathrm{ATT}\big| \xrightarrow{p} 0$.
 \end{theorem}
 
 \begin{proof}
-Starting from Proposition~\ref{prop:ashc}, we have
+From Proposition~\ref{prop:insample}, dividing by $\sqrt m$,
 \[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
-\leq
-\epsilon_{\text{SHC}}
-\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \right)
-+ b_\epsilon(H,k) + \delta.
+\frac{1}{\sqrt m}\big\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\big\|
+\leq \bar\epsilon_{\text{SHC}}\Big(1 + \frac{\gamma^2}{2\lambda}\Big) + \frac{\gamma\varsigma\rho}{\sqrt m}.
 \]
-
-\textbf{Step 1. Behavior of \(\epsilon_{\text{SHC}}\).}  
-By (A3), \(\ell(t)\) is \((H+1)\)-times differentiable. Gaussian kernel smoothing in SHC ensures 
+The inflation factor $1 + \gamma^2/(2\lambda)$ is a fixed constant, and
+$\gamma\varsigma\rho/\sqrt m \to 0$ since $\rho \le 1$ and $\varsigma$ is fixed.
+It remains to show $\bar\epsilon_{\text{SHC}} \xrightarrow{p} 0$. The smoothed
+matching residual decomposes into a smoothing bias and a stochastic part. By the
+smoothness assumption (A3), a kernel smoother that reproduces $H$ Taylor terms
+has per-period bias $O(h_m^{H+1})$; the stochastic part of a kernel average over
+$\asymp m h_m$ points is $O_p\big((m h_m)^{-1/2}\big)$. Hence
 \[
-\epsilon_{\text{SHC}} \to 0 \quad \text{as } m \to \infty,\, H \to \infty.
+\bar\epsilon_{\text{SHC}} = O_p\big(h_m^{H+1} + (m h_m)^{-1/2}\big) \xrightarrow{p} 0
 \]
-\cite{SHC}
-
-\textbf{Step 2. Behavior of ASHC penalty term.}  
-Since \(\epsilon_{\text{SHC}} \to 0\), the inflation factor
-\[
-\frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}} \,\epsilon_{\text{SHC}}
-\]
-vanishes asymptotically.
-
-\textbf{Step 3. Behavior of smoothness bias \(b_\epsilon(H,k)\).}  
-From Taylor’s theorem,
-\[
-\ell(T_0 + k) = \sum_{h=0}^H \frac{\ell^{(h)}(T_0)}{h!}k^h + R_{H+1}(k),
-\]
-with
-\[
-|R_{H+1}(k)| \leq \frac{\epsilon}{(H+1)!} |k|^{H+1}.
-\]
-Thus
-\[
-b_\epsilon(H,k) \leq \frac{2\epsilon}{(H+1)!} |k|^{H+1} \to 0 \quad \text{as } H \to \infty.
-\]
-
-\textbf{Step 4. Behavior of noise term.}  
-By (A2), \(\|\boldsymbol{\eta}\| \leq \delta\).  
-If \(\boldsymbol{\eta}\) is i.i.d.\ sub-Gaussian with variance proxy \(\sigma^2\), then
-\[
-\frac{\|\boldsymbol{\eta}\|}{m} \xrightarrow{p} 0.
-\]
-
-\textbf{Step 5. Combine bounds.}  
-Therefore,
-\[
-\limsup_{m \to \infty} \|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| \leq \delta.
-\]
-With sub-Gaussian noise, the limit is \(0\) in probability.
+under $h_m \to 0$, $m h_m \to \infty$. This proves the first claim. For the
+second, Proposition~\ref{prop:att} bounds the ATT error by
+$n^{-1/2}\big[b_{\epsilon,\text{post}}(H) + \delta_{\text{post}} + \gamma_{\text{post}}(\tfrac{\gamma}{2\lambda}\epsilon_{\text{SHC}} + \varsigma\rho)\big]$.
+As $H \to \infty$, $b_\epsilon(H,k) = 2\epsilon|k|^{H+1}/(H+1)! \to 0$ for each
+fixed $k$, so $n^{-1/2} b_{\epsilon,\text{post}}(H) \to 0$; the smoothed
+post-noise term $n^{-1/2}\delta_{\text{post}} \to 0$ by assumption; and
+$n^{-1/2}\gamma_{\text{post}}\cdot \tfrac{\gamma}{2\lambda}\epsilon_{\text{SHC}}
+= O(1)\cdot \tfrac{\gamma}{2\lambda}\cdot \tfrac{\sqrt m}{\sqrt n}\bar\epsilon_{\text{SHC}} \xrightarrow{p} 0$.
+The remaining $n^{-1/2}\gamma_{\text{post}}\varsigma\rho = O(\varsigma) \to 0$ as
+$\varsigma \to 0$ (or is negligible at the fixed small $\varsigma$ used in
+practice). All terms vanish.
 \end{proof}
 
-\begin{corollary}\label{cor:ashc-rate}
-Under (A1)--(A5), the ASHC estimator is asymptotically unbiased up to $\delta$.  
-If $\boldsymbol{\eta}$ is i.i.d. mean-zero sub-Gaussian with variance proxy $\sigma^2$ and bandwidth $h_m \asymp m^{-1/(2H+3)}$, then as $m \to \infty$,
+\begin{corollary}[Convergence rate]\label{cor:rate}
+Under the conditions of Theorem~\ref{thm:consistency}, the optimal bandwidth
+balancing the two error sources is $h_m \asymp m^{-1/(2H+3)}$, at which
 \[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| 
-= O_p\!\left(m^{-H/(2H+3)}\right).
+\bar\epsilon_{\text{SHC}} = O_p\big(m^{-(H+1)/(2H+3)}\big),
+\qquad\text{and hence}\qquad
+\frac{1}{\sqrt m}\big\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}}\mathbf{w}^{\text{ASHC}}\big\| = O_p\big(m^{-(H+1)/(2H+3)}\big).
 \]
-For large $H$, this approaches the parametric rate $O_p(m^{-1/2})$.
+As $H \to \infty$, the exponent $(H+1)/(2H+3) \to \tfrac12$, so the rate
+approaches the parametric $O_p(m^{-1/2})$.
 \end{corollary}
 
-
 \begin{proof}
-\textbf{Part 1: Consistency.}  
-From Theorem~\ref{thm:ashc-asymptotics}, the error converges to \(\delta\), or \(0\) in probability under sub-Gaussian noise.
-
-\textbf{Part 2: Convergence Rate.}  
-From Proposition~\ref{prop:ashc}, we have
-\[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\|
-\leq
-\epsilon_{\text{SHC}}
-\left(1 + \frac{\gamma}{\sqrt{2\lambda + 2\varsigma \|\mathbf{C}_0\|^2}}\right)
-+ b_\epsilon(H,k) + \delta.
-\]
-
-\textbf{Step 1. Bias term.}  
-From Lemma~\ref{lem:smoothness},  
-\[
-b_\epsilon(H,k) = O(h_m^H).
-\]
-
-\textbf{Step 2. Stochastic error term.}  
-With sub-Gaussian noise, the smoothed variance is  
-\[
-O_p\big((m h_m)^{-1/2}\big).
-\]
-
-\textbf{Step 3. SHC fit error.}  
-Combining,  
-\[
-\epsilon_{\text{SHC}} = O_p\big(h_m^H + (m h_m)^{-1/2}\big).
-\]
-
-\textbf{Step 4. Optimal bandwidth.}  
-Equating orders \(h_m^H \asymp (m h_m)^{-1/2}\) yields  
-\[
-h_m \asymp m^{-1/(2H+3)}.
-\]
-
-\textbf{Step 5. Convergence rate.}  
-Substituting,  
-\[
-\epsilon_{\text{SHC}} = O_p\big(m^{-H/(2H+3)}\big).
-\]  
-Thus the total error is  
-\[
-\|\widetilde{\mathbf{y}} - \widetilde{\mathbf{Y}} w^{\text{ASHC}}\| = O_p\big(m^{-H/(2H+3)}\big).
-\]
-
-\textbf{Step 6. Near-parametric rate.}  
-As \(H \to \infty\),  
-\[
-\frac{H}{2H+3} \to \tfrac{1}{2}.
-\]  
-So the rate approaches \(O_p(m^{-1/2})\).
+From the proof of Theorem~\ref{thm:consistency},
+$\bar\epsilon_{\text{SHC}} = O_p(h_m^{H+1} + (m h_m)^{-1/2})$. Equating the two
+orders, $h_m^{H+1} \asymp (m h_m)^{-1/2}$, gives $h_m^{2H+3} \asymp m^{-1}$, i.e.
+$h_m \asymp m^{-1/(2H+3)}$. At this bandwidth each piece is
+$h_m^{H+1} \asymp m^{-(H+1)/(2H+3)}$, so
+$\bar\epsilon_{\text{SHC}} = O_p(m^{-(H+1)/(2H+3)})$. The ASHC fit inflates this
+only by the constant $1 + \gamma^2/(2\lambda)$ (Proposition~\ref{prop:insample}),
+leaving the rate unchanged. Finally
+$(H+1)/(2H+3) = \tfrac12 \cdot \tfrac{2H+2}{2H+3} \to \tfrac12$ as $H \to \infty$.
 \end{proof}
 
-
-
 \begin{remark}
-The deterministic noise bound $\delta$ in (A2) corresponds to $\|\boldsymbol{\eta}\| \leq \delta$.  
-Under sub-Gaussian noise, $\delta = O(\sigma \sqrt{m})$, while kernel smoothing reduces effective noise to $O_p((m h_m)^{-1/2})$. This explains the appearance of the nonparametric rate.
+The exponent deserves a sentence, because it is easy to get off by one. The
+latent trend is $(H+1)$-times differentiable, so a smoother that fits $H$ Taylor
+terms has bias of order $h^{H+1}$, not $h^{H}$; balancing $h^{H+1}$ against the
+$(mh)^{-1/2}$ variance is what produces the denominator $2H+3$ (rather than
+$2H+1$) and the numerator $H+1$ (rather than $H$). Note also that this rate
+governs the \emph{estimation} error $\bar\epsilon_{\text{SHC}}$ through the
+kernel bandwidth; it is distinct from the \emph{extrapolation} bias
+$b_\epsilon(H,k)$ of Lemma~\ref{lem:smooth}, which is fixed for a fixed horizon
+$k$ and vanishes only as $H \to \infty$. Conflating the two --- treating the
+extrapolation bias as if it depended on the bandwidth --- is the one slip to
+avoid here.
 \end{remark}
