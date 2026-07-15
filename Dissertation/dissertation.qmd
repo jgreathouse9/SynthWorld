@@ -1,0 +1,29 @@
+---
+format:
+  pdf:
+    documentclass: gsudiss
+    classoption: [12pt, gsu, online, openany, singleside, hidelinks]
+    pdf-engine: pdflatex
+    keep-tex: true
+    top-level-division: chapter
+    number-sections: true
+    toc: false
+    cite-method: natbib
+    biblio-style: apalike
+    include-in-header: _tex/preamble.tex
+    include-before-body: _tex/frontmatter.tex
+bibliography:
+  - pl.bib
+  - delhi.bib
+  - ktc.bib
+execute:
+  eval: true
+  echo: false
+  warning: false
+---
+
+{{< include chapters/01-hawaii.qmd >}}
+
+{{< include chapters/02-india.qmd >}}
+
+{{< include chapters/03-mandates.qmd >}}

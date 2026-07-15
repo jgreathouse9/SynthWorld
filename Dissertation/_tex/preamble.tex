@@ -1,0 +1,79 @@
+%==================================================================
+%  GSU dissertation metadata (consumed by gsudiss front-matter macros)
+%==================================================================
+
+%==================================================================
+%  Table-of-contents / caption formatting (from the GSU template)
+%==================================================================
+\usepackage{tocloft}
+\renewcommand{\cftfigfont}{Figure\ }
+\renewcommand{\cfttabfont}{Table\ }
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftsecfont}{\bfseries}
+\renewcommand{\cftsubsecfont}{\bfseries\itshape}
+\renewcommand{\cftsubsubsecfont}{\itshape}
+\settocname{TABLE OF CONTENTS}
+\setlofname{LIST OF FIGURES}
+\setlotname{LIST OF TABLES}
+\settocbibname{REFERENCES}
+\setfigname{Figure\ }
+\settabname{Table\ }
+\setcapfont{pnc}
+\prettify{pnc}
+\chapternumsize{\normalsize}\chapterheadsize{\normalsize}\chaptertitlesize{\normalsize}
+\beforechapterheadname{CHAPTER}\afterchapterheadname{}
+\chapterheadpos{center}\chaptertitlepos{center}
+\setlength{\bibsep}{0pt}
+
+%==================================================================
+%  Math, symbols, and shared theorem environments (defined ONCE)
+%==================================================================
+\usepackage{amsmath,amssymb,amsfonts,mathtools,bm,amsthm}
+\usepackage{bbm}
+\usepackage{booktabs,float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{xcolor}
+\definecolor{npicolor}{RGB}{0,128,128}
+\definecolor{vacccolor}{RGB}{255,165,0}
+\definecolor{variantcolor}{RGB}{220,20,60}
+\definecolor{mandatecolor}{RGB}{128,0,128}
+
+\newcommand{\defeq}{\mathrel{\mathop:}=}
+\providecommand{\keywords}[1]{}   % no-op: per-paper keywords are dropped
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}{Assumption}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
+% Proof-of environment used by Papers 2 & 3
+\makeatletter
+\newenvironment{customproof}[1]{%
+  \par\pushQED{\qed}\normalfont \topsep6\p@\@plus6\p@\relax
+  \trivlist\item[\hskip\labelsep\bfseries Proof of #1.]%
+}{\popQED\endtrivlist\@endpefalse}
+\makeatother
+
+%==================================================================
+%  Chapter / section heading spacing (from the GSU template)
+%==================================================================
+\chapterheadverticalspace{-1em}
+\chapterbetweentitlespace{-1.em}
+\titleheadverticalspace{2em}
+\sectiontitlesize{\normalsize}\sectiontitlepos{left}\sectiontitleverticalspace{1em}
+\subsectiontitlesize{\normalsize}\subsectiontitlepos{left}\subsectiontitleverticalspace{0.5em}
+\subsubsectiontitlesize{\normalsize}\subsubsectiontitlepos{left}\subsubsectiontitleverticalspace{0.5em}
+
+%==================================================================
+%  Copyright page: use the real author name (class hardcodes a placeholder)
+%==================================================================
+\makeatletter
+\def\copyrightpage{\pagenumbering{gobble}%
+  \vspace*{0.7\textheight}%
+  \begin{center}\parbox[]{\textwidth}{\setstretch{1}%
+    \begin{center}Copyright by\\\writer\\\graduation\end{center}}\end{center}}
+\makeatother

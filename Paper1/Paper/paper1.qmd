@@ -12,23 +12,23 @@ bibliography: pl.bib
 ---
 \vspace*{-4em}
 \begin{abstract}
-I estimate the causal impact of Hawaii's March 2020 mandatory quarantine on its tourism industry and labor market using the Synthetic Historical Control method. Analyzing visitor days, hotel occupancy, accommodations employment, and the Coincident Economic Activity Index (all in annualized year-over-year growth rates), I find substantial negative impacts from the quarantine. Observed outcomes fall significantly outside 90\% conformal out-of-sample prediction intervals, indicating a treatment effect. Placebo tests further validate the model's internal credibility. This research demonstrates the method's utility and informs the broader debate on economic impacts of anti-COVID policy.
-\keywords{Synthetic Controls, Policy Evaluation, COVID-19}
+Hawaii's March 2020 mandatory traveler quarantine sealed the state's borders at the same instant the COVID-19 pandemic collapsed global travel demand. For a single treated unit these two forces are perfectly collinear in time, so the conventional synthetic-control toolkit---which matches the treated series to a counterfactual that is itself battered by the pandemic---cannot separate the border-closure \emph{policy} from the coincident \emph{pandemic}. I address this with Single Proxy Synthetic Control (SPSC), a member of the proximal / negative-control family that does not attempt to remove the latent pandemic factor but instead \emph{instruments} it using insulated employment sectors that carry the pandemic's macro-recession shock yet are immune to the border policy. Contrasting SPSC against a naive Synthetic Historical Control baseline shows that a substantial share of the measured tourism collapse is pandemic contamination the naive design cannot net out. SPSC recovers a large, robust tourism-demand collapse (roughly 60--75 percentage points of year-over-year growth for the visitor-volume series) but, because the insulated sectors span only the macro-recession factor and not the travel-demand-collapse factor, identifies it only weakly-to-borderline (pre-period RMSE/SD $\approx 0.9$--$1.0$); these tourism effects are therefore best read as \emph{upper bounds in magnitude} on the policy effect and are reported as a robustness band. The one cleanly identified series is the broad Coincident Economic Activity Index (RMSE/SD $0.67$, a $\sim$12 point drop). The paper demonstrates how negative-control inference disciplines causal claims when a policy and a global shock arrive together.
+\keywords{Proximal Causal Inference, Negative Controls, Synthetic Control, Policy Evaluation, COVID-19}
 \end{abstract}
 
 # Introduction
 
-Among all U.S. states, Hawaii implemented perhaps the most extreme and comprehensive economic shutdown in response to the COVID-19 pandemic. This paper studies the short-run economic consequences of Hawaii's March 2020 mandatory quarantine \citep[]{Yan01022022}. Unlike most regions that experienced economic contraction from COVID-19 through voluntary distancing, fear, or uneven mandates, Hawaii implemented one of the few deliberate and coordinated state-level shutdown in the United States. This policy was aimed not merely at mitigating the virus, but at suppressing travel and commerce altogether. On March 26, 2020, the state imposed a mandatory 14-day quarantine on all arrivals, effectively sealing its borders.
+Among all U.S. states, Hawaii implemented perhaps the most extreme and comprehensive economic shutdown in response to the COVID-19 pandemic. This paper studies the short-run economic consequences of Hawaii's March 2020 mandatory quarantine \citep[]{Yan01022022}. Unlike most regions that experienced economic contraction from COVID-19 through voluntary distancing, fear, or uneven mandates, Hawaii implemented one of the few deliberate and coordinated state-level shutdowns in the United States. This policy was aimed not merely at mitigating the virus, but at suppressing travel and commerce altogether. On March 26, 2020, the state imposed a mandatory 14-day quarantine on all arrivals, effectively sealing its borders.
 
 This paper addresses a core policy question: What are the economic costs of decisive early action in the face of an uncertain crisis? While much has been written about the epidemiological and social effects of COVID-19 interventions, less is known about their economic toll. This is especially true in cases where policymakers opted for maximal containment. The most famous case was Wuhan's January 2020 lockdown, as studied by \cite{hubeipda}. However, work outside of this context is rare. Understanding these costs is essential not just for pandemic preparedness, but for future crises, such as climate shocks or geopolitical disruptions, where early intervention may again carry significant short-run economic risks in exchange for long-term societal benefits \citep[]{newman2023global}.
 
-While jurisdictions like California and New York have been extensively studied, Hawaii, despite enacting arguably more stringent controls, remains curiously absent from empirical analyses. As such, Hawaii offers a rare glimpse into how a near-zero-COVID policy—one that *actually* shut down travel and commerce—might play out within a U.S. federal system. While other states (such as Texas and Georgia) issued stay-at-home orders or imposed limited business closures, few states enforced them strictly, and most reopened early under political pressure.  Hawaii, by contrast, implemented a full-scale quarantine and border closure, a level of intervention unmatched by any other U.S. jurisdiction. In that sense, its strategy might be called "The Great Isolation with Aloha characteristics", even if it was not quite as extreme as Wuhan.
+Estimating that cost, however, runs into an identification problem that is easy to overlook and fatal if ignored. Hawaii closed its border at the same instant the pandemic collapsed global travel demand. For a single treated unit these two forces---the *policy* and the *pandemic*---are perfectly collinear in time: every post-March-2020 month is simultaneously a "quarantine" month and a "pandemic" month. This is a coincident common shock, and it breaks the standard causal toolkit. A classical synthetic control or difference-in-differences design matches Hawaii to a counterfactual and reads a good pre-treatment fit as evidence of credibility. But any counterfactual Hawaii---whether built from other states or from Hawaii's own history---is a "no-quarantine" world that is *also* a "no-pandemic" world, because the design has no way to hold the pandemic fixed while switching the policy off. The resulting estimate is the border-closure effect **plus** whatever pandemic-driven demand loss Hawaii would have suffered anyway, and pre-fit quality says nothing about the size of that contamination.
 
-Despite its policy distinctiveness and the strength of its intervention relative to the mainland, Hawaii has been largely excluded from existing empirical evaluations. This is partly due to the context of the policy, given the lack of suitable control units to draw comparisons from.  Many of the most pressing policy questions in public policy and economics concern one-time, systemic shocks: What would the United States' economy have looked like absent the American revolution? What would have happened to unemployment in Great Britain without Brexit? In these cases, credible untreated units often do not exist, making standard causal inference tools, like difference-in-differences (DiD) and synthetic control (SCM), difficult or impossible to apply.
+The contribution of this paper is to take that identification problem seriously and to resolve it with the right tool. The confounder here---the pandemic---is a time-varying latent factor that moves the outcome and coincides with treatment timing; it cannot be conditioned away (it is unobserved) and it cannot be matched away (it moves any donor too). The *proximal* answer \citep{miao2018identifying,tchetgen2024introduction} is not to remove the confounder but to **instrument** it: find observable "negative controls" that are driven by the same latent pandemic factor but carry **no causal path from the treatment**, and use them to algebraically subtract the pandemic out of the counterfactual. In this setting the negative controls are **insulated employment sectors**---industries hit by the pandemic recession but not downstream of whether tourists can physically arrive in Hawaii. I implement this through **Single Proxy Synthetic Control (SPSC)** \citep{parktchetgen2025}, the member of the proximal family suited to a single treated unit with a single proxy group.
 
-The global nature of COVID-19 presents a core challenge for causal inference: nearly every plausible comparison unit also experienced some degree of shock. In Hawaii's case, its singular geographic and economic features further preclude credible external controls. This motivates the use of Synthetic Historical Control (SHC) method by \cite{SHC}. SHC avoids the need for external control units by leveraging the treated unit's own pre-treatment dynamics, allowing credible counterfactual construction even when there are no geographic donors to leverage. Empirically, I find that Hawaii experienced substantial—but mostly short-lived—economic losses across the tourism and labor sectors, easing by early 2021.
+Empirically, contrasting SPSC against a naive Synthetic Historical Control (SHC) baseline \citep{SHC} makes the identification point concrete: the gap between the two estimates is the pandemic's macro-recession component that the naive design silently loads onto the policy. SPSC recovers a large and robust tourism-demand collapse, but I am careful about what it identifies. Because the insulated sectors span the pandemic's general-recession factor and not its travel-demand-collapse factor, the SPSC tourism estimates over-attribute the drop to the policy and are best read as *upper bounds in magnitude* on the border-closure effect. I therefore report them as a robustness band rather than as point estimates, discipline each effect with a relevance diagnostic, and single out the one cleanly identified outcome---the broad Economic Activity Index---as the most trustworthy number.
 
-The remainder of the paper proceeds as follows. Section \ref{sec:bgresearch} reviews prior research on early pandemic interventions and outlines key methodological challenges in studying one-off, jurisdiction-wide policies. Section \ref{sec:methods} presents the SHC framework and its application in this setting. Section \ref{sec:data} describes the data. Section \ref{sec:results} reports the empirical results. Section \ref{sec:discuss} discusses broader implications for public policy and crisis response.
+The remainder of the paper proceeds as follows. Section \ref{sec:bgresearch} reviews prior research on early pandemic interventions and the methodological challenge of studying one-off, jurisdiction-wide policies. Section \ref{sec:methods} states the coincident-shock identification problem, the naive baseline, and the SPSC estimator. Section \ref{sec:data} describes the data. Section \ref{sec:results} reports the naive-versus-proximal contrast, the SPSC estimates and their identification diagnostics, and the robustness band. Section \ref{sec:discuss} discusses implications for public policy and crisis response.
 
 # Background
 \label{sec:bgresearch}
@@ -39,692 +39,359 @@ Hawaii's economy transitioned from a plantation-dominated model in the late 19th
 
 Tourism is central to Hawaii's fiscal health, generating $17.75 billion in visitor spending in 2019 alone, which supported $2.07 billion in state tax revenue and 216,000 jobs across direct, indirect, and induced sectors. On any given day in 2019, there were 249,000 visitors contributing $48.6 million in spending. Key islands like O'ahu (22.4 million daily spending) and Maui (14.0 million) bear the brunt of this activity \citep{HTA_2019}. Leisure and hospitality employment, a proxy for tourism-related jobs, hovered around 190,000-200,000 annually pre-2020, representing about one-third of the state's workforce. This reliance amplifies risks from shocks, as seen in past recessions, but also underscores tourism's role in funding public services and infrastructure.
 
-Hawaii implemented some of the earliest and most aggressive COVID-19 containment policies in the United States. On March 4, 2020, Governor David Ige issued an emergency proclamation officially recognizing the virus as a statewide threat \citep[]{hawaii_emergency_2020}. Within weeks, the state began taking unprecedented measures alongside states like California \citep[]{pamscmcali}. On March 17, Governor Ige publicly urged all visitors to suspend their trips to Hawaii for 30 days, anticipating substantial economic damage to the state’s tourism-dependent economy. \emph{"We do know there will be significant impact,"} he stated, though no concrete estimates were available at the time \citep[]{hawaii_tourism_suspension_2020}. A sweeping stay-at-home order followed on March 25, banning non-essential activities, closing non-critical businesses, and effectively shutting down day-to-day life and travel across the islands \citep[]{hawaii_stayhome_2020}. These actions were implemented alongside a mandatory 14-day quarantine on all arrivals, passed the same week, which further intensified the shutdown and isolated the state from both domestic and international travel. Despite the unprecedented scope of these interventions, no formal quantitative analysis has yet estimated the short-run economic effects of Hawaii’s approach. This paper provides such an assessment.
+Hawaii implemented some of the earliest and most aggressive COVID-19 containment policies in the United States. On March 4, 2020, Governor David Ige issued an emergency proclamation officially recognizing the virus as a statewide threat \citep[]{hawaii_emergency_2020}. Within weeks, the state began taking unprecedented measures alongside states like California \citep[]{pamscmcali}. On March 17, Governor Ige publicly urged all visitors to suspend their trips to Hawaii for 30 days, anticipating substantial economic damage to the state's tourism-dependent economy. \emph{"We do know there will be significant impact,"} he stated, though no concrete estimates were available at the time \citep[]{hawaii_tourism_suspension_2020}. A sweeping stay-at-home order followed on March 25, banning non-essential activities, closing non-critical businesses, and effectively shutting down day-to-day life and travel across the islands \citep[]{hawaii_stayhome_2020}. These actions were implemented alongside a mandatory 14-day quarantine on all arrivals, passed the same week, which further intensified the shutdown and isolated the state from both domestic and international travel. Despite the unprecedented scope of these interventions, no formal quantitative analysis has yet estimated the short-run economic effects of Hawaii's approach. This paper provides such an assessment.
 
 ## Literature Review
 \label{sec:litrev}
 
-The onset of the COVID-19 pandemic spurred a global wave of NPIs, with governments acting swiftly to limit viral transmission. Much of the early research focused on the public health rationale behind these policies—particularly the value of acting early to prevent exponential growth in cases. \citet{pamscmcali}, for instance, study California’s shelter-in-place order and argue that its primary purpose was to delay the pandemic’s peak, buying time for hospitals to prepare. They emphasize the importance of California’s timing—implementing the policy while infection growth was still modest—as a key to its effectiveness.
+The onset of the COVID-19 pandemic spurred a global wave of NPIs, with governments acting swiftly to limit viral transmission. Much of the early research focused on the public health rationale behind these policies—particularly the value of acting early to prevent exponential growth in cases. \citet{pamscmcali}, for instance, study California's shelter-in-place order and argue that its primary purpose was to delay the pandemic's peak, buying time for hospitals to prepare. They emphasize the importance of California's timing—implementing the policy while infection growth was still modest—as a key to its effectiveness.
 
-Other studies reinforce the value of early, aggressive containment. Using SCM, \citet{yang2021does} analyzes Wuhan’s lockdown and estimate substantial reductions in population movement and COVID-19 transmission, emphasizing the relevance of their findings for international public health policy. \citet{Cerqueti2021}, studying Italy's decision to close schools, stress that timing is critical when dealing with exponential contagion. They also note a political economy challenge: if containment is successful, the intervention may appear excessive in retrospect, raising political costs for early action. \citet{bayat2020syntheticcontrolsyntheticinterventions} offer a quantitative example, estimating that deaths in New York could have been reduced by over 80\% had lockdown been enacted ten days earlier. Outside of China and Europe, similar insights emerge. \citet{sobiech2022untimely} and \citet{li2023texas} document similar patterns in Brazil and Texas, finding that premature reopenings by state governments led to sustained spikes in cases.
+Other studies reinforce the value of early, aggressive containment. Using SCM, \citet{yang2021does} analyzes Wuhan's lockdown and estimates substantial reductions in population movement and COVID-19 transmission, emphasizing the relevance of their findings for international public health policy. \citet{Cerqueti2021}, studying Italy's decision to close schools, stress that timing is critical when dealing with exponential contagion. They also note a political economy challenge: if containment is successful, the intervention may appear excessive in retrospect, raising political costs for early action. \citet{bayat2020syntheticcontrolsyntheticinterventions} offer a quantitative example, estimating that deaths in New York could have been reduced by over 80\% had lockdown been enacted ten days earlier. Outside of China and Europe, similar insights emerge. \citet{sobiech2022untimely} and \citet{li2023texas} document similar patterns in Brazil and Texas, finding that premature reopenings by state governments led to sustained spikes in cases.
 
-Collectively, these studies underscore a key lesson: early interventions can mitigate public health disasters, but often at economic cost. This tradeoff between health and the economy became central to both policymaking and public discourse. \citet{osman2022economic} document how opponents of lockdowns, particularly in conservative circles, criticized them as economically inefficient and ineffective. \citet{gibson2023synthetic} evaluate statewide stay-at-home orders using synthetic control, focusing on new jobless claims as an economic indicator of interest. \citet{lee2022pandemic} examine the labor market impacts of COVID-19 in South Korea, highlighting the economic consequences of NPIs. \citet{hubeipda} study the economic impact of Hubei's lockdown. They show that while Hubei's lockdown caused a sharp downturn in the short term, the effects were short-lived—suggesting that delay or inaction might have led to more lasting harm. 
+Collectively, these studies underscore a key lesson: early interventions can mitigate public health disasters, but often at economic cost. This tradeoff between health and the economy became central to both policymaking and public discourse. \citet{osman2022economic} document how opponents of lockdowns, particularly in conservative circles, criticized them as economically inefficient and ineffective. \citet{gibson2023synthetic} evaluate statewide stay-at-home orders using synthetic control, focusing on new jobless claims as an economic indicator of interest. \citet{lee2022pandemic} examine the labor market impacts of COVID-19 in South Korea, highlighting the economic consequences of NPIs. \citet{hubeipda} study the economic impact of Hubei's lockdown. They show that while Hubei's lockdown caused a sharp downturn in the short term, the effects were short-lived—suggesting that delay or inaction might have led to more lasting harm.
 
 Other work has assessed broader welfare outcomes of interventions. \citet{cole2020impact} show how the Wuhan lockdown reduced air pollution and associated mortality using augmented SCM. \citet{oliu2022effect} study vaccine mandates in Europe and estimate that increased vaccine uptake not only averted deaths but also prevented GDP losses—suggesting that public health policy can have broader economic upside when well-designed. Despite the breadth of this literature, Hawaii's case remains notably absent. Yet it represents perhaps the clearest U.S. example of an early, and most aggressive intervention. This paper contributes by bringing Hawaii into the empirical record and by offering credible estimates of the short-run economic costs of a ``zero-COVID'' style border \citep[]{yuan2022zero}.
 
-While much has been learned about the effects of pandemic interventions, measuring their economic impacts remains challenging. Most studies evaluating anti-COVID policies rely on difference-in-differences (DiD) or synthetic control methods (SCM). Where cross-sectional variation in policy exists—e.g., some counties or states implementing lockdowns while others do not—SCM and panel methods have been used productively \citep[e.g.,][]{yang2021does, hsiaoke2023, gong2024economic}. However, these designs depend on the availability of unaffected or minimally affected units to serve as comparisons. As noted by \citet{polevalpan} and \citet{covidturkey}, this and other critical assumptions often break down in the context of a global pandemic, where nearly all regions experienced some form of shock.
+While much has been learned about the effects of pandemic interventions, measuring their economic impacts remains challenging, and Hawaii pushes that challenge to an extreme. Most evaluations of anti-COVID policy rely on difference-in-differences (DiD) or synthetic control methods (SCM). Where cross-sectional variation in policy exists—some counties or states locking down while others do not—SCM and panel methods have been used productively \citep[e.g.,][]{yang2021does, hsiaoke2023, gong2024economic}. But these designs require unaffected or minimally affected units to serve as comparisons, and, as \citet{polevalpan} and \citet{covidturkey} note, that assumption collapses in a global pandemic where nearly every region was shocked at once. Every other U.S. state and comparable island economy faced its own pandemic disruption, so there is no untreated Hawaii to borrow from across space. To my knowledge the only study examining Hawaii's pandemic economy is \citet{bondsmith2022effects}, which provides valuable descriptive analysis but constructs no counterfactual.
 
-These limitations apply especially in Hawaii’s case. Every other U.S. state (as well as comparable island economies) faced their own pandemic-related disruptions. There is no unaffected or even roughly comparable unit that can serve as a credible counterfactual for Hawaii’s tourism and labor markets. In such cases, standard cross-sectional methods fail. To my knowledge, the only study examining Hawaii's economic response to the pandemic is \citet{bondsmith2022effects}, which provides valuable descriptive analysis but does not construct counterfactual estimates.
+One response to the missing-donor problem is to borrow strength across *time* rather than space. The Synthetic Historical Control (SHC) method of \citet{SHC} does exactly this, reconstructing the treated unit's counterfactual from its own pre-treatment trajectory. SHC is the natural naive baseline for Hawaii and I retain it as such. But borrowing across time does not, by itself, solve the deeper problem here. Whether the counterfactual is built from other states (classical SCM) or from Hawaii's own history (SHC), it is a world with *neither* the quarantine *nor* the pandemic; extrapolating it into 2020 and differencing against the observed series attributes the entire post-March collapse—pandemic and policy together—to the treatment. The issue is not the source of the donor information but the *coincidence* of two shocks in a single unit.
 
-To address this challenge, I apply the SHC method developed by \citet{SHC}. SHC circumvents the need for external control units by leveraging the treated unit’s own pre-intervention history. Rather than borrowing information from across space, it borrows strength across time, enabling credible inference in settings where conventional comparative approaches are infeasible—precisely the situation posed by Hawaii’s quarantine.
-
+That is precisely the structure the *proximal* / *negative-control* literature was built to handle. Negative controls—variables driven by an unmeasured confounder but shielded from the treatment—have long been used to detect confounding \citep{lipsitch2010negative}; proximal causal inference turns them into an identification strategy, using proxies of a latent confounder to recover causal effects that ordinary adjustment cannot \citep{miao2018identifying,cui2024semiparametric,tchetgen2024introduction,shi2020selective}. \citet{parktchetgen2025} adapt this machinery to the synthetic-control setting as Single Proxy Synthetic Control, and \citet{synthsurr} develop a related surrogate-based proximal estimator. I apply SPSC to Hawaii because it is the one design in the synthetic-control family that concedes the pandemic confounder is present and unobservable and instruments it, rather than matching or conditioning it away.
 
 # Methodology
 \label{sec:methods}
 
-We know what happened given that Hawaii mandated two-week quarantines. We do not know what would have happened had they not done this. Given its novelty and radical deviation from SCM, this section summarizes the SHC method by \cite{SHC}. For a comprehensive treatment of the method, including the theoretical proofs and asymptotic properties, readers are referred to \cite{SHC}.
+We know what happened once Hawaii mandated two-week quarantines. We do not know what would have happened had it not. The difficulty, developed in Section~\ref{sec:idprob}, is that the event we want to switch off (the border policy) is perfectly aligned in time with an event we cannot switch off (the pandemic). Section~\ref{sec:naive} states the naive Synthetic Historical Control baseline and why it cannot separate the two. Section~\ref{sec:spsc} develops the Single Proxy Synthetic Control estimator that can, in principle, and Section~\ref{sec:altfail} explains why the other obvious candidates do not.
 
-\textbf{Notation} Let $\mathbb{R}$ denote the set of real numbers, and let $\|\cdot\|_1$ denote the usual $\ell_1$ vector norm. Throughout, I denote sets using calligraphic letters (e.g., $\mathcal{T}, \mathcal{S}, \mathcal{N}$) for clarity. Scalars are represented using plain lowercase letters (e.g., $h, t, n, m$), and matrices are denoted by bold uppercase letters (e.g., $\mathbf{X}, \mathbf{W}, \mathbf{Y}$). Given a vector $\mathbf{x} = (x_1, x_2, \dots, x_T)^\top \in \mathbb{R}^T$ and an index set $\mathcal{I} \subseteq \{1, \dots, T\}$, I write $\mathbf{x}_{\mathcal{I}} \defeq (x_t)_{t \in \mathcal{I}} \in \mathbb{R}^{|\mathcal{I}|}$ to denote the subvector of $\mathbf{x}$ corresponding to indices in $\mathcal{I}$, preserving their original order.
+\textbf{Notation.} Let $\mathbb{R}$ denote the reals and $\|\cdot\|_1$ the usual $\ell_1$ norm. Sets are calligraphic ($\mathcal{T}, \mathcal{S}$), scalars lowercase ($h, t, n$), vectors bold lowercase, and matrices bold uppercase ($\mathbf{W}, \mathbf{Y}$). Let $\mathcal{T} = \{1, \dots, T\}$ index months. Treatment begins at $T_0+1$, with $\mathcal{T}_1 \defeq \{t \le T_0\}$ the pre-treatment period, $\mathcal{T}_2 \defeq \{t > T_0\}$ the post-treatment period, and $n = T - T_0$ the number of post periods. Let $d_t = \mathbf{1}\{t > T_0\}$ be the treatment indicator.
 
-Let $\mathcal{T} = \{1, 2, \dots, T\}$ index time at a monthly frequency. Define the pre-treatment period as $\mathcal{T}_1 \mathrel{\mathop:}= \{t \in \mathcal{T} : t \leq T_0\}$ and the post-treatment period as $\mathcal{T}_2 \mathrel{\mathop:}= \{t \in \mathcal{T} : t > T_0\}$. The number of post-treatment periods is $n = T - T_0$. Let $m \in \mathbb{N}$ denote the evaluation window length. Define the evaluation period as the final $m$ months of the pre-treatment period $\mathcal{T}_{\text{eval}} \defeq \{T_0 - m + 1, \dots, T_0\} \subset \mathcal{T}_1.$
+## The identification problem: a coincident common shock
+\label{sec:idprob}
 
-Let $\mathbf{y} = (y_1, y_2, \dots, y_T)^\top \in \mathbb{R}^T$ denote the observed outcome vector for the treated unit. Define the pre-treatment outcome vector $\mathbf{y}_{\text{pre}} \mathrel{\mathop:}= \mathbf{y}_{\mathcal{T}_1} \in \mathbb{R}^{T_0}$, the evaluation subvector $\mathbf{y}_{\text{eval}} \defeq \mathbf{y}_{\mathcal{T}_{\text{eval}}} \in \mathbb{R}^m$, and the post-treatment outcome vector $\mathbf{y}_{\text{post}} \defeq \mathbf{y}_{\mathcal{T}_2} \in \mathbb{R}^n$. 
-
-The evaluation subvector $\mathbf{y}_{\text{eval}}$ is the target pattern to be reconstructed using convex combinations of earlier segments from the pre-treatment period. To reconstruct the evaluation window, we compare it against earlier segments of the treated unit’s own pre-treatment trajectory. 
-
-Define the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$ as a collection of $N$ overlapping length-$m$ subvectors extracted from the smoothed pre-treatment series. Each column is a contiguous subvector of the form $\widetilde{\mathbf{y}}_{[i, i+m-1]}$, with $i$ ranging over eligible start points in $\mathcal{T}_1$ that precede the evaluation window. The precise construction is given in \hyperref[sec:shc]{Section~\ref*{sec:shc}}.
-
-## Synthetic Historical Control Method
-
-\textbf{Potential Outcomes} Following the Rubin potential outcomes framework, let $y_t^1$ and $y_t^0$ denote the potential outcomes for the treated unit at time $t \in \mathcal{T}$, corresponding to the outcomes under treatment and no treatment, respectively. The observed outcome at time $t$ is $y_t = d_t y_t^1 + (1 - d_t) y_t^0,$ where $d_t = \mathbf{1}\{t > T_0\}.$ The fundamental problem of causal inference is that for $t > T_0$, we observe only the treated potential outcome $y_t^1 = y_t$, while the untreated potential outcome $y_t^0$ remains unobserved. Let the SHC estimator for $y_t^0$ be denoted $\widehat{y}_t^0 \defeq y_t^{\text{SHC}}$ for all $t \in \mathcal{T}_2$. Define the observed post-treatment outcome vector as $\mathbf{y}_{\text{post}} \defeq (y_t^1)_{t \in \mathcal{T}_2}$ and the estimated counterfactual vector as $\mathbf{y}^0_{\text{post}} \defeq (\widehat{y}_t^0)_{t \in \mathcal{T}_2}$. The out-of-sample treatment effect is
+Following the Rubin potential-outcomes framework, let $y_t^1$ and $y_t^0$ be the treated and untreated potential outcomes for Hawaii at month $t$, with observed outcome $y_t = d_t y_t^1 + (1-d_t) y_t^0$. The object of interest is the average treatment effect on the treated over the post period,
 \begin{equation}
-\label{eq:treatment_vector}
-\alpha_t \defeq y_t^1 - y_t^0, \quad \text{for } t \in \mathcal{T}_2,
+\label{eq:att}
+\text{ATT} \defeq \frac{1}{n}\sum_{t \in \mathcal{T}_2}\left(y_t^1 - y_t^0\right),
 \end{equation}
-with estimator $\widehat{\alpha}_t \defeq y_t - \widehat{y}_t^0$. Stacking over $t \in \mathcal{T}_2$ yields:
+whose estimation requires a credible value for the unobserved $y_t^0$—what Hawaii's economy would have done after March 2020 had it *not* closed its border.
+
+Suppose the untreated outcome follows a latent-factor model
 \begin{equation}
-\widehat{\boldsymbol{\alpha}} \defeq \mathbf{y}_{\text{post}} - \mathbf{y}^0_{\text{post}}.
+\label{eq:factor}
+y_t^0 = \mu_t + \boldsymbol{\beta}^\top \boldsymbol{\lambda}_t + \varepsilon_t, \qquad \mathbb{E}[\varepsilon_t] = 0,
 \end{equation}
-
-The average treatment effect on the treated (ATT) is then given by:
+where $\boldsymbol{\lambda}_t$ collects time-varying latent factors and $\mu_t$ is a smooth secular component. In 2020 one coordinate of $\boldsymbol{\lambda}_t$ is the **pandemic**: a shock that is (i) unobserved, (ii) hits the outcome, and (iii) turns on at exactly the same month as the policy, so that $d_t$ and the pandemic factor are collinear over $\mathcal{T}_2$. Any estimator of $y_t^0$ that models Hawaii's untreated path as a continuation of its pre-2020 dynamics—whether across space or across time—sets the pandemic contribution $\boldsymbol{\beta}^\top\boldsymbol{\lambda}_t$ to its *normal-times* value. Differencing the observed series against such a counterfactual then yields
 \begin{equation}
-\label{eq:att_vector}
-\widehat{\text{ATT}} \defeq \frac{1}{n} \sum_{t = T_0 + 1}^{T_0 + n} \left( y_t - \widehat{y}_t^0 \right) = \frac{1}{n} \mathbf{1}^\top \widehat{\boldsymbol{\alpha}},
+\label{eq:contamination}
+\widehat{y}_t^1 - \widehat{y}_t^0 = \underbrace{\big(y_t^1 - y_t^0\big)}_{\text{policy effect}} + \underbrace{\boldsymbol{\beta}^\top\big(\boldsymbol{\lambda}_t - \bar{\boldsymbol{\lambda}}\big)}_{\text{pandemic contamination}},
 \end{equation}
-where $\mathbf{1} \in \mathbb{R}^n$ is a vector of ones.
+the policy effect *plus* the pandemic's deviation from its normal path. The two are not separable from the treated unit alone, and, crucially, a good pre-treatment fit constrains only the first term's plausibility, not the second's size. This is the sense in which classical SC/DiD and SHC are all *naive* for this problem: they are unbiased for a treatment effect only if the pandemic factor is absent, which is exactly the case that does not hold.
 
-## The Model
-\label{sec:shc}
+## The naive baseline: Synthetic Historical Control
+\label{sec:naive}
 
-The SHC method introduced by \citet{SHC} constructs a counterfactual using the treated unit's own pre-treatment time series.\footnote{SCM estimates the counterfactual by solving:
+As the naive benchmark I use the Synthetic Historical Control (SHC) estimator of \citet{SHC}, the strongest member of the class that ignores the pandemic factor, since it needs no external donors at all.\footnote{Classical SCM estimates the counterfactual as $\mathbf{Y}_0 \mathbf{w}^\ast$ with $\mathbf{w}^\ast = \operatorname*{argmin}_{\mathbf{w}\in\Delta^{N_0}} \|\mathbf{y}_1 - \mathbf{Y}_0\mathbf{w}\|_2^2$ over a simplex of unexposed donor units $\mathbf{Y}_0$. In a global pandemic no such unexposed $\mathbf{Y}_0$ exists, which is what motivates borrowing across time.} SHC reconstructs the treated unit's untreated path from overlapping windows of its *own* smoothed pre-treatment history. Concretely, it (i) smooths the pre-treatment series $\mathbf{y}_{\text{pre}}$ by local linear regression, (ii) forms a donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$ whose $N = T_0 - m - n + 1$ columns are contiguous length-$m$ segments of the smoothed series, (iii) matches the final length-$m$ evaluation window with simplex-constrained, ridge-regularized weights
 \begin{equation}
-\label{eq:scm_objective}
-\mathbf{w}^\ast = \underset{\mathbf{w} \in \Delta^{N_0}}{\operatorname*{argmin}} \left\| \mathbf{y}_1 - \mathbf{Y}_0 \mathbf{w} \right\|_2^2, \quad \forall t \in \mathcal{T}_1,
+\label{eq:shc_weights}
+\mathbf{w}^\ast = \operatorname*{argmin}_{\mathbf{w} \ge \mathbf{0},\, \mathbf{1}^\top\mathbf{w}=1}\ \big\|\widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}}\mathbf{w}\big\|_2^2 + \varsigma\,\big\|\mathbf{C}_0^\top\mathbf{w}\big\|_2^2,
 \end{equation}
-where $\mathbf{Y}_0 \in \mathbb{R}^{T_0 \times N_0}$ is the donor matrix of unexposed units and $\Delta^{N_0} = \left\{ \mathbf{w} \in \mathbb{R}_{\geq 0}^{N_0} : \|\mathbf{w}\|_1 = 1 \right\}$ is the probability simplex.} SHC requires a few assumptions: \hyperref[assump:errors]{Assumption~\ref*{assump:errors}}, \hyperref[assump:matching]{Assumption~\ref*{assump:matching}}, and \hyperref[assump:estimation]{Assumption~\ref*{assump:estimation}}.
+and (iv) applies those weights to the forward-shifted segments to extrapolate $\widehat{y}_t^0$ over $\mathcal{T}_2$. The number of historical segments is chosen by a forward-selection rule with a BIC-type early stop, and uncertainty is summarized by distribution-free conformal prediction intervals around the counterfactual. Because it borrows only from Hawaii's own smooth pre-2020 dynamics, the SHC counterfactual is a "business-as-usual 2020"—a world with neither the quarantine nor the pandemic—so its estimate carries the full contamination term in \eqref{eq:contamination}. It is exactly this over-attribution that the proximal design is meant to correct, and the size of the correction is the empirical payoff of Section~\ref{sec:results}.
 
-\begin{assumption}[Error Properties]
-\label{assump:errors}
-The error term satisfies $\mathbb{E}[\varepsilon_t] = 0$ and $\mathbb{E}[\varepsilon_t^2] < \infty$ for all \(t \in \mathcal{T}\).
-\end{assumption}
+## Single Proxy Synthetic Control
+\label{sec:spsc}
 
-\hyperref[assump:errors]{Assumption~\ref*{assump:errors}} says unmodeled fluctuations or noise in the outcome are random.
+The proximal strategy keeps the latent pandemic factor in the model and *instruments* it. A **negative control** (or proxy) is a variable that (i) is driven by the same latent confounder $\boldsymbol{\lambda}_t$ as the outcome, but (ii) has **no causal path from the treatment**. It is the panel analogue of an instrument's exclusion restriction: it sees the pandemic, but it does not see the quarantine. Let $\mathbf{W}_t \in \mathbb{R}^{J}$ collect $J$ such controls—here the year-over-year growth of $J=5$ insulated employment sectors (Section~\ref{sec:data}). These fell in the pandemic recession (so they load on the macro coordinate of $\boldsymbol{\lambda}_t$) but do not depend on whether visitors can physically arrive in Hawaii (so no arrow runs from $d_t$ to $\mathbf{W}_t$).
 
-\begin{assumption}[Latent Component Smoothness and Matching Condition]
-\label{assump:matching}
-The latent trend $\widetilde{y}(t)$ is $(H+1)$ times differentiable for some integer $H \geq 3$, with derivative bounded as $\left| \widetilde{y}^{(H+1)}(t) \right| < \varepsilon$ uniformly over $t \in \mathcal{T}_1$. Additionally, $\exists \mathbf{w}^\ast \in \Delta^{N-1}$ such that $\mathbf{y}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}^\ast$.
-\end{assumption}
-
-\hyperref[assump:matching]{Assumption~\ref*{assump:matching}} allows us to approximate the post-treatment latent component using a local linear extrapolation of pre-treatment values and posits that perfect match exists within the donor pool for the evaluation window, much as \citet{Abadie2010} assume about donor pool units matching to the treated unit.
-
-\begin{assumption}[Feasibility]
-\label{assump:estimation}
-There exists a weight vector $\mathbf{w} \in \Delta^{N-1}$ such that $\widehat{\mathbf{y}}_{\text{eval}} = \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w}$, with $\|\mathbf{w}\|_0 \leq s \ll N$. Let $\widetilde{\mathbf{Y}}_{\text{pre}}^{(s)}$ denote the submatrix formed by the active columns of $\widetilde{\mathbf{Y}}_{\text{pre}}$ indexed by $\operatorname{supp}(\mathbf{w})$; then its Gram matrix satisfies $\left( \widetilde{\mathbf{Y}}_{\text{pre}}^{(s)} \right)^\top \widetilde{\mathbf{Y}}_{\text{pre}}^{(s)} \succ 0$.
-\end{assumption}
-
-\citet{SHC} note that \hyperref[assump:estimation]{Assumption~\ref*{assump:estimation}} is the sample-variant of \hyperref[assump:matching]{Assumption~\ref*{assump:matching}}. It says that the SHC weights are identifiable, sparse, and numerically stable, similar to the assumptions described by \citet{Abadie2021}.
-
-The first step of the SHC method smooths $\mathbf{y}_{\text{pre}}$ using local linear regression, where we fit the regression model:
+SPSC \citep{parktchetgen2025} posits a linear **outcome bridge** $h^\star(\mathbf{W}_t) = \mathbf{W}_t^\top \boldsymbol{\gamma}^\star$ that reconstructs the treated unit's untreated outcome in conditional mean:
 \begin{equation}
-\label{eq:local_model}
-y_j \approx a_t + b_t (j - t), \quad \text{for } j = 1, \dots, T_0,
+\label{eq:bridge}
+\mathbb{E}\!\left[\,y_t^0 - \mathbf{W}_t^\top\boldsymbol{\gamma}^\star \,\middle|\, \boldsymbol{\lambda}_t\right] = 0 \qquad \text{for } t \in \mathcal{T}_1.
 \end{equation}
-with local intercept $a_t \in \mathbb{R}$ and slope $b_t \in \mathbb{R}$. Define the centered time vector $\mathbf{s}_t = (1 - t, 2 - t, \ldots, T_0 - t)^\top \in \mathbb{R}^{T_0}$, and the design matrix $\mathbf{X}_t = [\mathbf{1} \ \mathbf{s}_t] \in \mathbb{R}^{T_0 \times 2}$. The diagonal kernel weight matrix is:
+Because $\boldsymbol{\lambda}_t$ is unobserved, \eqref{eq:bridge} cannot be fit by ordinary least squares. SPSC's key move for a single treated unit is to use the treated series' **own pre-period history as the instrument**: under a relevance condition (below), the treated unit's pre-treatment information is correlated with $\boldsymbol{\lambda}_t$ but, in the pre-period, orthogonal to the bridge residual, giving the moment condition
 \begin{equation}
-\label{eq:kernel_matrix}
-\mathbf{W}_t = \operatorname{diag}(w_{1t}, w_{2t}, \ldots, w_{T_0 t}), \quad w_{jt} \propto \exp\left(-\frac{1}{2} \left(\frac{j - t}{h}\right)^2\right),
+\label{eq:gmm}
+\mathbb{E}\!\left[\,\mathbf{Z}_t\left(y_t - \mathbf{W}_t^\top\boldsymbol{\gamma}\right)\right] = \mathbf{0}, \qquad t \in \mathcal{T}_1,
 \end{equation}
-where $(h > 0$ is a bandwidth parameter governing smoothness. The local coefficients $\boldsymbol{\beta}_t = (a_t, b_t)^\top$ solve quadratic programming problem that is strictly convex
+where $\mathbf{Z}_t$ is built from the treated unit's pre-period information. The bridge coefficients $\boldsymbol{\gamma}^\star$ are estimated by **ridge-regularized GMM** on \eqref{eq:gmm}, the ridge penalty stabilizing the solution when the controls are collinear. Optionally the treated and control series are first **de-trended** against a B-spline basis (the SPSC-DT variant used throughout), removing smooth secular drift $\mu_t$ so that the bridge is fit on the factor-driven variation identification actually rests on. The counterfactual and effect path are then
 \begin{equation}
-\label{eq:llr_objective}
-\boldsymbol{\beta}_t = \underset{\boldsymbol{\beta} \in \mathbb{R}^2}{\operatorname*{argmin}} \left\| \mathbf{W}_t^{1/2} \left( \mathbf{y}_{\text{pre}} - \mathbf{X}_t \boldsymbol{\beta} \right) \right\|_2^2.
+\label{eq:spsc_cf}
+\widehat{y}_t^0 = \mathbf{W}_t^\top\widehat{\boldsymbol{\gamma}}, \qquad \widehat{\alpha}_t = y_t - \widehat{y}_t^0 \ \ (t \in \mathcal{T}_2), \qquad \widehat{\text{ATT}} = \frac{1}{n}\sum_{t\in\mathcal{T}_2}\widehat{\alpha}_t,
 \end{equation}
-Fortunately, this optimization admits a closed-form solution for the coefficients:
+with a GMM sandwich standard error for $\widehat{\text{ATT}}$ and, as a finite-sample cross-check, a distribution-free conformal prediction band. The full mechanics—assumptions, the ridge-GMM estimator, and the conformal construction—are given in \citet{parktchetgen2025} and the \texttt{mlsynth} documentation.
+
+\textbf{The relevance diagnostic.} SPSC's identifying relevance condition (its Assumption~3, the analogue of a strong first stage) requires the controls to genuinely comove with the treated series in the pre-period. Its empirical symptom of *weak* relevance is a pre-period fit no better than the treated series' own scale: a pre-treatment root-mean-squared error comparable to the treated series' standard deviation. I therefore report, for every outcome, the ratio
 \begin{equation}
-\label{eq:llr_closed_form}
-\boldsymbol{\beta}_t = \left( \mathbf{X}_t^\top \mathbf{W}_t \mathbf{X}_t \right)^{-1} \mathbf{X}_t^\top \mathbf{W}_t \mathbf{y}_{\text{pre}}.
+\label{eq:rmsesd}
+\rho \defeq \frac{\text{RMSE}_{\text{pre}}}{\text{SD}(\mathbf{y}_{\text{pre}})}
 \end{equation}
-The smoothed outcome at time $t$ is $\widetilde{y}_t = a_t = \mathbf{e}_1^\top \boldsymbol{\beta}_t$, where $\mathbf{e}_1 = (1, 0)^\top$. Let $\widetilde{\mathbf{y}} = (\widetilde{y}_1, \ldots, \widetilde{y}_{T_0})^\top \in \mathbb{R}^{T_0}$ denote the full smoothed series. After we have smoothed over the pre-treatment period before the evaluation period, we build our donor matrix of historical control segments/units.
+as the identification gauge. Values well below 1 indicate a usable synthetic control; $\rho \to 1$ means the donors barely track the treated unit and the estimate should be read as a **bound**, not a point. I label outcomes *well-identified* ($\rho < 0.85$), *borderline* ($0.85 \le \rho < 0.98$), or *weakly identified* ($\rho \ge 0.98$).
 
-In the second step, SHC constructs $N = T_0 - m - n + 1$ overlapping temporal segments of length $m$. Each segment $\widetilde{\mathbf{y}}_{[i, i+m-1]}$ is a contiguous subvector of the smoothed pre-treatment series. These comprise the donor matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \defeq \begin{bmatrix} \widetilde{\mathbf{y}}_{[1, m]} & \widetilde{\mathbf{y}}_{[2, m+1]} & \dots & \widetilde{\mathbf{y}}_{[N, N+m-1]} \end{bmatrix} \in \mathbb{R}^{m \times N}.$
+\textbf{What the insulated sectors can and cannot span.} The pandemic is not one factor but (at least) two: a **macro-recession factor**—the general contraction, spanned by the insulated employment sectors—and a **travel-demand-collapse factor**—people ceasing to fly anywhere out of fear, independent of any Hawaii policy. The insulated sectors span the first but not the second. SPSC built on them alone therefore reconstructs only the macro component of the counterfactual and cannot subtract the travel-demand collapse. Consequently its tourism ATT **over-attributes** the drop to the policy: it is an **upper bound in magnitude** on the border-closure effect, with the *observed* collapse equal to policy plus travel-demand loss. Closing the gap would require an external travel-demand negative control—inbound passengers to a comparable destination that was exposed to the pandemic but did not lock down (e.g., Florida)—which is left to future work (Section~\ref{sec:discuss}). This is why the tourism results below are reported as a band and framed as bounds, while the broad activity index, which rides the macro factor the insulated sectors *do* span, is the one series I read as a point.
 
-\begin{example}[Constructing $\widetilde{\mathbf{Y}}_{\text{pre}}$]
-Suppose we have $T_0 = 60$ months of pre-treatment data and we wish to construct donor segments of length $m = 12$ months in order to predict a post-treatment horizon of $n = 6$ months. The number of eligible segments is: $N = T_0 - m - n + 1 = 60 - 12 - 6 + 1 = 43.$ Each donor segment is a vector of 12 consecutive smoothed pre-treatment outcomes.
-\end{example}
-In the third step, we solve the following program to obtain the optimal weights:
-\begin{equation}
-\label{eq:weight_qp_explicit}
-\begin{aligned}
-\mathbf{w}^\ast = \ & \underset{\mathbf{w} \in \mathbb{R}^N}{\operatorname*{argmin}} 
-& & \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2 
-+ \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \\
-& \text{subject to}
-& & \mathbf{w} \geq \mathbf{0}, \quad \mathbf{1}^\top \mathbf{w} = 1
-\end{aligned}
-\end{equation}
-\citet{SHC} note that in the general case when we have more donor units than we do the length of the segments ($N>m$), the optimization becomes an ill-posed problem. The regularization term stabilizes the optimization by penalizing weight allocations along directions of low variance in the donor pool, reducing sensitivity to collinear segments. Formally, $\mathbf{C}_0$ contains the eigenvectors of the Grammian matrix $\mathbf{G} \in \mathbb{R}^{N \times N}$. $\mathbf{C}_0$ corresponds to the eigenvalues less than $\tau > 0$. These directions capture low-variance combinations of donor segments, and the penalty shrinks weights in those directions.\footnote{The $\varsigma$ (sigma) term is a small positive constant used to stabilize the solution in cases of near multicollinearity.}. The corresponding weight vector $\mathbf{w}^\ast$ is used to compute the counterfactual by applying it to the shifted donor segments:
-\begin{equation}
-\label{eq:post_matrix}
-\widetilde{\mathbf{Y}}_{\text{post}} = \begin{bmatrix} \widetilde{\mathbf{y}}_{[1 + m, m + n]} & \widetilde{\mathbf{y}}_{[2 + m, m + n + 1]} & \cdots & \widetilde{\mathbf{y}}_{[N + m, N + m + n - 1]} \end{bmatrix} \in \mathbb{R}^{n \times N}.
-\end{equation}
-This yields in-sample and out-of-sample predictions for the SHC estimator. The full counterfactual vector is then:
-$\mathbf{y}^{0}=\widetilde{\mathbf{Y}} \mathbf{w}^\ast \in \mathbb{R}^{m+n}.$
+## Why the alternatives fail
+\label{sec:altfail}
 
-\textbf{Bandwidth Selection via Cross-Validation} To select the bandwidth parameter $h$ used in local linear smoothing of $\mathbf{y}_{\text{pre}}$, I implement a \textit{leave-one-out cross-validation} (LOOCV) procedure over a grid of candidate values $h \in [h_{\min}, h_{\max}] \subset \mathbb{R}_{> 0}$. This procedure chooses the bandwidth that minimizes out-of-sample prediction error for the smoothed pre-treatment series $\widetilde{\mathbf{y}} \in \mathbb{R}^{T_0}$, as defined in Equation~\eqref{eq:llr_closed_form}.
-
-For each candidate $h$, and for each time point $t \in \mathcal{T}_1$, define Gaussian kernel weights
-\begin{equation}
-w_{\tau t}^{(h)} = \exp\left( -\frac{1}{2} \left( \frac{\tau - t}{h} \right)^2 \right), \quad \tau \in \mathcal{T}_1 \setminus \{t\},
-\end{equation}
-used to construct the diagonal matrix $\mathbf{W}_t^{(-t)} \in \mathbb{R}^{(T_0 - 1) \times (T_0 - 1)}$, omitting the index $t$. Let $\mathbf{X}_t^{(-t)} \in \mathbb{R}^{(T_0 - 1) \times 2}$ and $\mathbf{y}_{\text{pre}}^{(-t)} \in \mathbb{R}^{T_0 - 1}$ denote the design matrix and response vector with time $t$ excluded.
-
-Then the local linear coefficients $\boldsymbol{\beta}_t^{(-t)} = (a_t^{(-t)}, b_t^{(-t)})^\top$ are obtained by solving Equation~\eqref{eq:llr_objective}. The leave-one-out smoothed value at time $t$ is then:
-\begin{equation}
-\widetilde{y}_t^{(-t)} = a_t^{(-t)} = \mathbf{e}_1^\top \boldsymbol{\beta}_t^{(-t)}, \quad \text{where } \mathbf{e}_1 = (1, 0)^\top.
-\end{equation}
-To pick the ideal bandwidth, we minimize:
-
-\begin{equation}
-\label{eq:bw_selection}
-h^\ast = \underset{h \in [h_{\min}, h_{\max}]}{\operatorname*{argmin}} \left\{ \text{CV}(h) \defeq \frac{1}{T_0} \sum_{t = 1}^{T_0} \left( y_t - \widetilde{y}_t^{(-t)} \right)^2 \right\}.
-\end{equation}
-
-Once selected, the optimal bandwidth $h^\ast$ is used to construct the full smoothed pre-treatment series.
-
-\textbf{Control Group Selection} \cite{SHC} note that we should have a parsimonious approach to which historical controls we use, rather than choosing all of them. In their examples, SHC typically requires less than 28 controls. They advocate for a forward selection procedure to choose the optimal control group. I implement a slightly modified variant of this method to choose the ideal number of historical controls. Let $\mathcal{N} = \{1, 2, \dots, N\}$ index the full set of donor segments in the pre-treatment matrix $\widetilde{\mathbf{Y}}_{\text{pre}} \in \mathbb{R}^{m \times N}$. At each step the algorithm selects the donor index $i_j \in \mathcal{N} \setminus \mathcal{S}_{j-1}$ that, when added to the current donor set $\mathcal{S}_{j-1}$, minimizes the in-sample mean squared error (MSE) between the evaluation window and in-sample fit:
-\begin{equation}
-\mathcal{S}_j = \mathcal{S}_{j-1} \cup \left\{ \underset{i \in \mathcal{N} \setminus \mathcal{S}_{j-1}}{\operatorname*{argmin}} \left\| \widetilde{\mathbf{y}}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}}^{(\mathcal{S}_{j-1} \cup \{i\})} \mathbf{w}^{(j)} \right\|_2^2  + \varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2 \right\}, \quad \mathcal{S}_0 = \emptyset,
-\end{equation}
-where $\widetilde{\mathbf{Y}}_{\text{pre}}^{(\mathcal{S})}$ denotes the submatrix of $\widetilde{\mathbf{Y}}_{\text{pre}}$ with columns indexed by $\mathcal{S}$, and the weights $\mathbf{w}^{(j)} \in \Delta^{j}$ are the optimal simplex-constrained weights for the selected donor set $\mathcal{S}_j$. This procedure greedily expands the donor set one segment at a time, always choosing the segment that yields the greatest marginal reduction in in-sample error.
-
-To avoid overfitting, \citet{SHC} manually choose the number of donors the forward selection procedure should choose. In their case, they experiment with the single best historical segment (which rarely does well), the best 15, 20, and 27 historical control units. However, this is a subjective decision that will yield different results depending on what we select. To mitigate researcher degrees of freedom, I view the number of historical segments as a tuning parameter. I employ a forward selection-based algorithm to choose the number of controls. For my implementation of SHC, I employ an early stopping rule based on a modified Bayesian information criterion (BIC), borrowing inspiration from \citet{SHI2023512}. For each donor set size $j$, I compute:
-\begin{equation}
-\text{BIC}(j) = m \cdot \log\left( \text{MSE}_j \right) + \lambda j,
-\end{equation}
-
-where $\text{MSE}_j$ is the in-sample error using donor set $\mathcal{S}_j$, and $\lambda = \log(m)$ penalizes the inclusion of too many donors. The selection procedure terminates when $\text{BIC}(j)$ increases for two consecutive steps. The final donor set $\mathcal{S}^\ast$ is then taken to be $\mathcal{S}_{j^\ast}$, where:
-\begin{equation}
-j^\ast = \underset{j}{\operatorname*{argmin}} \ \text{BIC}(j).
-\end{equation}
-
-This approach adaptively selects a sparse donor subset that closely matches the treated unit’s pre-intervention trajectory. The selected donor set $\mathcal{S}^\ast$ is used to compute the SHC model predictions. I would like to mention that this forward selection method holds much in common with recently proposed methods from the literature. For example, \cite{SHI2023512} propose the forward selected panel data approach which selects the comparison group for the panel data approach by \cite{pdap1} using an aggressive forward selection procedure. \citet{FDID}, correcting for overfitting in the former, proposed the forward Difference-in-Differences estimator, where a forward selection approach is used to select the donor pool for the DiD model. Similar advances have been made SCM, as developed by \citet{cerulli2024optimal}, where a similar selection mechanism is used to estimate the treatment effect. It would be interesting, but is far outside the scope of this work, to compare these estimators to one another and see when their in-sample fits and point estimates agree with one another.
-
-\textbf{Inference} Quantifying uncertainty around the counterfactual predictions is essential for valid inference. \citet{SHC} do not provide any inferential method to use aside from in-time placebos. Following recent work in post-modeling inference by \cite{cattaneo2025scpi}, I construct agnostic conformal prediction intervals around the counterfactual series. These intervals are distribution-free, require no parametric assumptions, and are valid under exchangeability of residuals between the pre- and post-treatment periods (or, good in-sample fit).
-
-Let $\mathbf{y}^{0}_{\text{eval}} \in \mathbb{R}^{m}$ denote the SHC-fitted values during the evaluation period and define the residuals as:
-\begin{equation}
-\boldsymbol{\varepsilon}_{\text{eval}} \defeq \mathbf{y}_{\text{eval}} - \mathbf{y}^{0}_{\text{eval}}.
-\end{equation}
-
-I then compute the sample mean $\bar{\varepsilon}$ and variance $\widehat{\sigma}^2$ of these residuals:
-\begin{equation}
-\bar{\varepsilon} = m^{-1} \sum_{t \in \mathcal{T}_{\text{eval}}} \varepsilon_t, \quad \widehat{\sigma}^2 = (m - 1)^{-1} \sum_{t \in \mathcal{T}_{\text{eval}}} (\varepsilon_t - \bar{\varepsilon})^2.
-\end{equation}
-
-To construct prediction intervals for the post-treatment counterfactual $\mathbf{y}^0_{\text{post}} \in \mathbb{R}^n$, I assume the residuals are sub-Gaussian and apply a conformal bound based on Hoeffding-type concentration inequalities. For a miscoverage rate $\alpha \in (0,1)$, the interval half-width is given by:
-\begin{equation}
-c_\alpha = \sqrt{2 \widehat{\sigma}^2 \log \left( \frac{2}{\alpha} \right)}.
-\end{equation}
-
-Then, the agnostic $(1 - \alpha)$ prediction interval for each $t \in \mathcal{T}_2$ is given by:
-\begin{equation}
-\left[ \widehat{y}_t^0 + \bar{\varepsilon} - c_\alpha, \ \widehat{y}_t^0 + \bar{\varepsilon} + c_\alpha \right].
-\end{equation}
-
-Stacking these yields lower and upper bound vectors:
-\begin{equation}
-\mathbf{L} \defeq \mathbf{y}^0_{\text{post}} + \bar{\varepsilon} \cdot \mathbf{1} - c_\alpha \cdot \mathbf{1}, \quad
-\mathbf{U} \defeq \mathbf{y}^0_{\text{post}} + \bar{\varepsilon} \cdot \mathbf{1} + c_\alpha \cdot \mathbf{1},
-\end{equation}
-
-which define the conformal confidence band around the counterfactual trajectory.
-
-This approach allows finite-sample valid coverage under the assumption that the pre- and post-treatment residuals are exchangeable. Intuitively, if the SHC model fits the pre-treatment series well (i.e., residuals are small and centered), then its extrapolations into the post-treatment period are expected to carry similarly bounded uncertainty. In this sense, the residual distribution learned from the evaluation window is used to calibrate uncertainty for the out-of-sample outcomes.
-
-These prediction intervals reflect uncertainty in the estimated counterfactual. Hence, if the observed outcome falls far outside the prediction interval, this is interpreted as evidence of a treatment effect. Unlike traditional confidence intervals around treatment effect estimates (e.g., using standard errors), the conformal intervals here do not assume a data-generating model. I use a default coverage level of $90\%$ (i.e., $\alpha = 0.1$) in all applications.
+Several tempting designs were considered and rejected; each breaks on the coincident-shock structure of Section~\ref{sec:idprob}. **Classical synthetic control** matches the pandemic into the counterfactual and so confounds policy with pandemic. **Synthetic instrumental variables** need an instrument that shifts treatment but not the outcome directly; the treatment here is a single deterministic policy switch coincident with the shock, and no such instrument exists. **Forecast-based structural-break tests** cannot distinguish a latent level shift that is coincident with treatment from the treatment effect itself, and would assign the whole shift to the policy. **Surrogate methods** \citep{synthsurr} require a separable effect/confounder channel and post-treatment surrogates predictive of the effect; here the confounder and the effect arrive together and no clean surrogate is available. **Orthogonalized synthetic control** sharpens *inference* under a maintained identification but does not solve the *identification* of a confounder coincident with treatment—it operates at the wrong layer. Proximal / negative-control inference is almost uniquely suited to this problem because it is the one framework that concedes the confounder is present and unobservable and instruments it.
 
 # Data
 \label{sec:data}
 
-To evaluate the impact of Hawaii’s COVID-19 border closure on its tourism economy, I use monthly time series spanning multiple economic dimensions, focusing on four primary outcomes: two related to tourism demand and two capturing broader economic impacts. All outcomes are transformed into annualized year-over-year (YoY) growth rates. This transformation mitigates nonstationary trends—crucial for the validity of the SHC estimator \citep{SHC}—and allows treatment effects to be interpreted directly as percentage point changes.
+I assemble a monthly panel for Hawaii spanning January 1991 to December 2020, joining two public sources on month. All series are expressed as annualized year-over-year (YoY) growth rates. This transformation mitigates nonstationary trends and lets treatment effects be read directly as percentage-point changes in growth.
 
-The first two outcomes capture the demand side of Hawaii’s tourism sector. Visitor Days measures the total number of person-days spent by visitors in a given month, integrating both the volume of arrivals and their length of stay. Occupancy refers to the statewide hotel occupancy rate, defined as the percentage of available hotel rooms that are occupied. Together, these indicators provide complementary measures of tourism demand: the former captures total visitor presence, while the latter reflects realized capacity utilization across the hospitality sector. Both series are sourced from Hawaii’s Department of Business, Economic Development & Tourism (DBEDT) and span from January 1990 to December 2020.
+The **treated outcomes** are ten tourism and labor series from Hawaii's Department of Business, Economic Development \& Tourism (DBEDT) and the Federal Reserve Economic Data (FRED) system: `Visitor Arrivals`, `Visitor Days`, `Occupancy`, `Mean Daily Rate`, `Revenue per Available Room`, `Accommodation Emp`, `Total Leisure Emp`, `Unemp Rate`, `LFP`, and the Coincident `Econ Activity Index`. Every one of these is *downstream of the border closure*: it moves when the ability of visitors to arrive changes, so it can only ever be a treated series, never a control.
 
-The remaining outcomes capture economic effects, one sector-specific and one broader in scope. *Accommodation Employment* tracks the number of employees in Hawaii’s accommodation industry, a labor-intensive sector directly tied to tourism activity. *The Coincident Economic Activity Index* summarizes statewide macroeconomic conditions based on four indicators: nonfarm payroll employment, the unemployment rate, average weekly hours worked in manufacturing, and wage and salary disbursements. This index is benchmarked to match the trend of gross state product, making it a comprehensive indicator of the state's economic health. Both economic indicators are sourced from the Federal Reserve Economic Data (FRED) system and cover January 1991 to December 2020.
+The **negative-control donors** are five *insulated* employment sectors from the DBEDT Monthly Economic Indicators, in YoY growth: `NatRes_Constr_Emp`, `Wholesale_Emp`, `Financial_Emp`, `HealthCare_Emp`, and `Government_Emp`. These industries were hit by the pandemic's macro-recession shock—falling roughly 7--12\% in the 2020 trough—but do not depend on whether tourists can physically enter Hawaii, so no causal path runs from the quarantine to them. They are the empirical negative controls of Section~\ref{sec:spsc}. @fig-premise contrasts the two groups: the treated tourism series collapse by 50--99\% at the border closure while the insulated donors dip only modestly, the visual signature of a factor structure in which the donors carry the macro shock and the tourism series carry the macro shock *plus* the travel-demand collapse *plus* the policy.
 
-Hawaii’s mandatory quarantine policy took effect in late March 2020. I define the intervention to begin in March 2020, corresponding to time $t = 362$, and formalize the treatment indicator as $d_t \defeq \mathbf{1}\{t \geq 362\},$ so that $d_t = 1$ for all months after the policy’s implementation and $d_t = 0$ otherwise. The final pre-treatment period is February 2020, yielding a pre-treatment sample of $T_0 = 361$ months.
+The treatment indicator `Mandatory Quarantine` switches to 1 in March 2020, giving 10 post-treatment months (March--December 2020). Although the panel ships the full 1991--2020 history, the analysis truncates the pre-period to a recent window beginning **January 2014** (74 pre-treatment months). Three decades of stale comovement is less relevant to the 2020 counterfactual than the recent history, and the 2014 window empirically sharpens the relevance ratios of \eqref{eq:rmsesd} and yields non-degenerate GMM standard errors that the full-history-plus-detrend combination did not. The full-panel version is available by removing the truncation and enters the robustness band of Section~\ref{sec:results}.
+
+```{python}
+#| echo: false
+#| output: false
+#| label: setup-analysis
+
+import warnings; warnings.filterwarnings("ignore")
+import numpy as np, pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from mlsynth import SHC, PROXIMAL
+
+DATA = "Data/hawaii_proximal_panel.csv"
+START, TREAT = "2014-01-01", "Mandatory Quarantine"
+DONORS = ["NatRes_Constr_Emp", "Wholesale_Emp", "Financial_Emp",
+          "HealthCare_Emp", "Government_Emp"]
+DLAB = {"NatRes_Constr_Emp": "Nat. Res. & Constr.", "Wholesale_Emp": "Wholesale Trade",
+        "Financial_Emp": "Financial Activities", "HealthCare_Emp": "Health Care",
+        "Government_Emp": "Government"}
+TOURISM = ["Visitor Arrivals", "Visitor Days", "Occupancy", "Mean Daily Rate",
+           "Revenue per Available Room", "Accommodation Emp"]
+ECON = ["Total Leisure Emp", "Unemp Rate", "LFP", "Econ Activity Index"]
+ALL_OUT = TOURISM + ECON
+
+_full = pd.read_csv(DATA, parse_dates=["Date"])
+wide = _full[_full["Date"] >= pd.Timestamp(START)].reset_index(drop=True)
+
+def _long(w, oc, donors=DONORS):
+    fr = []
+    t = w[["Date", oc, TREAT]].rename(columns={oc: "y", TREAT: "treat"})
+    t["unit"] = oc; t["treat"] = t["treat"].astype(int)
+    fr.append(t[["unit", "Date", "y", "treat"]])
+    for d in donors:
+        f = w[["Date", d]].rename(columns={d: "y"}); f["unit"] = d; f["treat"] = 0
+        fr.append(f[["unit", "Date", "y", "treat"]])
+    return pd.concat(fr, ignore_index=True).rename(columns={"Date": "time"})
+
+def spsc_fit(w, oc, donors=DONORS, detrend=True, conformal=False,
+             spline_df=None, basis_degree=None, display=False):
+    """Fit SPSC-DT. display=True renders mlsynth's native two-panel graph."""
+    long = _long(w, oc, donors)
+    cfg = {"df": long, "outcome": "y", "treat": "treat", "unitid": "unit",
+           "time": "time", "methods": ["SPSC"], "donors": donors,
+           "spsc_detrend": detrend, "spsc_conformal": conformal,
+           "display_graphs": display, "save": False}
+    if spline_df is not None: cfg["spsc_spline_df"] = spline_df
+    if basis_degree is not None: cfg["spsc_basis_degree"] = basis_degree
+    res = PROXIMAL(cfg).fit()
+    tr = long[long.unit == oc].sort_values("time")
+    y = tr["y"].to_numpy(float)
+    t0 = int((tr["treat"].to_numpy() == 0).sum())
+    cf = np.asarray(res.counterfactual, float).ravel()
+    rmse = float(np.sqrt(np.mean((y[:t0] - cf[:t0]) ** 2)))
+    sd = float(np.std(y[:t0]))
+    rho = rmse / sd if sd else float("nan")
+    ident = ("well-identified" if rho < 0.85
+             else "borderline" if rho < 0.98 else "weakly identified (bound)")
+    se = float(res.att_se) if res.att_se is not None else float("nan")
+    return {"att": float(res.att), "se": se, "rho": rho, "ident": ident}
+
+def shc_fit(w, oc, display=False):
+    """Fit the naive Synthetic Historical Control baseline (own history)."""
+    sub = w[["Date", oc, TREAT]].copy(); sub["Unit"] = "Hawaii"
+    r = SHC({"df": sub, "outcome": oc, "treat": TREAT, "unitid": "Unit",
+             "time": "Date", "m": 12 * 5, "display_graphs": display,
+             "save": False}).fit()
+    return float(r.effects.att)
+
+def md_table(df):
+    cols = list(df.columns)
+    rows = ["| " + " | ".join(map(str, cols)) + " |",
+            "|" + "|".join([" --- "] * len(cols)) + "|"]
+    for _, r in df.iterrows():
+        rows.append("| " + " | ".join(str(v) for v in r) + " |")
+    return "\n".join(rows)
+
+def _pp(x):
+    return f"{abs(x):.0f}"
+
+# Diagnostics across all outcomes (numeric; no per-call graphs)
+_diag = []
+for oc in ALL_OUT:
+    f = spsc_fit(wide, oc)
+    _diag.append([oc, "tourism" if oc in TOURISM else "econ/labor",
+                  f"{f['att']:.1f}", f"{f['se']:.1f}", f"{f['rho']:.2f}", f["ident"]])
+diag_df = pd.DataFrame(_diag, columns=["Outcome", "Group", "ATT",
+                                       "GMM SE", "RMSE/SD ($\\rho$)", "Identification"])
+
+# Naive-vs-proximal contrast for the headline outcomes
+_HEAD = ["Visitor Days", "Occupancy", "Revenue per Available Room",
+         "Accommodation Emp", "Econ Activity Index"]
+_con, _shc, _spsc = [], {}, {}
+for oc in _HEAD:
+    _shc[oc] = shc_fit(wide, oc); _spsc[oc] = spsc_fit(wide, oc)["att"]
+    _con.append([oc, f"{_shc[oc]:.1f}", f"{_spsc[oc]:.1f}", f"{_shc[oc]-_spsc[oc]:.1f}"])
+con_df = pd.DataFrame(_con, columns=["Outcome", "Naive SHC", "Proximal SPSC",
+                                     "Gap (pandemic)"])
+
+# Specification robustness band
+_BAND = ["Visitor Days", "Occupancy", "Revenue per Available Room", "Econ Activity Index"]
+_band = {}
+for oc in _BAND:
+    a = np.array([
+        spsc_fit(wide, oc, detrend=True)["att"],
+        spsc_fit(wide, oc, detrend=False)["att"],
+        spsc_fit(wide, oc, basis_degree=2)["att"],
+        spsc_fit(wide, oc, spline_df=6)["att"],
+        spsc_fit(wide, oc, donors=[d for d in DONORS if d != "Government_Emp"])["att"],
+        spsc_fit(wide, oc, donors=[d for d in DONORS if d != "HealthCare_Emp"])["att"],
+        spsc_fit(_full, oc, detrend=True)["att"],
+    ])
+    _band[oc] = a
+band_df = pd.DataFrame(
+    [[oc, f"{_band[oc].min():.1f}", f"{np.median(_band[oc]):.1f}", f"{_band[oc].max():.1f}"]
+     for oc in _BAND],
+    columns=["Outcome", "Min", "Median", "Max"])
+
+# Scalars quoted in prose
+vd_shc, vd_spsc = _shc["Visitor Days"], _spsc["Visitor Days"]
+vd_gap = vd_shc - vd_spsc
+eai_shc, eai_spsc = _shc["Econ Activity Index"], _spsc["Econ Activity Index"]
+eai_gap = eai_shc - eai_spsc
+eai_rho = spsc_fit(wide, "Econ Activity Index")["rho"]
+vd_rho = spsc_fit(wide, "Visitor Days")["rho"]
+vd_band = _band["Visitor Days"]
+```
+
+```{python}
+#| echo: false
+#| label: fig-premise
+#| fig-cap: "The negative-control premise. Left: treated tourism outcomes (year-over-year growth) collapse by 50--99\\% at the March 2020 border closure. Right: the five insulated-sector donors dip only modestly---they carry the pandemic's macro-recession factor but not the travel-demand collapse or the policy. The dotted line marks March 2020."
+fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 4.2), sharex=True)
+for oc, c in zip(["Visitor Days", "Occupancy", "Accommodation Emp"], ["black", "C0", "C1"]):
+    a1.plot(wide["Date"], wide[oc], lw=1.2, label=oc, color=c)
+for d in DONORS:
+    a2.plot(wide["Date"], wide[d], lw=1.1, label=DLAB[d])
+for ax, ti in ((a1, "Treated tourism outcomes"), (a2, "Insulated-sector donors")):
+    ax.axvline(pd.Timestamp("2020-03-01"), color="grey", ls=":", lw=1)
+    ax.axhline(0, color="grey", lw=0.5)
+    ax.set_title(ti); ax.legend(fontsize=7, loc="lower left")
+    ax.xaxis.set_major_locator(mdates.YearLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+a1.set_ylabel("YoY % growth")
+plt.tight_layout()
+plt.show()
+```
 
 \section{Results}
 \label{sec:results}
 
+## The naive-versus-proximal contrast
 
-In @fig-outcomeplot we visualize the outcomes of interest over time from January of 1991 to December 2020. We can see that the growth rate trends for all outcomes were relatively smooth across the full pre-intervention series, exhibiting seasonality and relatively low variance. We also see that the outcomes of interest precipitously dropped when the mandatory quarantine policy was implemented. The plot also suggests that \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} may be valid. For example, for \hyperref[assump:errors]{Assumption~\ref*{assump:errors}} to be violated, we would need a situation where the outcome had extremely high variance. While we see seasonality across all outcomes, the time series seemed smooth enough to be approximated by pre-treatment observations.
-
-```{python}
-#| echo: false
-#| fig-align: center
-#| label: fig-outcomeplot
-#| fig-cap: "Outcome Trends."
-
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# Corrected relative path
-df = pd.read_excel("Data/HawaiiData.xlsx")
-
-
-# Choose the 4 key variables
-plot_columns = [
-    "Occupancy",
-    "Visitor Days",
-    "Accommodation Emp",  # or "Accommodation Emp" if you fixed spelling
-    "Econ Activity Index"
-]
-
-# Set up 2x2 plot
-fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-axes = axes.flatten()
-
-for i, col in enumerate(plot_columns):
-    ax = axes[i]
-    ax.plot(df["Date"], df[col], color="black")
-    ax.axvline(pd.to_datetime("2020-03-01"), color="red", linestyle="--", label="Mandatory Quarantine")
-    ax.set_ylabel(col, fontsize=13)
-    ax.legend(loc="lower left", fontsize=12)
-    ax.grid(True, linestyle="-", alpha=0.3)
-
-# Clean up layout
-plt.tight_layout(h_pad=4)
-plt.show()
-
-```
-
-@fig-firstplot presents the initial SHC results. For these results, $m=60$ (5 years of evaluation data), but the main results remain robust up until 8 years of evaluation data, with slight deviations in uncertainty.
-
-```{python}
-
-#| echo: false
-#| fig-align: center
-#| label: fig-firstplot
-#| fig-cap: "SHC Analysis."
-
-from mlsynth import SHC
-import numpy as np
-import warnings
-warnings.filterwarnings("ignore")
-
-
-# Load data
-df = pd.read_excel("Data/HawaiiData.xlsx")
-
-# Outcomes to estimate
-outcomes = ["Visitor Days", "Occupancy", "Accommodation Emp", "Econ Activity Index"]
-
-# Results container
-results = {}
-plot_data = {}
-
-# Run SHC for each outcome
-for outcome in outcomes:
-    config = {
-        "df": df,
-        "outcome": outcome,
-        "treat": "Mandatory Quarantine",
-        "unitid": "Unit",
-        "time": "Date",
-        "display_graphs": False,
-        "save": False,
-        "counterfactual_color": ["red"],
-        "m": 12*5
-    }
-
-    model = SHC(config)
-    result = model.fit()
-    results[outcome] = result
-
-    # Extract vectors
-    vectors = result.raw_results["Vectors"]
-    observed = vectors["Observed Unit"]
-    counterfactual = vectors["Counterfactual"]
-    gap = vectors["Gap"][:, 1]
-
-    plot_data[outcome] = {
-        "time": gap,
-        "observed": observed,
-        "counterfactual": counterfactual
-    }
-
-# Plotting
-fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-axes = axes.flatten()
-
-for i, (outcome, data_dict) in enumerate(plot_data.items()):
-    ax = axes[i]
-    time = np.arange(len(data_dict["observed"]))
-    treatment_index = np.where(data_dict["time"] == 0)[0][0]
-
-    ax.plot(time, data_dict["observed"], label="Observed", color="black")
-    ax.plot(time, data_dict["counterfactual"], label="Counterfactual", color="blue", linestyle="--")
-    ax.axvline(treatment_index, color="gray", linestyle="--", label="March 2020")
-
-    # Add prediction interval if available
-    inference = results[outcome].inference
-    if inference and inference.details:
-        interval = inference.details.get("full_interval")
-        if interval is not None and interval.size > 0:
-            lower, upper = interval[:, 0], interval[:, 1]
-            valid = ~(np.isnan(lower) | np.isnan(upper))
-            if np.any(valid):
-                ax.fill_between(time[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
-                                label="Conformal 90% Interval")
-
-    # Title and labels
-    att = results[outcome].effects.att
-    rmse = results[outcome].fit_diagnostics.rmse_pre
-    ax.set_title(f"ATT = {att:.3f}, RMSE = {rmse:.3f}", fontsize=11)
-    ax.set_ylabel(outcome, fontsize=11)
-    ax.set_xlabel("Time")
-    ax.legend(fontsize=9)
-    ax.grid(True, linestyle="--", alpha=0.3)
-
-# Remove any unused axes
-for j in range(i + 1, len(axes)):
-    fig.delaxes(axes[j])
-
-plt.tight_layout(h_pad=3)
-plt.show()
-
-```
-
-Across all four primary outcomes, I find large and precisely estimated negative effects from Hawaii’s border closure. Note that the good in-sample fit suggests that \hyperref[assump:matching]{Assumption~\ref*{assump:matching}} is satisfied. Tourism demand was the most directly affected: Visitor Days declined by 85.4 percentage points, and Hotel Occupancy fell by 75.8 percentage points, relative to their synthetic historical counterfactuals. These are dramatic, near-total collapses in the state’s primary economic driver. The SHC model achieves a close pre-treatment fit for both outcomes (RMSEs $\approx 1$), suggesting that the model is well-calibrated to detect meaningful post-treatment divergence.
-
-Labor market and broader economic indicators reflect these shocks. Accommodation employment declined by 60.7 percentage points, while the Economic Activity Index fell by 27.7 percentage points. Though these outcomes are more aggregated, they follow the same pattern as the tourism indicators—abrupt declines followed by a gradual recovery towards the end of 2020, suggesting Hawaii’s shutdown sent a measurable shock through the broader economy. Notably, in all four cases, the observed values after March 2020 fall well outside the 90% conformal prediction intervals, strengthening the inference that these declines reflect true treatment effects rather than model noise or volatility.
-
-The results also suggest the mechanics of the causal effect: the sharp decline in overall employment, especially in accommodations, is plausibly driven by the collapse in tourism. Given Hawaii’s economic structure, the vast majority of hotel/hospitality employment is directly demand-driven. Thus, the drop in visitor-days and occupancy rates leads to reduced staffing needs across the sector. This channel provides a natural explanation for the labor market contraction observed in the data. Importantly, the pattern across all outcomes suggests a consistent causal chain: border closure leads to a collapse in tourism, which in turn leads to employment contraction, macroeconomic slowdown, and a fiscal shock. This sequential relationship reinforces the credibility of the estimates and gives confidence that the economic effects documented here reflect real-world consequences of the policy intervention.
-
-Robustness checks support this interpretation. Using 10 years of pre-treatment data produces nearly identical ATT estimates, with only minor degradation in early-period fit. The central pattern—a sharp short-run shock followed by recovery—holds across specifications.  The results are presented in @fig-secondplot.
+The central methodological point is visible in a single comparison: the same treated series, estimated first with the naive Synthetic Historical Control baseline and then with proximal SPSC. @fig-shc-vd and @fig-spsc-vd show it for Visitor Days. The naive SHC counterfactual (@fig-shc-vd) is a business-as-usual 2020 built from Hawaii's own smooth pre-pandemic history; differencing against it attributes essentially the entire post-March collapse to the policy, giving an ATT of `{python} f"{vd_shc:.1f}"` percentage points. The SPSC counterfactual (@fig-spsc-vd) instead reconstructs Hawaii's untreated path from the insulated sectors, which *net out the pandemic's macro-recession component*, and returns a smaller ATT of `{python} f"{vd_spsc:.1f}"` points.
 
 ```{python}
 #| echo: false
-#| fig-align: center
-#| label: fig-secondplot
-#| fig-cap: "SHC Analysis, $m=120$."
-
-
-# Load data
-df = pd.read_excel("Data/HawaiiData.xlsx")
-
-# Outcomes to estimate
-outcomes = ["Visitor Days", "Occupancy", "Accommodation Emp", "Econ Activity Index"]
-
-# Results container
-results = {}
-plot_data = {}
-
-# Run SHC for each outcome
-for outcome in outcomes:
-    config = {
-        "df": df,
-        "outcome": outcome,
-        "treat": "Mandatory Quarantine",
-        "unitid": "Unit",
-        "time": "Date",
-        "display_graphs": False,
-        "save": False,
-        "counterfactual_color": ["red"],
-        "m": 12*10, "use_augmented": True
-    }
-
-    model = SHC(config)
-    result = model.fit()
-    results[outcome] = result
-
-    # Extract vectors
-    vectors = result.raw_results["Vectors"]
-    observed = vectors["Observed Unit"]
-    counterfactual = vectors["Counterfactual"]
-    gap = vectors["Gap"][:, 1]
-
-    plot_data[outcome] = {
-        "time": gap,
-        "observed": observed,
-        "counterfactual": counterfactual
-    }
-
-# Plotting
-fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-axes = axes.flatten()
-
-for i, (outcome, data_dict) in enumerate(plot_data.items()):
-    ax = axes[i]
-    time = np.arange(len(data_dict["observed"]))
-    treatment_index = np.where(data_dict["time"] == 0)[0][0]
-
-    ax.plot(time, data_dict["observed"], label="Observed", color="black")
-    ax.plot(time, data_dict["counterfactual"], label="Counterfactual", color="blue", linestyle="--")
-    ax.axvline(treatment_index, color="gray", linestyle="--", label="March 2020")
-
-    # Add prediction interval if available
-    inference = results[outcome].inference
-    if inference and inference.details:
-        interval = inference.details.get("full_interval")
-        if interval is not None and interval.size > 0:
-            lower, upper = interval[:, 0], interval[:, 1]
-            valid = ~(np.isnan(lower) | np.isnan(upper))
-            if np.any(valid):
-                ax.fill_between(time[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
-                                label="Conformal 90% Interval")
-
-    # Title and labels
-    att = results[outcome].effects.att
-    rmse = results[outcome].fit_diagnostics.rmse_pre
-    ax.set_title(f"ATT = {att:.3f}, RMSE = {rmse:.3f}", fontsize=11)
-    ax.set_ylabel(outcome, fontsize=11)
-    ax.set_xlabel("Time")
-    ax.legend(fontsize=9)
-    ax.grid(True, linestyle="--", alpha=0.3)
-
-# Remove any unused axes
-for j in range(i + 1, len(axes)):
-    fig.delaxes(axes[j])
-
-plt.tight_layout(h_pad=3)
-plt.show()
+#| label: fig-shc-vd
+#| fig-cap: "Naive baseline (Synthetic Historical Control), Visitor Days. The counterfactual is built from Hawaii's own pre-2020 history, so it is a world with neither the pandemic nor the policy and the full collapse loads onto the estimate."
+_ = shc_fit(wide, "Visitor Days", display=True)
 ```
-
-Placebo tests using a September 2019 “fake” intervention date yield negligible effects, with estimated ATTs well within the model’s baseline error margins. This provides reassurance that the model is not spuriously detecting treatment effects where none exist. @fig-placebo presents these results.
-
 
 ```{python}
 #| echo: false
-#| fig-align: center
-#| label: fig-placebo
-#| fig-cap: "Placebo Studies."
-
-# Load cleaned data (from your final function)
-df = pd.read_excel("Data/HawaiiData.xlsx")  # or use load_hawaii_data(...)
-
-# Outcomes to estimate
-outcomes = ["Visitor Days", "Occupancy", "Accommodation Emp", "Econ Activity Index"]
-
-# Results container
-results = {}
-plot_data = {}
-
-# Define placebo treatment date
-placebo_date = pd.to_datetime("2019-09-01")
-cutoff_date = pd.to_datetime("2020-02-01")
-
-
-# Run SHC for each outcome
-for outcome in outcomes:
-    dfpla = df.copy()
-
-    # Create placebo treatment indicator
-    dfpla["Placebo"] = np.where(dfpla["Date"] >= placebo_date, 1, 0)
-
-    # Restrict to data before COVID
-    dfpla = dfpla[dfpla["Date"] < cutoff_date].copy()
-
-    config = {
-        "df": dfpla,
-        "outcome": outcome,
-        "treat": "Placebo",
-        "unitid": "Unit",
-        "time": "Date",
-        "display_graphs": False,
-        "save": False,
-        "counterfactual_color": ["red"],
-        "m": 12*5
-    }
-
-    model = SHC(config)
-    result = model.fit()
-    results[outcome] = result
-
-    # Extract vectors
-    vectors = result.raw_results["Vectors"]
-    observed = vectors["Observed Unit"]
-    counterfactual = vectors["Counterfactual"]
-    gap = vectors["Gap"][:, 1]
-
-    plot_data[outcome] = {
-        "time": gap,
-        "observed": observed,
-        "counterfactual": counterfactual
-    }
-
-# Plotting
-fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-axes = axes.flatten()
-
-for i, (outcome, data_dict) in enumerate(plot_data.items()):
-    ax = axes[i]
-    time = np.arange(len(data_dict["observed"]))
-    treatment_index = np.where(data_dict["time"] == 0)[0][0]
-
-    ax.plot(time, data_dict["observed"], label="Observed", color="black")
-    ax.plot(time, data_dict["counterfactual"], label="Counterfactual", color="blue", linestyle="--")
-    ax.axvline(treatment_index, color="gray", linestyle="--", label="September 2019")
-
-    # Add prediction interval if available
-    inference = results[outcome].inference
-    if inference and inference.details:
-        interval = inference.details.get("full_interval")
-        if interval is not None and interval.size > 0:
-            lower, upper = interval[:, 0], interval[:, 1]
-            valid = ~(np.isnan(lower) | np.isnan(upper))
-            if np.any(valid):
-                ax.fill_between(time[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
-                                label="Conformal 90% Interval")
-
-    # Title and labels
-    att = results[outcome].effects.att
-    rmse = results[outcome].fit_diagnostics.rmse_pre
-    ax.set_title(f"ATT = {att:.3f}, RMSE = {rmse:.3f}", fontsize=11)
-    ax.set_ylabel(outcome, fontsize=11)
-    ax.set_xlabel("Time")
-    ax.legend(fontsize=9)
-    ax.grid(True, linestyle="--", alpha=0.3)
-
-# Remove any unused axes
-for j in range(i + 1, len(axes)):
-    fig.delaxes(axes[j])
-
-plt.tight_layout(h_pad=3)
-plt.show()
-
-
+#| label: fig-spsc-vd
+#| fig-cap: "Proximal Single Proxy Synthetic Control, Visitor Days. The counterfactual (left panel) is reconstructed from the insulated-sector negative controls, netting out the pandemic's macro-recession factor; the gap panel (right) is the estimated effect path."
+_ = spsc_fit(wide, "Visitor Days", conformal=True, display=True)
 ```
 
-These results offer two key takeaways. First, the SHC model does not erroneously detect treatment effects when none exist—it exhibits strong temporal specificity. Second, even in cases where placebo ATTs are slightly nonzero, they fall within normal forecast uncertainty. This is confirmed by the conformal prediction intervals, which entirely cover the observed outcomes during the placebo window. That is, any apparent deviation between predicted and realized values is consistent with random variation under no treatment. These placebo checks strengthen the case for a causal interpretation of the post-March 2020 findings: the observed deviations are not artifacts of overfitting or model instability, but genuine responses to Hawaii’s border closure.
-
-To estimate the impact of the mandatory quarantine on fiscal losses, I collect data on taxes generated from Hawaii's General Excise tax for the hotel industry and overall transient accommodations, using quarterly revenue data from 2010 to 2019 (with the pre-treatment period being from 1991 to the end of 2009). I estimate a 91.7 percentage point decline in Transient Accommodations Tax receipts, and an 88.3 point drop in hotel-related General Excise Taxes, consistent with large-scale fiscal losses during the quarantine period. These results are presented in @fig-addout.
+The `{python} _pp(vd_gap)`-point gap between the two estimates is not noise: it is the pandemic's macro-recession contribution from \eqref{eq:contamination}, which the naive design silently charges to the border policy and which SPSC removes by instrumenting it. The same wedge appears across the headline outcomes (@tbl-contrast). It is largest, in level terms, for the broad Economic Activity Index, where the naive ATT of `{python} f"{eai_shc:.1f}"` points shrinks to `{python} f"{eai_spsc:.1f}"` under SPSC---a `{python} _pp(eai_gap)`-point pandemic component---because that index is precisely the series most exposed to the general recession the insulated sectors span.
 
 ```{python}
-
 #| echo: false
-#| fig-align: center
-#| label: fig-addout
-#| fig-cap: "Additional Outcomes."
-
-from mlsynth import SHC
-import numpy as np
-import warnings
-warnings.filterwarnings("ignore")
-
-
-# Load data
-df = pd.read_excel("Data/HawaiiTaxData.xlsx")
-
-# Outcomes to estimate
-outcomes = ["GET YoY", "TAT YoY"]
-
-# Results container
-results = {}
-plot_data = {}
-
-# Run SHC for each outcome
-for outcome in outcomes:
-    config = {
-        "df": df,
-        "outcome": outcome,
-        "treat": "Mandatory Quarantine",
-        "unitid": "Unit",
-        "time": "Date",
-        "display_graphs": False,
-        "save": False,
-        "counterfactual_color": ["red"],
-        "m": 4*10
-    }
-
-    model = SHC(config)
-    result = model.fit()
-    results[outcome] = result
-
-    # Extract vectors
-    vectors = result.raw_results["Vectors"]
-    observed = vectors["Observed Unit"]
-    counterfactual = vectors["Counterfactual"]
-    gap = vectors["Gap"][:, 1]
-
-    plot_data[outcome] = {
-        "time": gap,
-        "observed": observed,
-        "counterfactual": counterfactual
-    }
-
-# Plotting
-fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-axes = axes.flatten()
-
-for i, (outcome, data_dict) in enumerate(plot_data.items()):
-    ax = axes[i]
-    time = np.arange(len(data_dict["observed"]))
-    treatment_index = np.where(data_dict["time"] == 0)[0][0]
-
-    ax.plot(time, data_dict["observed"], label="Observed", color="black")
-    ax.plot(time, data_dict["counterfactual"], label="Counterfactual", color="blue", linestyle="--")
-    ax.axvline(treatment_index, color="gray", linestyle="--", label="March 2020")
-
-    # Add prediction interval if available
-    inference = results[outcome].inference
-    if inference and inference.details:
-        interval = inference.details.get("full_interval")
-        if interval is not None and interval.size > 0:
-            lower, upper = interval[:, 0], interval[:, 1]
-            valid = ~(np.isnan(lower) | np.isnan(upper))
-            if np.any(valid):
-                ax.fill_between(time[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
-                                label="Conformal 90% Interval")
-
-    # Title and labels
-    att = results[outcome].effects.att
-    rmse = results[outcome].fit_diagnostics.rmse_pre
-    ax.set_title(f"ATT = {att:.3f}, RMSE = {rmse:.3f}", fontsize=11)
-    ax.set_ylabel(outcome, fontsize=11)
-    ax.set_xlabel("Time")
-    ax.legend(fontsize=9)
-    ax.grid(True, linestyle="--", alpha=0.3)
-
-# Remove any unused axes
-for j in range(i + 1, len(axes)):
-    fig.delaxes(axes[j])
-
-plt.tight_layout(h_pad=3)
-plt.show()
+#| output: asis
+print(md_table(con_df))
+print("\n: Naive SHC versus proximal SPSC average treatment effects "
+      "(percentage points of year-over-year growth), headline outcomes. The "
+      "gap is the pandemic's macro-recession component the naive design cannot "
+      "net out. {#tbl-contrast}\n")
 ```
+
+@fig-shc-eai and @fig-spsc-eai repeat the contrast for the Economic Activity Index; here the SPSC pre-treatment gap (the right-hand panel) hugs zero tightly, foreshadowing the identification diagnostics below.
+
+```{python}
+#| echo: false
+#| label: fig-shc-eai
+#| fig-cap: "Naive baseline (Synthetic Historical Control), Coincident Economic Activity Index."
+_ = shc_fit(wide, "Econ Activity Index", display=True)
+```
+
+```{python}
+#| echo: false
+#| label: fig-spsc-eai
+#| fig-cap: "Proximal Single Proxy Synthetic Control, Coincident Economic Activity Index. The tight pre-treatment gap reflects that this broad index rides the macro-recession factor the insulated sectors span, so SPSC reconstructs its counterfactual well."
+_ = spsc_fit(wide, "Econ Activity Index", conformal=True, display=True)
+```
+
+## SPSC estimates and the identification gauge
+
+@tbl-diag reports SPSC-DT across all ten outcomes together with the relevance ratio $\rho$ of \eqref{eq:rmsesd} and its identification label. Reading the table requires the discipline the ratio was introduced for: a point estimate is only as trustworthy as its pre-period fit.
+
+```{python}
+#| echo: false
+#| output: asis
+print(md_table(diag_df))
+print("\n: SPSC-DT estimates and identification diagnostics, all outcomes. "
+      "ATT is in percentage points of year-over-year growth; the GMM SE is the "
+      "sandwich standard error; $\\rho$ is the pre-period RMSE/SD relevance "
+      "gauge. {#tbl-diag}\n")
+```
+
+Three readings follow. First, **the tourism-demand collapse is large and robust**: Visitor Days, Visitor Arrivals, Occupancy, and Revenue per Available Room all show a $\sim$65--75-point year-over-year drop against the proximal counterfactual, and a pre-period RMSE of only a couple of points against a $\sim$70-point effect is a strong signal-to-effect ratio. Second, **the relevance ratios still sit near 1 for most tourism series** ($\rho \approx$ `{python} f"{vd_rho:.2f}"` for Visitor Days), because the insulated sectors under-span the tourism factor (Section~\ref{sec:spsc}); Occupancy and Revenue per Available Room are the best tourism cases ($\rho \approx 0.89$, borderline). These tourism ATTs are therefore best read as **upper bounds in magnitude** on the *policy* effect, with the observed drop equal to policy plus the travel-demand collapse. Third, **the one cleanly identified series is the Economic Activity Index** ($\rho =$ `{python} f"{eai_rho:.2f}"`, well-identified): riding the macro-recession factor the insulated sectors span, SPSC reconstructs its counterfactual well, and its $\sim$12-point drop is the single most trustworthy number in the table.
+
+Two caveats attach to the GMM standard errors. On this 2014 window they are non-degenerate and usable for the visitor and activity series ($\sim$3--8 points), a genuine improvement over the full-history window where de-trending a near-interpolating fit collapses the sandwich toward zero. But two of the labor series remain unreliable---the Unemployment Rate ATT is a relative-growth artifact with a near-zero SE, and the Labor Force Participation SE is tiny---and should not be read at face value. More fundamentally, even a well-behaved SE captures only *sampling* noise around the pre-period bridge, not the *extrapolation* risk of transporting that bridge across the March-2020 structural break, which is the dominant uncertainty here. I therefore do not lean on the SE alone.
+
+## Robustness: a specification band, not a point
+
+Because the honest uncertainty is extrapolation risk rather than sampling noise, I report the headline effects as a **band** built from specification sensitivity: de-trending on versus off, the B-spline degrees of freedom, the polynomial basis degree, dropping each of the two largest-weight donors, and the full-1991 versus 2014 window. @tbl-band collects the minimum, median, and maximum SPSC ATT across these specifications for the four best-behaved outcomes.
+
+```{python}
+#| echo: false
+#| output: asis
+print(md_table(band_df))
+print("\n: Specification robustness band. Minimum, median, and maximum SPSC "
+      "ATT (percentage points) across seven specifications: de-trend on/off, "
+      "spline df, basis degree, two donor-subset drops, and the 2014 versus "
+      "full-1991 window. {#tbl-band}\n")
+```
+
+For the visitor-volume series the band runs roughly from `{python} f"{vd_band.min():.0f}"` to `{python} f"{vd_band.max():.0f}"` points (median `{python} f"{np.median(vd_band):.0f}"`), so the defensible statement is a $\sim$60--75-point *upper-bound* collapse in tourism demand rather than any single figure. The Economic Activity Index band is both narrower and shallower, consistent with its being the cleanly identified case. Taken together, the diagnostics and the band say the same thing: the border closure sits on top of a large tourism-demand collapse that the insulated sectors cannot fully separate from it, so the tourism numbers bound the policy effect from above while the broad activity index gives the one point estimate the data can support.
 
 # Discussion
 \label{sec:discuss}
 
-This paper provides a quantitative estimate of the short-run economic costs of an early, aggressive pandemic response. Hawaii’s mandatory quarantine policy caused a near-total collapse in tourism, with sharp but largely temporary contractions in employment and broader economic activity. Despite its severity, these effects were not persistent: most metrics rebounded by early 2021. This pattern—steep initial losses followed by gradual recovery—suggests that decisive early action may impose short-run pain but help avoid longer-term disruption.
+The methodological lesson of Hawaii is that a good pre-treatment fit is not identification when a policy and a global shock arrive in the same month. A naive synthetic control—whether it borrows across states or, as in SHC, across the treated unit's own history—produces a clean-looking counterfactual and a large ATT, but that ATT is the border-closure effect plus the pandemic's contribution to Hawaii's outcomes, and nothing in the fit reveals the mix. Proximal / negative-control inference is the discipline that separates them: by instrumenting the latent pandemic factor with insulated employment sectors that carry it but are immune to the policy, SPSC nets out the macro-recession component the naive design cannot. The wedge between the two estimates—about `{python} _pp(vd_gap)` points for Visitor Days and `{python} _pp(eai_gap)` points for the activity index—is a direct, quantitative measure of how much pandemic contamination a naive reading would have mistaken for policy.
 
-These results contribute to an ongoing debate over whether early containment policies are worth their economic cost. Hawaii’s case supports the theory of “front-loaded sacrifice”: by absorbing short-term damage, the state avoided sustained epidemiological and economic chaos. This interpretation echoes findings from \citet{hubeipda} on Hubei’s lockdown and aligns with the intuition of models emphasizing early interventions to delay or avoid exponential harm.
+At the same time, the analysis is candid about the limit of what the shipped data can identify. The insulated sectors span the pandemic's general-recession factor but not its travel-demand-collapse factor: even with an open border, Hawaii tourism would have fallen sharply as people stopped flying. SPSC on insulated sectors alone therefore recovers only the macro component of the counterfactual, and the resulting tourism ATTs over-attribute the collapse to the policy—they are upper bounds in magnitude, which is why I report them as a band. The single cleanly identified effect is the broad Economic Activity Index, whose $\sim$12-point drop rides the macro factor the donors do span. The substantive conclusion is thus deliberately modest and, I would argue, more credible for it: the border closure coincided with a near-total collapse in measured tourism demand, of which a bounded share is causally the policy, and it accompanied a well-identified $\sim$12-point contraction in broad economic activity.
 
-\citet{bondsmith2022effects} provide useful context. They document that, as of 2022, Hawaii’s non-farm employment remained nearly 10\% below pre-pandemic levels, raising concerns about persistent scarring. Yet they also note that Hawaii avoided major COVID waves until Delta and Omicron. This contrast—between early economic contraction and delayed epidemiological impact—underscores the tradeoff central to this paper: early action can buy time, but at an economic cost.
+The decisive next step is to close the two-factor gap with an external travel-demand negative control: inbound passengers to a comparable destination that was exposed to the pandemic but did **not** lock down, with Florida the leading candidate. Such a donor would carry the travel-demand-collapse factor the insulated sectors miss, and adding it should tighten the tourism ATTs toward the policy-only effect—a smaller magnitude than the insulated-only bound. Two cautions from the present work carry forward: a no-lockdown donor tends to be *under*-weighted because its pre-2020 comovement with Hawaii tourism is weak, so simply adding it need not fix identification on its own; and near-collinear open destinations added *en masse* induce large offsetting weights and hurt the fit. Puerto Rico, tempting as a fellow island, is not a valid control—it imposed its own stay-at-home order in mid-March 2020 and is a contaminated, treated-like unit that, if anything, bounds the effect from the other side.
 
-This study does not estimate public health benefits directly, nor does it claim Hawaii’s policy was cost-effective overall. However, it does help clarify the economic price of acting early. Future research should evaluate whether these costs were offset by reduced mortality, hospital strain, or faster recovery. More broadly, Hawaii illustrates the challenge of crisis policymaking under uncertainty.
-
-
+These estimates speak only to short-run economic outcomes through the end of 2020 and do not weigh the public-health benefits—lives saved, hospital strain averted—against the economic cost. What the paper does provide is a credibly bounded price tag for decisive early action, and a template for evaluating it: when the intervention and the crisis it responds to are one and the same event in time, the analyst's task is not to find a cleaner comparison unit but to find a variable that sees the crisis and not the policy.
 
 # Conclusion
 
-This paper estimates the short-run economic consequences of Hawaii's March 2020 mandatory quarantine using the Synthetic Historical Control (SHC) method. By leveraging the state's own pre-treatment time series to construct credible counterfactuals, I document large negative impacts on tourism demand and related labor markets. Visitor days and hotel occupancy experienced dramatic collapses—estimated at roughly 85 and 76 percentage points below their synthetic historical benchmarks, respectively—while accommodations employment and the broader coincident economic activity index also declined sharply. These effects were statistically distinguishable from normal variation, as observed outcomes consistently fell outside 90\% conformal prediction intervals. Placebo tests using a pre-pandemic intervention date confirm the model's ability to avoid spurious detection of effects, lending credibility to the causal interpretation.
+This paper estimates the short-run economic consequences of Hawaii's March 2020 mandatory quarantine while confronting the identification problem that its predecessors on this topic could not: for a single treated unit, the border-closure policy and the COVID-19 pandemic are perfectly collinear in time, so no synthetic control that merely matches Hawaii to a pre-pandemic counterfactual can separate the two. I resolve this with Single Proxy Synthetic Control, a proximal / negative-control estimator that instruments the latent pandemic factor using insulated employment sectors that carry the pandemic's macro-recession shock but are immune to the border policy.
 
-The findings highlight both the severity and the transience of the economic shock. Although the initial downturn was severe, most indicators began recovering by late 2020 and into early 2021. This pattern of front-loaded costs followed by rebound is consistent with the logic of aggressive early intervention: by severely restricting inbound travel when the virus threat was still uncertain, Hawaii absorbed a concentrated economic hit that appears to have been relatively short-lived compared to more prolonged disruptions observed elsewhere. In this sense, the results provide empirical support for the ``pay now, benefit later'' nature of decisive containment strategies during emerging crises.
+Contrasting SPSC with a naive Synthetic Historical Control baseline shows that a substantial share of the measured tourism collapse—roughly `{python} _pp(vd_gap)` percentage points for Visitor Days—is pandemic contamination the naive design charges to the policy. SPSC recovers a large, robust tourism-demand collapse (about 60--75 points of year-over-year growth for the visitor-volume series) but, because the insulated sectors span only the macro-recession factor, identifies it weakly-to-borderline; these tourism effects are upper bounds in magnitude on the policy effect and are reported as a robustness band rather than as points. The one cleanly identified series is the Coincident Economic Activity Index ($\rho =$ `{python} f"{eai_rho:.2f}"`), whose $\sim$12-point contraction is the most trustworthy single estimate.
 
-Methodologically, this study demonstrates the value of the Synthetic Historical Control approach in settings where traditional synthetic control or difference-in-differences designs are infeasible due to the absence of suitable untreated units. Hawaii's extreme geographic isolation and tourism-dependent economy make it a particularly challenging case for cross-sectional comparison; SHC overcomes this limitation by borrowing strength from the treated unit's own historical dynamics. The strong pre-treatment fit, robust results across different evaluation windows, and transparent inference via conformal prediction intervals highlight SHC's promise for evaluating one-off, systemic policy shocks—whether pandemic-related, climate-induced, or stemming from other large-scale disruptions.
-
-From a public policy perspective, Hawaii's experience offers a concrete data point in the enduring debate over balancing public health imperatives against immediate economic costs. While this analysis focuses exclusively on economic outcomes and does not quantify lives saved, hospital capacity preserved, or long-term epidemiological advantages, it clarifies the magnitude of the short-run trade-off. Policymakers facing future crises—be they novel pathogens, natural disasters, or supply-chain shocks—should weigh these front-loaded economic costs against the potential for avoiding more persistent damage from delayed or uncoordinated responses. The results also underscore the particular vulnerability of tourism-dependent economies to border and mobility restrictions, suggesting that targeted support for hospitality sectors may be warranted when similar containment measures are deployed.
-
-Several limitations remain. First, the analysis captures only short-run effects through the end of 2020; longer-term scarring or differential recovery trajectories fall outside the scope of this study. Second, while SHC provides a credible counterfactual under its stated assumptions, it cannot fully account for nationwide or global confounders that may have differentially affected Hawaii. Finally, this paper does not conduct a full cost-benefit analysis incorporating public health outcomes. Future work should integrate these economic estimates with epidemiological modeling to better assess the net welfare effects of early, stringent interventions.
-
-Overall, Hawaii's ``Great Isolation with Aloha characteristics'' illustrates both the power and the pain of decisive action under uncertainty. By providing rigorous, methodologically innovative evidence on its economic consequences, this paper contributes to a more complete understanding of crisis response and equips policymakers with better tools for navigating the difficult trade-offs that future emergencies will inevitably demand.
-
-
+Methodologically, the study demonstrates how negative-control inference disciplines causal claims when a policy and a global shock coincide—a structure common to pandemic border closures, but also to climate shocks and other systemic crises where a would-be counterfactual unit is itself engulfed by the event. Substantively, it delivers a bounded, honest estimate of the economic price of Hawaii's ``Great Isolation with Aloha characteristics'', and points to a concrete path—an external no-lockdown travel-demand donor—for sharpening that bound into a point.
 
 ```{=latex}
 \bibliography{pl}
 ```
-
