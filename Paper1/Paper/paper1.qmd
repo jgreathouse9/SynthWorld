@@ -211,13 +211,25 @@ def shc_fit(w, oc, display=False):
              "save": False}).fit()
     return float(r.effects.att)
 
-def md_table(df):
-    cols = list(df.columns)
-    rows = ["| " + " | ".join(map(str, cols)) + " |",
-            "|" + "|".join([" --- "] * len(cols)) + "|"]
-    for _, r in df.iterrows():
-        rows.append("| " + " | ".join(str(v) for v in r) + " |")
-    return "\n".join(rows)
+def latex_table(df, caption, label):
+    """Emit a booktabs table as raw LaTeX.
+
+    Pandoc renders markdown pipe tables as ``longtable``, whose row-hook
+    machinery is fragile across TinyTeX kernel/package versions; a plain
+    ``tabular`` sidesteps it. Column headers and cells are passed through
+    verbatim (they already contain any intended math, e.g. ``$\\rho$``).
+    """
+    ncol = len(df.columns)
+    spec = "l" + "r" * (ncol - 1)  # label column left, numeric columns right
+    head = " & ".join(df.columns) + r" \\"
+    body = " \\\\\n".join(" & ".join(str(v) for v in row) for _, row in df.iterrows())
+    return (
+        "\\begin{table}[ht]\n\\centering\n"
+        f"\\begin{{tabular}}{{{spec}}}\n\\toprule\n"
+        f"{head}\n\\midrule\n{body} \\\\\n\\bottomrule\n"
+        "\\end{tabular}\n"
+        f"\\caption{{{caption}}}\n\\label{{{label}}}\n\\end{{table}}"
+    )
 
 def _pp(x):
     return f"{abs(x):.0f}"
@@ -311,16 +323,17 @@ _ = shc_fit(wide, "Visitor Days", display=True)
 _ = spsc_fit(wide, "Visitor Days", conformal=True, display=True)
 ```
 
-The `{python} _pp(vd_gap)`-point gap between the two estimates is not noise: it is the pandemic's macro-recession contribution from \eqref{eq:contamination}, which the naive design silently charges to the border policy and which SPSC removes by instrumenting it. The same wedge appears across the headline outcomes (@tbl-contrast). It is largest, in level terms, for the broad Economic Activity Index, where the naive ATT of `{python} f"{eai_shc:.1f}"` points shrinks to `{python} f"{eai_spsc:.1f}"` under SPSC---a `{python} _pp(eai_gap)`-point pandemic component---because that index is precisely the series most exposed to the general recession the insulated sectors span.
+The `{python} _pp(vd_gap)`-point gap between the two estimates is not noise: it is the pandemic's macro-recession contribution from \eqref{eq:contamination}, which the naive design silently charges to the border policy and which SPSC removes by instrumenting it. The same wedge appears across the headline outcomes (Table~\ref{tbl:contrast}). It is largest, in level terms, for the broad Economic Activity Index, where the naive ATT of `{python} f"{eai_shc:.1f}"` points shrinks to `{python} f"{eai_spsc:.1f}"` under SPSC---a `{python} _pp(eai_gap)`-point pandemic component---because that index is precisely the series most exposed to the general recession the insulated sectors span.
 
 ```{python}
 #| echo: false
 #| output: asis
-print(md_table(con_df))
-print("\n: Naive SHC versus proximal SPSC average treatment effects "
-      "(percentage points of year-over-year growth), headline outcomes. The "
-      "gap is the pandemic's macro-recession component the naive design cannot "
-      "net out. {#tbl-contrast}\n")
+print(latex_table(
+    con_df,
+    "Naive SHC versus proximal SPSC average treatment effects (percentage "
+    "points of year-over-year growth), headline outcomes. The gap is the "
+    "pandemic's macro-recession component the naive design cannot net out.",
+    "tbl:contrast"))
 ```
 
 @fig-shc-eai and @fig-spsc-eai repeat the contrast for the Economic Activity Index; here the SPSC pre-treatment gap (the right-hand panel) hugs zero tightly, foreshadowing the identification diagnostics below.
@@ -341,16 +354,17 @@ _ = spsc_fit(wide, "Econ Activity Index", conformal=True, display=True)
 
 ## SPSC estimates and the identification gauge
 
-@tbl-diag reports SPSC-DT across all ten outcomes together with the relevance ratio $\rho$ of \eqref{eq:rmsesd} and its identification label. Reading the table requires the discipline the ratio was introduced for: a point estimate is only as trustworthy as its pre-period fit.
+Table~\ref{tbl:diag} reports SPSC-DT across all ten outcomes together with the relevance ratio $\rho$ of \eqref{eq:rmsesd} and its identification label. Reading the table requires the discipline the ratio was introduced for: a point estimate is only as trustworthy as its pre-period fit.
 
 ```{python}
 #| echo: false
 #| output: asis
-print(md_table(diag_df))
-print("\n: SPSC-DT estimates and identification diagnostics, all outcomes. "
-      "ATT is in percentage points of year-over-year growth; the GMM SE is the "
-      "sandwich standard error; $\\rho$ is the pre-period RMSE/SD relevance "
-      "gauge. {#tbl-diag}\n")
+print(latex_table(
+    diag_df,
+    "SPSC-DT estimates and identification diagnostics, all outcomes. ATT is "
+    "in percentage points of year-over-year growth; the GMM SE is the sandwich "
+    "standard error; $\\rho$ is the pre-period RMSE/SD relevance gauge.",
+    "tbl:diag"))
 ```
 
 Three readings follow. First, **the tourism-demand collapse is large and robust**: Visitor Days, Visitor Arrivals, Occupancy, and Revenue per Available Room all show a $\sim$65--75-point year-over-year drop against the proximal counterfactual, and a pre-period RMSE of only a couple of points against a $\sim$70-point effect is a strong signal-to-effect ratio. Second, **the relevance ratios still sit near 1 for most tourism series** ($\rho \approx$ `{python} f"{vd_rho:.2f}"` for Visitor Days), because the insulated sectors under-span the tourism factor (Section~\ref{sec:spsc}); Occupancy and Revenue per Available Room are the best tourism cases ($\rho \approx 0.89$, borderline). These tourism ATTs are therefore best read as **upper bounds in magnitude** on the *policy* effect, with the observed drop equal to policy plus the travel-demand collapse. Third, **the one cleanly identified series is the Economic Activity Index** ($\rho =$ `{python} f"{eai_rho:.2f}"`, well-identified): riding the macro-recession factor the insulated sectors span, SPSC reconstructs its counterfactual well, and its $\sim$12-point drop is the single most trustworthy number in the table.
@@ -359,16 +373,18 @@ Two caveats attach to the GMM standard errors. On this 2014 window they are non-
 
 ## Robustness: a specification band, not a point
 
-Because the honest uncertainty is extrapolation risk rather than sampling noise, I report the headline effects as a **band** built from specification sensitivity: de-trending on versus off, the B-spline degrees of freedom, the polynomial basis degree, dropping each of the two largest-weight donors, and the full-1991 versus 2014 window. @tbl-band collects the minimum, median, and maximum SPSC ATT across these specifications for the four best-behaved outcomes.
+Because the honest uncertainty is extrapolation risk rather than sampling noise, I report the headline effects as a **band** built from specification sensitivity: de-trending on versus off, the B-spline degrees of freedom, the polynomial basis degree, dropping each of the two largest-weight donors, and the full-1991 versus 2014 window. Table~\ref{tbl:band} collects the minimum, median, and maximum SPSC ATT across these specifications for the four best-behaved outcomes.
 
 ```{python}
 #| echo: false
 #| output: asis
-print(md_table(band_df))
-print("\n: Specification robustness band. Minimum, median, and maximum SPSC "
-      "ATT (percentage points) across seven specifications: de-trend on/off, "
-      "spline df, basis degree, two donor-subset drops, and the 2014 versus "
-      "full-1991 window. {#tbl-band}\n")
+print(latex_table(
+    band_df,
+    "Specification robustness band. Minimum, median, and maximum SPSC ATT "
+    "(percentage points) across seven specifications: de-trend on/off, spline "
+    "df, basis degree, two donor-subset drops, and the 2014 versus full-1991 "
+    "window.",
+    "tbl:band"))
 ```
 
 For the visitor-volume series the band runs roughly from `{python} f"{vd_band.min():.0f}"` to `{python} f"{vd_band.max():.0f}"` points (median `{python} f"{np.median(vd_band):.0f}"`), so the defensible statement is a $\sim$60--75-point *upper-bound* collapse in tourism demand rather than any single figure. The Economic Activity Index band is both narrower and shallower, consistent with its being the cleanly identified case. Taken together, the diagnostics and the band say the same thing: the border closure sits on top of a large tourism-demand collapse that the insulated sectors cannot fully separate from it, so the tourism numbers bound the policy effect from above while the broad activity index gives the one point estimate the data can support.

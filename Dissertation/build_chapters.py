@@ -65,12 +65,31 @@ def demote_headings(t: str) -> str:
 
 
 def namespace_labels(t: str, tag: str) -> str:
-    keys = set(re.findall(r"\\label\{([^}]+)\}", t))
+    """Prefix raw-LaTeX ``\\label``/``\\ref`` keys with the chapter tag so the
+    three papers don't collide.
+
+    Only prose lines are touched: fenced code blocks are skipped, because a
+    Python cell may legitimately contain the literal string ``\\label{...}``
+    (e.g. a helper that emits a LaTeX table at render time), and rewriting that
+    would corrupt the code. Labels emitted at render time are globally unique
+    already, so they need no namespacing.
+    """
+    lines = t.split("\n")
+    in_code = False
+    prose = []  # indices of non-code lines
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("```"):
+            in_code = not in_code
+            continue
+        if not in_code:
+            prose.append(i)
+    keys = set(re.findall(r"\\label\{([^}]+)\}", "\n".join(lines[i] for i in prose)))
     for k in sorted(keys, key=len, reverse=True):
         nk = f"{tag}-{k}"
-        t = t.replace("{" + k + "}", "{" + nk + "}")
-        t = t.replace("[" + k + "]", "[" + nk + "]")
-    return t
+        for i in prose:
+            lines[i] = lines[i].replace("{" + k + "}", "{" + nk + "}")
+            lines[i] = lines[i].replace("[" + k + "]", "[" + nk + "]")
+    return "\n".join(lines)
 
 
 # --------------------------------------------------------------------------- #
