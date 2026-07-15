@@ -24,7 +24,7 @@ REPO = HERE.parent  # the SynthWorld repo root
 
 SRC = {
     "01-hawaii": (REPO / "Paper1/Paper/paper1.qmd", "p1",
-        "Paradise Lost? Estimating the Economic Impact of Hawaii's Mandatory Quarantine using Synthetic Historical Controls"),
+        "Paradise Lost? Separating Policy from Pandemic in Hawaii's Border Closure with Single Proxy Synthetic Control"),
     "02-india": (REPO / "Paper2/Paper/india.qmd", "p2",
         "Clearing the Air: How India's 2020 Lockdown Impacted Air Quality"),
     "03-mandates": (REPO / "Paper3/Paper/paper3.qmd", "p3",
@@ -77,59 +77,16 @@ def namespace_labels(t: str, tag: str) -> str:
 # chapter-specific patches
 # --------------------------------------------------------------------------- #
 def patch_paper1(t: str) -> str:
-    """Port the SHC plotting to the current mlsynth API and fix the data path."""
-    t = t.replace('pd.read_excel("Data/HawaiiData.xlsx")',
-                  'pd.read_excel("../Paper1/Paper/Data/HawaiiData.xlsx")')
-    t = t.replace('pd.read_excel("Data/HawaiiTaxData.xlsx")',
-                  'pd.read_excel("../Paper1/Paper/Data/HawaiiTaxData.xlsx")')
-    t = t.replace(
-        '''    # Extract vectors
-    vectors = result.raw_results["Vectors"]
-    observed = vectors["Observed Unit"]
-    counterfactual = vectors["Counterfactual"]
-    gap = vectors["Gap"][:, 1]
+    """Rewrite the Hawaii SPSC panel data path for the dissertation build.
 
-    plot_data[outcome] = {
-        "time": gap,
-        "observed": observed,
-        "counterfactual": counterfactual
-    }''',
-        '''    # Extract vectors (current mlsynth SHCResults API)
-    observed = np.asarray(result.observed, dtype=float).ravel()
-    counterfactual = np.asarray(result.counterfactual, dtype=float).ravel()
-    tindex = result.inputs.m   # window = m pre + n post; post begins at index m
-
-    plot_data[outcome] = {
-        "tindex": tindex,
-        "observed": observed,
-        "counterfactual": counterfactual
-    }''')
-    t = t.replace(
-        '''    time = np.arange(len(data_dict["observed"]))
-    treatment_index = np.where(data_dict["time"] == 0)[0][0]''',
-        '''    time = np.arange(len(data_dict["observed"]))
-    treatment_index = data_dict["tindex"]''')
-    t = t.replace(
-        '''    # Add prediction interval if available
-    inference = results[outcome].inference
-    if inference and inference.details:
-        interval = inference.details.get("full_interval")
-        if interval is not None and interval.size > 0:
-            lower, upper = interval[:, 0], interval[:, 1]
-            valid = ~(np.isnan(lower) | np.isnan(upper))
-            if np.any(valid):
-                ax.fill_between(time[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
-                                label="Conformal 90% Interval")''',
-        '''    # Add conformal prediction interval if available (post-period bands)
-    inf = results[outcome].inference_detail
-    if inf is not None and getattr(inf, "conformal_lower", None) is not None:
-        lower = np.asarray(inf.conformal_lower, dtype=float).ravel()
-        upper = np.asarray(inf.conformal_upper, dtype=float).ravel()
-        xs = np.arange(treatment_index, treatment_index + len(lower))
-        valid = ~(np.isnan(lower) | np.isnan(upper))
-        if np.any(valid):
-            ax.fill_between(xs[valid], lower[valid], upper[valid], color="gray", alpha=0.25,
-                            label="Conformal 90% Interval")''')
+    Chapter 1 executes SHC (naive baseline) and PROXIMAL/SPSC against the
+    current mlsynth API directly, so no API porting is needed here. The only
+    dissertation-specific fixup is the relative data path: the source paper
+    reads ``Data/hawaii_proximal_panel.csv`` from ``Paper1/Paper/``, but the
+    dissertation renders from ``Dissertation/``, so the CSV lives one level up.
+    """
+    t = t.replace('DATA = "Data/hawaii_proximal_panel.csv"',
+                  'DATA = "../Paper1/Paper/Data/hawaii_proximal_panel.csv"')
     return t
 
 
