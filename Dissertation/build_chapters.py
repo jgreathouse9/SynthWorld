@@ -121,98 +121,102 @@ def patch_paper1(t: str) -> str:
 PROXIMAL_PRIMER = r'''## A Gentle Introduction to Proximal Inference
 \label{p1-sec:primer}
 
-Before the formal development, a word to orient the reader who has not met
-proximal inference. The method this chapter leans on is unusual, and the
-intuition behind it can be stated without any of the machinery that follows.
+Before the formal development, an analogy for the reader who has not yet met
+proximal inference, because the idea is far simpler than the machinery that
+carries it.
 
-Start with the natural idea. To measure what Hawaii's border closure cost, we
-would like to compare the Hawaii we observed against the Hawaii that would have
-existed had the border stayed open. We cannot see that second Hawaii, so
-synthetic-control methods build a stand-in for it out of data we do
-have---Hawaii's own pre-2020 history, or a weighted blend of other
-places---chosen so
-the stand-in tracks Hawaii closely before the policy. The appeal is that we can
-*check* the stand-in: if it shadows Hawaii for years before March 2020, we trust
-it to stand in for Hawaii afterward.
+Imagine you want to know whether a fan cools your room. You switch the fan
+on---but at that same moment someone cracks the window, and a cool evening
+breeze drifts in. A few minutes later the room is cooler. How much of that
+cooling was the fan, and how much was the breeze? From inside this one room you
+cannot say: the fan and the breeze came on together, so the drop in temperature
+is the two of them combined, and nothing you measure in this room alone will
+separate them.
 
-That check is exactly what fails here, and the reason is subtle enough to be
-worth spelling out. The border closure did not arrive alone; it arrived in the
-same month as a global pandemic that would have battered Hawaii tourism
-regardless of any policy. A stand-in built to match Hawaii's calm pre-2020
-history is a picture of a world with neither the closure nor the pandemic.
-Comparing the observed, locked-down, pandemic-struck Hawaii against that calm
-stand-in blames the entire collapse---pandemic and policy together---on the
-policy. And no amount of pre-2020 fit warns you, because the pandemic simply was
-not present in the pre-period to be matched. \citet{hollingsworth2020tactics}
-make this precise: a factor that is quiet before treatment and only ``wakes up''
-afterward leaves no fingerprint in the pre-period, so a stand-in can match the
-past perfectly and still be wrong about the future. A good fit is not the same
-as a correct answer.
+That is Hawaii's problem exactly. The fan is the border closure, the policy
+whose effect we want to isolate. The breeze is the pandemic, a force that was
+cooling tourism no matter what the state did. The two arrived in the same month,
+so the collapse we observe is fan plus breeze, and the treated unit on its own
+cannot tell us how much is which. A spotless pre-period track record does not
+rescue us; it only confirms that the room behaved normally before the window
+was ever opened.
 
-To make the problem---and the fix---something the reader can *see*, @fig-primer
-stages a small simulation in which the true answer is known by construction. We
-build a synthetic Hawaii-like economy driven by two hidden forces: an ordinary
-business cycle and, layered on top after month 60, a pandemic-style collapse.
-Into this world we insert a border-closure policy whose true effect we set
-ourselves to $-15$ points. Because we built the world, we know the right answer,
-and we can ask each method the same question: do you recover $-15$?
+The obvious repairs fail, and instructively they fail in opposite directions.
+Reason from the room's own past---"it was 75 degrees, now it is 68, so the fan
+did seven"---and you have quietly charged the breeze's cooling to the fan: you
+overstate the fan. Compare your room instead against other rooms that also had
+fans of their own running, and now the fan sits on both sides of the comparison
+and cancels, so it looks as though the fan did almost nothing: you understate
+it. One story is blind to the breeze; the other cancels the fan away.
 
-Two natural methods fail, and instructively they fail in *opposite* directions.
-Reconstructing Hawaii from its own calm history---the ``own-history''
-bar---blames the whole downturn on the policy and reports about $-52$, more than
-three
-times too large, because it is blind to the pandemic. Borrowing from comparable
-tourism economies---the ``contaminated-donors'' bar---does the reverse: those
-places shut their own borders too, so the comparison quietly nets the policy out
-of both sides and reports roughly $-7$, drifting toward zero. One method sees
-only the policy; the other cancels the policy away.
+The way out is to find the breeze somewhere the fan never reached. Look at the
+other rooms in the house whose windows were open---the same evening air---but
+which ran no fan of their own. Their cooling is the breeze alone, with the fan
+stripped off, so you can use them to reconstruct how much your room would have
+cooled from the breeze, subtract that, and keep what is left as the fan. Two
+things make a room usable. It must genuinely feel the same outside air and drift
+up and down with your room over an ordinary day (its \emph{relevance}), and it
+must run no fan of its own (its \emph{exclusion}). A sealed interior closet is
+useless, because it never feels the breeze; a room running its own fan is worse
+than useless, because it cancels the very effect we are trying to measure.
 
-The proximal fix threads between them. Rather than a stand-in that must be
-untouched by the pandemic (there is none) or a treated unit whose calm past
-hides the pandemic, it enlists a \emph{negative control}: a place that felt the
-very same pandemic but did \emph{not} take Hawaii's policy, and it lets that
-place trace out how much of Hawaii's collapse was pandemic rather than policy.
-Two things must be true of such a control. It must be *relevant*---genuinely
-moved by the same forces as Hawaii, so it carries usable information---and it
-must be *excluded*---untouched by the border policy itself, so it cannot smuggle
-the treatment back in. Insulated employment sectors inside Hawaii clear the
-exclusion test easily but carry only part of the story: they feel the macro
-recession but not the collapse in travel demand, so Single Proxy Synthetic
-Control built on them alone under-corrects, landing near $-45$ (the ``internal''
-bar). The piece they miss is supplied by an \emph{external} control that is
-drenched in the travel collapse yet never locked down: inbound air travel to
-Florida. Adding Florida recovers the true effect, about $-16$ against a truth of
-$-15$ (the ``+ Florida'' bar). These single-draw readings are representative;
-averaged over repeated simulations the four methods come in near $-51$, $-7$,
-$-42$, and $-16$, the same ordering every time.
+One last piece: not every fanless room feels the same breeze. Most register only
+the general cool-down of the whole house, while a single large window on the
+windward side catches the specific gust off the water. In Hawaii the insulated
+employment sectors are the general-cool-down rooms---they feel the macro
+recession but not the collapse in travel---while inbound air travel to Florida,
+drenched in the travel collapse yet never locked down, is the windward window.
+The move that feels backward is the crux of the method: a place the breeze
+hammered looks like a terrible comparison for your room and is in fact the only
+good one, precisely because it felt the shock and skipped the policy.
 
-The counterintuitive part is worth naming, because it is the crux of the whole
-approach. Florida looks like a \emph{terrible} comparison for Hawaii---COVID
-devastated Florida tourism too---and that shared devastation is exactly what
-makes it the \emph{right} control. We are not hunting for a place the pandemic
-spared; there was none. We want a place that felt the pandemic and skipped the
-policy, so that its post-2020 path shows the pandemic's mark with the policy
-stripped away. That is the whole of the idea. The sections that follow put it on
-a formal footing---the factor model that makes ``wakes up'' precise
-(Section~\ref{p1-sec:idprob}), the estimator and its identifying conditions
-(Section~\ref{p1-sec:spsc}), and the Florida donor in the real data
-(Section~\ref{p1-sec:florida})---but the picture in @fig-primer is the argument
-in miniature: two familiar methods missing in opposite directions, and a
-negative control that lands on the truth.
+This is also why the method needs only a single proxy. You might hope the room's
+own history could stand in for the missing breezy room; it cannot, and the
+reason is sharp. Until tonight every room simply tracked the house thermostat
+together, so you never had occasion to learn how strongly any one room cools
+when its own window opens. A model that fits the room's calm past to perfection
+still cannot tell you its response to an open window.
+\citet{hollingsworth2020tactics} make this precise: a factor that lies dormant
+before treatment and only wakes up afterward leaves no fingerprint in the
+pre-period, so a perfect pre-treatment fit is not the same as a correct answer.
+The treated room's own past carries part of what the estimator needs; the
+fanless, breezy room supplies the rest.
 
-![A simulated horse race with a known answer. A synthetic Hawaii-like economy is
-driven by an ordinary business cycle and, after month 60, a pandemic-style
-collapse; a border-closure policy with a true effect of $-15$ points is layered
-on. Left: the observed treated series (black) falls below its true no-policy
-counterfactual (green dashed) by the policy effect, while the own-history
-reconstruction (red) is blind to the pandemic and the contaminated-donor
-comparison (orange) tracks donors that also shut down; Single Proxy Synthetic
-Control with the external Florida proxy (blue) hugs the truth. Right: the
-estimated policy effect from each method against the true $-15$ (green dashed).
-The two naive methods miss in opposite directions; the proximal estimate with a
-valid external negative control recovers the answer. The figure shows one
-representative draw; the accompanying readings are means over repeated
-draws.](proximal_primer.png){#fig-primer}
+To turn the picture into something we can check, @fig-primer runs the fan
+experiment in a world whose true answer we know because we set it. We build a
+synthetic economy stirred by two hidden forces---an ordinary cycle, the house
+thermostat, and a sharp collapse after month 60, the breeze---and we install a
+policy whose true effect we fix at $-15$ points. Then we put the same question
+to each method: do you recover $-15$? In the single draw shown, reasoning from
+the room's own history returns about $-52$, blind to the breeze; comparing
+against contaminated, fan-running rooms returns about $-7$, the fan cancelled
+away; Single Proxy Synthetic Control on the internal rooms alone returns about
+$-45$, catching the general cool-down but missing the gust; and adding the
+Florida window recovers about $-16$ against a truth of $-15$. The two naive
+methods miss in opposite directions; the negative control lands on the answer.
+Averaged over many draws the four settle near $-51$, $-7$, $-42$, and $-16$, and
+the ordering never changes.
+
+The sections that follow trade the fan for notation---the factor model that
+makes "the breeze wakes up" precise (Section~\ref{p1-sec:idprob}), the estimator
+and the conditions it requires (Section~\ref{p1-sec:spsc}), and the Florida
+donor in the real data (Section~\ref{p1-sec:florida})---but the fan is the whole
+of it: two coincident causes you cannot separate from one room, and a fanless,
+breezy room that lets you separate them.
+
+![The fan experiment with a known answer. A synthetic Hawaii-like economy is
+stirred by an ordinary business cycle (the house thermostat) and, after month
+60, a sharp pandemic-style collapse (the breeze); a border-closure policy (the
+fan) with a true effect of $-15$ points is layered on. Left: the observed
+treated series (black) falls below its true no-policy counterfactual (green
+dashed) by the policy effect; the own-history reconstruction (red) is blind to
+the breeze, the contaminated-donor comparison (orange) tracks rooms that also
+ran fans, and Single Proxy Synthetic Control with the external Florida window
+(blue) hugs the truth. Right: each method's estimated policy effect against the
+true $-15$ (green dashed). The two naive methods miss in opposite directions;
+the proximal estimate, built on a valid external negative control, recovers the
+answer. The panel shows the single draw quoted in the text; averaged over
+repeated draws the estimates are close and the ordering is unchanged.](proximal_primer.png){#fig-primer}
 
 '''
 
