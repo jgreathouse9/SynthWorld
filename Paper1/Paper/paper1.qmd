@@ -240,6 +240,25 @@ def spsc_fit(outcome, donor_units=None, detrend=True, conformal=False,
     return {"att": float(res.att), "se": se, "pre_rmse": pre_rmse,
             "wfl": float(w.get("Florida", float("nan")))}
 
+def spsc_paths(outcome, donor_units=None, conformal=False, start=START):
+    """Fit SPSC-DT and return the plotting arrays: observed, counterfactual,
+    ATT and its GMM SE, and the per-period conformal half-width."""
+    donor_units = list(INSULATED if donor_units is None else donor_units)
+    long = to_fit_frame(outcome, donor_units, start=start)
+    res = PROXIMAL({"df": long, "outcome": "y", "treat": "treat", "unitid": "unit",
+                    "time": "time", "methods": ["SPSC"], "donors": donor_units,
+                    "spsc_detrend": True, "spsc_conformal": conformal,
+                    "display_graphs": False, "save": False}).fit()
+    tr = long[long.unit == outcome].sort_values("time")
+    y = tr["y"].to_numpy(float)
+    t = np.asarray(tr["time"].to_numpy(), dtype="datetime64[ns]")
+    t0 = int((tr["treat"].to_numpy() == 0).sum())
+    c = (res.spsc.metadata or {}).get("conformal") or {}
+    lo = np.asarray(c.get("lower", []), float); hi = np.asarray(c.get("upper", []), float)
+    se = float(res.att_se) if res.att_se is not None else float("nan")
+    return {"y": y, "t": t, "t0": t0, "cf": np.asarray(res.counterfactual, float).ravel(),
+            "att": float(res.att), "se": se, "hw": (hi - lo) / 2 if len(lo) else np.array([])}
+
 def shc_fit(outcome, display=False, start=START):
     """Fit the naive Synthetic Historical Control baseline (own history)."""
     s = LONG[(LONG.unit == outcome) & (LONG.time >= pd.Timestamp(start))][["time", "y"]]
@@ -474,6 +493,40 @@ print(latex_table(
 ```
 
 The payoff, and its limit, are both visible for the headline series. For Visitor Days the travel-demand donor pulls the estimate from the insulated-only bound of `{python} f"{vd_spsc:.1f}"` toward `{python} f"{vd_fl_att:.1f}"` points: because part of the travel-demand collapse is now reconstructed *into* the counterfactual, less of the observed drop is attributed to the policy, and the effect moves in the theorized direction---down off the upper bound toward the policy-only effect. But the response is not uniform. For Visitor Arrivals and Revenue per Available Room the joint re-fit moves the ATT the other way, and Occupancy is unchanged because Florida is (correctly) ignored there. This non-monotone pattern is the empirical signature of a single, only moderately-comoving external proxy: Florida is a *relevant but weak* instrument for the travel-demand factor (pre-correlations around `{python} f"{fl_corr_vd:.2f}"`, not near one), so it revises the estimates and tightens the fit without cleanly resolving the travel-demand-versus-policy split across every outcome. It does for Visitor Days what the design promises---converts a bound into a policy-centered point estimate---and it demonstrates that the missing factor is real and, in principle, separable; fully converting the other tourism bounds would require a panel of open destinations chosen for stronger pre-period comovement with Hawaii, not one proxy. The Economic Activity Index barely moves, as expected: it is already well identified off the macro factor, so Florida (weight $\approx 0$) has nothing to add.
+
+@fig-spsc-grid shows the two counterfactuals against the observed series for every headline outcome. The wedge between the insulated and the +Florida counterfactual is where Florida does work---visible for Visitor Days and Visitor Arrivals, invisible for Occupancy, where the two lines coincide because Florida is down-weighted to zero. Reading the wedge as a clean travel-demand decomposition would over-interpret it, though: the +Florida fit re-solves all bridge weights jointly, which is why the wedge does not move monotonically across outcomes.
+
+```{python}
+#| echo: false
+#| label: fig-spsc-grid
+#| fig-cap: "SPSC counterfactuals for the six headline outcomes: observed (black), the insulated-donor counterfactual (dashed), and the counterfactual after adding the Florida travel-demand donor (dash-dot). Red spikes are the per-period conformal prediction interval around the insulated counterfactual (clipped to each panel; wide/degenerate for the near-interpolating series, where the ATT interval is the informative uncertainty). Each panel title gives the ATT with its 95\\% GMM confidence interval for both donor sets."
+_GRID = ["Visitor Days", "Visitor Arrivals", "Occupancy",
+         "Revenue per Available Room", "Accommodation Emp", "Econ Activity Index"]
+fig, axes = plt.subplots(3, 2, figsize=(12, 11)); axes = axes.flatten()
+for ax, oc in zip(axes, _GRID):
+    p0 = spsc_paths(oc, INSULATED, conformal=True)
+    p1 = spsc_paths(oc, INSULATED + TRAVEL)
+    d, t0 = p0["t"], p0["t0"]; post = d[t0:]
+    ax.plot(d, p0["y"], color="black", lw=1.5, label="observed")
+    ax.plot(d, p0["cf"], color="crimson", lw=1.4, ls="--", label="SPSC (insulated)")
+    ax.plot(d, p1["cf"], color="steelblue", lw=1.4, ls="-.", label="SPSC (+ Florida)")
+    yv = np.concatenate([p0["y"], p0["cf"], p1["cf"]])
+    lo, hi = np.nanmin(yv), np.nanmax(yv); pad = 0.08 * (hi - lo)
+    ax.set_ylim(lo - pad, hi + pad)
+    for i, x in enumerate(post):
+        if i < len(p0["hw"]):
+            ax.plot([x, x], [p0["cf"][t0 + i] - p0["hw"][i], p0["cf"][t0 + i] + p0["hw"][i]],
+                    color="crimson", lw=0.9, alpha=0.35)
+    ax.axvline(d[t0], color="grey", ls=":", lw=1); ax.axhline(0, color="grey", lw=0.5)
+    c0, c1 = 1.96 * p0["se"], 1.96 * p1["se"]
+    ax.set_title(f"{oc}: ATT insulated {p0['att']:.0f} [{p0['att']-c0:.0f}, {p0['att']+c0:.0f}]\n"
+                 f"+ Florida {p1['att']:.0f} [{p1['att']-c1:.0f}, {p1['att']+c1:.0f}]", fontsize=8.5)
+    ax.legend(fontsize=6.5, loc="lower left"); ax.set_ylabel("YoY %", fontsize=8)
+    ax.xaxis.set_major_locator(mdates.YearLocator(2))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+plt.tight_layout()
+plt.show()
+```
 
 # Discussion
 \label{sec:discuss}
