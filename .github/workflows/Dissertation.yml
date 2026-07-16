@@ -10,6 +10,7 @@ on:
       - 'Paper2/Paper/delhi.bib'
       - 'Paper3/Paper/ktc.bib'
       - 'Dissertation/**'
+      - '.github/workflows/Dissertation.yml'
   workflow_dispatch:
 
 permissions:
@@ -33,12 +34,28 @@ jobs:
       - name: Install Python dependencies (mlsynth + analysis stack)
         run: pip install -r Dissertation/build-requirements.txt
 
-      - name: Set up Quarto with TinyTeX
+      - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tinytex: true
+
+      - name: Install TinyTeX (retry around transient GitHub release-API 503s)
+        # `quarto install tinytex` resolves the latest rstudio/tinytex-releases
+        # release via the GitHub API; when that endpoint is briefly degraded it
+        # returns 503 and the whole render fails through no fault of the content.
+        # Retry with backoff so an intermittent blip self-heals.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if quarto install tinytex --no-prompt --log-level warning; then
+              exit 0
+            fi
+            echo "::warning::TinyTeX install attempt $i failed (likely a transient GitHub 503 on the tinytex-releases lookup); retrying in $((i*20))s"
+            sleep $((i * 20))
+          done
+          echo "::error::TinyTeX install failed after 6 attempts"
+          exit 1
 
       - name: Install LaTeX packages the GSU class needs
         run: |
