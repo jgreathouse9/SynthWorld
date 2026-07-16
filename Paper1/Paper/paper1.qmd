@@ -179,43 +179,58 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from mlsynth import SHC, PROXIMAL
 
-DATA = "Data/hawaii_proximal_panel.csv"
-START, TREAT = "2014-01-01", "Mandatory Quarantine"
-DONORS = ["NatRes_Constr_Emp", "Wholesale_Emp", "Financial_Emp",
-          "HealthCare_Emp", "Government_Emp"]
-DLAB = {"NatRes_Constr_Emp": "Nat. Res. & Constr.", "Wholesale_Emp": "Wholesale Trade",
-        "Financial_Emp": "Financial Activities", "HealthCare_Emp": "Health Care",
-        "Government_Emp": "Government"}
+# One canonical long panel (unit, time, y, role, group) assembled by
+# Code/Python/build_spsc_panel.py -- treated outcomes, insulated-sector donors,
+# and the Florida travel-demand donor, all as YoY % growth. We load it and fit;
+# no re-pivoting, summing, or merging happens here.
+DATA = "Data/hawaii_spsc_long.csv"
+START, TREAT, TREAT_DATE = "2014-01-01", "Mandatory Quarantine", pd.Timestamp("2020-03-01")
+LONG = pd.read_csv(DATA, parse_dates=["time"])
+
+_u = lambda role, grp: LONG[(LONG.role == role) & (LONG.group == grp)].unit.unique().tolist()
+# Explicit display order for the outcomes (visitor-volume series first).
 TOURISM = ["Visitor Arrivals", "Visitor Days", "Occupancy", "Mean Daily Rate",
            "Revenue per Available Room", "Accommodation Emp"]
 ECON = ["Total Leisure Emp", "Unemp Rate", "LFP", "Econ Activity Index"]
 ALL_OUT = TOURISM + ECON
+INSULATED = _u("donor", "insulated")           # the five negative-control donors
+TRAVEL = _u("donor", "travel-demand")          # Florida
+assert set(TOURISM + ECON) == set(_u("outcome", "tourism") + _u("outcome", "econ-labor"))
+DLAB = {"NatRes_Constr_Emp": "Nat. Res. & Constr.", "Wholesale_Emp": "Wholesale Trade",
+        "Financial_Emp": "Financial Activities", "HealthCare_Emp": "Health Care",
+        "Government_Emp": "Government"}
 
-_full = pd.read_csv(DATA, parse_dates=["Date"])
-wide = _full[_full["Date"] >= pd.Timestamp(START)].reset_index(drop=True)
+# Wide view over the analysis window, for the descriptive premise plot only.
+wide = (LONG[LONG.time >= pd.Timestamp(START)]
+        .pivot_table(index="time", columns="unit", values="y")
+        .reset_index().rename(columns={"time": "Date"}))
 
-def _long(w, oc, donors=DONORS):
-    fr = []
-    t = w[["Date", oc, TREAT]].rename(columns={oc: "y", TREAT: "treat"})
-    t["unit"] = oc; t["treat"] = t["treat"].astype(int)
-    fr.append(t[["unit", "Date", "y", "treat"]])
-    for d in donors:
-        f = w[["Date", d]].rename(columns={d: "y"}); f["unit"] = d; f["treat"] = 0
-        fr.append(f[["unit", "Date", "y", "treat"]])
-    return pd.concat(fr, ignore_index=True).rename(columns={"Date": "time"})
+def to_fit_frame(outcome, donor_units, start=START):
+    """Select one treated outcome + donor units from the long panel.
 
-def spsc_fit(w, oc, donors=DONORS, detrend=True, conformal=False,
-             spline_df=None, basis_degree=None, display=False):
-    """Fit SPSC-DT. display=True renders mlsynth's native two-panel graph."""
-    long = _long(w, oc, donors)
+    Bounds every unit to the treated outcome's own months (so the panel is
+    balanced) and stamps the treatment flag on the outcome from March 2020.
+    """
+    dates = set(LONG[(LONG.unit == outcome) & (LONG.time >= pd.Timestamp(start))].time
+                if start else LONG[LONG.unit == outcome].time)
+    d = LONG[LONG.unit.isin([outcome] + list(donor_units)) & LONG.time.isin(dates)].copy()
+    d["treat"] = ((d.unit == outcome) & (d.time >= TREAT_DATE)).astype(int)
+    return d[["unit", "time", "y", "treat"]]
+
+def spsc_fit(outcome, donor_units=None, detrend=True, conformal=False,
+             spline_df=None, basis_degree=None, display=False, start=START):
+    """Fit SPSC-DT for one outcome. donor_units defaults to the insulated five.
+    display=True renders mlsynth's native graph."""
+    donor_units = list(INSULATED if donor_units is None else donor_units)
+    long = to_fit_frame(outcome, donor_units, start=start)
     cfg = {"df": long, "outcome": "y", "treat": "treat", "unitid": "unit",
-           "time": "time", "methods": ["SPSC"], "donors": donors,
+           "time": "time", "methods": ["SPSC"], "donors": donor_units,
            "spsc_detrend": detrend, "spsc_conformal": conformal,
            "display_graphs": display, "save": False}
     if spline_df is not None: cfg["spsc_spline_df"] = spline_df
     if basis_degree is not None: cfg["spsc_basis_degree"] = basis_degree
     res = PROXIMAL(cfg).fit()
-    tr = long[long.unit == oc].sort_values("time")
+    tr = long[long.unit == outcome].sort_values("time")
     y = tr["y"].to_numpy(float)
     t0 = int((tr["treat"].to_numpy() == 0).sum())
     cf = np.asarray(res.counterfactual, float).ravel()
@@ -223,10 +238,12 @@ def spsc_fit(w, oc, donors=DONORS, detrend=True, conformal=False,
     se = float(res.att_se) if res.att_se is not None else float("nan")
     return {"att": float(res.att), "se": se, "pre_rmse": pre_rmse}
 
-def shc_fit(w, oc, display=False):
+def shc_fit(outcome, display=False, start=START):
     """Fit the naive Synthetic Historical Control baseline (own history)."""
-    sub = w[["Date", oc, TREAT]].copy(); sub["Unit"] = "Hawaii"
-    r = SHC({"df": sub, "outcome": oc, "treat": TREAT, "unitid": "Unit",
+    s = LONG[(LONG.unit == outcome) & (LONG.time >= pd.Timestamp(start))][["time", "y"]]
+    s = s.rename(columns={"time": "Date", "y": outcome})
+    s["Unit"] = "Hawaii"; s[TREAT] = (s.Date >= TREAT_DATE).astype(int)
+    r = SHC({"df": s, "outcome": outcome, "treat": TREAT, "unitid": "Unit",
              "time": "Date", "m": 12 * 5, "display_graphs": display,
              "save": False}).fit()
     return float(r.effects.att)
@@ -257,7 +274,7 @@ def _pp(x):
 # Diagnostics across all outcomes (numeric; no per-call graphs)
 _diag = []
 for oc in ALL_OUT:
-    f = spsc_fit(wide, oc)
+    f = spsc_fit(oc)
     _diag.append([oc, "tourism" if oc in TOURISM else "econ/labor",
                   f"{f['att']:.1f}", f"{f['se']:.1f}", f"{f['pre_rmse']:.2f}"])
 diag_df = pd.DataFrame(_diag, columns=["Outcome", "Group", "ATT",
@@ -268,7 +285,7 @@ _HEAD = ["Visitor Days", "Occupancy", "Revenue per Available Room",
          "Accommodation Emp", "Econ Activity Index"]
 _con, _shc, _spsc = [], {}, {}
 for oc in _HEAD:
-    _shc[oc] = shc_fit(wide, oc); _spsc[oc] = spsc_fit(wide, oc)["att"]
+    _shc[oc] = shc_fit(oc); _spsc[oc] = spsc_fit(oc)["att"]
     _con.append([oc, f"{_shc[oc]:.1f}", f"{_spsc[oc]:.1f}", f"{_shc[oc]-_spsc[oc]:.1f}"])
 con_df = pd.DataFrame(_con, columns=["Outcome", "Naive SHC", "Proximal SPSC",
                                      "Gap (pandemic)"])
@@ -278,13 +295,13 @@ _BAND = ["Visitor Days", "Occupancy", "Revenue per Available Room", "Econ Activi
 _band = {}
 for oc in _BAND:
     a = np.array([
-        spsc_fit(wide, oc, detrend=True)["att"],
-        spsc_fit(wide, oc, detrend=False)["att"],
-        spsc_fit(wide, oc, basis_degree=2)["att"],
-        spsc_fit(wide, oc, spline_df=6)["att"],
-        spsc_fit(wide, oc, donors=[d for d in DONORS if d != "Government_Emp"])["att"],
-        spsc_fit(wide, oc, donors=[d for d in DONORS if d != "HealthCare_Emp"])["att"],
-        spsc_fit(_full, oc, detrend=True)["att"],
+        spsc_fit(oc, detrend=True)["att"],
+        spsc_fit(oc, detrend=False)["att"],
+        spsc_fit(oc, basis_degree=2)["att"],
+        spsc_fit(oc, spline_df=6)["att"],
+        spsc_fit(oc, donor_units=[d for d in INSULATED if d != "Government_Emp"])["att"],
+        spsc_fit(oc, donor_units=[d for d in INSULATED if d != "HealthCare_Emp"])["att"],
+        spsc_fit(oc, detrend=True, start=None)["att"],
     ])
     _band[oc] = a
 band_df = pd.DataFrame(
@@ -297,8 +314,8 @@ vd_shc, vd_spsc = _shc["Visitor Days"], _spsc["Visitor Days"]
 vd_gap = vd_shc - vd_spsc
 eai_shc, eai_spsc = _shc["Econ Activity Index"], _spsc["Econ Activity Index"]
 eai_gap = eai_shc - eai_spsc
-eai_prmse = spsc_fit(wide, "Econ Activity Index")["pre_rmse"]
-vd_prmse = spsc_fit(wide, "Visitor Days")["pre_rmse"]
+eai_prmse = spsc_fit("Econ Activity Index")["pre_rmse"]
+vd_prmse = spsc_fit("Visitor Days")["pre_rmse"]
 vd_band = _band["Visitor Days"]
 ```
 
@@ -309,7 +326,7 @@ vd_band = _band["Visitor Days"]
 fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 4.2), sharex=True)
 for oc, c in zip(["Visitor Days", "Occupancy", "Accommodation Emp"], ["black", "C0", "C1"]):
     a1.plot(wide["Date"], wide[oc], lw=1.2, label=oc, color=c)
-for d in DONORS:
+for d in INSULATED:
     a2.plot(wide["Date"], wide[d], lw=1.1, label=DLAB[d])
 for ax, ti in ((a1, "Treated tourism outcomes"), (a2, "Insulated-sector donors")):
     ax.axvline(pd.Timestamp("2020-03-01"), color="grey", ls=":", lw=1)
@@ -333,14 +350,14 @@ The central methodological point is visible in a single comparison: the same tre
 #| echo: false
 #| label: fig-shc-vd
 #| fig-cap: "Naive baseline (Synthetic Historical Control), Visitor Days. The counterfactual is built from Hawaii's own pre-2020 history, so it is a world with neither the pandemic nor the policy and the full collapse loads onto the estimate."
-_ = shc_fit(wide, "Visitor Days", display=True)
+_ = shc_fit("Visitor Days", display=True)
 ```
 
 ```{python}
 #| echo: false
 #| label: fig-spsc-vd
 #| fig-cap: "Proximal Single Proxy Synthetic Control, Visitor Days. The counterfactual (left panel) is reconstructed from the insulated-sector negative controls, netting out the pandemic's macro-recession factor; the gap panel (right) is the estimated effect path."
-_ = spsc_fit(wide, "Visitor Days", conformal=True, display=True)
+_ = spsc_fit("Visitor Days", conformal=True, display=True)
 ```
 
 The `{python} _pp(vd_gap)`-point gap between the two estimates is not noise: it is the factor-mismatch term of \eqref{eq:scm-bias}---the pandemic's macro-recession contribution, which the naive design silently charges to the border policy and which SPSC removes by instrumenting it. The same wedge appears across the headline outcomes (Table~\ref{tbl:contrast}). It is largest, in level terms, for the broad Economic Activity Index, where the naive ATT of `{python} f"{eai_shc:.1f}"` points shrinks to `{python} f"{eai_spsc:.1f}"` under SPSC---a `{python} _pp(eai_gap)`-point pandemic component---because that index is precisely the series most exposed to the general recession the insulated sectors span.
@@ -362,14 +379,14 @@ print(latex_table(
 #| echo: false
 #| label: fig-shc-eai
 #| fig-cap: "Naive baseline (Synthetic Historical Control), Coincident Economic Activity Index."
-_ = shc_fit(wide, "Econ Activity Index", display=True)
+_ = shc_fit("Econ Activity Index", display=True)
 ```
 
 ```{python}
 #| echo: false
 #| label: fig-spsc-eai
 #| fig-cap: "Proximal Single Proxy Synthetic Control, Coincident Economic Activity Index. The tight pre-treatment gap reflects that this broad index rides the macro-recession factor the insulated sectors span, so SPSC reconstructs its counterfactual well."
-_ = spsc_fit(wide, "Econ Activity Index", conformal=True, display=True)
+_ = spsc_fit("Econ Activity Index", conformal=True, display=True)
 ```
 
 ## SPSC estimates and the pre-treatment fit
