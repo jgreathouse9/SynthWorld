@@ -96,17 +96,125 @@ def namespace_labels(t: str, tag: str) -> str:
 # chapter-specific patches
 # --------------------------------------------------------------------------- #
 def patch_paper1(t: str) -> str:
-    """Rewrite the Hawaii SPSC panel data path for the dissertation build.
+    """Dissertation-specific fixups for the Hawaii chapter.
 
     Chapter 1 executes SHC (naive baseline) and PROXIMAL/SPSC against the
-    current mlsynth API directly, so no API porting is needed here. The only
-    dissertation-specific fixup is the relative data path: the source paper
-    reads ``Data/hawaii_proximal_panel.csv`` from ``Paper1/Paper/``, but the
-    dissertation renders from ``Dissertation/``, so the CSV lives one level up.
+    current mlsynth API directly, so no API porting is needed here. Two
+    dissertation-only edits:
+
+    1. Relative data path: the source paper reads its CSV from ``Paper1/Paper/``,
+       but the dissertation renders from ``Dissertation/``, so it lives one
+       level up.
+    2. Insert the pedagogical primer ``A Gentle Introduction to Proximal
+       Inference`` before the Methodology section. This is a teaching device for
+       a public-policy committee that will not have met proximal inference; it
+       stays out of the journal paper (whose audience is econometric) and lives
+       only in the assembled dissertation. Its figure is pre-rendered by
+       ``gen_proximal_primer.py`` at build time, mirroring the Chapter 3 figure.
     """
     t = t.replace('DATA = "Data/hawaii_spsc_long.csv"',
                   'DATA = "../Paper1/Paper/Data/hawaii_spsc_long.csv"')
+    t = t.replace("## Methodology", PROXIMAL_PRIMER + "## Methodology", 1)
     return t
+
+
+PROXIMAL_PRIMER = r'''## A Gentle Introduction to Proximal Inference
+\label{p1-sec:primer}
+
+Before the formal development, a word to orient the reader who has not met
+proximal inference. The method this chapter leans on is unusual, and the
+intuition behind it can be stated without any of the machinery that follows.
+
+Start with the natural idea. To measure what Hawaii's border closure cost, we
+would like to compare the Hawaii we observed against the Hawaii that would have
+existed had the border stayed open. We cannot see that second Hawaii, so
+synthetic-control methods build a stand-in for it out of data we do
+have---Hawaii's own pre-2020 history, or a weighted blend of other
+places---chosen so
+the stand-in tracks Hawaii closely before the policy. The appeal is that we can
+*check* the stand-in: if it shadows Hawaii for years before March 2020, we trust
+it to stand in for Hawaii afterward.
+
+That check is exactly what fails here, and the reason is subtle enough to be
+worth spelling out. The border closure did not arrive alone; it arrived in the
+same month as a global pandemic that would have battered Hawaii tourism
+regardless of any policy. A stand-in built to match Hawaii's calm pre-2020
+history is a picture of a world with neither the closure nor the pandemic.
+Comparing the observed, locked-down, pandemic-struck Hawaii against that calm
+stand-in blames the entire collapse---pandemic and policy together---on the
+policy. And no amount of pre-2020 fit warns you, because the pandemic simply was
+not present in the pre-period to be matched. \citet{hollingsworth2020tactics}
+make this precise: a factor that is quiet before treatment and only ``wakes up''
+afterward leaves no fingerprint in the pre-period, so a stand-in can match the
+past perfectly and still be wrong about the future. A good fit is not the same
+as a correct answer.
+
+To make the problem---and the fix---something the reader can *see*, @fig-primer
+stages a small simulation in which the true answer is known by construction. We
+build a synthetic Hawaii-like economy driven by two hidden forces: an ordinary
+business cycle and, layered on top after month 60, a pandemic-style collapse.
+Into this world we insert a border-closure policy whose true effect we set
+ourselves to $-15$ points. Because we built the world, we know the right answer,
+and we can ask each method the same question: do you recover $-15$?
+
+Two natural methods fail, and instructively they fail in *opposite* directions.
+Reconstructing Hawaii from its own calm history---the ``own-history''
+bar---blames the whole downturn on the policy and reports about $-52$, more than
+three
+times too large, because it is blind to the pandemic. Borrowing from comparable
+tourism economies---the ``contaminated-donors'' bar---does the reverse: those
+places shut their own borders too, so the comparison quietly nets the policy out
+of both sides and reports roughly $-7$, drifting toward zero. One method sees
+only the policy; the other cancels the policy away.
+
+The proximal fix threads between them. Rather than a stand-in that must be
+untouched by the pandemic (there is none) or a treated unit whose calm past
+hides the pandemic, it enlists a \emph{negative control}: a place that felt the
+very same pandemic but did \emph{not} take Hawaii's policy, and it lets that
+place trace out how much of Hawaii's collapse was pandemic rather than policy.
+Two things must be true of such a control. It must be *relevant*---genuinely
+moved by the same forces as Hawaii, so it carries usable information---and it
+must be *excluded*---untouched by the border policy itself, so it cannot smuggle
+the treatment back in. Insulated employment sectors inside Hawaii clear the
+exclusion test easily but carry only part of the story: they feel the macro
+recession but not the collapse in travel demand, so Single Proxy Synthetic
+Control built on them alone under-corrects, landing near $-45$ (the ``internal''
+bar). The piece they miss is supplied by an \emph{external} control that is
+drenched in the travel collapse yet never locked down: inbound air travel to
+Florida. Adding Florida recovers the true effect, about $-16$ against a truth of
+$-15$ (the ``+ Florida'' bar). These single-draw readings are representative;
+averaged over repeated simulations the four methods come in near $-51$, $-7$,
+$-42$, and $-16$, the same ordering every time.
+
+The counterintuitive part is worth naming, because it is the crux of the whole
+approach. Florida looks like a \emph{terrible} comparison for Hawaii---COVID
+devastated Florida tourism too---and that shared devastation is exactly what
+makes it the \emph{right} control. We are not hunting for a place the pandemic
+spared; there was none. We want a place that felt the pandemic and skipped the
+policy, so that its post-2020 path shows the pandemic's mark with the policy
+stripped away. That is the whole of the idea. The sections that follow put it on
+a formal footing---the factor model that makes ``wakes up'' precise
+(Section~\ref{p1-sec:idprob}), the estimator and its identifying conditions
+(Section~\ref{p1-sec:spsc}), and the Florida donor in the real data
+(Section~\ref{p1-sec:florida})---but the picture in @fig-primer is the argument
+in miniature: two familiar methods missing in opposite directions, and a
+negative control that lands on the truth.
+
+![A simulated horse race with a known answer. A synthetic Hawaii-like economy is
+driven by an ordinary business cycle and, after month 60, a pandemic-style
+collapse; a border-closure policy with a true effect of $-15$ points is layered
+on. Left: the observed treated series (black) falls below its true no-policy
+counterfactual (green dashed) by the policy effect, while the own-history
+reconstruction (red) is blind to the pandemic and the contaminated-donor
+comparison (orange) tracks donors that also shut down; Single Proxy Synthetic
+Control with the external Florida proxy (blue) hugs the truth. Right: the
+estimated policy effect from each method against the true $-15$ (green dashed).
+The two naive methods miss in opposite directions; the proximal estimate with a
+valid external negative control recovers the answer. The figure shows one
+representative draw; the accompanying readings are means over repeated
+draws.](proximal_primer.png){#fig-primer}
+
+'''
 
 
 INDIA_RESULTS = r'''
