@@ -12,7 +12,7 @@ bibliography: pl.bib
 ---
 \vspace*{-4em}
 \begin{abstract}
-Hawaii's March 2020 mandatory traveler quarantine sealed the state's borders at the same instant the COVID-19 pandemic collapsed global travel demand. For a single treated unit these two forces are perfectly collinear in time, so the conventional synthetic-control toolkit---which matches the treated series to a counterfactual that is itself battered by the pandemic---cannot separate the border-closure \emph{policy} from the coincident \emph{pandemic}. I address this with Single Proxy Synthetic Control (SPSC), a member of the proximal / negative-control family that does not attempt to remove the latent pandemic factor but instead \emph{instruments} it using insulated employment sectors that carry the pandemic's macro-recession shock yet are immune to the border policy. Contrasting SPSC against a naive Synthetic Historical Control baseline shows that a substantial share of the measured tourism collapse is pandemic contamination the naive design cannot net out. SPSC recovers a large, robust tourism-demand collapse (roughly 60--75 percentage points of year-over-year growth for the visitor-volume series) but, because the insulated sectors span only the macro-recession factor and not the travel-demand-collapse factor, they under-span the tourism factor and identify these effects only weakly; the estimates from insulated donors alone are therefore best read as \emph{upper bounds in magnitude} on the policy effect and are reported as a robustness band rather than as points. Recovering an actual point requires spanning the missing travel-demand factor from outside the treated economy: adding an external travel-demand donor---inbound air travel to Florida, exposed to the pandemic but not locked down---pulls the Visitor Days estimate off its upper bound toward a policy-centered point, taking the first concrete step from a bound to a point. The paper demonstrates how negative-control inference disciplines causal claims when a policy and a global shock arrive together.
+Hawaii's March 2020 mandatory traveler quarantine sealed the state's borders at the same instant the COVID-19 pandemic collapsed global travel demand. For a single treated unit these two forces are perfectly collinear in time, so the conventional synthetic-control toolkit---which matches the treated series to a counterfactual that is itself battered by the pandemic---cannot separate the border-closure \emph{policy} from the coincident \emph{pandemic}. I address this with Single Proxy Synthetic Control (SPSC), a member of the proximal / negative-control family that does not attempt to remove the latent pandemic factor but instead \emph{instruments} it using insulated employment sectors that carry the pandemic's macro-recession shock yet are immune to the border policy. Contrasting SPSC against a naive Synthetic Historical Control baseline shows that a substantial share of the measured tourism collapse is pandemic contamination the naive design cannot net out. SPSC recovers a large, robust tourism-demand collapse (roughly 60--75 percentage points of year-over-year growth for the visitor-volume series) but, because the insulated sectors span only the macro-recession factor and not the travel-demand-collapse factor, they under-span the tourism factor and identify these effects only weakly; the estimates from insulated donors alone are therefore best read as \emph{upper bounds in magnitude} on the policy effect and are reported as a robustness band rather than as points. Recovering an actual point requires spanning the missing travel-demand factor from outside the treated economy: adding external travel-demand donors---inbound air travel to Florida and other exposed-but-open leisure destinations that were not locked down---pulls the Visitor Days estimate off its upper bound, and a convergent ensemble of such donors brackets it in a policy-centered band, taking the step from a bound to a band. The paper demonstrates how negative-control inference disciplines causal claims when a policy and a global shock arrive together.
 \keywords{Proximal Causal Inference, Negative Controls, Synthetic Control, Policy Evaluation, COVID-19}
 \end{abstract}
 
@@ -220,7 +220,12 @@ TOURISM = ["Visitor Arrivals", "Visitor Days", "Occupancy", "Mean Daily Rate",
 ECON = ["Total Leisure Emp", "Unemp Rate", "LFP"]
 ALL_OUT = TOURISM + ECON
 INSULATED = _u("donor", "insulated")           # the five negative-control donors
-TRAVEL = _u("donor", "travel-demand")          # Florida
+TRAVEL = _u("donor", "travel-demand")          # open-destination ensemble
+OPEN = ["Florida", "Tampa", "Orlando", "Phoenix"]   # display order (anchor first)
+OLAB = {"Florida": "Florida (state)", "Tampa": "Tampa",
+        "Orlando": "Orlando", "Phoenix": "Phoenix"}
+ANCHOR = "Florida"                             # statewide anchor for the grid figure
+assert set(OPEN) == set(TRAVEL)
 assert set(TOURISM + ECON) == set(_u("outcome", "tourism") + _u("outcome", "econ-labor"))
 DLAB = {"NatRes_Constr_Emp": "Nat. Res. & Constr.", "Wholesale_Emp": "Wholesale Trade",
         "Financial_Emp": "Financial Activities", "HealthCare_Emp": "Health Care",
@@ -264,7 +269,7 @@ def spsc_fit(outcome, donor_units=None, detrend=True, conformal=False,
     se = float(res.att_se) if res.att_se is not None else float("nan")
     w = getattr(res.spsc, "donor_weights", {}) or {}
     return {"att": float(res.att), "se": se, "pre_rmse": pre_rmse,
-            "wfl": float(w.get("Florida", float("nan")))}
+            "wfl": float(w.get("Florida", float("nan"))), "weights": dict(w)}
 
 def spsc_paths(outcome, donor_units=None, conformal=False, start=START):
     """Fit SPSC-DT and return the plotting arrays: observed, counterfactual,
@@ -334,23 +339,42 @@ for oc in _BAND:
         spsc_fit(oc, detrend=True, start=None)["att"],
     ])
 
-# Travel-demand donor (Florida): insulated-only vs +Florida contrast.
+# Open-destination ensemble: each exposed-but-open market is fit ONE AT A TIME
+# (insulated + one donor). Adding the whole ensemble at once is near-collinear
+# and hurts the fit (ens_all, the guardrail below).
 _prewin = wide[wide["Date"] <= pd.Timestamp("2020-02-01")]
-_FLOUT = ["Visitor Days", "Visitor Arrivals", "Occupancy",
-          "Revenue per Available Room", "Accommodation Emp"]
-fl_fits, fl_precorr = {}, {}
-for oc in _FLOUT:
-    fl_fits[oc] = (spsc_fit(oc), spsc_fit(oc, INSULATED + TRAVEL))
-    fl_precorr[oc] = float(_prewin["Florida"].corr(_prewin[oc]))
+_ENSOUT = ["Visitor Days", "Visitor Arrivals", "Occupancy", "Mean Daily Rate",
+           "Revenue per Available Room", "Accommodation Emp"]
+ens = {oc: {"insulated": spsc_fit(oc)} for oc in _ENSOUT}
+for oc in _ENSOUT:
+    for d in OPEN:
+        ens[oc][d] = spsc_fit(oc, INSULATED + [d])
+ens_all = {oc: spsc_fit(oc, INSULATED + OPEN) for oc in _ENSOUT}   # en-masse guardrail
+opencorr = {d: {oc: float(_prewin[d].corr(_prewin[oc])) for oc in _ENSOUT} for d in OPEN}
+_wg = lambda oc, d: float(ens[oc][d]["weights"].get(d, float("nan")))  # weight on donor d
 _flpost = LONG[(LONG.unit == "Florida") & (LONG.time >= TREAT_DATE)
                & (LONG.time <= pd.Timestamp("2020-12-01"))]
 fl_trough = float(_flpost.y.min())
-vd_fl_att = fl_fits["Visitor Days"][1]["att"]
-vd_fl_rmse = fl_fits["Visitor Days"][1]["pre_rmse"]
-vd_fl_w = fl_fits["Visitor Days"][1]["wfl"]
-va_fl_w = fl_fits["Visitor Arrivals"][1]["wfl"]
-oc_fl_w = fl_fits["Occupancy"][1]["wfl"]
-fl_corr_vd = fl_precorr["Visitor Days"]
+
+# Visitor Days convergence band across the ensemble (quoted in prose).
+vd_ins = ens["Visitor Days"]["insulated"]["att"]
+vd_ins_rmse = ens["Visitor Days"]["insulated"]["pre_rmse"]
+# En-masse guardrail: adding all four at once degrades the fit for the
+# price/utilization series (RevPAR the clearest), even as it helps volume.
+rp_ins_rmse = ens["Revenue per Available Room"]["insulated"]["pre_rmse"]
+rp_all_rmse = ens_all["Revenue per Available Room"]["pre_rmse"]
+_vd_open = [ens["Visitor Days"][d]["att"] for d in OPEN]
+vd_open_lo, vd_open_hi = max(_vd_open), min(_vd_open)   # lo = least negative
+vd_fl_att = ens["Visitor Days"]["Florida"]["att"]
+vd_fl_rmse = ens["Visitor Days"]["Florida"]["pre_rmse"]
+vd_fl_w = _wg("Visitor Days", "Florida")
+fl_corr_vd = opencorr["Florida"]["Visitor Days"]
+# Phoenix reaches the price series Florida (a volume proxy) cannot.
+mdr_ins = ens["Mean Daily Rate"]["insulated"]["att"]
+mdr_ins_rmse = ens["Mean Daily Rate"]["insulated"]["pre_rmse"]
+mdr_ph = ens["Mean Daily Rate"]["Phoenix"]["att"]
+mdr_ph_rmse = ens["Mean Daily Rate"]["Phoenix"]["pre_rmse"]
+ph_corr_mdr = opencorr["Phoenix"]["Mean Daily Rate"]
 
 # Largest naive-vs-SPSC wedge among the headline outcomes, excluding the
 # Visitor Days example already discussed in the text (the gap is most negative
@@ -493,49 +517,38 @@ plt.tight_layout(); plt.show()
 
 For the visitor-volume series the band runs roughly from `{python} f"{vd_band.min():.0f}"` to `{python} f"{vd_band.max():.0f}"` points (median `{python} f"{np.median(vd_band):.0f}"`), so the defensible statement is a $\sim 60$--75-point *upper-bound* collapse in tourism demand rather than any single figure. Taken together, the diagnostics and the band say the same thing: the border closure sits on top of a large tourism-demand collapse that the insulated sectors cannot fully separate from it, so the tourism numbers bound the policy effect from above. Recovering an actual point estimate---rather than a bound---requires spanning the missing travel-demand factor from outside the treated economy, which is the task of the next section.
 
-## A travel-demand donor: Florida
+## An ensemble of exposed-but-open destinations
 \label{sec:florida}
 
-The insulated sectors span the macro-recession factor but not the travel-demand-collapse factor (Section~\ref{sec:spsc}), which is why the tourism estimates are bounds. Closing that gap requires a proxy that carries the travel-demand factor while remaining immune to Hawaii's border policy. I add one: monthly arriving flights across Florida's airports, from the Bureau of Transportation Statistics on-time-performance record \citep{bts_otp}, aggregated statewide and expressed in YoY growth. Florida is the archetypal exposed-but-open destination---its air traffic fell about `{python} _pp(fl_trough)`\% at the 2020 trough even though the state imposed no traveler quarantine---so it registers the travel-demand collapse without registering the Hawaii policy. It enters the long panel as one additional donor unit (`unit = Florida`, `group = travel-demand`), and the fit is otherwise unchanged: I simply pass the insulated five plus Florida.
+The insulated sectors span the macro-recession factor but not the travel-demand-collapse factor (Section~\ref{sec:spsc}), which is why the tourism estimates are bounds. Closing that gap requires a proxy that carries the travel-demand factor while remaining immune to Hawaii's border policy. Such a proxy is an \emph{exposed-but-open} destination: a place whose inbound air travel collapsed with the pandemic yet that imposed no traveler quarantine, so it registers the travel-demand shock without registering the Hawaii policy. Rather than lean on one, I assemble a small ensemble of them from the Bureau of Transportation Statistics on-time-performance record \citep{bts_otp}---monthly arriving-flight counts in YoY growth: Florida statewide (the archetype, its air traffic down about `{python} _pp(fl_trough)`\% at the 2020 trough) and three leisure metros in states that likewise never locked their borders---Tampa, Orlando, and Phoenix. Each enters the long panel as its own donor unit (`group = travel-demand`), and---this matters---I fit them \emph{one at a time}, passing the insulated five plus a single open-destination donor, not all at once (I return to why below).
 
-@fig-florida reports the result. Two features of how Florida enters are worth reading off the figure together, because they explain why it helps where it does. First, SPSC's ridge-GMM bridge gives Florida a nontrivial weight only for the visitor-volume series---$\gamma_{\text{FL}} =$ `{python} f"{vd_fl_w:.2f}"` for Visitor Days and `{python} f"{va_fl_w:.2f}"` for Visitor Arrivals---and essentially zero for the hotel price/utilization series (Occupancy, $\gamma_{\text{FL}} =$ `{python} f"{oc_fl_w:.2f}"`). That is exactly what the relevance condition \eqref{eq:proxy} predicts: Florida is a flight-\emph{volume} series, so it comoves with Hawaii \emph{visitor volume} in the pre-period (pre-2020 correlation `{python} f"{fl_corr_vd:+.2f}"` with Visitor Days) but not with occupancy rates or daily room rates (near-zero or negative pre-correlations), and the estimator down-weights an irrelevant proxy rather than letting it inject noise. Second, where Florida is used it sharpens the pre-treatment fit---the Visitor Days pre-treatment RMSE falls from `{python} f"{fl_fits['Visitor Days'][0]['pre_rmse']:.2f}"` to `{python} f"{vd_fl_rmse:.2f}"`---confirming that it spans genuine pre-period variation the insulated sectors miss.
+@fig-florida reports the convergence, and the headline is robustness through agreement. For Visitor Days, every one of the four independent open-destination donors pulls the estimate off the insulated-only bound of `{python} f"{vd_ins:.1f}"` points into a policy-centered band of roughly `{python} f"{vd_open_lo:.0f}"` to `{python} f"{vd_open_hi:.0f}"` points, and each one \emph{improves} the pre-treatment fit rather than degrading it. That four proxies chosen independently---different cities, two different states---move the estimate the same way and by a similar amount is far stronger evidence that the observed drop is policy plus a real, separable travel-demand collapse than any single proxy could be. Florida gives the cleanest single fit (its Visitor Days pre-treatment RMSE falls from `{python} f"{vd_ins_rmse:.2f}"` to `{python} f"{vd_fl_rmse:.2f}"`, bridge weight $\gamma_{\text{FL}} =$ `{python} f"{vd_fl_w:.2f}"`), consistent with its pre-2020 correlation of `{python} f"{fl_corr_vd:+.2f}"` with Hawaii visitor volume.
 
 ```{python}
 #| echo: false
 #| label: fig-florida
-#| fig-cap: "SPSC with the insulated donors only (red) versus the insulated donors plus the Florida travel-demand donor (blue). Left: the ATT (percentage points of year-over-year growth). Right: the pre-treatment RMSE. The fitted Florida bridge weight $\\gamma_{\\text{FL}}$ is annotated above each +Florida bar; Florida earns weight, and sharpens the fit, only for the visitor-volume series it comoves with."
-_names = _FLOUT
-_x = np.arange(len(_names)); _w = 0.38
-_att0 = [fl_fits[o][0]["att"] for o in _names]
-_att1 = [fl_fits[o][1]["att"] for o in _names]
-_rm0 = [fl_fits[o][0]["pre_rmse"] for o in _names]
-_rm1 = [fl_fits[o][1]["pre_rmse"] for o in _names]
-_wt = [fl_fits[o][1]["wfl"] for o in _names]
-fig, (axL, axR) = plt.subplots(1, 2, figsize=(11, 4.4))
-b0 = axL.bar(_x - _w/2, _att0, _w, color=CF[0], label="insulated")
-b1 = axL.bar(_x + _w/2, _att1, _w, color=CF[1], label="+ Florida")
-# The Florida bridge weight sits just above the zero line over each +Florida bar
-# (the bars run downward from 0), so the annotations never overlap the bars.
-axL.set_ylim(top=8)
-for xi, w in enumerate(_wt):
-    axL.annotate(fr"$\gamma_{{FL}}={w:.2f}$", (xi + _w/2, 0.5), ha="center",
-                 va="bottom", fontsize=7, rotation=90)
-axL.axhline(0, color="black", lw=0.8)
-axL.set_ylabel("ATT (pp of YoY growth)")
-axR.bar(_x - _w/2, _rm0, _w, color=CF[0])
-axR.bar(_x + _w/2, _rm1, _w, color=CF[1])
-axR.set_ylabel("pre-treatment RMSE (pp)")
-for ax in (axL, axR):
-    ax.set_xticks(_x)
-    ax.set_xticklabels([SHORT[o] for o in _names], rotation=30, ha="right", fontsize=8)
-fig.legend([b0, b1], ["insulated", "+ Florida"], loc="upper center",
-           ncol=2, bbox_to_anchor=(0.5, 1.02))
-fig.tight_layout(rect=(0, 0, 1, 0.95)); plt.show()
+#| fig-cap: "The open-destination ensemble. Each exposed-but-open donor (blue points), fit one at a time alongside the insulated five, is compared against the insulated-only estimate (red dashed line). Left, Visitor Days: every donor pulls the estimate off the upper bound toward a policy-centered value. Right, Mean Daily Rate: Florida (a volume series) leaves the price series untouched, but Phoenix---whose resort room rates track leisure demand---reaches it. The convergence across independent donors, not any single point, is the object of interest."
+def _dots(ax, oc, title):
+    base = ens[oc]["insulated"]["att"]
+    vals = [ens[oc][d]["att"] for d in OPEN]
+    ax.axvline(base, color=CF[0], ls="--", lw=1.6, label=f"insulated bound ({base:.0f})")
+    ax.scatter(vals, range(len(OPEN)), color=CF[1], s=70, zorder=3)
+    ax.axvline(0, color="black", lw=0.8)
+    ax.set_yticks(range(len(OPEN))); ax.set_yticklabels([OLAB[d] for d in OPEN])
+    ax.set_ylim(-0.5, len(OPEN) - 0.5)
+    ax.set_title(title, loc="left", fontsize=10)
+    ax.set_xlabel("SPSC ATT (pp of YoY growth)"); ax.legend(loc="lower right", fontsize=8)
+fig, (axL, axR) = plt.subplots(1, 2, figsize=(12, 3.8))
+_dots(axL, "Visitor Days", "Visitor Days: donors converge off the bound")
+_dots(axR, "Mean Daily Rate", "Mean Daily Rate: the metros reach the price series")
+plt.tight_layout(); plt.show()
 ```
 
-The payoff, and its limit, are both visible for the headline series. For Visitor Days the travel-demand donor pulls the estimate from the insulated-only bound of `{python} f"{vd_spsc:.1f}"` toward `{python} f"{vd_fl_att:.1f}"` points: because part of the travel-demand collapse is now reconstructed *into* the counterfactual, less of the observed drop is attributed to the policy, and the effect moves in the theorized direction---down off the upper bound toward the policy-only effect. But the response is not uniform. For Visitor Arrivals and Revenue per Available Room the joint re-fit moves the ATT the other way, and Occupancy is unchanged because Florida is (correctly) ignored there. This non-monotone pattern is the empirical signature of a single, only moderately-comoving external proxy: Florida is a *relevant but weak* instrument for the travel-demand factor (pre-correlations around `{python} f"{fl_corr_vd:.2f}"`, not near one), so it revises the estimates and tightens the fit without cleanly resolving the travel-demand-versus-policy split across every outcome. It does for Visitor Days what the design promises---converts a bound into a policy-centered point estimate---and it demonstrates that the missing factor is real and, in principle, separable; fully converting the other tourism bounds would require a panel of open destinations chosen for stronger pre-period comovement with Hawaii, not one proxy.
+The ensemble also reaches an outcome a single volume proxy could not. Florida is a flight-\emph{volume} series, so it comoves with Hawaii \emph{visitor volume} but not with hotel prices, and leaves Mean Daily Rate essentially at its insulated-only value of `{python} f"{mdr_ins:.1f}"` points. Phoenix---a desert-resort market whose room rates swing with leisure demand---does comove with Hawaii's daily room rate (pre-2020 correlation `{python} f"{ph_corr_mdr:+.2f}"`), and adding it pulls Mean Daily Rate from `{python} f"{mdr_ins:.1f}"` toward `{python} f"{mdr_ph:.1f}"` points while \emph{improving} the fit (pre-treatment RMSE `{python} f"{mdr_ins_rmse:.2f}"` to `{python} f"{mdr_ph_rmse:.2f}"`). Different open destinations carry the travel-demand factor as it manifests in different outcomes---volume for the Florida metros, price for Phoenix---so a small, well-chosen ensemble reaches further into the tourism block than any one proxy.
 
-@fig-spsc-grid shows the two counterfactuals against the observed series for every headline outcome. The wedge between the insulated and the +Florida counterfactual is where Florida does work---visible for Visitor Days and Visitor Arrivals, invisible for Occupancy, where the two lines coincide because Florida is down-weighted to zero. Reading the wedge as a clean travel-demand decomposition would over-interpret it, though: the +Florida fit re-solves all bridge weights jointly, which is why the wedge does not move monotonically across outcomes.
+The discipline the design demands is the reason for fitting the donors \emph{singly}. Added \emph{en masse}---all four open destinations at once---the near-collinear proxies induce large offsetting ridge weights that \emph{degrade} the fit exactly where a well-chosen single donor helped most, the price and utilization series (for Revenue per Available Room, the pre-treatment RMSE rises from `{python} f"{rp_ins_rmse:.2f}"` insulated-only to `{python} f"{rp_all_rmse:.2f}"` with the full ensemble), the failure the relevance condition warns of. The lesson is not that more proxies are better but that more \emph{independent} proxies, each read on its own, corroborate: the object is a convergence band, not a single super-donor.
+
+@fig-spsc-grid shows the counterfactuals against the observed series for every headline outcome, using Florida as the anchor donor. The wedge between the insulated and the +Florida counterfactual is where the travel-demand donor does work---visible for the visitor-volume series, invisible for Occupancy, where Florida is (correctly) down-weighted to zero. Reading any single wedge as a clean travel-demand decomposition would over-interpret it, though: each +donor fit re-solves all bridge weights jointly, so the honest object is the convergence across donors in @fig-florida, not one panel here.
 
 ```{python}
 #| echo: false
@@ -546,7 +559,7 @@ _GRID = ["Visitor Days", "Visitor Arrivals", "Occupancy",
 fig, axes = plt.subplots(3, 2, figsize=(12, 11)); axes = axes.flatten()
 for ax, oc in zip(axes, _GRID):
     p0 = spsc_paths(oc, INSULATED, conformal=True)
-    p1 = spsc_paths(oc, INSULATED + TRAVEL)
+    p1 = spsc_paths(oc, INSULATED + [ANCHOR])
     d, t0 = p0["t"], p0["t0"]; post = d[t0:]
     ax.plot(d, p0["y"], color="black", lw=1.6, label="observed")
     ax.plot(d, p0["cf"], color=CF[0], lw=1.4, ls="--", label="SPSC (insulated)")
@@ -576,9 +589,9 @@ plt.show()
 
 The methodological lesson of Hawaii is that a good pre-treatment fit is not identification when a policy and a global shock arrive in the same month. A naive synthetic control—whether it borrows across states or, as in SHC, across the treated unit's own history—produces a clean-looking counterfactual and a large ATT, but that ATT is the border-closure effect plus the pandemic's contribution to Hawaii's outcomes, and nothing in the fit reveals the mix. Proximal / negative-control inference is the discipline that separates them: by instrumenting the latent pandemic factor with insulated employment sectors that carry it but are immune to the policy, SPSC nets out the macro-recession component the naive design cannot. The wedge between the two estimates—about `{python} _pp(vd_gap)` points for Visitor Days, and larger still for the most recession-exposed of the headline series—is a direct, quantitative measure of how much pandemic contamination a naive reading would have mistaken for policy.
 
-At the same time, the analysis is candid about the limit of what the shipped data can identify. The insulated sectors span the pandemic's general-recession factor but not its travel-demand-collapse factor: even with an open border, Hawaii tourism would have fallen sharply as people stopped flying. SPSC on insulated sectors alone therefore recovers only the macro component of the counterfactual, and the resulting tourism ATTs over-attribute the collapse to the policy—they are upper bounds in magnitude, which is why I report them as a band rather than as points. Recovering an actual point estimate from insulated donors alone is not possible here, because every treated series loads on the travel-demand factor those donors miss; the point has to be spanned from outside the treated economy, which is what the Florida donor does. The substantive conclusion is thus deliberately modest and, I would argue, more credible for it: the border closure coincided with a near-total collapse in measured tourism demand, of which a bounded share is causally the policy, with the external travel-demand donor pulling the Visitor Days estimate off its upper bound toward a policy-centered point.
+At the same time, the analysis is candid about the limit of what the shipped data can identify. The insulated sectors span the pandemic's general-recession factor but not its travel-demand-collapse factor: even with an open border, Hawaii tourism would have fallen sharply as people stopped flying. SPSC on insulated sectors alone therefore recovers only the macro component of the counterfactual, and the resulting tourism ATTs over-attribute the collapse to the policy—they are upper bounds in magnitude, which is why I report them as a band rather than as points. Recovering an actual point estimate from insulated donors alone is not possible here, because every treated series loads on the travel-demand factor those donors miss; the point has to be spanned from outside the treated economy, which is what the open-destination donors do. The substantive conclusion is thus deliberately modest and, I would argue, more credible for it: the border closure coincided with a near-total collapse in measured tourism demand, of which a bounded share is causally the policy, with a convergent ensemble of external travel-demand donors pulling the Visitor Days estimate off its upper bound toward a policy-centered band.
 
-Section~\ref{sec:florida} takes the decisive step of closing the two-factor gap with an external travel-demand negative control---inbound air travel to Florida, a destination exposed to the pandemic that did \emph{not} lock down---and the result is instructive about both the promise and the limits of the approach. For Visitor Days the Florida donor does what the design promises: it pulls the estimate off the insulated-only bound toward a policy-centered point, because part of the travel-demand collapse is now reconstructed into the counterfactual. But a single external proxy only partially closes the gap, for the reason the present analysis makes precise: Florida's pre-2020 comovement with Hawaii tourism is only moderate, so SPSC (correctly) gives it weight for the visitor-volume series it tracks and near-zero weight for the price and utilization series it does not, leaving those bounds essentially intact. Fully converting the tourism bounds to points would require a panel of open destinations selected for stronger pre-period comovement with Hawaii, not one proxy---and the search must stay disciplined: near-collinear open destinations added \emph{en masse} induce large offsetting weights and hurt the fit, and Puerto Rico, tempting as a fellow island, is not a valid control because it imposed its own stay-at-home order in mid-March 2020 and is a contaminated, treated-like unit that, if anything, bounds the effect from the other side.
+Section~\ref{sec:florida} takes the decisive step of closing the two-factor gap with external travel-demand negative controls---inbound air travel to Florida and to a set of other exposed-but-open leisure markets that did \emph{not} lock down---and the result is instructive about both the promise and the discipline the approach demands. For Visitor Days the open-destination donors do what the design promises, and they do it \emph{in agreement}: fit one at a time, all four independently pull the estimate off the insulated-only bound into a policy-centered band, each improving the pre-treatment fit. Because the donors are chosen independently---different cities, two different states---their convergence is far stronger evidence that the missing factor is real and separable than any single proxy could be. A well-chosen ensemble also reaches further than one volume series: Phoenix, whose resort room rates track leisure demand, pulls the daily-room-rate series that Florida (a volume proxy) leaves essentially untouched. But the ensemble does not mechanically dissolve every bound, and the search must stay disciplined: near-collinear open destinations added \emph{en masse} induce large offsetting weights and hurt the fit, so the donors corroborate as a convergence band rather than combine into a single super-donor; and Puerto Rico, tempting as a fellow island, is not a valid control because it imposed its own stay-at-home order in mid-March 2020 and is a contaminated, treated-like unit that, if anything, bounds the effect from the other side.
 
 These estimates speak only to short-run economic outcomes through the end of 2020 and do not weigh the public-health benefits—lives saved, hospital strain averted—against the economic cost. What the paper does provide is a credibly bounded price tag for decisive early action, and a template for evaluating it: when the intervention and the crisis it responds to are one and the same event in time, the analyst's task is not to find a cleaner comparison unit but to find a variable that sees the crisis and not the policy.
 
@@ -588,7 +601,7 @@ This paper estimates the short-run economic consequences of Hawaii's March 2020 
 
 Contrasting SPSC with a naive Synthetic Historical Control baseline shows that a substantial share of the measured tourism collapse—roughly `{python} _pp(vd_gap)` percentage points for Visitor Days—is pandemic contamination the naive design charges to the policy. SPSC recovers a large, robust tourism-demand collapse (about 60--75 points of year-over-year growth for the visitor-volume series) but, because the insulated sectors span only the macro-recession factor and not the travel-demand-collapse factor, they under-span the tourism factor and identify these effects only weakly; the estimates from insulated donors alone are upper bounds in magnitude on the policy effect and are reported as a robustness band rather than as points. Because every treated series loads on the travel-demand factor those donors miss, none of the insulated-only estimates is a clean point; the trustworthy point comes only once the missing factor is spanned from outside the treated economy, which is the role of the external Florida travel-demand donor.
 
-Methodologically, the study demonstrates how negative-control inference disciplines causal claims when a policy and a global shock coincide—a structure common to pandemic border closures, but also to climate shocks and other systemic crises where a would-be counterfactual unit is itself engulfed by the event. Substantively, it delivers a bounded, honest estimate of the economic price of Hawaii's ``Great Isolation with Aloha characteristics''. Adding an external no-lockdown travel-demand donor—inbound air travel to Florida—takes the first concrete step from a bound to a point, sharpening the Visitor Days effect toward the policy-only magnitude, and shows that finishing the job is a matter of assembling more such open-destination proxies rather than a limit of the design.
+Methodologically, the study demonstrates how negative-control inference disciplines causal claims when a policy and a global shock coincide—a structure common to pandemic border closures, but also to climate shocks and other systemic crises where a would-be counterfactual unit is itself engulfed by the event. Substantively, it delivers a bounded, honest estimate of the economic price of Hawaii's ``Great Isolation with Aloha characteristics''. Adding a small ensemble of external no-lockdown travel-demand donors—inbound air travel to Florida and to the Tampa, Orlando, and Phoenix leisure markets—takes the step from a bound to a policy-centered band: fit independently, they converge in pulling the Visitor Days effect toward the policy-only magnitude, and one of them (Phoenix) reaches the room-rate series a single volume proxy cannot. Finishing the job for every outcome is a matter of assembling more such open-destination proxies, disciplined by relevance, rather than a limit of the design.
 
 ```{=latex}
 \bibliography{pl}

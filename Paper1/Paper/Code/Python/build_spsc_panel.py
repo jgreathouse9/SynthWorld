@@ -10,11 +10,12 @@ Sources
    insulated-sector negative controls, already as YoY growth (built earlier
    from DBEDT tourism/labor series and the DBEDT seasonally-adjusted CES job
    count by industry).
-2. Florida inbound air travel -- the no-lockdown travel-demand donor. Monthly
-   arriving-flight counts across Florida airports from the BTS Airline On-Time
-   Performance table, scraped to
+2. Open-destination inbound air travel -- the no-lockdown travel-demand donors
+   (Florida statewide plus the Tampa, Orlando, and Phoenix leisure metros, all
+   in states that imposed no traveler quarantine). Monthly arriving-flight counts
+   from the BTS Airline On-Time Performance table, scraped to
    ``jgreathouse9/ScrapersData`` (``On Time Performance/.../final_combined_data.csv``),
-   aggregated statewide and converted to YoY growth here.
+   aggregated (statewide or by airport) and converted to YoY growth here.
 
 Output
 ------
@@ -49,9 +50,18 @@ BTS_URL = (
     "https://raw.githubusercontent.com/jgreathouse9/ScrapersData/refs/heads/main/"
     "On%20Time%20Performance/Python/final_combined_data.csv"
 )
-FLORIDA_CACHE = os.path.join(DATA, "florida_arrivals.csv")  # small derived cache
+OPEN_CACHE = os.path.join(DATA, "open_destinations.csv")  # small derived cache
 
 TREAT_FLAG = "Mandatory Quarantine"
+
+# The external travel-demand donors: exposed-but-open destinations that felt the
+# pandemic travel collapse but imposed no traveler quarantine. Florida is the
+# statewide anchor; the three leisure metros (in open states) diversify and,
+# unlike Florida-statewide, reach Hawaii's price/occupancy outcomes. Each is
+# a separate donor unit so the paper can fit them one at a time (an ensemble
+# added en masse is near-collinear and hurts the fit).
+OPEN_DEST = {"Florida": ("state", "FL"), "Tampa": ("airport", "TPA"),
+             "Orlando": ("airport", "MCO"), "Phoenix": ("airport", "PHX")}
 
 TOURISM = ["Visitor Arrivals", "Visitor Days", "Occupancy", "Mean Daily Rate",
            "Revenue per Available Room", "Accommodation Emp"]
@@ -60,31 +70,34 @@ INSULATED = ["NatRes_Constr_Emp", "Wholesale_Emp", "Financial_Emp",
              "HealthCare_Emp", "Government_Emp"]
 
 
-def florida_yoy() -> pd.DataFrame:
-    """Return monthly Florida arriving-flights YoY growth (Date, Florida).
+def open_destinations_yoy() -> pd.DataFrame:
+    """Return monthly YoY arriving-flights growth for the open-destination donors.
 
-    Uses the small vendored cache if present; otherwise pulls the BTS scrape,
-    sums arriving flights across Florida airports, and writes the cache.
+    Columns: ``Date`` plus one per key of ``OPEN_DEST``. Uses the small vendored
+    cache if present; otherwise pulls the BTS scrape once and builds every donor
+    (statewide sums by the two-letter state in ``airport_name``; metros by
+    airport code), then writes the cache.
     """
-    if os.path.exists(FLORIDA_CACHE):
-        return pd.read_csv(FLORIDA_CACHE, parse_dates=["Date"])
+    if os.path.exists(OPEN_CACHE):
+        return pd.read_csv(OPEN_CACHE, parse_dates=["Date"])
     if requests is None:
-        raise RuntimeError("requests is unavailable and no florida_arrivals.csv cache exists")
+        raise RuntimeError("requests is unavailable and no open_destinations.csv cache exists")
     raw = pd.read_csv(io.StringIO(requests.get(BTS_URL, timeout=120).text))
     raw["state"] = raw["airport_name"].str.extract(r",\s*([A-Z]{2}):")
-    fl = (raw[raw.state == "FL"]
-          .groupby(["year", "month"])["arr_flights"].sum().reset_index())
-    fl["Date"] = pd.to_datetime(dict(year=fl.year, month=fl.month, day=1))
-    fl = fl.sort_values("Date").reset_index(drop=True)
-    fl["Florida"] = (fl["arr_flights"] - fl["arr_flights"].shift(12)) / fl["arr_flights"].shift(12) * 100
-    out = fl[["Date", "Florida"]].dropna().reset_index(drop=True)
-    out.to_csv(FLORIDA_CACHE, index=False)
+    raw["Date"] = pd.to_datetime(dict(year=raw.year, month=raw.month, day=1))
+    lvl = pd.DataFrame({"Date": sorted(raw["Date"].unique())}).set_index("Date")
+    for name, (kind, key) in OPEN_DEST.items():
+        sub = raw[raw.state == key] if kind == "state" else raw[raw.airport == key]
+        lvl[name] = sub.groupby("Date")["arr_flights"].sum()
+    yoy = (lvl - lvl.shift(12)) / lvl.shift(12) * 100
+    out = yoy.dropna(how="all").reset_index()
+    out.to_csv(OPEN_CACHE, index=False)
     return out
 
 
 def build() -> pd.DataFrame:
     wide = pd.read_csv(WIDE_CSV, parse_dates=["Date"])
-    fl = florida_yoy()
+    opendf = open_destinations_yoy()
 
     frames = []
 
@@ -100,7 +113,8 @@ def build() -> pd.DataFrame:
         add(oc, "outcome", "econ-labor")
     for d in INSULATED:
         add(d, "donor", "insulated")
-    add("Florida", "donor", "travel-demand", src=fl, col="Florida")
+    for name in OPEN_DEST:
+        add(name, "donor", "travel-demand", src=opendf, col=name)
 
     long = (pd.concat(frames, ignore_index=True)
             .rename(columns={"Date": "time"})
