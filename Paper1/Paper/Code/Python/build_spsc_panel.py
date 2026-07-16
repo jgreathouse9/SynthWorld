@@ -55,7 +55,7 @@ TREAT_FLAG = "Mandatory Quarantine"
 
 TOURISM = ["Visitor Arrivals", "Visitor Days", "Occupancy", "Mean Daily Rate",
            "Revenue per Available Room", "Accommodation Emp"]
-ECON = ["Total Leisure Emp", "Unemp Rate", "LFP", "Econ Activity Index"]
+ECON = ["Total Leisure Emp", "Unemp Rate", "LFP"]
 INSULATED = ["NatRes_Constr_Emp", "Wholesale_Emp", "Financial_Emp",
              "HealthCare_Emp", "Government_Emp"]
 
