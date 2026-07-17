@@ -183,19 +183,22 @@ The treated room's own past carries part of what the estimator needs; the
 fanless, breezy room supplies the rest.
 
 To turn the picture into something we can check, @fig-primer runs the fan
-experiment in a world whose true answer we know because we set it. We build a
-synthetic economy stirred by two hidden forces---an ordinary cycle, the house
-thermostat, and a sharp collapse after month 60, the breeze---and we install a
-policy whose true effect we fix at $-15$ points. Then we put the same question
-to each method: do you recover $-15$? In the single draw shown, reasoning from
-the room's own history returns about $-52$, blind to the breeze; comparing
-against contaminated, fan-running rooms returns about $-7$, the fan cancelled
+experiment in a world whose true answer we know because we set it. Its left
+panel traces each method's reconstructed counterfactual against the observed
+series (black) and the true no-policy path (green dashed); its right panel bars
+the four estimated policy effects against that truth. We build a synthetic
+economy stirred by two hidden forces---an ordinary cycle, the house thermostat,
+and a sharp collapse after month 60, the breeze---and we install a policy whose
+true effect we fix at $-15$ points. Then we put the same question to each method:
+do you recover $-15$? In the single draw shown, reasoning from the room's own
+history (red) returns about $-52$, blind to the breeze; comparing against
+contaminated, fan-running rooms (orange) returns about $-7$, the fan cancelled
 away; Single Proxy Synthetic Control on the internal rooms alone returns about
 $-45$, catching the general cool-down but missing the gust; and adding the
-Florida window recovers about $-16$ against a truth of $-15$. The two naive
-methods miss in opposite directions; the negative control lands on the answer.
-Averaged over many draws the four settle near $-51$, $-7$, $-42$, and $-16$, and
-the ordering never changes.
+Florida window (blue) recovers about $-16$ against a truth of $-15$. The two
+naive methods miss in opposite directions; the negative control lands on the
+answer. Averaged over many draws the four settle near $-51$, $-7$, $-42$, and
+$-16$, and the ordering never changes.
 
 The sections that follow trade the fan for notation---the factor model that
 makes "the breeze wakes up" precise (Section~\ref{p1-sec:idprob}), the estimator
@@ -204,19 +207,7 @@ donor in the real data (Section~\ref{p1-sec:florida})---but the fan is the whole
 of it: two coincident causes you cannot separate from one room, and a fanless,
 breezy room that lets you separate them.
 
-![The fan experiment with a known answer. A synthetic Hawaii-like economy is
-stirred by an ordinary business cycle (the house thermostat) and, after month
-60, a sharp pandemic-style collapse (the breeze); a border-closure policy (the
-fan) with a true effect of $-15$ points is layered on. Left: the observed
-treated series (black) falls below its true no-policy counterfactual (green
-dashed) by the policy effect; the own-history reconstruction (red) is blind to
-the breeze, the contaminated-donor comparison (orange) tracks rooms that also
-ran fans, and Single Proxy Synthetic Control with the external Florida window
-(blue) hugs the truth. Right: each method's estimated policy effect against the
-true $-15$ (green dashed). The two naive methods miss in opposite directions;
-the proximal estimate, built on a valid external negative control, recovers the
-answer. The panel shows the single draw quoted in the text; averaged over
-repeated draws the estimates are close and the ordering is unchanged.](proximal_primer.png){#fig-primer}
+![The fan experiment: four methods, one known answer.](proximal_primer.png){#fig-primer}
 
 '''
 
