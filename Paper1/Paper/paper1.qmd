@@ -289,31 +289,23 @@ def spsc_paths(outcome, donor_units=None, conformal=False, start=START):
     return {"y": y, "t": t, "t0": t0, "cf": np.asarray(res.counterfactual, float).ravel(),
             "att": float(res.att), "se": se, "hw": (hi - lo) / 2 if len(lo) else np.array([])}
 
-def shc_fit(outcome, display=False, start=START):
-    """Fit the naive Synthetic Historical Control baseline (own history)."""
-    s = LONG[(LONG.unit == outcome) & (LONG.time >= pd.Timestamp(start))][["time", "y"]]
-    s = s.rename(columns={"time": "Date", "y": outcome})
-    s["Unit"] = "Hawaii"; s[TREAT] = (s.Date >= TREAT_DATE).astype(int)
-    r = SHC({"df": s, "outcome": outcome, "treat": TREAT, "unitid": "Unit",
-             "time": "Date", "m": 12 * 5, "display_graphs": display,
-             "save": False}).fit()
-    return float(r.effects.att)
-
-def shc_paths(outcome, start=START):
-    """Fit SHC and return the plotting arrays (observed, own-history counterfactual,
-    ATT), so the naive baseline can be drawn on the same axes as SPSC. The SHC
-    counterfactual spans the reconstructed evaluation-and-post window, so it is
-    tail-aligned to the observed series at plot time."""
-    s = LONG[(LONG.unit == outcome) & (LONG.time >= pd.Timestamp(start))][["time", "y"]]
-    s = s.rename(columns={"time": "Date", "y": outcome})
-    s["Unit"] = "Hawaii"; s[TREAT] = (s.Date >= TREAT_DATE).astype(int)
-    r = SHC({"df": s, "outcome": outcome, "treat": TREAT, "unitid": "Unit",
-             "time": "Date", "m": 12 * 5, "display_graphs": False, "save": False}).fit()
-    t = np.asarray(s["Date"].to_numpy(), dtype="datetime64[ns]")
-    y = s[outcome].to_numpy(float)
-    t0 = int((s[TREAT].to_numpy() == 0).sum())
-    cf = np.asarray(r.time_series.counterfactual_outcome, float).ravel()
-    return {"y": y, "t": t, "t0": t0, "cf": cf, "att": float(r.effects.att)}
+def pi_fit(outcome, donor_units=None, start=START):
+    """Fit base Proximal Inference (PI) for one outcome: the donors are the
+    outcome-proxies and the treated unit's own pre-treatment history is the
+    instrument. The second headline specification alongside SPSC."""
+    donor_units = list(INSULATED if donor_units is None else donor_units)
+    long = to_fit_frame(outcome, donor_units, start=start)
+    res = PROXIMAL({"df": long, "outcome": "y", "treat": "treat", "unitid": "unit",
+                    "time": "time", "methods": ["PI"], "donors": donor_units,
+                    "vars": {"donorproxies": ["y"]},
+                    "display_graphs": False, "save": False}).fit()
+    tr = long[long.unit == outcome].sort_values("time")
+    y = tr["y"].to_numpy(float); t0 = int((tr["treat"].to_numpy() == 0).sum())
+    cf = np.asarray(res.counterfactual, float).ravel()
+    att = getattr(getattr(res, "effects", None), "att", None)
+    att = float(att) if att is not None else float(res.att)
+    pre_rmse = float(np.sqrt(np.mean((y[:t0] - cf[:t0]) ** 2)))
+    return {"att": att, "pre_rmse": pre_rmse}
 
 def _pp(x):
     return f"{abs(x):.0f}"
@@ -326,12 +318,13 @@ SHORT = {"Visitor Days": "Visitor Days", "Visitor Arrivals": "Visitor Arrivals",
          "Revenue per Available Room": "RevPAR", "Accommodation Emp": "Accommodation Emp",
          "Total Leisure Emp": "Leisure Emp", "Unemp Rate": "Unemp Rate", "LFP": "LFP"}
 
-# Naive-vs-proximal contrast for the headline outcomes.
-_HEAD = ["Visitor Days", "Occupancy", "Revenue per Available Room",
-         "Accommodation Emp", "Total Leisure Emp"]
-_shc, _spsc = {}, {}
-for oc in _HEAD:
-    _shc[oc] = shc_fit(oc); _spsc[oc] = spsc_fit(oc)["att"]
+# Headline proximal estimates on the insulated proxies (the macro upper bound),
+# by both specifications: SPSC (Park-Tchetgen) and base PI (Liu et al.).
+_HEAD = ["Visitor Days", "Visitor Arrivals", "Occupancy",
+         "Revenue per Available Room", "Accommodation Emp"]
+_spsc = {oc: spsc_fit(oc)["att"] for oc in _HEAD}
+_pi = {oc: pi_fit(oc)["att"] for oc in _HEAD}
+_pi_rmse = {oc: pi_fit(oc)["pre_rmse"] for oc in _HEAD}
 
 # Specification robustness band (the three best-behaved tourism outcomes).
 _BAND = ["Visitor Days", "Occupancy", "Revenue per Available Room"]
@@ -384,23 +377,18 @@ mdr_ph = ens["Mean Daily Rate"]["Phoenix"]["att"]
 mdr_ph_rmse = ens["Mean Daily Rate"]["Phoenix"]["pre_rmse"]
 ph_corr_mdr = opencorr["Phoenix"]["Mean Daily Rate"]
 
-# Largest naive-vs-SPSC wedge among the headline outcomes, excluding the
-# Visitor Days example already discussed in the text (the gap is most negative
-# when the naive design over-attributes most; quoted in prose).
-_gaps = {oc: _shc[oc] - _spsc[oc] for oc in _HEAD}
-maxgap_oc = min((oc for oc in _HEAD if oc != "Visitor Days"), key=lambda k: _gaps[k])
-maxgap_shc, maxgap_spsc, maxgap = _shc[maxgap_oc], _spsc[maxgap_oc], _gaps[maxgap_oc]
-
-# Scalars quoted in prose
-vd_shc, vd_spsc = _shc["Visitor Days"], _spsc["Visitor Days"]
-vd_gap = vd_shc - vd_spsc
+# Scalars quoted in prose. Both specifications agree on the insulated-only
+# (macro) upper bound; base PI is the Proximal Inference counterpart to SPSC.
+vd_spsc, vd_pi = _spsc["Visitor Days"], _pi["Visitor Days"]
 vd_prmse = spsc_fit("Visitor Days")["pre_rmse"]
+vd_pi_ins = pi_fit("Visitor Days")["att"]
+vd_fl_pi = pi_fit("Visitor Days", INSULATED + ["Florida"])["att"]  # PI on the travel-demand band
 vd_band = _band["Visitor Days"]
-# Naive-vs-proximal wedge across every headline outcome (all positive: the naive
-# design over-attributes on each), and the worst pre-treatment fit among the
-# four large-collapse volume/utilization series -- the relevance footprint,
-# reported in prose now that the diagnostic figure is gone.
-gap_lo, gap_hi = min(abs(g) for g in _gaps.values()), max(abs(g) for g in _gaps.values())
+# Agreement of the two specifications across the headline outcomes: the largest
+# gap between the SPSC and PI insulated-bound estimates (quoted in prose).
+pi_spsc_maxgap = max(abs(_spsc[oc] - _pi[oc]) for oc in _HEAD)
+# Worst pre-treatment fit among the four large-collapse volume/utilization
+# series -- the relevance footprint, reported in prose.
 hd_rmse_hi = max(ens[o]["insulated"]["pre_rmse"] for o in
                  ["Visitor Days", "Visitor Arrivals", "Occupancy", "Revenue per Available Room"])
 ```
@@ -428,15 +416,13 @@ plt.show()
 \section{Results}
 \label{sec:results}
 
-## The naive-versus-proximal contrast
+## Two proximal specifications, one estimate
 
-The central methodological point is a single comparison: Hawaii's untreated path reconstructed first by the naive Synthetic Historical Control baseline and then by proximal SPSC, both drawn against the observed series. Take Visitor Days. The naive SHC counterfactual is a business-as-usual 2020 built from Hawaii's own smooth pre-pandemic history, so differencing the observed collapse against it attributes essentially the entire post-March drop to the policy, giving an ATT of `{python} f"{vd_shc:.1f}"` percentage points. The SPSC counterfactual instead reconstructs the untreated path from the insulated sectors, which *net out the pandemic's macro-recession component*, and sits well below the naive one over the post-period; differencing against it returns a smaller ATT of `{python} f"{vd_spsc:.1f}"` points. Both reconstructions are drawn against the observed series for every headline outcome in @fig-spsc-grid below, where the naive baseline is overlaid on the two proximal paths; the vertical wedge between the naive and proximal counterfactuals is the object of interest.
+Fit on the insulated-sector proxies---the negative controls that carry the pandemic's macro-recession factor but not the border policy---the two headline specifications agree. For Visitor Days, SPSC returns an ATT of `{python} f"{vd_spsc:.1f}"` percentage points and base Proximal Inference (PI) `{python} f"{vd_pi:.1f}"`; across the five headline tourism outcomes the SPSC and PI estimates never differ by more than `{python} f"{pi_spsc_maxgap:.0f}"` points. That agreement is the substance of the result, not a coincidence of tuning. SPSC instruments the treated unit's own history under a de-trended ridge-GMM bridge \citep{parktchetgen2025}; base PI is the outcome-bridge proximal estimator of the negative-control literature \citep{miao2018identifying, tchetgen2024introduction}. Two different machineries recover the same effect from the same proxies, so the estimate is a property of the proximal identification rather than of any one estimator.
 
-The `{python} _pp(vd_gap)`-point gap between the two estimates is not noise: it is the factor-mismatch term of \eqref{eq:scm-bias}---the pandemic's macro-recession contribution, which the naive design silently charges to the border policy and which SPSC removes by instrumenting it. The same wedge is present for every headline outcome---the naive design over-attributes on each, by between `{python} f"{gap_lo:.0f}"` and `{python} f"{gap_hi:.0f}"` percentage points. It is largest, in level terms, for `{python} maxgap_oc`, where the naive ATT of `{python} f"{maxgap_shc:.1f}"` points shrinks to `{python} f"{maxgap_spsc:.1f}"` under SPSC---a `{python} _pp(maxgap)`-point pandemic component the insulated sectors net out because that series loads heavily on the general-recession factor they span.
+## The pre-treatment fit and the upper bound
 
-## SPSC estimates and the pre-treatment fit
-
-SPSC-DT, fit on the insulated sectors, returns an estimate for each of the nine outcomes, and what disciplines each one is the pre-treatment fit of the bridge---the empirical footprint of the relevance condition \eqref{eq:proxy}. A point estimate is only as trustworthy as that pre-period fit, and, as Section~\ref{sec:spsc} argued, whether the fit reflects genuine relevance depends on which factors the insulated sectors can span. The per-outcome counterfactuals and their conformal uncertainty are shown over time in @fig-spsc-grid; the readings here summarize them.
+What disciplines each estimate is the pre-treatment fit of the bridge---the empirical footprint of the relevance condition \eqref{eq:proxy}. A point estimate is only as trustworthy as that pre-period fit, and, as Section~\ref{sec:spsc} argued, whether the fit reflects genuine relevance depends on which factors the insulated sectors can span. The per-outcome counterfactuals and their conformal uncertainty are shown over time in @fig-spsc-grid; the readings here summarize them.
 
 Two readings follow. First, the tourism-demand collapse is large and robust: Visitor Days, Visitor Arrivals, Occupancy, and Revenue per Available Room all show a $\sim 65$--75-point year-over-year drop against the proximal counterfactual, against pre-treatment RMSEs of at most `{python} f"{hd_rmse_hi:.1f}"` growth-rate points across the four (for Visitor Days, `{python} f"{vd_prmse:.1f}"` points against a $\sim 70$-point effect)—the reconstruction is not an artifact of a poor fit. Second, the tourism estimates are nonetheless upper bounds in magnitude on the policy effect, not points: as Section~\ref{sec:spsc} shows, the insulated sectors span the macro-recession factor but not the travel-demand-collapse factor, so the tourism loading $\boldsymbol{\mu}_1$ lies outside the donor span \eqref{eq:scm-span} along the travel-demand direction and the ATT still carries that component. The observed drop is policy plus travel-demand loss. No outcome the insulated sectors span alone delivers a clean point estimate---which is why the headline effects are reported as the band below, and why closing the gap to a point needs the external travel-demand donor of Section~\ref{sec:florida}.
 
@@ -555,27 +541,23 @@ The ensemble also reaches an outcome a single volume proxy could not. Florida is
 
 The discipline the design demands is the reason for fitting the donors \emph{singly}. Added \emph{en masse}---all four open destinations at once---the near-collinear proxies induce large offsetting ridge weights that \emph{degrade} the fit exactly where a well-chosen single donor helped most, the price and utilization series (for Revenue per Available Room, the pre-treatment RMSE rises from `{python} f"{rp_ins_rmse:.2f}"` insulated-only to `{python} f"{rp_all_rmse:.2f}"` with the full ensemble), the failure the relevance condition warns of. The lesson is not that more proxies are better but that more \emph{independent} proxies, each read on its own, corroborate: the object is a convergence band, not a single super-donor.
 
-@fig-spsc-grid is the chapter's summary figure: for every headline outcome it draws the observed series against three counterfactuals---the naive SHC baseline (grey dashed), the insulated-only SPSC reconstruction (with its per-period conformal interval as the light spikes), and the SPSC reconstruction after adding Florida as the anchor donor---so both corrections are read off one panel. The first wedge, from the naive baseline down to the insulated path, is the macro-recession component the proximal design nets out; the second, between the insulated and +Florida counterfactuals, is where the travel-demand donor does work---visible for the visitor-volume series, invisible for Occupancy, where Florida is (correctly) down-weighted to zero. Reading any single travel-demand wedge as a clean decomposition would over-interpret it, though: each +donor fit re-solves all bridge weights jointly, so the honest object is the convergence across donors in @fig-florida, not one panel here.
+@fig-spsc-grid is the chapter's summary figure: for every headline outcome it draws the observed series against the two SPSC reconstructions---the insulated-only counterfactual (with its per-period conformal interval as the light spikes), which nets the macro-recession factor and yields the upper bound, and the counterfactual after adding Florida as the anchor donor, which nets the travel-demand factor as well. The wedge between the two is where the travel-demand donor does work---visible for the visitor-volume series, invisible for Occupancy, where Florida is (correctly) down-weighted to zero. Reading any single wedge as a clean decomposition would over-interpret it, though: each +donor fit re-solves all bridge weights jointly, so the honest object is the convergence across donors in @fig-florida, not one panel here.
 
 ```{python}
 #| echo: false
 #| label: fig-spsc-grid
-#| fig-cap: "Observed, naive SHC, and both proximal SPSC counterfactuals for five headline outcomes."
+#| fig-cap: "Observed and both SPSC reconstructions (insulated, +Florida) for five headline outcomes."
 _GRID = ["Visitor Days", "Visitor Arrivals", "Occupancy",
          "Revenue per Available Room", "Accommodation Emp"]
 fig, axes = plt.subplots(3, 2, figsize=(12, 11)); axes = axes.flatten()
 for ax, oc in zip(axes, _GRID):
     p0 = spsc_paths(oc, INSULATED, conformal=True)
     p1 = spsc_paths(oc, INSULATED + [ANCHOR])
-    sh = shc_paths(oc)
     d, t0 = p0["t"], p0["t0"]; post = d[t0:]
     ax.plot(d, p0["y"], color="black", lw=1.6, label="observed")
-    _dsh = d[len(d) - len(sh["cf"]):]              # SHC cf spans the reconstructed tail
-    # naive baseline as a quiet dark-grey reference line; saturated red/blue carry the estimates
-    ax.plot(_dsh, sh["cf"], color="0.35", lw=1.5, ls=(0, (6, 3)), label="naive SHC")
     ax.plot(d, p0["cf"], color=CF[0], lw=1.4, ls="--", label="SPSC (insulated)")
     ax.plot(d, p1["cf"], color=CF[1], lw=1.4, ls="-.", label="SPSC (+ Florida)")
-    yv = np.concatenate([p0["y"], p0["cf"], p1["cf"], sh["cf"]])
+    yv = np.concatenate([p0["y"], p0["cf"], p1["cf"]])
     lo, hi = np.nanmin(yv), np.nanmax(yv); pad = 0.08 * (hi - lo)
     ax.set_ylim(lo - pad, hi + pad)
     for i, x in enumerate(post):
@@ -584,7 +566,7 @@ for ax, oc in zip(axes, _GRID):
                     color=CF[0], lw=0.9, alpha=0.35)
     ax.axvline(d[t0], color="grey", ls=":", lw=1.2); ax.axhline(0, color="black", lw=0.8)
     c0, c1 = 1.96 * p0["se"], 1.96 * p1["se"]
-    ax.set_title(f"{oc}: naive SHC {sh['att']:.0f} | insulated {p0['att']:.0f} [{p0['att']-c0:.0f}, {p0['att']+c0:.0f}]\n"
+    ax.set_title(f"{oc}: insulated {p0['att']:.0f} [{p0['att']-c0:.0f}, {p0['att']+c0:.0f}]\n"
                  f"+ Florida {p1['att']:.0f} [{p1['att']-c1:.0f}, {p1['att']+c1:.0f}]",
                  fontsize=8, loc="left")
     ax.legend(fontsize=6.5, loc="lower left"); ax.set_ylabel("YoY %", fontsize=8)
@@ -598,7 +580,7 @@ plt.show()
 # Discussion
 \label{sec:discuss}
 
-The methodological lesson of Hawaii is that a good pre-treatment fit is not identification when a policy and a global shock arrive in the same month. A naive synthetic control—whether it borrows across states or, as in SHC, across the treated unit's own history—produces a clean-looking counterfactual and a large ATT, but that ATT is the border-closure effect plus the pandemic's contribution to Hawaii's outcomes, and nothing in the fit reveals the mix. Proximal / negative-control inference is the discipline that separates them: by instrumenting the latent pandemic factor with insulated employment sectors that carry it but are immune to the policy, SPSC nets out the macro-recession component the naive design cannot. The wedge between the two estimates—about `{python} _pp(vd_gap)` points for Visitor Days, and larger still for the most recession-exposed of the headline series—is a direct, quantitative measure of how much pandemic contamination a naive reading would have mistaken for policy.
+The methodological lesson of Hawaii is that a good pre-treatment fit is not identification when a policy and a global shock arrive in the same month. A synthetic control that matches Hawaii to any pre-pandemic counterfactual---whether by borrowing across states or, as own-history extrapolation does, across the treated unit's own past---produces a clean-looking counterfactual and a large ATT, but that ATT is the border-closure effect plus the pandemic's contribution to Hawaii's outcomes, and nothing in the fit reveals the mix. Proximal / negative-control inference is the discipline that separates them: instrumenting the latent pandemic factor with insulated employment sectors that carry it but are immune to the policy, both headline specifications---SPSC and base PI---net out the macro-recession component and agree on the result, so the estimate rests on the identification rather than on any single estimator.
 
 At the same time, the analysis is candid about the limit of what the shipped data can identify. The insulated sectors span the pandemic's general-recession factor but not its travel-demand-collapse factor: even with an open border, Hawaii tourism would have fallen sharply as people stopped flying. SPSC on insulated sectors alone therefore recovers only the macro component of the counterfactual, and the resulting tourism ATTs over-attribute the collapse to the policy—they are upper bounds in magnitude, which is why I report them as a band rather than as points. Recovering an actual point estimate from insulated donors alone is not possible here, because every treated series loads on the travel-demand factor those donors miss; the point has to be spanned from outside the treated economy, which is what the open-destination donors do. The substantive conclusion is thus deliberately modest and, I would argue, more credible for it: the border closure coincided with a near-total collapse in measured tourism demand, of which a bounded share is causally the policy, with a convergent ensemble of external travel-demand donors pulling the Visitor Days estimate off its upper bound toward a policy-centered band.
 
@@ -608,9 +590,9 @@ These estimates speak only to short-run economic outcomes through the end of 202
 
 # Conclusion
 
-This paper estimates the short-run economic consequences of Hawaii's March 2020 mandatory quarantine while confronting the identification problem that its predecessors on this topic could not: for a single treated unit, the border-closure policy and the COVID-19 pandemic are perfectly collinear in time, so no synthetic control that merely matches Hawaii to a pre-pandemic counterfactual can separate the two. I resolve this with Single Proxy Synthetic Control, a proximal / negative-control estimator that instruments the latent pandemic factor using insulated employment sectors that carry the pandemic's macro-recession shock but are immune to the border policy.
+This paper estimates the short-run economic consequences of Hawaii's March 2020 mandatory quarantine while confronting the identification problem that its predecessors on this topic could not: for a single treated unit, the border-closure policy and the COVID-19 pandemic are perfectly collinear in time, so no synthetic control that merely matches Hawaii to a pre-pandemic counterfactual can separate the two. I resolve this with proximal inference---negative-control estimators, in two specifications (Single Proxy Synthetic Control and base Proximal Inference), that instrument the latent pandemic factor using insulated employment sectors which carry the pandemic's macro-recession shock but are immune to the border policy.
 
-Contrasting SPSC with a naive Synthetic Historical Control baseline shows that a substantial share of the measured tourism collapse—roughly `{python} _pp(vd_gap)` percentage points for Visitor Days—is pandemic contamination the naive design charges to the policy. SPSC recovers a large, robust tourism-demand collapse (about 60--75 points of year-over-year growth for the visitor-volume series) but, because the insulated sectors span only the macro-recession factor and not the travel-demand-collapse factor, they under-span the tourism factor and identify these effects only weakly; the estimates from insulated donors alone are upper bounds in magnitude on the policy effect and are reported as a robustness band rather than as points. Because every treated series loads on the travel-demand factor those donors miss, none of the insulated-only estimates is a clean point; the trustworthy point comes only once the missing factor is spanned from outside the treated economy, which is the role of the external Florida travel-demand donor.
+Estimated by both specifications, the insulated-sector proxies identify a large, robust tourism-demand collapse (about 60--75 points of year-over-year growth for the visitor-volume series). But because those sectors span only the macro-recession factor and not the travel-demand-collapse factor, they under-span the tourism factor and identify these effects only weakly: the insulated-only estimates are upper bounds in magnitude on the policy effect, reported as a robustness band rather than as points. Because every treated series loads on the travel-demand factor those donors miss, the trustworthy point comes only once the missing factor is spanned from outside the treated economy---the role of the external open-destination travel-demand donors.
 
 Methodologically, the study demonstrates how negative-control inference disciplines causal claims when a policy and a global shock coincide—a structure common to pandemic border closures, but also to climate shocks and other systemic crises where a would-be counterfactual unit is itself engulfed by the event. Substantively, it delivers a bounded, honest estimate of the economic price of Hawaii's ``Great Isolation with Aloha characteristics''. Adding a small ensemble of external no-lockdown travel-demand donors—inbound air travel to Florida and to the Tampa, Orlando, and Phoenix leisure markets—takes the step from a bound to a policy-centered band: fit independently, they converge in pulling the Visitor Days effect toward the policy-only magnitude, and one of them (Phoenix) reaches the room-rate series a single volume proxy cannot. Finishing the job for every outcome is a matter of assembling more such open-destination proxies, disciplined by relevance, rather than a limit of the design.
 
