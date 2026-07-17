@@ -218,7 +218,6 @@ _u = lambda role, grp: LONG[(LONG.role == role) & (LONG.group == grp)].unit.uniq
 TOURISM = ["Visitor Arrivals", "Visitor Days", "Occupancy", "Mean Daily Rate",
            "Revenue per Available Room", "Accommodation Emp"]
 ECON = ["Total Leisure Emp", "Unemp Rate", "LFP"]
-ALL_OUT = TOURISM + ECON
 INSULATED = _u("donor", "insulated")           # the five negative-control donors
 TRAVEL = _u("donor", "travel-demand")          # open-destination ensemble
 OPEN = ["Florida", "Tampa", "Orlando", "Phoenix"]   # display order (anchor first)
@@ -300,6 +299,22 @@ def shc_fit(outcome, display=False, start=START):
              "save": False}).fit()
     return float(r.effects.att)
 
+def shc_paths(outcome, start=START):
+    """Fit SHC and return the plotting arrays (observed, own-history counterfactual,
+    ATT), so the naive baseline can be drawn on the same axes as SPSC. The SHC
+    counterfactual spans the reconstructed evaluation-and-post window, so it is
+    tail-aligned to the observed series at plot time."""
+    s = LONG[(LONG.unit == outcome) & (LONG.time >= pd.Timestamp(start))][["time", "y"]]
+    s = s.rename(columns={"time": "Date", "y": outcome})
+    s["Unit"] = "Hawaii"; s[TREAT] = (s.Date >= TREAT_DATE).astype(int)
+    r = SHC({"df": s, "outcome": outcome, "treat": TREAT, "unitid": "Unit",
+             "time": "Date", "m": 12 * 5, "display_graphs": False, "save": False}).fit()
+    t = np.asarray(s["Date"].to_numpy(), dtype="datetime64[ns]")
+    y = s[outcome].to_numpy(float)
+    t0 = int((s[TREAT].to_numpy() == 0).sum())
+    cf = np.asarray(r.time_series.counterfactual_outcome, float).ravel()
+    return {"y": y, "t": t, "t0": t0, "cf": cf, "att": float(r.effects.att)}
+
 def _pp(x):
     return f"{abs(x):.0f}"
 
@@ -310,13 +325,6 @@ SHORT = {"Visitor Days": "Visitor Days", "Visitor Arrivals": "Visitor Arrivals",
          "Occupancy": "Occupancy", "Mean Daily Rate": "Mean Daily Rate",
          "Revenue per Available Room": "RevPAR", "Accommodation Emp": "Accommodation Emp",
          "Total Leisure Emp": "Leisure Emp", "Unemp Rate": "Unemp Rate", "LFP": "LFP"}
-
-# Diagnostics across all outcomes: ATT, GMM SE, pre-treatment RMSE (numeric).
-_diag = []
-for oc in ALL_OUT:
-    f = spsc_fit(oc)
-    _diag.append({"oc": oc, "group": "tourism" if oc in TOURISM else "econ/labor",
-                  "att": f["att"], "se": f["se"], "rmse": f["pre_rmse"]})
 
 # Naive-vs-proximal contrast for the headline outcomes.
 _HEAD = ["Visitor Days", "Occupancy", "Revenue per Available Room",
@@ -388,6 +396,13 @@ vd_shc, vd_spsc = _shc["Visitor Days"], _spsc["Visitor Days"]
 vd_gap = vd_shc - vd_spsc
 vd_prmse = spsc_fit("Visitor Days")["pre_rmse"]
 vd_band = _band["Visitor Days"]
+# Naive-vs-proximal wedge across every headline outcome (all positive: the naive
+# design over-attributes on each), and the worst pre-treatment fit among the
+# four large-collapse volume/utilization series -- the relevance footprint,
+# reported in prose now that the diagnostic figure is gone.
+gap_lo, gap_hi = min(abs(g) for g in _gaps.values()), max(abs(g) for g in _gaps.values())
+hd_rmse_hi = max(ens[o]["insulated"]["pre_rmse"] for o in
+                 ["Visitor Days", "Visitor Arrivals", "Occupancy", "Revenue per Available Room"])
 ```
 
 ```{python}
@@ -415,80 +430,37 @@ plt.show()
 
 ## The naive-versus-proximal contrast
 
-The central methodological point is visible in a single comparison: the same treated series, estimated first with the naive Synthetic Historical Control baseline and then with proximal SPSC. @fig-shc-vd and @fig-spsc-vd show it for Visitor Days. The naive SHC counterfactual (@fig-shc-vd) is a business-as-usual 2020 built from Hawaii's own smooth pre-pandemic history; differencing against it attributes essentially the entire post-March collapse to the policy, giving an ATT of `{python} f"{vd_shc:.1f}"` percentage points. The SPSC counterfactual (@fig-spsc-vd) instead reconstructs Hawaii's untreated path from the insulated sectors, which *net out the pandemic's macro-recession component*, and returns a smaller ATT of `{python} f"{vd_spsc:.1f}"` points.
+The central methodological point is visible in a single comparison: the same treated series, its untreated path reconstructed first by the naive Synthetic Historical Control baseline and then by proximal SPSC, drawn against the observed series on one set of axes. @fig-naive-proximal shows it for Visitor Days. The naive SHC counterfactual is a business-as-usual 2020 built from Hawaii's own smooth pre-pandemic history, so differencing the observed collapse against it attributes essentially the entire post-March drop to the policy, giving an ATT of `{python} f"{vd_shc:.1f}"` percentage points. The SPSC counterfactual instead reconstructs Hawaii's untreated path from the insulated sectors, which *net out the pandemic's macro-recession component*, and sits well below the naive one over the post-period; differencing against it returns a smaller ATT of `{python} f"{vd_spsc:.1f}"` points. The vertical wedge between the two counterfactuals is the object of interest.
 
 ```{python}
 #| echo: false
-#| label: fig-shc-vd
-#| fig-cap: "Naive baseline (Synthetic Historical Control), Visitor Days. The counterfactual is built from Hawaii's own pre-2020 history, so it is a world with neither the pandemic nor the policy and the full collapse loads onto the estimate."
-_ = shc_fit("Visitor Days", display=True)
-```
-
-```{python}
-#| echo: false
-#| label: fig-spsc-vd
-#| fig-cap: "Proximal Single Proxy Synthetic Control, Visitor Days. The counterfactual (left panel) is reconstructed from the insulated-sector negative controls, netting out the pandemic's macro-recession factor; the gap panel (right) is the estimated effect path."
-_ = spsc_fit("Visitor Days", conformal=True, display=True)
-```
-
-The `{python} _pp(vd_gap)`-point gap between the two estimates is not noise: it is the factor-mismatch term of \eqref{eq:scm-bias}---the pandemic's macro-recession contribution, which the naive design silently charges to the border policy and which SPSC removes by instrumenting it. The same wedge appears across the headline outcomes (@fig-contrast). It is largest, in level terms, for `{python} maxgap_oc`, where the naive ATT of `{python} f"{maxgap_shc:.1f}"` points shrinks to `{python} f"{maxgap_spsc:.1f}"` under SPSC---a `{python} _pp(maxgap)`-point pandemic component the insulated sectors net out because that series loads heavily on the general-recession factor they span.
-
-```{python}
-#| echo: false
-#| label: fig-contrast
-#| fig-cap: "Naive SHC versus proximal SPSC average treatment effects (percentage points of year-over-year growth) for the headline outcomes. Each row pairs the naive Synthetic Historical Control estimate (red) with the proximal SPSC estimate (blue); the connecting segment is the gap---the pandemic's macro-recession component the naive design cannot net out."
-_names = _HEAD[::-1]
-_y = np.arange(len(_names))
-fig, ax = plt.subplots(figsize=(8, 4.0))
-for i, oc in enumerate(_names):
-    ax.plot([_spsc[oc], _shc[oc]], [i, i], color="grey", lw=1.6, zorder=1)
-ax.scatter([_shc[o] for o in _names], _y, color=CF[0], s=60, zorder=2, label="Naive SHC")
-ax.scatter([_spsc[o] for o in _names], _y, color=CF[1], s=60, zorder=2, label="Proximal SPSC")
-ax.axvline(0, color="black", lw=0.8)
-ax.set_yticks(_y); ax.set_yticklabels([SHORT[o] for o in _names])
-ax.set_xlabel("ATT (pp of YoY growth)")
-ax.legend(loc="center right")
+#| label: fig-naive-proximal
+#| fig-cap: "Naive versus proximal counterfactuals for Visitor Days on one axis: observed (black), the naive Synthetic Historical Control path built from Hawaii's own pre-2020 history (red dashed), and the proximal SPSC path reconstructed from the insulated-sector negative controls (blue dash-dot). The drop from observed to the SHC path is the naive ATT; the drop to the SPSC path is the proximal ATT; the wedge between the two counterfactuals is the pandemic's macro-recession component the naive design charges to the policy."
+oc = "Visitor Days"
+sp = spsc_paths(oc)
+sh = shc_paths(oc)
+t, y, t0 = sp["t"], sp["y"], sp["t0"]
+fig, ax = plt.subplots(figsize=(9, 4.4))
+ax.plot(t, y, color="black", lw=2.0, label="observed")
+ax.plot(t, sp["cf"], color=CF[1], lw=1.8, ls="-.",
+        label=f"proximal SPSC (insulated), ATT {sp['att']:.0f}")
+_tsh = t[len(t) - len(sh["cf"]):]                 # SHC cf spans the reconstructed tail
+ax.plot(_tsh, sh["cf"], color=CF[0], lw=1.8, ls="--",
+        label=f"naive SHC (own history), ATT {sh['att']:.0f}")
+ax.axvline(t[t0], color="grey", ls=":", lw=1.2); ax.axhline(0, color="black", lw=0.8)
+ax.set_ylabel("YoY %"); ax.legend(loc="lower left")
+ax.xaxis.set_major_locator(mdates.YearLocator(2))
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
 plt.tight_layout(); plt.show()
 ```
+
+The `{python} _pp(vd_gap)`-point gap between the two estimates is not noise: it is the factor-mismatch term of \eqref{eq:scm-bias}---the pandemic's macro-recession contribution, which the naive design silently charges to the border policy and which SPSC removes by instrumenting it. The same wedge is present for every headline outcome---the naive design over-attributes on each, by between `{python} f"{gap_lo:.0f}"` and `{python} f"{gap_hi:.0f}"` percentage points. It is largest, in level terms, for `{python} maxgap_oc`, where the naive ATT of `{python} f"{maxgap_shc:.1f}"` points shrinks to `{python} f"{maxgap_spsc:.1f}"` under SPSC---a `{python} _pp(maxgap)`-point pandemic component the insulated sectors net out because that series loads heavily on the general-recession factor they span.
 
 ## SPSC estimates and the pre-treatment fit
 
-@fig-diag reports SPSC-DT across all nine outcomes together with the pre-treatment RMSE of the bridge---the empirical footprint of the relevance condition \eqref{eq:proxy}. Reading the figure requires the discipline that diagnostic imposes: a point estimate is only as trustworthy as the pre-period fit of the synthetic control, and, as Section~\ref{sec:spsc} argued, whether that fit reflects genuine relevance depends on which factors the insulated sectors can span.
+SPSC-DT, fit on the insulated sectors, returns an estimate for each of the nine outcomes, and what disciplines each one is the pre-treatment fit of the bridge---the empirical footprint of the relevance condition \eqref{eq:proxy}. A point estimate is only as trustworthy as that pre-period fit, and, as Section~\ref{sec:spsc} argued, whether the fit reflects genuine relevance depends on which factors the insulated sectors can span. The per-outcome counterfactuals and their conformal uncertainty are shown over time in @fig-spsc-grid; the readings here summarize them.
 
-```{python}
-#| echo: false
-#| label: fig-diag
-#| fig-cap: "SPSC-DT estimates and pre-treatment fit, all nine outcomes (tourism red, econ/labor blue). Left: the ATT in percentage points of year-over-year growth, with the 95\\% GMM confidence interval (sandwich standard error) as the error bar. Right: the pre-treatment RMSE of the bridge---the root-mean-squared residual over the 74 pre-treatment months---the empirical footprint of the relevance condition."
-from matplotlib.lines import Line2D
-_rows = {d["oc"]: d for d in _diag}
-_names = ALL_OUT[::-1]                       # tourism block at the top
-_y = np.arange(len(_names))
-_col = lambda r: CF[0] if r["group"] == "tourism" else CF[1]
-_XLO, _XHI = -95, 35            # the Unemployment Rate ATT is an off-scale artifact
-fig, (axL, axR) = plt.subplots(1, 2, figsize=(11, 4.8), sharey=True)
-for i, oc in enumerate(_names):
-    r = _rows[oc]
-    if _XLO <= r["att"] <= _XHI:
-        axL.errorbar(r["att"], i, xerr=1.96 * r["se"], fmt="o", color=_col(r),
-                     ecolor=_col(r), elinewidth=1.5, capsize=3, ms=6, zorder=2)
-    else:                       # mark the artifact at the axis edge instead of blowing up the scale
-        axL.annotate(f"{r['att']:.0f} " + ("→" if r["att"] > _XHI else "←"),
-                     (_XHI if r["att"] > _XHI else _XLO, i),
-                     ha="right" if r["att"] > _XHI else "left", va="center",
-                     fontsize=7.5, color=_col(r))
-    axR.barh(i, r["rmse"], color=_col(r), alpha=0.85)
-axL.axvline(0, color="black", lw=0.8)
-axL.set_xlim(_XLO, _XHI)
-axL.set_yticks(_y); axL.set_yticklabels([SHORT[o] for o in _names])
-axL.set_xlabel("SPSC-DT ATT (pp), 95% GMM CI")
-axL.legend(handles=[Line2D([0], [0], marker="o", color="w", markerfacecolor=CF[0], ms=8, label="tourism"),
-                    Line2D([0], [0], marker="o", color="w", markerfacecolor=CF[1], ms=8, label="econ/labor")],
-           loc="lower left")
-axR.set_xlabel("pre-treatment RMSE (pp)")
-plt.tight_layout(); plt.show()
-```
-
-Two readings follow. First, the tourism-demand collapse is large and robust: Visitor Days, Visitor Arrivals, Occupancy, and Revenue per Available Room all show a $\sim 65$--75-point year-over-year drop against the proximal counterfactual, against pre-treatment RMSEs of only a few growth-rate points (for Visitor Days, `{python} f"{vd_prmse:.1f}"` points against a $\sim 70$-point effect)—the reconstruction is not an artifact of a poor fit. Second, the tourism estimates are nonetheless upper bounds in magnitude on the policy effect, not points: as Section~\ref{sec:spsc} shows, the insulated sectors span the macro-recession factor but not the travel-demand-collapse factor, so the tourism loading $\boldsymbol{\mu}_1$ lies outside the donor span \eqref{eq:scm-span} along the travel-demand direction and the ATT still carries that component. The observed drop is policy plus travel-demand loss. No outcome the insulated sectors span alone delivers a clean point estimate---which is why the headline effects are reported as the band below, and why closing the gap to a point needs the external travel-demand donor of Section~\ref{sec:florida}.
+Two readings follow. First, the tourism-demand collapse is large and robust: Visitor Days, Visitor Arrivals, Occupancy, and Revenue per Available Room all show a $\sim 65$--75-point year-over-year drop against the proximal counterfactual, against pre-treatment RMSEs of at most `{python} f"{hd_rmse_hi:.1f}"` growth-rate points across the four (for Visitor Days, `{python} f"{vd_prmse:.1f}"` points against a $\sim 70$-point effect)—the reconstruction is not an artifact of a poor fit. Second, the tourism estimates are nonetheless upper bounds in magnitude on the policy effect, not points: as Section~\ref{sec:spsc} shows, the insulated sectors span the macro-recession factor but not the travel-demand-collapse factor, so the tourism loading $\boldsymbol{\mu}_1$ lies outside the donor span \eqref{eq:scm-span} along the travel-demand direction and the ATT still carries that component. The observed drop is policy plus travel-demand loss. No outcome the insulated sectors span alone delivers a clean point estimate---which is why the headline effects are reported as the band below, and why closing the gap to a point needs the external travel-demand donor of Section~\ref{sec:florida}.
 
 Two caveats attach to the GMM standard errors. On this 2014 window they are non-degenerate and usable for the visitor series ($\sim 3$--8 points), a genuine improvement over the full-history window where de-trending a near-interpolating fit collapses the sandwich toward zero. But two of the labor series remain unreliable---the Unemployment Rate ATT is a relative-growth artifact with a near-zero SE, and the Labor Force Participation SE is tiny---and should not be read at face value. More fundamentally, even a well-behaved SE captures only *sampling* noise around the pre-period bridge, not the *extrapolation* risk of transporting that bridge across the March-2020 structural break, which is the dominant uncertainty here. I therefore do not lean on the SE alone.
 
