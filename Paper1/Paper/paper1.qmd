@@ -408,7 +408,7 @@ hd_rmse_hi = max(ens[o]["insulated"]["pre_rmse"] for o in
 ```{python}
 #| echo: false
 #| label: fig-premise
-#| fig-cap: "The negative-control premise. Left: treated tourism outcomes (year-over-year growth) collapse by 50--99\\% at the March 2020 border closure. Right: the five insulated-sector donors dip only modestly---they carry the pandemic's macro-recession factor but not the travel-demand collapse or the policy. The dotted line marks March 2020."
+#| fig-cap: "The negative-control premise: treated tourism outcomes collapse while the insulated-sector donors barely dip."
 fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 4.2), sharex=True)
 for oc, c in zip(["Visitor Days", "Occupancy", "Accommodation Emp"], ("black",) + CF):
     a1.plot(wide["Date"], wide[oc], lw=1.4, label=oc, color=c)
@@ -435,7 +435,7 @@ The central methodological point is visible in a single comparison: the same tre
 ```{python}
 #| echo: false
 #| label: fig-naive-proximal
-#| fig-cap: "Naive versus proximal counterfactuals for Visitor Days on one axis: observed (black), the naive Synthetic Historical Control path built from Hawaii's own pre-2020 history (red dashed), and the proximal SPSC path reconstructed from the insulated-sector negative controls (blue dash-dot). The drop from observed to the SHC path is the naive ATT; the drop to the SPSC path is the proximal ATT; the wedge between the two counterfactuals is the pandemic's macro-recession component the naive design charges to the policy."
+#| fig-cap: "Visitor Days: observed against the naive SHC and proximal SPSC counterfactuals on one axis."
 oc = "Visitor Days"
 sp = spsc_paths(oc)
 sh = shc_paths(oc)
@@ -471,7 +471,7 @@ Because the honest uncertainty is extrapolation risk rather than sampling noise,
 ```{python}
 #| echo: false
 #| label: fig-band
-#| fig-cap: "Specification robustness band. The point is the median SPSC ATT (percentage points) and the bar spans the minimum-to-maximum ATT across seven specifications: de-trend on/off, spline df, basis degree, two donor-subset drops, and the 2014 versus full-1991 window."
+#| fig-cap: "Specification robustness band: median SPSC ATT (point) and min--max range across seven specifications."
 _names = _BAND[::-1]
 _y = np.arange(len(_names))
 fig, ax = plt.subplots(figsize=(8, 3.2))
@@ -499,7 +499,7 @@ The insulated sectors span the macro-recession factor but not the travel-demand-
 ```{python}
 #| echo: false
 #| label: fig-florida
-#| fig-cap: "The open-destination ensemble. Each exposed-but-open donor (blue points), fit one at a time alongside the insulated five, is compared against the insulated-only estimate (red dashed line). Left, Visitor Days: every donor pulls the estimate off the upper bound toward a policy-centered value. Right, Mean Daily Rate: Florida (a volume series) leaves the price series untouched, but Phoenix---whose resort room rates track leisure demand---reaches it. The convergence across independent donors, not any single point, is the object of interest."
+#| fig-cap: "The open-destination ensemble: each donor, fit singly, pulls the estimate off the insulated-only bound."
 def _dots(ax, oc, title):
     base = ens[oc]["insulated"]["att"]
     vals = [ens[oc][d]["att"] for d in OPEN]
@@ -525,7 +525,7 @@ The discipline the design demands is the reason for fitting the donors \emph{sin
 ```{python}
 #| echo: false
 #| label: fig-spsc-grid
-#| fig-cap: "SPSC counterfactuals for the five headline outcomes: observed (black), the insulated-donor counterfactual (red dashed), and the counterfactual after adding the Florida travel-demand donor (blue dash-dot). Red spikes are the per-period conformal prediction interval around the insulated counterfactual (clipped to each panel; wide/degenerate for the near-interpolating series, where the ATT interval is the informative uncertainty). Each panel title gives the ATT with its 95\\% GMM confidence interval for both donor sets."
+#| fig-cap: "SPSC counterfactuals for five headline outcomes (observed, insulated, +Florida); red spikes are conformal intervals."
 _GRID = ["Visitor Days", "Visitor Arrivals", "Occupancy",
          "Revenue per Available Room", "Accommodation Emp"]
 fig, axes = plt.subplots(3, 2, figsize=(12, 11)); axes = axes.flatten()
