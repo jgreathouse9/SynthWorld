@@ -430,29 +430,7 @@ plt.show()
 
 ## The naive-versus-proximal contrast
 
-The central methodological point is visible in a single comparison: the same treated series, its untreated path reconstructed first by the naive Synthetic Historical Control baseline and then by proximal SPSC, drawn against the observed series on one set of axes. @fig-naive-proximal shows it for Visitor Days. The naive SHC counterfactual is a business-as-usual 2020 built from Hawaii's own smooth pre-pandemic history, so differencing the observed collapse against it attributes essentially the entire post-March drop to the policy, giving an ATT of `{python} f"{vd_shc:.1f}"` percentage points. The SPSC counterfactual instead reconstructs Hawaii's untreated path from the insulated sectors, which *net out the pandemic's macro-recession component*, and sits well below the naive one over the post-period; differencing against it returns a smaller ATT of `{python} f"{vd_spsc:.1f}"` points. The vertical wedge between the two counterfactuals is the object of interest.
-
-```{python}
-#| echo: false
-#| label: fig-naive-proximal
-#| fig-cap: "Visitor Days: observed against the naive SHC and proximal SPSC counterfactuals on one axis."
-oc = "Visitor Days"
-sp = spsc_paths(oc)
-sh = shc_paths(oc)
-t, y, t0 = sp["t"], sp["y"], sp["t0"]
-fig, ax = plt.subplots(figsize=(9, 4.4))
-ax.plot(t, y, color="black", lw=2.0, label="observed")
-ax.plot(t, sp["cf"], color=CF[1], lw=1.8, ls="-.",
-        label=f"proximal SPSC (insulated), ATT {sp['att']:.0f}")
-_tsh = t[len(t) - len(sh["cf"]):]                 # SHC cf spans the reconstructed tail
-ax.plot(_tsh, sh["cf"], color=CF[0], lw=1.8, ls="--",
-        label=f"naive SHC (own history), ATT {sh['att']:.0f}")
-ax.axvline(t[t0], color="grey", ls=":", lw=1.2); ax.axhline(0, color="black", lw=0.8)
-ax.set_ylabel("YoY %"); ax.legend(loc="lower left")
-ax.xaxis.set_major_locator(mdates.YearLocator(2))
-ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
-plt.tight_layout(); plt.show()
-```
+The central methodological point is a single comparison: Hawaii's untreated path reconstructed first by the naive Synthetic Historical Control baseline and then by proximal SPSC, both drawn against the observed series. Take Visitor Days. The naive SHC counterfactual is a business-as-usual 2020 built from Hawaii's own smooth pre-pandemic history, so differencing the observed collapse against it attributes essentially the entire post-March drop to the policy, giving an ATT of `{python} f"{vd_shc:.1f}"` percentage points. The SPSC counterfactual instead reconstructs the untreated path from the insulated sectors, which *net out the pandemic's macro-recession component*, and sits well below the naive one over the post-period; differencing against it returns a smaller ATT of `{python} f"{vd_spsc:.1f}"` points. Both reconstructions are drawn against the observed series for every headline outcome in @fig-spsc-grid below, where the naive baseline is overlaid on the two proximal paths; the vertical wedge between the naive and proximal counterfactuals is the object of interest.
 
 The `{python} _pp(vd_gap)`-point gap between the two estimates is not noise: it is the factor-mismatch term of \eqref{eq:scm-bias}---the pandemic's macro-recession contribution, which the naive design silently charges to the border policy and which SPSC removes by instrumenting it. The same wedge is present for every headline outcome---the naive design over-attributes on each, by between `{python} f"{gap_lo:.0f}"` and `{python} f"{gap_hi:.0f}"` percentage points. It is largest, in level terms, for `{python} maxgap_oc`, where the naive ATT of `{python} f"{maxgap_shc:.1f}"` points shrinks to `{python} f"{maxgap_spsc:.1f}"` under SPSC---a `{python} _pp(maxgap)`-point pandemic component the insulated sectors net out because that series loads heavily on the general-recession factor they span.
 
@@ -520,23 +498,26 @@ The ensemble also reaches an outcome a single volume proxy could not. Florida is
 
 The discipline the design demands is the reason for fitting the donors \emph{singly}. Added \emph{en masse}---all four open destinations at once---the near-collinear proxies induce large offsetting ridge weights that \emph{degrade} the fit exactly where a well-chosen single donor helped most, the price and utilization series (for Revenue per Available Room, the pre-treatment RMSE rises from `{python} f"{rp_ins_rmse:.2f}"` insulated-only to `{python} f"{rp_all_rmse:.2f}"` with the full ensemble), the failure the relevance condition warns of. The lesson is not that more proxies are better but that more \emph{independent} proxies, each read on its own, corroborate: the object is a convergence band, not a single super-donor.
 
-@fig-spsc-grid shows the counterfactuals against the observed series for every headline outcome, using Florida as the anchor donor. The wedge between the insulated and the +Florida counterfactual is where the travel-demand donor does work---visible for the visitor-volume series, invisible for Occupancy, where Florida is (correctly) down-weighted to zero. Reading any single wedge as a clean travel-demand decomposition would over-interpret it, though: each +donor fit re-solves all bridge weights jointly, so the honest object is the convergence across donors in @fig-florida, not one panel here.
+@fig-spsc-grid is the chapter's summary figure: for every headline outcome it draws the observed series against three counterfactuals---the naive SHC baseline (dotted), the insulated-only SPSC reconstruction (with its per-period conformal interval as the light spikes), and the SPSC reconstruction after adding Florida as the anchor donor---so both corrections are read off one panel. The first wedge, from the naive baseline down to the insulated path, is the macro-recession component the proximal design nets out; the second, between the insulated and +Florida counterfactuals, is where the travel-demand donor does work---visible for the visitor-volume series, invisible for Occupancy, where Florida is (correctly) down-weighted to zero. Reading any single travel-demand wedge as a clean decomposition would over-interpret it, though: each +donor fit re-solves all bridge weights jointly, so the honest object is the convergence across donors in @fig-florida, not one panel here.
 
 ```{python}
 #| echo: false
 #| label: fig-spsc-grid
-#| fig-cap: "SPSC counterfactuals for five headline outcomes (observed, insulated, +Florida); red spikes are conformal intervals."
+#| fig-cap: "Observed, naive SHC, and both proximal SPSC counterfactuals for five headline outcomes."
 _GRID = ["Visitor Days", "Visitor Arrivals", "Occupancy",
          "Revenue per Available Room", "Accommodation Emp"]
 fig, axes = plt.subplots(3, 2, figsize=(12, 11)); axes = axes.flatten()
 for ax, oc in zip(axes, _GRID):
     p0 = spsc_paths(oc, INSULATED, conformal=True)
     p1 = spsc_paths(oc, INSULATED + [ANCHOR])
+    sh = shc_paths(oc)
     d, t0 = p0["t"], p0["t0"]; post = d[t0:]
     ax.plot(d, p0["y"], color="black", lw=1.6, label="observed")
+    _dsh = d[len(d) - len(sh["cf"]):]              # SHC cf spans the reconstructed tail
+    ax.plot(_dsh, sh["cf"], color=CF[4], lw=1.3, ls=":", label="naive SHC")
     ax.plot(d, p0["cf"], color=CF[0], lw=1.4, ls="--", label="SPSC (insulated)")
     ax.plot(d, p1["cf"], color=CF[1], lw=1.4, ls="-.", label="SPSC (+ Florida)")
-    yv = np.concatenate([p0["y"], p0["cf"], p1["cf"]])
+    yv = np.concatenate([p0["y"], p0["cf"], p1["cf"], sh["cf"]])
     lo, hi = np.nanmin(yv), np.nanmax(yv); pad = 0.08 * (hi - lo)
     ax.set_ylim(lo - pad, hi + pad)
     for i, x in enumerate(post):
@@ -545,9 +526,9 @@ for ax, oc in zip(axes, _GRID):
                     color=CF[0], lw=0.9, alpha=0.35)
     ax.axvline(d[t0], color="grey", ls=":", lw=1.2); ax.axhline(0, color="black", lw=0.8)
     c0, c1 = 1.96 * p0["se"], 1.96 * p1["se"]
-    ax.set_title(f"{oc}: ATT insulated {p0['att']:.0f} [{p0['att']-c0:.0f}, {p0['att']+c0:.0f}]\n"
+    ax.set_title(f"{oc}: naive SHC {sh['att']:.0f} | insulated {p0['att']:.0f} [{p0['att']-c0:.0f}, {p0['att']+c0:.0f}]\n"
                  f"+ Florida {p1['att']:.0f} [{p1['att']-c1:.0f}, {p1['att']+c1:.0f}]",
-                 fontsize=8.5, loc="left")
+                 fontsize=8, loc="left")
     ax.legend(fontsize=6.5, loc="lower left"); ax.set_ylabel("YoY %", fontsize=8)
     ax.xaxis.set_major_locator(mdates.YearLocator(2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
