@@ -82,7 +82,6 @@ jobs:
         run: |
           python3 build_chapters.py
           python3 gen_ch3_threecity.py
-          python3 gen_proximal_primer.py
           quarto render dissertation.qmd --to pdf
 
       - name: Commit rendered dissertation PDF

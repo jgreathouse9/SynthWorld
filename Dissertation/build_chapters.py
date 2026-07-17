@@ -98,118 +98,15 @@ def namespace_labels(t: str, tag: str) -> str:
 def patch_paper1(t: str) -> str:
     """Dissertation-specific fixups for the Hawaii chapter.
 
-    Chapter 1 executes SHC (naive baseline) and PROXIMAL/SPSC against the
-    current mlsynth API directly, so no API porting is needed here. Two
-    dissertation-only edits:
-
-    1. Relative data path: the source paper reads its CSV from ``Paper1/Paper/``,
-       but the dissertation renders from ``Dissertation/``, so it lives one
-       level up.
-    2. Insert the pedagogical primer ``A Gentle Introduction to Proximal
-       Inference`` before the Methodology section. This is a teaching device for
-       a public-policy committee that will not have met proximal inference; it
-       stays out of the journal paper (whose audience is econometric) and lives
-       only in the assembled dissertation. Its figure is pre-rendered by
-       ``gen_proximal_primer.py`` at build time, mirroring the Chapter 3 figure.
+    Chapter 1 executes PROXIMAL (PI / SPSC) against the current mlsynth API
+    directly, so no API porting is needed here. One dissertation-only edit: the
+    source paper reads its CSV from ``Paper1/Paper/``, but the dissertation
+    renders from ``Dissertation/``, so the data path lives one level up.
     """
     t = t.replace('DATA = "Data/hawaii_spsc_long.csv"',
                   'DATA = "../Paper1/Paper/Data/hawaii_spsc_long.csv"')
-    t = t.replace("## Methodology", PROXIMAL_PRIMER + "## Methodology", 1)
     return t
 
-
-PROXIMAL_PRIMER = r'''## A Gentle Introduction to Proximal Inference
-\label{p1-sec:primer}
-
-Before the formal development, an analogy for the reader who has not yet met
-proximal inference, because the idea is far simpler than the machinery that
-carries it.
-
-Imagine you want to know whether a fan cools your room. You switch the fan
-on---but at that same moment someone cracks the window, and a cool evening
-breeze drifts in. A few minutes later the room is cooler. How much of that
-cooling was the fan, and how much was the breeze? From inside this one room you
-cannot say: the fan and the breeze came on together, so the drop in temperature
-is the two of them combined, and nothing you measure in this room alone will
-separate them.
-
-That is Hawaii's problem exactly. The fan is the border closure, the policy
-whose effect we want to isolate. The breeze is the pandemic, a force that was
-cooling tourism no matter what the state did. The two arrived in the same month,
-so the collapse we observe is fan plus breeze, and the treated unit on its own
-cannot tell us how much is which. A spotless pre-period track record does not
-rescue us; it only confirms that the room behaved normally before the window
-was ever opened.
-
-The obvious repairs fail, and instructively they fail in opposite directions.
-Reason from the room's own past---"it was 75 degrees, now it is 68, so the fan
-did seven"---and you have quietly charged the breeze's cooling to the fan: you
-overstate the fan. Compare your room instead against other rooms that also had
-fans of their own running, and now the fan sits on both sides of the comparison
-and cancels, so it looks as though the fan did almost nothing: you understate
-it. One story is blind to the breeze; the other cancels the fan away.
-
-The way out is to find the breeze somewhere the fan never reached. Look at the
-other rooms in the house whose windows were open---the same evening air---but
-which ran no fan of their own. Their cooling is the breeze alone, with the fan
-stripped off, so you can use them to reconstruct how much your room would have
-cooled from the breeze, subtract that, and keep what is left as the fan. Two
-things make a room usable. It must genuinely feel the same outside air and drift
-up and down with your room over an ordinary day (its \emph{relevance}), and it
-must run no fan of its own (its \emph{exclusion}). A sealed interior closet is
-useless, because it never feels the breeze; a room running its own fan is worse
-than useless, because it cancels the very effect we are trying to measure.
-
-One last piece: not every fanless room feels the same breeze. Most register only
-the general cool-down of the whole house, while a single large window on the
-windward side catches the specific gust off the water. In Hawaii the insulated
-employment sectors are the general-cool-down rooms---they feel the macro
-recession but not the collapse in travel---while inbound air travel to Florida,
-drenched in the travel collapse yet never locked down, is the windward window.
-The move that feels backward is the crux of the method: a place the breeze
-hammered looks like a terrible comparison for your room and is in fact the only
-good one, precisely because it felt the shock and skipped the policy.
-
-This is also why the method needs only a single proxy. You might hope the room's
-own history could stand in for the missing breezy room; it cannot, and the
-reason is sharp. Until tonight every room simply tracked the house thermostat
-together, so you never had occasion to learn how strongly any one room cools
-when its own window opens. A model that fits the room's calm past to perfection
-still cannot tell you its response to an open window.
-\citet{hollingsworth2020tactics} make this precise: a factor that lies dormant
-before treatment and only wakes up afterward leaves no fingerprint in the
-pre-period, so a perfect pre-treatment fit is not the same as a correct answer.
-The treated room's own past carries part of what the estimator needs; the
-fanless, breezy room supplies the rest.
-
-To turn the picture into something we can check, @fig-primer runs the fan
-experiment in a world whose true answer we know because we set it. Its left
-panel traces each method's reconstructed counterfactual against the observed
-series (black) and the true no-policy path (green dashed); its right panel bars
-the four estimated policy effects against that truth. We build a synthetic
-economy stirred by two hidden forces---an ordinary cycle, the house thermostat,
-and a sharp collapse after month 60, the breeze---and we install a policy whose
-true effect we fix at $-15$ points. Then we put the same question to each method:
-do you recover $-15$? In the single draw shown, reasoning from the room's own
-history (red) returns about $-52$, blind to the breeze; comparing against
-contaminated, fan-running rooms (orange) returns about $-7$, the fan cancelled
-away; Single Proxy Synthetic Control on the internal rooms alone returns about
-$-45$, catching the general cool-down but missing the gust; and adding the
-Florida window (blue) recovers about $-16$ against a truth of $-15$. The two
-naive methods miss in opposite directions; the negative control lands on the
-answer. Averaged over many draws the four settle near $-51$, $-7$, $-42$, and
-$-16$, and the ordering never changes.
-
-The sections that follow trade the fan for notation---the factor model that
-makes "the breeze wakes up" precise (Section~\ref{p1-sec:idprob}), the estimator
-and the conditions it requires (Section~\ref{p1-sec:spsc}), and the Florida
-donor in the real data (Section~\ref{p1-sec:florida})---but the fan is the whole
-of it: two coincident causes you cannot separate from one room, and a fanless,
-breezy room that lets you separate them.
-
-![The fan experiment: four methods, one known answer.](proximal_primer.png){#fig-primer}
-
-'''
 
 
 INDIA_RESULTS = r'''
