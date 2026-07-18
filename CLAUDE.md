@@ -19,9 +19,21 @@ them by default; do not reintroduce the patterns they forbid.
   pre-fit quality, report the raw pre-treatment RMSE. Do not report the RMSE/SD
   ratio. Ground identification claims in the estimator's formal relevance /
   identification conditions and the factor structure, not in a fit ratio.
-- The author is comfortable with formal econometrics. In the dissertation,
-  spell out identification conditions, moment/GMM optimization, and the factor-model
-  reasoning behind bias claims, citing the source papers rather than gesturing at them.
+- The author is comfortable with formal econometrics, but the dissertation
+  chapters follow the JPAM applied style (below), not the econometrics-paper
+  style, so the technical depth is deliberately limited. State and discuss the
+  identification assumptions in plain terms (for SPSC: the relevance/proxy
+  condition, the bridge condition, the treated-history-as-instrument and
+  exclusion logic, and the factor-model reasoning behind the bounds), and keep
+  the single optimization that produces the estimator's weights. Do not
+  reproduce the estimator's inner machinery in the dissertation body: the GMM
+  moment/de-trending formalism, the standard-error sandwich and its theorems,
+  the conformal-band derivation, and the penalty-selection internals are cut
+  and cited to the source paper (Park--Tchetgen 2025) and the mlsynth docs. The
+  reference exemplar is Coupet (2024, JPAM), an SCM paper that carries one
+  equation and does inference through placebos, not standard errors. The full
+  derivations live in the econometrics-journal version (`paper1_ectj.qmd`), not
+  the dissertation.
 
 ## Applied-policy (JPAM) framing
 
@@ -59,12 +71,14 @@ they share, to apply by default in the framing sections:
 - **Keep the framing sections in plain prose.** Short sentences, minimal jargon in
   the intro, background, and discussion.
 
-This scopes, rather than softens, the "spell out the formal econometrics" rule
-above. In the dissertation the methods section and appendix carry the full
-derivations; the intro, background, and discussion carry the JPAM applied framing.
-The compact econometrics-journal version (`paper1_ectj.qmd`) is the exception:
-it folds the literature review into the intro and moves the derivations to an
-appendix for an applied-econometrician audience.
+This scopes the formal-econometrics preference above. In the dissertation the
+methods section discusses the identification assumptions and the estimator's
+main optimization in applied terms and cites the source paper and mlsynth for
+the inner machinery; the intro, background, and discussion carry the JPAM
+applied framing. The econometrics-journal version (`paper1_ectj.qmd`) is where
+the full technical treatment lives: it folds the literature review into the
+intro and moves the standard-error, conformal-band, and base-PI derivations to
+an appendix for an applied-econometrician audience.
 
 ## Structure
 
