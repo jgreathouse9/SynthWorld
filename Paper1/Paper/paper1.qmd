@@ -64,42 +64,36 @@ That is precisely the structure the *proximal* / *negative-control* literature w
 ## The identification problem: a coincident common shock
 \label{sec:idprob}
 
-We know what Hawaii's economy did once it mandated the quarantine; we do not know what it would have done had it not. Estimating the policy's cost means reconstructing that missing counterfactual, and synthetic control builds one from a pool of donor units.
+We know how Hawaii's economy looked before the border closure, and what it did once it mandated the quarantine; but estimating the policy's cost requires a counterfactual, an estimate of how Hawaii's tourism sector would have evolved absent the closure. To build one, we adopt the comparative case study framework, comparing a single treated unit against a set of control units, or donors, that did not enact the policy. Index the $N$ units by $j$, with $j = 1$ the treated unit (Hawaii) and the other $N_0$ the control units $\mathcal{N}_0$, and index the $T$ months by $t$, collected in $\mathcal{T} = \{1, \dots, T\}$ and split at the final pre-quarantine month $T_0$ into $\mathcal{T}_1 = \{t \le T_0\}$ and $\mathcal{T}_2 = \{t > T_0\}$; $y_{jt}$ is unit $j$'s outcome in month $t$. Write $y_{1t}^1$ and $y_{1t}^0$ for Hawaii's month-$t$ outcome with and without the closure. Only one is ever seen: with $d_t = \mathbf{1}\{t > T_0\}$ the treatment indicator, $y_{1t} = d_t\, y_{1t}^1 + (1-d_t)\, y_{1t}^0$.
 
-Index the $N$ units by $j$, with $j = 1$ the treated unit (Hawaii) and the other $N_0$ the controls $\mathcal{N}_0$, and index the $T$ months by $t$, collected in $\mathcal{T} = \{1, \dots, T\}$ and split at the final pre-quarantine month $T_0$ into $\mathcal{T}_1 = \{t \le T_0\}$ and $\mathcal{T}_2 = \{t > T_0\}$; $y_{jt}$ is unit $j$'s outcome in month $t$. Stacking the treated unit's path into $\mathbf{y}_1 \in \mathbb{R}^T$ and the donors' paths columnwise into $\mathbf{Y}_0 \in \mathbb{R}^{T \times N_0}$, synthetic control picks the weight vector $\mathbf{w}$ that best reproduces the treated series before treatment,
+Synthetic control builds the counterfactual as a weighted average of the donors. Stacking the treated unit's path into $\mathbf{y}_1 \in \mathbb{R}^T$ and the donors' paths columnwise into $\mathbf{Y}_0 \in \mathbb{R}^{T \times N_0}$, it returns the weight vector $\mathbf{w}$ that minimizes the pre-treatment mean squared error between the treated unit and the weighted donors,
 \begin{equation}
 \label{eq:scm-opt}
-\mathbf{w}^\ast = \operatorname*{argmin}_{\mathbf{w}\in\Delta^{N_0}}\ \big\|\mathbf{y}_1 - \mathbf{Y}_0\mathbf{w}\big\|_2^2,
+\mathbf{w}^\ast = \operatorname*{argmin}_{\mathbf{w}\in\Delta^{N_0}}\ \big\|\mathbf{y}_1 - \mathbf{Y}_0\mathbf{w}\big\|_2^2.
 \end{equation}
-minimizing the pre-treatment mean squared error over the probability simplex $\Delta^{N_0} = \{\mathbf{w} \in \mathbb{R}_{\ge 0}^{N_0} : \sum_{j\in\mathcal{N}_0} w_j = 1\}$. The fitted $\mathbf{Y}_0\mathbf{w}^\ast$, carried past $T_0$, is the counterfactual, kept within the donor pool's range at every date by the simplex constraint.
-
-Formally, that counterfactual is a potential outcome. Write $y_{1t}^1$ and $y_{1t}^0$ for Hawaii's month-$t$ outcome with and without the closure, of which only one is ever seen: with $d_t = \mathbf{1}\{t > T_0\}$ the treatment indicator, $y_{1t} = d_t\, y_{1t}^1 + (1-d_t)\, y_{1t}^0$. The quarantine's cost is the average treatment effect on the treated,
+The weights are restricted to the probability simplex $\Delta^{N_0} = \{\mathbf{w} \in \mathbb{R}_{\ge 0}^{N_0} : \sum_{j\in\mathcal{N}_0} w_j = 1\}$. Carried past $T_0$, the fitted values $\mathbf{Y}_0\mathbf{w}^\ast$ of \eqref{eq:scm-opt} are the counterfactual for the treated unit, and the quarantine's cost is the average treatment effect on the treated over the post-intervention period,
 \begin{equation}
 \label{eq:att}
-\text{ATT} \defeq \frac{1}{n}\sum_{t\in\mathcal{T}_2}\big(y_{1t}^1 - y_{1t}^0\big), \qquad n = |\mathcal{T}_2|,
+\text{ATT} \defeq \frac{1}{n}\sum_{t\in\mathcal{T}_2}\big(y_{1t}^1 - y_{1t}^0\big), \qquad n = |\mathcal{T}_2|.
 \end{equation}
-which synthetic control estimates by reading $\mathbf{Y}_0\mathbf{w}^\ast$ as the unobserved $y_{1t}^0$ over the post-period. Whether that reading is credible turns on the model the treated unit and its donors are assumed to share.
 
-That model is the interactive fixed-effects, or factor, model behind modern synthetic control \citep{Abadie2010, bai2009panel, fermanpinto2021, zhang2022asymptotic},
+Whether that estimate is credible depends on the data-generating process. The usual justification for synthetic control is the interactive fixed-effects model \citep{Abadie2010, bai2009panel, fermanpinto2021, zhang2022asymptotic, hollingsworthwing2022},
 \begin{equation}
 \label{eq:ifem}
 y_{1t}^0 = \boldsymbol{\mu}_1^\top\boldsymbol{\lambda}_t + e_{1t}, \qquad y_{jt} = \boldsymbol{\mu}_j^\top\boldsymbol{\lambda}_t + e_{jt}, \quad j\in\mathcal{N}_0,
 \end{equation}
-in which $\boldsymbol{\lambda}_t \in \mathbb{R}^r$ collects latent factors common to every unit, $\boldsymbol{\mu}_j$ are unit-specific loadings, and $\mathbb{E}[e_{jt}\mid\boldsymbol{\lambda}_t] = 0$. The weighted donors are unbiased for $y_{1t}^0$ only when the weights reproduce Hawaii's loadings,
+where $\boldsymbol{\lambda}_t \in \mathbb{R}^r$ collects time-varying factors common to all units, $\boldsymbol{\mu}_j$ collects unit-specific, time-invariant loadings, and $\mathbb{E}[e_{jt}\mid\boldsymbol{\lambda}_t] = 0$ is idiosyncratic error. Following \citet{fermanpinto2021} and \citet{zhang2022asymptotic}, the solution to \eqref{eq:scm-opt} is unbiased for $y_{1t}^0$ when the weights reproduce Hawaii's loadings,
 \begin{equation}
 \label{eq:scm-span}
-\boldsymbol{\mu}_1 = \sum_{j\in\mathcal{N}_0} w_j\,\boldsymbol{\mu}_j,
+\boldsymbol{\mu}_1 = \sum_{j\in\mathcal{N}_0} w_j\,\boldsymbol{\mu}_j.
 \end{equation}
-the identifying condition of \citet{Abadie2010} and \citet{fermanpinto2021}; then the common factors cancel in the post-period difference.
 
-Here they do not cancel. In 2020 one coordinate of $\boldsymbol{\lambda}_t$ is the pandemic, and it is unobserved, it loads on Hawaii's outcome through $\boldsymbol{\mu}_1$, and it switches on in the very month the policy does, so $d_t$ and the pandemic factor are perfectly collinear over the post-period. Differencing the observed series against any weighted counterfactual then leaves
+A key assumption behind \eqref{eq:ifem} is that the factor structure $\boldsymbol{\lambda}_t$ does not change across the intervention. In the Hawaii case it does: in March 2020 a new coordinate of $\boldsymbol{\lambda}_t$ switches on, the effect of the pandemic. Because that coordinate did not exist before March 2020, it is perfectly collinear with the treatment over the post-period. The donor weights are learned from the pre-period alone, so \eqref{eq:scm-opt} cannot match a shock absent from its training window, and differencing the treated series against any weighted counterfactual is left with a bias term \citep{hollingsworthwing2022},
 \begin{equation}
 \label{eq:scm-bias}
-y_{1t} - \sum_{j\in\mathcal{N}_0} w_j y_{jt} = \underbrace{\big(y_{1t}^1 - y_{1t}^0\big)}_{\text{policy effect}} \;+\; \underbrace{\Big(\boldsymbol{\mu}_1 - \textstyle\sum_{j\in\mathcal{N}_0} w_j \boldsymbol{\mu}_j\Big)^{\!\top}\boldsymbol{\lambda}_t}_{\text{factor-mismatch bias}} \;+\; \big(e_{1t} - \textstyle\sum_{j\in\mathcal{N}_0} w_j e_{jt}\big),
+y_{1t} - \sum_{j\in\mathcal{N}_0} w_j y_{jt} = \underbrace{\big(y_{1t}^1 - y_{1t}^0\big)}_{\text{policy effect}} \;+\; \underbrace{\Big(\boldsymbol{\mu}_1 - \textstyle\sum_{j\in\mathcal{N}_0} w_j \boldsymbol{\mu}_j\Big)^{\!\top}\boldsymbol{\lambda}_t}_{\text{factor-mismatch bias}} \;+\; \big(e_{1t} - \textstyle\sum_{j\in\mathcal{N}_0} w_j e_{jt}\big).
 \end{equation}
-the policy effect plus a bias: the residual loading mismatch projected onto the factors, dominated over the post-period by the pandemic coordinate. A good pre-treatment fit pins the weights down only while the pandemic factor is dormant, before March 2020; it says nothing about the bias, which detonates once treatment begins. For a single unit hit by a coincident common shock, the span condition \eqref{eq:scm-span} is neither testable nor, as Section~\ref{sec:spsc} argues, satisfiable from tourism-exposed donors alone.
-
-Neither dimension of the data offers a clean escape. Across space, the donor pool $\mathbf{Y}_0$ in \eqref{eq:scm-opt} would have to hold \emph{unexposed} units, and in a global pandemic none exist. Across time, extrapolating Hawaii's own pre-2020 path, the Synthetic Historical Control estimator of \citet{SHC}, nets out none of the pandemic and charges the whole collapse to the policy, the extreme case of \eqref{eq:scm-bias} in which the counterfactual carries the right loadings but the wrong factor realization. I use neither. The way through is a variable that sees the pandemic but not the policy, which proximal inference supplies.
+The first piece is the policy effect we want; the second is a factor-mismatch bias, dominated over the post-period by the pandemic coordinate the pre-period weights never saw. Because that coordinate did not exist before March 2020, the bias cannot be estimated from the in-sample data.
 
 ## Proximal inference: single-proxy and base specifications
 \label{sec:spsc}
