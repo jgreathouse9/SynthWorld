@@ -1,0 +1,62 @@
+name: Render Paper 1 PDF and Commit
+
+on:
+  push:
+    paths:
+      - 'Paper1/Paper/paper1.qmd'
+      - 'Paper1/Paper/preamble.tex'
+      - 'Paper1/Paper/pl.bib'
+      - 'Paper1/Paper/ectj.cls'
+      - 'Paper1/Paper/Data/**'
+      - 'Paper1/Paper/reqs/requirements.txt'
+      - '.github/workflows/Paper1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-paper1:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # paper1.qmd executes the full mlsynth analysis at render time (the SPSC / PI
+      # fits, the specification band, the placebo, and the island/class incidence
+      # panel), so the standalone render needs the same stack the dissertation build
+      # installs -- not just LaTeX.
+      - name: Install Python dependencies (mlsynth + analysis stack)
+        run: pip install -r Paper1/Paper/reqs/requirements.txt
+
+      - name: Set up Quarto with TinyTeX
+        uses: quarto-dev/quarto-actions/setup@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tinytex: true
+
+      - name: Render paper1 to PDF (ectj journal class)
+        working-directory: Paper1/Paper
+        run: quarto render paper1.qmd --to pdf
+
+      - name: Commit rendered PDF
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Render paper1.pdf [auto]'
+          file_pattern: 'Paper1/Paper/paper1.pdf'
+
+      - name: Upload PDF artifact (for verification)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper1-pdf
+          path: Paper1/Paper/paper1.pdf
