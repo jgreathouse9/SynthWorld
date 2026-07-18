@@ -23,6 +23,49 @@ them by default; do not reintroduce the patterns they forbid.
   spell out identification conditions, moment/GMM optimization, and the factor-model
   reasoning behind bias claims, citing the source papers rather than gesturing at them.
 
+## Applied-policy (JPAM) framing
+
+The dissertation chapters, and any version aimed at a policy journal such as the
+`Journal of Policy Analysis and Management` (JPAM), follow that outlet's
+applied-economist house style, not the econometrics-paper style. Reference
+exemplars: Fairlie (2023, racial inequality in pandemic business earnings),
+Pathania & Netessine (2025, Amazon facilities and local economies), and
+Churchill, Henkhaus & Lawler (2024, vaccine recommendations). The conventions
+they share, to apply by default in the framing sections:
+
+- **Lead with the policy stakes, not the method.** Open the abstract and the
+  introduction with the real-world phenomenon and a motivating policy question
+  ("were the losses felt disproportionately by people of color?", "how much
+  growth do these facilities actually promote, if any?"). Quantify what is at
+  stake (jobs, dollars, people, inequality) in the first paragraph. The estimator
+  is a tool, named once and subordinated.
+- **State the contribution plainly and early.** Within the first two or three
+  paragraphs, say what the paper does in applied language ("This paper provides
+  the first estimates of ...", "new evidence on ..."), foregrounding the policy
+  question over the identification strategy.
+- **Put headline numbers up front, with signs and economic magnitude.** Report
+  effects in interpretable units (percentage points, dollars, "+1.46% at the
+  mean", "$1 billion annually") in the abstract and intro, and speak to economic
+  significance, not only statistical significance. State plainly what is and is
+  not significant.
+- **Frame the discussion as a policy ledger.** Weigh costs against benefits, say
+  who bore them (distributional incidence across groups, regions, or tiers), and
+  state what the estimate implies for the decision the policymaker faced.
+  Churchill's "$1 billion ... with little to no observable health benefits" is the
+  model: a cost-benefit sentence a policymaker can act on.
+- **Organize the literature review around the gap, not paper-by-paper.** Motivate
+  the contribution as filling a policy-relevant evidence gap; do not summarize
+  each prior study in turn.
+- **Keep the framing sections in plain prose.** Short sentences, minimal jargon in
+  the intro, background, and discussion.
+
+This scopes, rather than softens, the "spell out the formal econometrics" rule
+above. In the dissertation the methods section and appendix carry the full
+derivations; the intro, background, and discussion carry the JPAM applied framing.
+The compact econometrics-journal version (`paper1_ectj.qmd`) is the exception:
+it folds the literature review into the intro and moves the derivations to an
+appendix for an applied-econometrician audience.
+
 ## Structure
 
 - Papers are the single source of truth: `Paper1/Paper/paper1.qmd` (Hawaii /
