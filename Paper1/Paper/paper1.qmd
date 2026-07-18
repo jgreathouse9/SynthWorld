@@ -64,16 +64,16 @@ That is precisely the structure the *proximal* / *negative-control* literature w
 ## The identification problem: a coincident common shock
 \label{sec:idprob}
 
-Let $\mathbb{R}$ denote the real numbers, and a calligraphic letter such as $\mathcal{S}$ a discrete set of cardinality $S = |\mathcal{S}|$. Let $j \in \mathbb{N}$ index the $N$ units and $t \in \mathbb{N}$ index time. Unit $j = 1$ is the treated unit, Hawaii; the controls form $\mathcal{N}_0 = \mathcal{N} \setminus \{1\}$, of cardinality $N_0$. The pre-treatment period is $\mathcal{T}_1 = \{t \in \mathbb{N} : t \le T_0\}$, with $T_0$ the last period before treatment, and the post-treatment period is $\mathcal{T}_2 = \{t \in \mathbb{N} : t > T_0\}$. The observed outcome of unit $j$ at time $t$ is $y_{jt}$, collected for each unit into the outcome vector $\mathbf{y}_j = (y_{j1}, \dots, y_{jT})^\top \in \mathbb{R}^{T}$; the treated unit's is $\mathbf{y}_1$, and the donors stack into the matrix $\mathbf{Y}_0 \defeq [\mathbf{y}_j]_{j\in\mathcal{N}_0} \in \mathbb{R}^{T \times N_0}$, each column a donor and each row a period.
+We know what Hawaii's economy did once it mandated the quarantine; we do not know what it would have done had it not. Estimating the policy's cost means reconstructing that missing counterfactual, and synthetic control builds one from a pool of donor units.
 
-Synthetic control estimates the treated unit's missing counterfactual by solving
+Index the $N$ units by $j$, with $j = 1$ the treated unit (Hawaii) and the other $N_0$ the controls $\mathcal{N}_0$, and index the $T$ months by $t$, collected in $\mathcal{T} = \{1, \dots, T\}$ and split at the final pre-quarantine month $T_0$ into $\mathcal{T}_1 = \{t \le T_0\}$ and $\mathcal{T}_2 = \{t > T_0\}$; $y_{jt}$ is unit $j$'s outcome in month $t$. Stacking the treated unit's path into $\mathbf{y}_1 \in \mathbb{R}^T$ and the donors' paths columnwise into $\mathbf{Y}_0 \in \mathbb{R}^{T \times N_0}$, synthetic control picks the weight vector $\mathbf{w}$ that best reproduces the treated series before treatment,
 \begin{equation}
 \label{eq:scm-opt}
 \mathbf{w}^\ast = \operatorname*{argmin}_{\mathbf{w}\in\Delta^{N_0}}\ \big\|\mathbf{y}_1 - \mathbf{Y}_0\mathbf{w}\big\|_2^2,
 \end{equation}
-the weight vector that minimizes the mean squared error between the treated series and the weighted donor pool over the pre-treatment window $\mathcal{T}_1$. The weights lie on the $N_0$-dimensional probability simplex $\Delta^{N_0} = \{\mathbf{w} \in \mathbb{R}_{\ge 0}^{N_0} : \sum_{j\in\mathcal{N}_0} w_j = 1\}$, so the fitted series $\mathbf{Y}_0\mathbf{w}^\ast$, extrapolated past $T_0$, never leaves the donor pool's range at any date.
+minimizing the pre-treatment mean squared error over the probability simplex $\Delta^{N_0} = \{\mathbf{w} \in \mathbb{R}_{\ge 0}^{N_0} : \sum_{j\in\mathcal{N}_0} w_j = 1\}$. The fitted $\mathbf{Y}_0\mathbf{w}^\ast$, carried past $T_0$, is the counterfactual, kept within the donor pool's range at every date by the simplex constraint.
 
-That fitted series stands in for a potential outcome. We know what Hawaii's economy did once it mandated the quarantine; we do not know what it would have done had it not. Write $y_{1t}^1$ and $y_{1t}^0$ for its month-$t$ outcome with and without the closure, of which only one is ever seen: with $d_t = \mathbf{1}\{t > T_0\}$ the treatment indicator, $y_{1t} = d_t\, y_{1t}^1 + (1-d_t)\, y_{1t}^0$. The quarantine's cost is the average treatment effect on the treated,
+Formally, that counterfactual is a potential outcome. Write $y_{1t}^1$ and $y_{1t}^0$ for Hawaii's month-$t$ outcome with and without the closure, of which only one is ever seen: with $d_t = \mathbf{1}\{t > T_0\}$ the treatment indicator, $y_{1t} = d_t\, y_{1t}^1 + (1-d_t)\, y_{1t}^0$. The quarantine's cost is the average treatment effect on the treated,
 \begin{equation}
 \label{eq:att}
 \text{ATT} \defeq \frac{1}{n}\sum_{t\in\mathcal{T}_2}\big(y_{1t}^1 - y_{1t}^0\big), \qquad n = |\mathcal{T}_2|,
