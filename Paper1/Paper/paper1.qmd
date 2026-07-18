@@ -322,7 +322,7 @@ def pi_fit(outcome, donor_units=None, start=START):
     att = getattr(getattr(res, "effects", None), "att", None)
     att = float(att) if att is not None else float(res.att)
     pre_rmse = float(np.sqrt(np.mean((y[:t0] - cf[:t0]) ** 2)))
-    return {"att": att, "pre_rmse": pre_rmse}
+    return {"att": att, "pre_rmse": pre_rmse, "cf": cf}
 
 def _pp(x):
     return f"{abs(x):.0f}"
@@ -558,23 +558,25 @@ The ensemble also reaches an outcome a single volume proxy could not. Florida is
 
 This is the reason for fitting the donors \emph{singly}. Added \emph{en masse}, all four open destinations at once, the near-collinear proxies induce large offsetting ridge weights that \emph{degrade} the fit exactly where a well-chosen single donor helped most, the price and utilization series (for Revenue per Available Room, the pre-treatment RMSE rises from `{python} f"{rp_ins_rmse:.2f}"` insulated-only to `{python} f"{rp_all_rmse:.2f}"` with the full ensemble), the failure the relevance condition warns of. The lesson favors more \emph{independent} proxies, each read on its own: they corroborate as a convergence band, while collapsing them into a single super-donor is what the collinearity punishes.
 
-@fig-spsc-grid is the chapter's summary figure: for every headline outcome it draws the observed series against the two SPSC reconstructions---the insulated-only counterfactual (with its per-period conformal interval as the light spikes), which nets the macro-recession factor and yields the upper bound, and the counterfactual after adding Florida as the anchor donor, which nets the travel-demand factor as well. The wedge between the two is where the travel-demand donor does work---visible for the visitor-volume series, invisible for Occupancy, where Florida is (correctly) down-weighted to zero. Reading any single wedge as a clean decomposition would over-interpret it, though: each +donor fit re-solves all bridge weights jointly, so the honest object is the convergence across donors in @fig-florida, not one panel here.
+@fig-spsc-grid is the chapter's summary figure: for every headline outcome it draws the observed series against the two SPSC reconstructions---the insulated-only counterfactual (with its per-period conformal interval as the light spikes), which nets the macro-recession factor and yields the upper bound, and the counterfactual after adding Florida as the anchor donor, which nets the travel-demand factor as well. Base PI's insulated counterfactual is overlaid as a dotted line and sits almost on the SPSC insulated path in every panel, making the two-specification agreement visible rather than asserted. The wedge between the two SPSC lines is where the travel-demand donor does work---visible for the visitor-volume series, invisible for Occupancy, where Florida is (correctly) down-weighted to zero. Reading any single wedge as a clean decomposition would over-interpret it, though: each +donor fit re-solves all bridge weights jointly, so the honest object is the convergence across donors in @fig-florida, not one panel here.
 
 ```{python}
 #| echo: false
 #| label: fig-spsc-grid
-#| fig-cap: "Observed and both SPSC reconstructions (insulated, +Florida) for five headline outcomes."
+#| fig-cap: "Observed, SPSC and PI insulated counterfactuals, and SPSC + Florida, for five outcomes."
 _GRID = ["Visitor Days", "Visitor Arrivals", "Occupancy",
          "Revenue per Available Room", "Accommodation Emp"]
 fig, axes = plt.subplots(3, 2, figsize=(12, 11)); axes = axes.flatten()
 for ax, oc in zip(axes, _GRID):
     p0 = spsc_paths(oc, INSULATED, conformal=True)
     p1 = spsc_paths(oc, INSULATED + [ANCHOR])
+    pp = pi_fit(oc)                     # base PI on the same insulated proxies
     d, t0 = p0["t"], p0["t0"]; post = d[t0:]
     ax.plot(d, p0["y"], color="black", lw=1.6, label="observed")
     ax.plot(d, p0["cf"], color=CF[0], lw=1.4, ls="--", label="SPSC (insulated)")
+    ax.plot(d, pp["cf"], color=CF[0], lw=1.4, ls=":", label="PI (insulated)")
     ax.plot(d, p1["cf"], color=CF[1], lw=1.4, ls="-.", label="SPSC (+ Florida)")
-    yv = np.concatenate([p0["y"], p0["cf"], p1["cf"]])
+    yv = np.concatenate([p0["y"], p0["cf"], p1["cf"], pp["cf"]])
     lo, hi = np.nanmin(yv), np.nanmax(yv); pad = 0.08 * (hi - lo)
     ax.set_ylim(lo - pad, hi + pad)
     for i, x in enumerate(post):
