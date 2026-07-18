@@ -66,7 +66,7 @@ We know what happened once Hawaii mandated two-week quarantines. We do not know 
 ## The identification problem: a coincident common shock
 \label{sec:idprob}
 
-We know what happened once Hawaii mandated its two-week quarantine. We do not know what would have happened had it not. Let $y_{1t}^1$ and $y_{1t}^0$ be Hawaii's month-$t$ outcome with and without the border closure, its two potential outcomes, of which only one is ever seen. With $d_t = \mathbf{1}\{t > T_0\}$ the treatment indicator, switching on at the March 2020 quarantine ($T_0$ the last pre-treatment month), the observed series is the switching equation
+Let $y_{1t}^1$ and $y_{1t}^0$ be Hawaii's month-$t$ outcome with and without the border closure, its two potential outcomes, of which only one is ever seen. With $d_t = \mathbf{1}\{t > T_0\}$ the treatment indicator, switching on at the March 2020 quarantine ($T_0$ the last pre-treatment month), the observed series is the switching equation
 \begin{equation}
 \label{eq:switch}
 y_{1t} = d_t\, y_{1t}^1 + (1 - d_t)\, y_{1t}^0.
@@ -78,7 +78,7 @@ The quarantine's cost is the gap between the two potential outcomes, averaged ov
 \end{equation}
 After March 2020 the first term is observed and the second is not, so estimating the ATT reduces to reconstructing $y_{1t}^0$, what Hawaii's economy would have done had it kept its border open.
 
-Synthetic control reconstructs $y_{1t}^0$ from a donor pool. Collect the $N_0$ candidate control units' month-$t$ outcomes (indexed by $j \in \mathcal{N}_0$) in the vector $\mathbf{p}_t \in \mathbb{R}^{N_0}$, stacked over the $T$ sample months into $\mathbf{Y}_0 \in \mathbb{R}^{T \times N_0}$, and choose weights $\mathbf{w}$ so the weighted donors track the treated series before treatment,
+Synthetic control reconstructs $y_{1t}^0$ from a donor pool. Collect the $N_0$ candidate control units' month-$t$ outcomes (indexed by $j \in \mathcal{N}_0$) in the vector $\mathbf{p}_t \in \mathbb{R}^{N_0}$, stacked over the $T$ sample months $\mathcal{T} = \{1, \dots, T\}$ into $\mathbf{Y}_0 \in \mathbb{R}^{T \times N_0}$, and choose weights $\mathbf{w}$ so the weighted donors track the treated series before treatment,
 \begin{equation}
 \label{eq:scm-opt}
 \mathbf{w}^\ast = \operatorname*{argmin}_{\mathbf{w}\in\Delta^{N_0}} \sum_{t\in\mathcal{T}_1}\big(y_{1t} - \mathbf{p}_t^\top\mathbf{w}\big)^2, \qquad \mathcal{T}_1 = \{t \le T_0\},
