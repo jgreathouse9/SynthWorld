@@ -6,7 +6,7 @@ format:
     pdf-engine: pdflatex
     number-sections: true
     keep-tex: true
-    citation-package: natbib
+    cite-method: natbib
     include-in-header: preamble.tex
 bibliography: pl.bib
 ---
@@ -715,6 +715,4 @@ Estimated by both specifications, the insulated-sector proxies identify a large,
 
 Methodologically, the study demonstrates how negative-control inference yields credible causal estimates when a policy and a global shock coincide, a structure common to pandemic border closures, but also to climate shocks and other systemic crises where a would-be counterfactual unit is itself engulfed by the event. Substantively, it delivers a bounded, honest estimate of the economic price of Hawaii's ``Great Isolation with Aloha characteristics''. Adding a small ensemble of external no-lockdown travel-demand donors (inbound air travel to Florida and to the Tampa, Orlando, and Phoenix leisure markets) takes the step from a bound to a policy-centered band: fit independently, they converge in pulling the Visitor Days effect toward the policy-only magnitude, and one of them (Phoenix) reaches the room-rate series a single volume proxy cannot. Finishing the job for every outcome asks only for more such open-destination proxies, disciplined by relevance, which the design readily accommodates.
 
-```{=latex}
-\bibliography{pl}
-```
+

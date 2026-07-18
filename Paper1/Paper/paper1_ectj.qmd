@@ -6,7 +6,7 @@ format:
     pdf-engine: pdflatex
     number-sections: true
     keep-tex: true
-    citation-package: natbib
+    cite-method: natbib
     include-in-header: preamble.tex
 bibliography: pl.bib
 ---
@@ -699,6 +699,3 @@ the GMM sandwich in which $\boldsymbol{\Sigma}_1$ is the weighted inverse Jacobi
 
 \emph{A prediction band that needs no long post-period.} The sandwich \eqref{eq:sandwich} presumes both $T_0$ and $n$ large and a correctly specified path $\tau(t;\beta)$, neither guaranteed with $n=10$ post-treatment months. I therefore also report the conformal prediction band that \citet{parktchetgen2025} adapt from \citet{cwz2021conformal}, valid as $T_0\to\infty$ with $n$ held \emph{fixed} and requiring no effect-path model. For a post-period $s$ and a hypothesized effect $\xi_0$, the null $H_0:\xi^\star_s=\xi_0$ pins the treatment-free outcome at $y^0_{1s}=y_{1s}-\xi_0$; refitting the bridge on the pre-period augmented by that value returns residuals $\{\widehat{\epsilon}_t\}$, and the permutation $p$-value is the rank of $\lvert\widehat{\epsilon}_s\rvert$ among them. The band is the set of $\xi_0$ the test does not reject, a pointwise interval for the random per-period effect $\xi^\star_t = y^1_{1t}-y^0_{1t}$, and its validity rests on the unbiased-predictor property \eqref{eq:bridge} (their Theorem~3.2) together with exchangeability of the residuals. I use this band as the finite-sample cross-check throughout, leaving the specification band of Section~\ref{sec:results} to carry the extrapolation risk that neither the sandwich nor the permutation interval addresses.
 
-```{=latex}
-\bibliography{pl}
-```
