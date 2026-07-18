@@ -10,6 +10,11 @@ them by default; do not reintroduce the patterns they forbid.
   a genuine first-use technical term, and otherwise let the sentence carry the
   emphasis. Boldface is reserved for mathematical objects (e.g. `\mathbf{}`
   vectors/matrices), never for ordinary words.
+- **No em-dashes.** The author does not use em-dashes (`---` in Markdown/LaTeX,
+  or the Unicode `—`) in prose. Recast with commas, colons, semicolons,
+  parentheses, or separate sentences, whichever fits. En-dashes (`--`) for
+  numeric ranges and compound names (`1991--2020`, `Newey--West`) are correct
+  and must be preserved. Do not reintroduce em-dashes in new prose.
 - **Report the pre-treatment RMSE, not RMSE/SD.** When summarizing synthetic-control
   pre-fit quality, report the raw pre-treatment RMSE. Do not report the RMSE/SD
   ratio. Ground identification claims in the estimator's formal relevance /
