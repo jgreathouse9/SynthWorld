@@ -374,6 +374,7 @@ for oc in _BAND:
         spsc_fit(oc, spline_df=6)["att"],
         spsc_fit(oc, donor_units=[d for d in INSULATED if d != "Government_Emp"])["att"],
         spsc_fit(oc, donor_units=[d for d in INSULATED if d != "HealthCare_Emp"])["att"],
+        spsc_fit(oc, donor_units=[d for d in INSULATED if d != "NatRes_Constr_Emp"])["att"],
         spsc_fit(oc, detrend=True, start=None)["att"],
     ])
 
@@ -467,12 +468,12 @@ Two caveats attach to the GMM standard errors. On this 2014 window they are non-
 
 ## Robustness: a specification band, not a point
 
-Because the honest uncertainty is extrapolation risk rather than sampling noise, I report the headline effects as a band built from specification sensitivity: de-trending on versus off, the B-spline degrees of freedom, the polynomial basis degree, dropping each of the two largest-weight donors, and the full-1991 versus 2014 window. @fig-band collects the minimum, median, and maximum SPSC ATT across these specifications for the three best-behaved outcomes.
+Because the honest uncertainty is extrapolation risk rather than sampling noise, I report the headline effects as a band built from specification sensitivity: de-trending on versus off, the B-spline degrees of freedom, the polynomial basis degree, dropping each of three insulated donors individually (the two largest-weight sectors and construction, the proxy most plausibly linked to tourism), and the full-1991 versus 2014 window. @fig-band collects the minimum, median, and maximum SPSC ATT across these eight specifications for the three best-behaved outcomes.
 
 ```{python}
 #| echo: false
 #| label: fig-band
-#| fig-cap: "Specification robustness band: median SPSC ATT (point) and min--max range across seven specifications."
+#| fig-cap: "Specification robustness band: median SPSC ATT (point) and min--max range across eight specifications."
 _names = _BAND[::-1]
 _y = np.arange(len(_names))
 fig, ax = plt.subplots(figsize=(8, 3.2))
@@ -515,9 +516,18 @@ exsens_maxmove = max(abs(v) for v in _move.values())                    # larges
 exsens_attfull = vd_ins + sum(_wv.get(d, 0.0) * _move[d] for d in INSULATED)   # delta_j = full 2020 decline
 exsens_worst = sum(abs(_wv.get(d, 0.0)) * abs(_move[d]) for d in INSULATED)    # adversarial worst case
 exsens_occ_sumw = float(sum(spsc_fit("Occupancy")["weights"].values()))
+# Direct negative-control check for the reviewer's most tourism-linked proxy:
+# construction (hotel building tracks tourism). Drop it and refit Visitor Days.
+_noC = [d for d in INSULATED if d != "NatRes_Constr_Emp"]
+exsens_wconstr = float(_wv.get("NatRes_Constr_Emp", 0.0))          # weight construction carries
+_noCfit = spsc_fit("Visitor Days", donor_units=_noC)
+exsens_vd_noC = _noCfit["att"]                                     # ATT without construction
+exsens_vd_noC_rmse = _noCfit["pre_rmse"]                           # its pre-treatment fit
 ```
 
 For Visitor Days the fitted weights sum to `{python} f"{exsens_sumw:.2f}"`, so a common spillover of $\delta$ points moves the ATT by `{python} f"{exsens_sumw:.2f}"`$\,\delta$. Driving the insulated-only estimate of `{python} f"{vd_ins:.0f}"` points to zero would take $\delta \approx$ `{python} f"{exsens_delta0:+.0f}"` percentage points, the wrong sign (a border closure that \emph{raised} health-care, finance, and government employment growth by nearly forty points) and larger than any insulated sector's \emph{entire} observed 2020 movement, which reached at most `{python} f"{exsens_maxmove:.0f}"` points and is itself mostly the macro recession the proxies are meant to carry, not policy spillover. In the economically natural direction, the policy depressing the insulated sectors, $\delta_j<0$, the bias runs the other way: charging each sector's \emph{full} 2020 decline to the border policy moves the estimate to `{python} f"{exsens_attfull:.0f}"` points, so the reported effect would if anything \emph{understate} the truth. Even an adversarial assignment that signs every $\delta_j$ to mask the effect, bounded by each sector's observed movement, shifts the ATT by at most `{python} f"{exsens_worst:.0f}"` points. Occupancy is more robust still: its weights sum to essentially zero (`{python} f"{exsens_occ_sumw:+.2f}"`), so a common exclusion violation cancels outright. The conclusion does not require the insulated sectors to be perfectly insulated, it survives any exclusion violation of plausible magnitude, and the one plausible direction makes it conservative.
+
+Equation \eqref{eq:exclbias} treats the insulated sectors symmetrically, but one is more suspect than the rest: construction tracks hotel building, so it is the insulated proxy most plausibly linked to tourism and the one a reader is likeliest to distrust. Dropping it outright is the direct negative-control check. Construction is not idle in the bridge, carrying a weight of `{python} f"{exsens_wconstr:+.2f}"` on Visitor Days, yet removing it leaves the estimate at `{python} f"{exsens_vd_noC:.0f}"` points against `{python} f"{vd_ins:.0f}"` with all five sectors, and the pre-treatment fit is if anything slightly better (RMSE `{python} f"{exsens_vd_noC_rmse:.2f}"` versus `{python} f"{vd_ins_rmse:.2f}"`), because the four remaining sectors span the same macro-recession factor and absorb its removal. The direction is the telling part: the estimate moves \emph{away} from zero, not toward it. Were construction contaminated by the tourism collapse, its co-movement with the treated series would pull the counterfactual down and bias the effect toward zero, so purging it would enlarge the effect, which is exactly what happens. The headline does not lean on the one donor a skeptic would challenge first.
 
 ## A placebo in time
 \label{sec:placebo}
