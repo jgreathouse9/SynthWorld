@@ -84,11 +84,32 @@ jobs:
           python3 gen_ch3_threecity.py
           quarto render dissertation.qmd --to pdf
 
-      - name: Commit rendered dissertation PDF
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: 'Render dissertation.pdf [auto]'
-          file_pattern: 'Dissertation/dissertation.pdf'
+      # The dissertation render is the slowest of the three PDF workflows and is
+      # triggered by the same paper*.qmd pushes as Paper1.yml / Paper1_ectj.yml,
+      # so by the time it finishes those faster renders have already pushed their
+      # PDFs and moved the branch tip. A plain auto-commit then loses with a
+      # non-fast-forward rejection, dropping the rendered dissertation. Pull
+      # --rebase and retry until the push lands.
+      - name: Commit rendered dissertation PDF (rebase-and-retry)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- Dissertation/dissertation.pdf; then
+            echo "No change in dissertation.pdf; nothing to commit."
+            exit 0
+          fi
+          git add Dissertation/dissertation.pdf
+          git commit -m 'Render dissertation.pdf [auto]'
+          for i in 1 2 3 4 5; do
+            if git push origin HEAD:${GITHUB_REF_NAME}; then
+              echo "Push succeeded on attempt $i"
+              exit 0
+            fi
+            echo "Push attempt $i failed; rebasing on latest and retrying..."
+            git pull --rebase origin ${GITHUB_REF_NAME}
+          done
+          echo "Push failed after 5 attempts" >&2
+          exit 1
 
       - name: Upload PDF artifact (for verification)
         if: always()
