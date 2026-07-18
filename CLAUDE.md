@@ -31,9 +31,11 @@ them by default; do not reintroduce the patterns they forbid.
   the conformal-band derivation, and the penalty-selection internals are cut
   and cited to the source paper (Park--Tchetgen 2025) and the mlsynth docs. The
   reference exemplar is Coupet (2024, JPAM), an SCM paper that carries one
-  equation and does inference through placebos, not standard errors. The full
-  derivations live in the econometrics-journal version (`paper1_ectj.qmd`), not
-  the dissertation.
+  equation and does inference through placebos, not standard errors. The
+  econometrics-journal version (`paper1_ectj.qmd`) keeps the method at the same
+  applied altitude and cites the same machinery (see the applied-policy note
+  below); the full derivations live in the source method papers (Park--Tchetgen
+  2025, Shi et al. 2026), not in either of our versions.
 
 ## Applied-policy (JPAM) framing
 
@@ -75,10 +77,19 @@ This scopes the formal-econometrics preference above. In the dissertation the
 methods section discusses the identification assumptions and the estimator's
 main optimization in applied terms and cites the source paper and mlsynth for
 the inner machinery; the intro, background, and discussion carry the JPAM
-applied framing. The econometrics-journal version (`paper1_ectj.qmd`) is where
-the full technical treatment lives: it folds the literature review into the
-intro and moves the standard-error, conformal-band, and base-PI derivations to
-an appendix for an applied-econometrician audience.
+applied framing. The econometrics-journal version (`paper1_ectj.qmd`) is an
+*applied* econometrics-journal paper, not a method-proposing one, so it keeps
+the method at applied altitude too: even in an econometrics journal, applied SCM
+papers present the estimator briefly and cite the source (exemplars: Cho 2020
+and Cerqueti et al. 2021, applied SCM COVID papers in *The Econometrics
+Journal*), reserving long derivations for method-proposing papers (Goh & Yu
+2022). Its proximal/methods section therefore mirrors the dissertation's
+(concept, the good-proxy conditions, the single ridge-GMM optimization, then the
+proxies), cites the GMM / standard-error / conformal / base-PI machinery to
+Park--Tchetgen 2025, Shi et al. 2026, and mlsynth, and carries no derivation
+appendix. What distinguishes it from the dissertation is framing, not math
+depth: it folds the literature review into the intro and drops the JPAM
+policy-ledger framing, rather than adding technical apparatus.
 
 ## Structure
 
