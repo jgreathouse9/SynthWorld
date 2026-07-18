@@ -56,23 +56,24 @@ The weights are restricted to the probability simplex $\Delta^{N_0} = \{\mathbf{
 \text{ATT} \defeq \frac{1}{n}\sum_{t\in\mathcal{T}_2}\big(y_{1t}^1 - y_{1t}^0\big), \qquad n = |\mathcal{T}_2|.
 \end{equation}
 
-Whether that estimate is credible depends on the data-generating process. The usual justification for synthetic control is the interactive fixed-effects model \citep{Abadie2010, bai2009panel, fermanpinto2021, zhang2022asymptotic, hollingsworthwing2022},
+Whether that estimate is credible depends on the data-generating process. The usual justification for synthetic control is the interactive fixed-effects model \citep{bai2009panel, Abadie2010},
 \begin{equation}
 \label{eq:ifem}
 y_{1t}^0 = \boldsymbol{\mu}_1^\top\boldsymbol{\lambda}_t + e_{1t}, \qquad y_{jt} = \boldsymbol{\mu}_j^\top\boldsymbol{\lambda}_t + e_{jt}, \quad j\in\mathcal{N}_0,
 \end{equation}
-where $\boldsymbol{\lambda}_t \in \mathbb{R}^r$ collects time-varying factors common to all units, $\boldsymbol{\mu}_j$ collects unit-specific, time-invariant loadings, and $\mathbb{E}[e_{jt}\mid\boldsymbol{\lambda}_t] = 0$ is idiosyncratic error. Following \citet{fermanpinto2021} and \citet{zhang2022asymptotic}, the solution to \eqref{eq:scm-opt} is unbiased for $y_{1t}^0$ when the weights reproduce Hawaii's loadings,
-\begin{equation}
-\label{eq:scm-span}
-\boldsymbol{\mu}_1 = \sum_{j\in\mathcal{N}_0} w_j\,\boldsymbol{\mu}_j.
-\end{equation}
-
-A key assumption behind \eqref{eq:ifem} is that the factor structure $\boldsymbol{\lambda}_t$ does not change across the intervention. In the Hawaii case it does: in March 2020 a new coordinate of $\boldsymbol{\lambda}_t$ switches on, the effect of the pandemic. Because that coordinate did not exist before March 2020, it is perfectly collinear with the treatment over the post-period. The donor weights are learned from the pre-period alone, so \eqref{eq:scm-opt} cannot match a shock absent from its training window, and differencing the treated series against any weighted counterfactual is left with a bias term \citep{hollingsworthwing2022},
+where $\boldsymbol{\lambda}_t \in \mathbb{R}^r$ collects time-varying factors common to all units, $\boldsymbol{\mu}_j$ collects unit-specific, time-invariant loadings, and $\mathbb{E}[e_{jt}\mid\boldsymbol{\lambda}_t] = 0$ is idiosyncratic error. Under this model, synthetic control is the standard tool, and the theory is precise about when it works. Differencing the treated series against any weighted counterfactual leaves, after some algebra,
 \begin{equation}
 \label{eq:scm-bias}
-y_{1t} - \sum_{j\in\mathcal{N}_0} w_j y_{jt} = \underbrace{\big(y_{1t}^1 - y_{1t}^0\big)}_{\text{policy effect}} \;+\; \underbrace{\Big(\boldsymbol{\mu}_1 - \textstyle\sum_{j\in\mathcal{N}_0} w_j \boldsymbol{\mu}_j\Big)^{\!\top}\boldsymbol{\lambda}_t}_{\text{factor-mismatch bias}} \;+\; \big(e_{1t} - \textstyle\sum_{j\in\mathcal{N}_0} w_j e_{jt}\big).
+y_{1t} - \sum_{j\in\mathcal{N}_0} w_j y_{jt} = \underbrace{\big(y_{1t}^1 - y_{1t}^0\big)}_{\text{policy effect}} \;+\; \underbrace{\Big(\boldsymbol{\mu}_1 - \textstyle\sum_{j\in\mathcal{N}_0} w_j \boldsymbol{\mu}_j\Big)^{\!\top}\boldsymbol{\lambda}_t}_{\text{factor-mismatch bias}} \;+\; \big(e_{1t} - \textstyle\sum_{j\in\mathcal{N}_0} w_j e_{jt}\big),
 \end{equation}
-The first piece is the policy effect we want; the second is a factor-mismatch bias, dominated over the post-period by the pandemic coordinate the pre-period weights never saw. Because that coordinate did not exist before March 2020, the bias cannot be estimated from the in-sample data.
+the policy effect plus a factor-mismatch bias, the residual loading gap $\boldsymbol{\mu}_1 - \sum_j w_j\boldsymbol{\mu}_j$ projected onto the common factors, plus idiosyncratic noise \citep{Abadie2010, fermanpinto2021, zhang2022asymptotic, hollingsworthwing2022}. The guarantee behind synthetic control is that a long pre-period with a close pre-treatment fit drives that loading gap to zero, forcing the weights to reproduce Hawaii's loadings,
+\begin{equation}
+\label{eq:scm-span}
+\boldsymbol{\mu}_1 = \sum_{j\in\mathcal{N}_0} w_j\,\boldsymbol{\mu}_j;
+\end{equation}
+the common factors then cancel in the post-period difference and the bias vanishes.
+
+That guarantee hides a condition, usually left implicit: the same factors and loadings must govern the pre- and post-treatment periods, so that a fit achieved before treatment still holds after it. In the Hawaii case the condition fails. In March 2020 a new coordinate of $\boldsymbol{\lambda}_t$ switches on, the effect of the pandemic, absent from the data before the quarantine and present after, and so perfectly collinear with the treatment over the post-period. The weights are fit on the pre-period, where this factor is silent, so they cannot be chosen to reproduce Hawaii's loading on it: the factor-mismatch term in \eqref{eq:scm-bias} no longer vanishes, and because the factor is unobserved and absent in sample, the bias cannot even be estimated. A good pre-treatment fit no longer certifies the counterfactual, and no reweighting of pre-period donors can subtract a shock the pre-period never saw.
 
 ## Proximal inference: single-proxy and base specifications
 \label{sec:spsc}
