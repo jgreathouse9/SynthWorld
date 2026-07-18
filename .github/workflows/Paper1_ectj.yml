@@ -1,0 +1,66 @@
+name: Render Paper 1 Journal (ectj) PDF and Commit
+
+# The journal-submission version of Chapter 1: a compact ectj (Econometrics
+# Journal) article built from paper1_ectj.qmd. It shares the analysis code with
+# the dissertation chapter (paper1.qmd) but folds the literature review into the
+# introduction and moves the inference derivations to an appendix.
+
+on:
+  push:
+    paths:
+      - 'Paper1/Paper/paper1_ectj.qmd'
+      - 'Paper1/Paper/preamble.tex'
+      - 'Paper1/Paper/pl.bib'
+      - 'Paper1/Paper/ectj.cls'
+      - 'Paper1/Paper/Data/**'
+      - 'Paper1/Paper/reqs/requirements.txt'
+      - '.github/workflows/Paper1_ectj.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-paper1-ectj:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # The journal version runs the same mlsynth analysis at render time as the
+      # dissertation chapter (SPSC / PI fits, the specification band, the placebo,
+      # and the island/class incidence panel), so it needs the full analysis stack.
+      - name: Install Python dependencies (mlsynth + analysis stack)
+        run: pip install -r Paper1/Paper/reqs/requirements.txt
+
+      - name: Set up Quarto with TinyTeX
+        uses: quarto-dev/quarto-actions/setup@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tinytex: true
+
+      - name: Render the journal version to PDF (ectj class)
+        working-directory: Paper1/Paper
+        run: quarto render paper1_ectj.qmd --to pdf
+
+      - name: Commit rendered PDF
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Render paper1_ectj.pdf [auto]'
+          file_pattern: 'Paper1/Paper/paper1_ectj.pdf'
+
+      - name: Upload PDF artifact (for verification)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper1-ectj-pdf
+          path: Paper1/Paper/paper1_ectj.pdf
