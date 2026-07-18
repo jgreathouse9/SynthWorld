@@ -227,8 +227,10 @@ except Exception:
 # and the Florida travel-demand donor, all as YoY % growth. We load it and fit;
 # no re-pivoting, summing, or merging happens here.
 DATA = "Data/hawaii_spsc_long.csv"
+ROBUST = "Data/robustness.csv"
 START, TREAT, TREAT_DATE = "2014-01-01", "Mandatory Quarantine", pd.Timestamp("2020-03-01")
 LONG = pd.read_csv(DATA, parse_dates=["time"])
+ROB = pd.read_csv(ROBUST, parse_dates=["time"])   # island/class subgroup panel (incidence)
 
 _u = lambda role, grp: LONG[(LONG.role == role) & (LONG.group == grp)].unit.unique().tolist()
 # Explicit display order for the outcomes (visitor-volume series first).
@@ -326,6 +328,24 @@ def pi_fit(outcome, donor_units=None, start=START):
 
 def _pp(x):
     return f"{abs(x):.0f}"
+
+def sub_fit(oc, donor_units, start=START):
+    """SPSC-DT for a distributional subgroup (island- or class-level Occupancy,
+    ADR, or RevPAR) from the robustness panel ROB, against the shared insulated
+    (optionally +Florida) donors. Returns ATT, GMM SE, and pre-treatment RMSE."""
+    donor_units = list(donor_units)
+    dates = set(ROB[(ROB.unit == oc) & (ROB.time >= pd.Timestamp(start))].time)
+    d = ROB[ROB.unit.isin([oc] + donor_units) & ROB.time.isin(dates)].copy()
+    d["treat"] = ((d.unit == oc) & (d.time >= TREAT_DATE)).astype(int)
+    res = PROXIMAL({"df": d[["unit", "time", "y", "treat"]], "outcome": "y",
+                    "treat": "treat", "unitid": "unit", "time": "time",
+                    "methods": ["SPSC"], "donors": donor_units, "spsc_detrend": True,
+                    "display_graphs": False, "save": False}).fit()
+    tr = d[d.unit == oc].sort_values("time"); y = tr.y.to_numpy(float)
+    t0 = int((tr.treat.to_numpy() == 0).sum()); cf = np.asarray(res.counterfactual, float).ravel()
+    se = float(res.att_se) if res.att_se is not None else float("nan")
+    return {"att": float(res.att), "se": se,
+            "pre_rmse": float(np.sqrt(np.mean((y[:t0] - cf[:t0]) ** 2)))}
 
 # The four summaries below are rendered as coefficient / bar figures (in the
 # mlsynth house style) rather than tables, so we keep the numeric values, not
@@ -592,6 +612,86 @@ for ax, oc in zip(axes, _GRID):
     ax.xaxis.set_major_locator(mdates.YearLocator(2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
 axes[len(_GRID)].axis("off")   # 5 outcomes in a 3x2 grid: hide the empty sixth panel
+plt.tight_layout()
+plt.show()
+```
+
+## Who bore the cost: incidence across islands and hotel tiers
+\label{sec:incidence}
+
+```{python}
+#| echo: false
+#| output: false
+#| label: subgroup-compute
+# The DBEDT workbook that supplies the statewide hotel outcomes also breaks them
+# out by county and (for RevPAR) by hotel class. Refit SPSC on the same insulated
+# donors (and +Florida) for each disaggregated series; store ATT/SE/pre-RMSE.
+_ISL = ["Oahu", "Maui", "HawaiiIsl", "Kauai"]
+_KL  = ["Luxury", "UpperUpscale", "Upscale", "UpperMidscale", "MidscaleEconomy"]
+_ILAB = {"Oahu": "Oahu", "Maui": "Maui", "HawaiiIsl": "Hawaii Is.", "Kauai": "Kauai"}
+_KLAB = {"Luxury": "Luxury", "UpperUpscale": "Upper Upscale", "Upscale": "Upscale",
+         "UpperMidscale": "Upper Midscale", "MidscaleEconomy": "Midscale & Econ."}
+_SUBSEC = [("Occupancy, by island", [(f"Occupancy_{i}", _ILAB[i]) for i in _ISL], CF[0]),
+           ("Average daily rate, by island", [(f"ADR_{i}", _ILAB[i]) for i in _ISL], CF[1]),
+           ("RevPAR, by island", [(f"RevPAR_{i}", _ILAB[i]) for i in _ISL], CF[2]),
+           ("RevPAR, by hotel class", [(f"RevPAR_{k}", _KLAB[k]) for k in _KL], CF[3])]
+SUB = {}
+for _title, _items, _c in _SUBSEC:
+    for _unit, _lab in _items:
+        SUB[_unit] = {"ins": sub_fit(_unit, INSULATED),
+                      "fl":  sub_fit(_unit, INSULATED + [ANCHOR])}
+_occ = [SUB[f"Occupancy_{i}"]["ins"]["att"] for i in _ISL]
+_adr = [SUB[f"ADR_{i}"]["ins"]["att"] for i in _ISL]
+occ_lo, occ_hi = min(_occ), max(_occ)
+adr_lo, adr_hi = min(_adr), max(_adr)
+inc_lux, inc_upup = SUB["RevPAR_Luxury"]["ins"]["att"], SUB["RevPAR_UpperUpscale"]["ins"]["att"]
+inc_upmid = SUB["RevPAR_UpperMidscale"]["ins"]["att"]
+```
+
+The DBEDT workbook that supplies the statewide hotel outcomes also reports them by county and, for revenue per available room, by hotel class, so the same proximal machinery can ask not only how large the tourism collapse was but who absorbed it. For each disaggregated series I refit SPSC on the identical insulated donors and, as in Section~\ref{sec:florida}, on the insulated set plus Florida; @fig-subgroup collects the estimates. Three readings stand out.
+
+First, the demand shock was close to spatially uniform. Hotel occupancy fell between `{python} _pp(occ_hi)` and `{python} _pp(occ_lo)` points across all four counties, so the intuition that the tourism-dependent neighbor islands suffered a deeper demand hit than Oahu is not borne out in occupancy: the rooms emptied everywhere at once.
+
+Second, the collapse ran through volume, not price. The average daily room rate fell only `{python} _pp(adr_hi)` to `{python} _pp(adr_lo)` points, a fraction of the occupancy drop, so hotels largely held their posted rates while rooms went unsold. Because revenue per available room is occupancy times rate, the revenue loss is almost entirely the occupancy loss.
+
+Third, the revenue burden fell regressively across the market. RevPAR by hotel class traces a clear gradient: the luxury and upper-upscale tiers lost the most (`{python} _pp(inc_lux)` and `{python} _pp(inc_upup)` points), the upper-midscale tier markedly less among the well-fit segments (`{python} _pp(inc_upmid)`), with midscale and economy least affected of all. Discretionary luxury-leisure travel evaporated where lower-tier and essential lodging demand partly persisted, so the establishments and workers tied to the top of the market bore the sharpest revenue hit.
+
+These disaggregated panels are noisier than the statewide aggregates, and several cells (faded in @fig-subgroup, pre-treatment RMSE above six growth-rate points) carry the near-zero GMM standard errors that Section~\ref{sec:spsc} attributes to the rank-deficient weight block. I read those cells as directional only; the three patterns above rest on the well-fit segments and hold under both the insulated bound and the Florida-adjusted point.
+
+```{python}
+#| echo: false
+#| label: fig-subgroup
+#| fig-cap: "Subgroup ATTs by island and hotel class: insulated bound (circles), Florida-adjusted point (squares)."
+from matplotlib.lines import Line2D
+fig, ax = plt.subplots(figsize=(8.4, 9.4)); _y = 0.0; _ticks = []; _seps = []; _heads = []
+def _draw(att, se, yp, col, marker, rm):
+    err = 1.96 * se if np.isfinite(se) else 0.0
+    a = 0.40 if rm > 6.0 else 1.0
+    ax.errorbar(att, yp, xerr=err, fmt=marker, color=col, ecolor=col, elinewidth=1.3,
+                capsize=4, capthick=1.3, ms=7, alpha=a, zorder=3,
+                markerfacecolor=(col if marker == "o" else "white"),
+                markeredgecolor=col, markeredgewidth=1.4)
+for _title, _items, _c in _SUBSEC:
+    _heads.append((_y + 0.75, _title))
+    for _unit, _lab in _items:
+        _i, _f = SUB[_unit]["ins"], SUB[_unit]["fl"]
+        _draw(_i["att"], _i["se"], _y + 0.17, _c, "o", _i["pre_rmse"])
+        _draw(_f["att"], _f["se"], _y - 0.17, _c, "s", _f["pre_rmse"])
+        _ticks.append((_y, _lab)); _y -= 1.0
+    _seps.append(_y + 0.5); _y -= 0.9
+ax.axvline(0, color="black", lw=1.0, zorder=1)
+for _s in _seps[:-1]:
+    ax.axhline(_s, color="#CCCCCC", lw=0.8, ls=":")
+for _hy, _ht in _heads:
+    ax.text(-123, _hy, _ht, fontsize=10.5, fontweight="bold", va="center")
+ax.set_yticks([t[0] for t in _ticks]); ax.set_yticklabels([t[1] for t in _ticks])
+ax.set_xlabel("SPSC ATT (pp of YoY growth); 95% GMM CI")
+ax.set_xlim(-130, 22); ax.set_ylim(_y + 0.4, 2.0)
+_leg = [Line2D([0], [0], marker="o", color="#444", lw=0, markerfacecolor="#444", ms=8,
+               label="insulated donors (bound)"),
+        Line2D([0], [0], marker="s", color="#444", lw=0, markerfacecolor="white",
+               markeredgecolor="#444", ms=8, label="+ Florida (travel-demand point)")]
+ax.legend(handles=_leg, loc="lower left", fontsize=9.5, framealpha=1, edgecolor="#DDDDDD")
 plt.tight_layout()
 plt.show()
 ```

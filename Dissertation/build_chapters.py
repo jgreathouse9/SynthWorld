@@ -105,6 +105,8 @@ def patch_paper1(t: str) -> str:
     """
     t = t.replace('DATA = "Data/hawaii_spsc_long.csv"',
                   'DATA = "../Paper1/Paper/Data/hawaii_spsc_long.csv"')
+    t = t.replace('ROBUST = "Data/robustness.csv"',
+                  'ROBUST = "../Paper1/Paper/Data/robustness.csv"')
     return t
 
 
