@@ -390,11 +390,7 @@ plt.show()
 \section{Results}
 \label{sec:results}
 
-## Two proximal specifications, one estimate
-
-Fit on the insulated-sector proxies, the negative controls that carry the pandemic's macro-recession factor but not the border policy, the two headline specifications agree. For Visitor Days, SPSC returns an ATT of `{python} f"{vd_spsc:.1f}"` percentage points and base Proximal Inference (PI) `{python} f"{vd_pi:.1f}"`; across the five headline tourism outcomes the SPSC and PI estimates never differ by more than `{python} f"{pi_spsc_maxgap:.0f}"` points. That agreement is the substance of the result, not a coincidence of tuning. SPSC instruments the treated unit's own history under a de-trended ridge-GMM bridge \citep{parktchetgen2025}; base PI is the donors-only outcome-bridge estimator of \citet{shi2026proximaltheory}, which in this implementation reduces to a least-squares fit of the treated series on the same proxies. That a regularized instrumental-variable bridge and a plain least-squares fit recover the same effect from the same proxies makes the estimate a property of the proxy design rather than of any one estimator's machinery.
-
-## The pre-treatment fit and the upper bound
+## The pre-treatment fit: relevance
 
 Each estimate is only as good as the pre-treatment fit of the bridge, the empirical footprint of the relevance condition \eqref{eq:proxy}. As Section~\ref{sec:spsc} argued, whether that fit reflects genuine relevance depends on which factors the insulated sectors can span. The per-outcome counterfactuals and their conformal uncertainty are shown over time in @fig-spsc-grid; the readings here summarize them.
 
@@ -402,96 +398,11 @@ Two readings follow. First, the tourism-demand collapse is large and robust: Vis
 
 Two caveats attach to the GMM standard errors. On this 2014 window they are non-degenerate and usable for the visitor series ($\sim 3$--8 points), a genuine improvement over the full-history window where de-trending a near-interpolating fit collapses the sandwich toward zero. But two of the labor series remain unreliable, the Unemployment Rate ATT is a relative-growth artifact with a near-zero SE, and the Labor Force Participation SE is tiny, and should not be read at face value. More fundamentally, even a well-behaved SE captures only *sampling* noise around the pre-period bridge, not the *extrapolation* risk of transporting that bridge across the March-2020 structural break, which is the dominant uncertainty here. I therefore do not lean on the SE alone.
 
-## Robustness: a specification band, not a point
+## The insulated-only estimate: a bound
 
-Because SPSC and base PI leave the bridge weights unconstrained, dropping the simplex restriction for the flexible $\mathbb{R}^{N_0}$ of \citet{doudchenkoimbens2016}, the counterfactual can extrapolate outside the donor hull, and the GMM sandwich, degenerate with a single instrument against five donors on a near-interpolating pre-window, reports a sampling noise that collapses toward zero. The uncertainty that actually binds is this extrapolation, or specification, risk, so I report the headline effects as a band built from specification sensitivity: de-trending on versus off, the B-spline degrees of freedom, the polynomial basis degree, dropping each of three insulated donors individually (the two largest-weight sectors and construction, the proxy most plausibly linked to tourism), and the full-1991 versus 2014 window. @fig-band collects the minimum, median, and maximum SPSC ATT across these eight specifications for the three best-behaved outcomes.
+Fit on the insulated-sector proxies, the negative controls that carry the pandemic's macro-recession factor but not the border policy, the two headline specifications agree. For Visitor Days, SPSC returns an ATT of `{python} f"{vd_spsc:.1f}"` percentage points and base Proximal Inference (PI) `{python} f"{vd_pi:.1f}"`; across the five headline tourism outcomes the SPSC and PI estimates never differ by more than `{python} f"{pi_spsc_maxgap:.0f}"` points. That agreement is the substance of the result, not a coincidence of tuning. SPSC instruments the treated unit's own history under a de-trended ridge-GMM bridge \citep{parktchetgen2025}; base PI is the donors-only outcome-bridge estimator of \citet{shi2026proximaltheory}, which in this implementation reduces to a least-squares fit of the treated series on the same proxies. That a regularized instrumental-variable bridge and a plain least-squares fit recover the same effect from the same proxies makes the estimate a property of the proxy design rather than of any one estimator's machinery.
 
-```{python}
-#| echo: false
-#| label: fig-band
-#| fig-cap: "Specification robustness band: median SPSC ATT (point) and min--max range across eight specifications."
-_names = _BAND[::-1]
-_y = np.arange(len(_names))
-fig, ax = plt.subplots(figsize=(8, 3.2))
-for i, oc in enumerate(_names):
-    a = _band[oc]
-    med = float(np.median(a))
-    ax.plot([a.min(), a.max()], [i, i], color=CF[1], lw=3, alpha=0.5,
-            solid_capstyle="round", zorder=1)
-    ax.scatter(med, i, color=CF[1], s=70, zorder=2)
-ax.axvline(0, color="black", lw=0.8)
-ax.set_yticks(_y); ax.set_yticklabels([SHORT[o] for o in _names])
-ax.set_xlabel("SPSC ATT (pp): min--median--max across specifications")
-plt.tight_layout(); plt.show()
-```
-
-For the visitor-volume series the band runs roughly from `{python} f"{vd_band.min():.0f}"` to `{python} f"{vd_band.max():.0f}"` points (median `{python} f"{np.median(vd_band):.0f}"`), so the defensible statement is a $\sim 60$--75-point *upper-bound* collapse in tourism demand rather than any single figure. Taken together, the diagnostics and the band say the same thing: the border closure sits on top of a large tourism-demand collapse that the insulated sectors cannot fully separate from it, so the tourism numbers bound the policy effect from above. Recovering an actual point estimate, rather than a bound, requires spanning the missing travel-demand factor from outside the treated economy, which is the task of the next section.
-
-## How much would an exclusion violation have to bite?
-\label{sec:exclusion}
-
-The identifying content of the insulated proxies rests on exclusion: the border policy must not move them directly (Section~\ref{sec:spsc}). That is an assumption. Rather than take it on faith I bound the consequence of its failure, a sensitivity analysis in the spirit of proximal partial identification \citep{ghassami2023partial} that here follows the plausibly-exogenous relaxation of an exclusion restriction \citep{conley2012plausibly}: posit a direct policy effect on the proxies and carry it through to the estimand. Suppose it fails: general-equilibrium spillovers from the closure depress or inflate the insulated sectors, so that over the post-period $p_{jt} = \boldsymbol{\mu}_j^\top\boldsymbol{\lambda}_t + \delta_j d_t + e_{jt}$, with $\delta_j$ the direct policy effect on proxy $j$ and $\boldsymbol{\delta}=(\delta_j)_{j\in\mathcal{N}_0}$. Because the bridge weights are estimated over the pre-period, where $d_t=0$ and the contamination is absent, $\widehat{\mathbf{w}}$ is untouched and the violation reaches the estimate only through the post-period counterfactual, as the exact bias
-\begin{equation}
-\label{eq:exclbias}
-\widehat{\text{ATT}} = \text{ATT} - \boldsymbol{\delta}^\top\widehat{\mathbf{w}},
-\end{equation}
-so the bias is linear in the contamination and known up to $\boldsymbol{\delta}$. This makes the sensitivity fully transparent.
-
-```{python}
-#| echo: false
-#| output: false
-#| label: exclusion-sensitivity
-# Exclusion-violation bias propagates as delta' w_hat: the weights are fit on the
-# clean pre-period, so a post-period spillover moves the ATT linearly in delta.
-_wv = spsc_fit("Visitor Days")["weights"]
-exsens_sumw = float(sum(_wv.values()))
-exsens_delta0 = -vd_ins / exsens_sumw                                  # common spillover that zeroes the effect
-_post20 = LONG[(LONG.time >= TREAT_DATE) & (LONG.time <= pd.Timestamp("2020-12-01"))]
-_move = {d: float(_post20[_post20.unit == d].y.mean()) for d in INSULATED}
-exsens_maxmove = max(abs(v) for v in _move.values())                    # largest observed 2020 insulated move
-exsens_attfull = vd_ins + sum(_wv.get(d, 0.0) * _move[d] for d in INSULATED)   # delta_j = full 2020 decline
-exsens_worst = sum(abs(_wv.get(d, 0.0)) * abs(_move[d]) for d in INSULATED)    # adversarial worst case
-exsens_occ_sumw = float(sum(spsc_fit("Occupancy")["weights"].values()))
-# Direct negative-control check for the most tourism-linked proxy: construction
-# (hotel building tracks tourism). Drop it and refit Visitor Days.
-_noC = [d for d in INSULATED if d != "NatRes_Constr_Emp"]
-exsens_wconstr = float(_wv.get("NatRes_Constr_Emp", 0.0))
-_noCfit = spsc_fit("Visitor Days", donor_units=_noC)
-exsens_vd_noC = _noCfit["att"]
-exsens_vd_noC_rmse = _noCfit["pre_rmse"]
-```
-
-For Visitor Days the fitted weights sum to `{python} f"{exsens_sumw:.2f}"`, so a common spillover of $\delta$ points moves the ATT by `{python} f"{exsens_sumw:.2f}"`$\,\delta$. Driving the insulated-only estimate of `{python} f"{vd_ins:.0f}"` points to zero would take $\delta \approx$ `{python} f"{exsens_delta0:+.0f}"` percentage points, the wrong sign (a border closure that \emph{raised} health-care, finance, and government employment growth by nearly forty points) and larger than any insulated sector's \emph{entire} observed 2020 movement, which reached at most `{python} f"{exsens_maxmove:.0f}"` points and is itself mostly the macro recession the proxies are meant to carry, not policy spillover. In the economically natural direction, the policy depressing the insulated sectors, $\delta_j<0$, the bias runs the other way: charging each sector's \emph{full} 2020 decline to the border policy moves the estimate to `{python} f"{exsens_attfull:.0f}"` points, so the reported effect would if anything \emph{understate} the truth. Even an adversarial assignment that signs every $\delta_j$ to mask the effect, bounded by each sector's observed movement, shifts the ATT by at most `{python} f"{exsens_worst:.0f}"` points. Occupancy is more robust still: its weights sum to essentially zero (`{python} f"{exsens_occ_sumw:+.2f}"`), so a common exclusion violation cancels outright. The conclusion does not require the insulated sectors to be perfectly insulated, it survives any exclusion violation of plausible magnitude, and the one plausible direction makes it conservative. The point is sharpest for the most suspect sector: construction tracks hotel building, yet dropping it moves Visitor Days from `{python} f"{vd_ins:.0f}"` to `{python} f"{exsens_vd_noC:.0f}"` points, away from zero rather than toward it, with an unchanged pre-treatment fit (RMSE `{python} f"{exsens_vd_noC_rmse:.2f}"` versus `{python} f"{vd_ins_rmse:.2f}"`), so the estimate does not lean on the one donor a reader would distrust first.
-
-## A placebo in time
-\label{sec:placebo}
-
-A distinct worry concerns the estimator itself: does the ridge-GMM bridge, with its spline de-trending, manufacture a large effect out of ordinary pre-period variation? The standard falsification is an in-time placebo, assign a fake border closure in a pre-pandemic March, truncate the sample before 2020 so no real shock is in view, and refit. A design that recovers effects only where they exist should return roughly zero.
-
-```{python}
-#| echo: false
-#| output: false
-#| label: placebo
-# In-time placebo: a fake March treatment in a pre-COVID year, sample truncated
-# before 2020. A valid design returns ~0 where no policy and no pandemic occurred.
-def _placebo(oc, fake, end):
-    dates = set(LONG[(LONG.unit == oc) & (LONG.time >= pd.Timestamp(START))
-                     & (LONG.time <= pd.Timestamp(end))].time)
-    d = LONG[LONG.unit.isin([oc] + INSULATED) & LONG.time.isin(dates)][["unit", "time", "y"]].copy()
-    d["treat"] = ((d.unit == oc) & (d.time >= pd.Timestamp(fake))).astype(int)
-    r = PROXIMAL({"df": d, "outcome": "y", "treat": "treat", "unitid": "unit", "time": "time",
-                  "methods": ["SPSC"], "donors": INSULATED, "spsc_detrend": True,
-                  "display_graphs": False, "save": False}).fit()
-    return float(r.att)
-_pl_dates = [("2017-03-01", "2017-12-01"), ("2018-03-01", "2018-12-01"), ("2019-03-01", "2019-12-01")]
-_pl = {oc: [_placebo(oc, f, e) for f, e in _pl_dates]
-       for oc in ["Visitor Days", "Occupancy", "Revenue per Available Room"]}
-placebo_max = max(abs(v) for vs in _pl.values() for v in vs)
-```
-
-It does. Across Visitor Days, Occupancy, and Revenue per Available Room, and fake treatment dates in March of 2017, 2018, and 2019, the placebo ATTs never exceed `{python} f"{placebo_max:.0f}"` points in magnitude, the scale of the pre-treatment RMSE, and an order of magnitude below the $\sim 70$-point effects the same procedure returns for 2020. The bridge does not fabricate a collapse out of business-as-usual fluctuation, so the 2020 estimate is a property of the treatment, not of the estimator.
-
-## An ensemble of exposed-but-open destinations
+## Completing the bound: an ensemble of exposed-but-open destinations
 \label{sec:florida}
 
 The open-destination air-travel proxies documented in Section~\ref{sec:data}, inbound flights to Florida and to the Tampa, Orlando, and Phoenix leisure metros, all exposed-but-open, are what close the travel-demand gap that leaves the insulated-only estimates as bounds. Rather than lean on one, I use the whole small ensemble; Florida is the archetype, its air traffic down about `{python} _pp(fl_trough)`\% at the 2020 trough. Each enters the long panel as its own donor unit (`group = travel-demand`), and, this matters, I fit them \emph{one at a time}, the insulated five plus a single open-destination donor, not all at once (I return to why below).
@@ -565,6 +476,97 @@ axes[len(_GRID)].axis("off")   # 5 outcomes in a 3x2 grid: hide the empty sixth 
 plt.tight_layout()
 plt.show()
 ```
+
+## Robustness and falsification
+
+### A specification band, not a point
+
+Because SPSC and base PI leave the bridge weights unconstrained, dropping the simplex restriction for the flexible $\mathbb{R}^{N_0}$ of \citet{doudchenkoimbens2016}, the counterfactual can extrapolate outside the donor hull, and the GMM sandwich, degenerate with a single instrument against five donors on a near-interpolating pre-window, reports a sampling noise that collapses toward zero. The uncertainty that actually binds is this extrapolation, or specification, risk, so I report the headline effects as a band built from specification sensitivity: de-trending on versus off, the B-spline degrees of freedom, the polynomial basis degree, dropping each of three insulated donors individually (the two largest-weight sectors and construction, the proxy most plausibly linked to tourism), and the full-1991 versus 2014 window. @fig-band collects the minimum, median, and maximum SPSC ATT across these eight specifications for the three best-behaved outcomes.
+
+```{python}
+#| echo: false
+#| label: fig-band
+#| fig-cap: "Specification robustness band: median SPSC ATT (point) and min--max range across eight specifications."
+_names = _BAND[::-1]
+_y = np.arange(len(_names))
+fig, ax = plt.subplots(figsize=(8, 3.2))
+for i, oc in enumerate(_names):
+    a = _band[oc]
+    med = float(np.median(a))
+    ax.plot([a.min(), a.max()], [i, i], color=CF[1], lw=3, alpha=0.5,
+            solid_capstyle="round", zorder=1)
+    ax.scatter(med, i, color=CF[1], s=70, zorder=2)
+ax.axvline(0, color="black", lw=0.8)
+ax.set_yticks(_y); ax.set_yticklabels([SHORT[o] for o in _names])
+ax.set_xlabel("SPSC ATT (pp): min--median--max across specifications")
+plt.tight_layout(); plt.show()
+```
+
+For the visitor-volume series the band runs roughly from `{python} f"{vd_band.min():.0f}"` to `{python} f"{vd_band.max():.0f}"` points (median `{python} f"{np.median(vd_band):.0f}"`), so the defensible statement is a $\sim 60$--75-point *upper-bound* collapse in tourism demand rather than any single figure. Taken together, the diagnostics and the band say the same thing: the border closure sits on top of a large tourism-demand collapse that the insulated sectors cannot fully separate from it, so the tourism numbers bound the policy effect from above. Recovering an actual point estimate, rather than a bound, requires spanning the missing travel-demand factor from outside the treated economy, which the open-destination ensemble above accomplishes.
+
+### How much would an exclusion violation have to bite?
+\label{sec:exclusion}
+
+The identifying content of the insulated proxies rests on exclusion: the border policy must not move them directly (Section~\ref{sec:spsc}). That is an assumption. Rather than take it on faith I bound the consequence of its failure, a sensitivity analysis in the spirit of proximal partial identification \citep{ghassami2023partial} that here follows the plausibly-exogenous relaxation of an exclusion restriction \citep{conley2012plausibly}: posit a direct policy effect on the proxies and carry it through to the estimand. Suppose it fails: general-equilibrium spillovers from the closure depress or inflate the insulated sectors, so that over the post-period $p_{jt} = \boldsymbol{\mu}_j^\top\boldsymbol{\lambda}_t + \delta_j d_t + e_{jt}$, with $\delta_j$ the direct policy effect on proxy $j$ and $\boldsymbol{\delta}=(\delta_j)_{j\in\mathcal{N}_0}$. Because the bridge weights are estimated over the pre-period, where $d_t=0$ and the contamination is absent, $\widehat{\mathbf{w}}$ is untouched and the violation reaches the estimate only through the post-period counterfactual, as the exact bias
+\begin{equation}
+\label{eq:exclbias}
+\widehat{\text{ATT}} = \text{ATT} - \boldsymbol{\delta}^\top\widehat{\mathbf{w}},
+\end{equation}
+so the bias is linear in the contamination and known up to $\boldsymbol{\delta}$. This makes the sensitivity fully transparent.
+
+```{python}
+#| echo: false
+#| output: false
+#| label: exclusion-sensitivity
+# Exclusion-violation bias propagates as delta' w_hat: the weights are fit on the
+# clean pre-period, so a post-period spillover moves the ATT linearly in delta.
+_wv = spsc_fit("Visitor Days")["weights"]
+exsens_sumw = float(sum(_wv.values()))
+exsens_delta0 = -vd_ins / exsens_sumw                                  # common spillover that zeroes the effect
+_post20 = LONG[(LONG.time >= TREAT_DATE) & (LONG.time <= pd.Timestamp("2020-12-01"))]
+_move = {d: float(_post20[_post20.unit == d].y.mean()) for d in INSULATED}
+exsens_maxmove = max(abs(v) for v in _move.values())                    # largest observed 2020 insulated move
+exsens_attfull = vd_ins + sum(_wv.get(d, 0.0) * _move[d] for d in INSULATED)   # delta_j = full 2020 decline
+exsens_worst = sum(abs(_wv.get(d, 0.0)) * abs(_move[d]) for d in INSULATED)    # adversarial worst case
+exsens_occ_sumw = float(sum(spsc_fit("Occupancy")["weights"].values()))
+# Direct negative-control check for the most tourism-linked proxy: construction
+# (hotel building tracks tourism). Drop it and refit Visitor Days.
+_noC = [d for d in INSULATED if d != "NatRes_Constr_Emp"]
+exsens_wconstr = float(_wv.get("NatRes_Constr_Emp", 0.0))
+_noCfit = spsc_fit("Visitor Days", donor_units=_noC)
+exsens_vd_noC = _noCfit["att"]
+exsens_vd_noC_rmse = _noCfit["pre_rmse"]
+```
+
+For Visitor Days the fitted weights sum to `{python} f"{exsens_sumw:.2f}"`, so a common spillover of $\delta$ points moves the ATT by `{python} f"{exsens_sumw:.2f}"`$\,\delta$. Driving the insulated-only estimate of `{python} f"{vd_ins:.0f}"` points to zero would take $\delta \approx$ `{python} f"{exsens_delta0:+.0f}"` percentage points, the wrong sign (a border closure that \emph{raised} health-care, finance, and government employment growth by nearly forty points) and larger than any insulated sector's \emph{entire} observed 2020 movement, which reached at most `{python} f"{exsens_maxmove:.0f}"` points and is itself mostly the macro recession the proxies are meant to carry, not policy spillover. In the economically natural direction, the policy depressing the insulated sectors, $\delta_j<0$, the bias runs the other way: charging each sector's \emph{full} 2020 decline to the border policy moves the estimate to `{python} f"{exsens_attfull:.0f}"` points, so the reported effect would if anything \emph{understate} the truth. Even an adversarial assignment that signs every $\delta_j$ to mask the effect, bounded by each sector's observed movement, shifts the ATT by at most `{python} f"{exsens_worst:.0f}"` points. Occupancy is more robust still: its weights sum to essentially zero (`{python} f"{exsens_occ_sumw:+.2f}"`), so a common exclusion violation cancels outright. The conclusion does not require the insulated sectors to be perfectly insulated, it survives any exclusion violation of plausible magnitude, and the one plausible direction makes it conservative. The point is sharpest for the most suspect sector: construction tracks hotel building, yet dropping it moves Visitor Days from `{python} f"{vd_ins:.0f}"` to `{python} f"{exsens_vd_noC:.0f}"` points, away from zero rather than toward it, with an unchanged pre-treatment fit (RMSE `{python} f"{exsens_vd_noC_rmse:.2f}"` versus `{python} f"{vd_ins_rmse:.2f}"`), so the estimate does not lean on the one donor a reader would distrust first.
+
+### A placebo in time
+\label{sec:placebo}
+
+A distinct worry concerns the estimator itself: does the ridge-GMM bridge, with its spline de-trending, manufacture a large effect out of ordinary pre-period variation? The standard falsification is an in-time placebo, assign a fake border closure in a pre-pandemic March, truncate the sample before 2020 so no real shock is in view, and refit. A design that recovers effects only where they exist should return roughly zero.
+
+```{python}
+#| echo: false
+#| output: false
+#| label: placebo
+# In-time placebo: a fake March treatment in a pre-COVID year, sample truncated
+# before 2020. A valid design returns ~0 where no policy and no pandemic occurred.
+def _placebo(oc, fake, end):
+    dates = set(LONG[(LONG.unit == oc) & (LONG.time >= pd.Timestamp(START))
+                     & (LONG.time <= pd.Timestamp(end))].time)
+    d = LONG[LONG.unit.isin([oc] + INSULATED) & LONG.time.isin(dates)][["unit", "time", "y"]].copy()
+    d["treat"] = ((d.unit == oc) & (d.time >= pd.Timestamp(fake))).astype(int)
+    r = PROXIMAL({"df": d, "outcome": "y", "treat": "treat", "unitid": "unit", "time": "time",
+                  "methods": ["SPSC"], "donors": INSULATED, "spsc_detrend": True,
+                  "display_graphs": False, "save": False}).fit()
+    return float(r.att)
+_pl_dates = [("2017-03-01", "2017-12-01"), ("2018-03-01", "2018-12-01"), ("2019-03-01", "2019-12-01")]
+_pl = {oc: [_placebo(oc, f, e) for f, e in _pl_dates]
+       for oc in ["Visitor Days", "Occupancy", "Revenue per Available Room"]}
+placebo_max = max(abs(v) for vs in _pl.values() for v in vs)
+```
+
+It does. Across Visitor Days, Occupancy, and Revenue per Available Room, and fake treatment dates in March of 2017, 2018, and 2019, the placebo ATTs never exceed `{python} f"{placebo_max:.0f}"` points in magnitude, the scale of the pre-treatment RMSE, and an order of magnitude below the $\sim 70$-point effects the same procedure returns for 2020. The bridge does not fabricate a collapse out of business-as-usual fluctuation, so the 2020 estimate is a property of the treatment, not of the estimator.
 
 ## Who bore the cost: incidence across islands and hotel tiers
 \label{sec:incidence}
