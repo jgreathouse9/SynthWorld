@@ -1,0 +1,85 @@
+name: Render Paper 1 Journal (ectj) PDF and Commit
+
+# The journal-submission version of Chapter 1: a compact ectj (Econometrics
+# Journal) article built from paper1_ectj.qmd. It shares the analysis code with
+# the dissertation chapter (paper1.qmd) but folds the literature review into the
+# introduction and moves the inference derivations to an appendix.
+
+on:
+  push:
+    paths:
+      - 'Paper1/Paper/paper1_ectj.qmd'
+      - 'Paper1/Paper/preamble.tex'
+      - 'Paper1/Paper/pl.bib'
+      - 'Paper1/Paper/ectj.cls'
+      - 'Paper1/Paper/Data/**'
+      - 'Paper1/Paper/reqs/requirements.txt'
+      - '.github/workflows/Paper1_ectj.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-paper1-ectj:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # The journal version runs the same mlsynth analysis at render time as the
+      # dissertation chapter (SPSC / PI fits, the specification band, the placebo,
+      # and the island/class incidence panel), so it needs the full analysis stack.
+      - name: Install Python dependencies (mlsynth + analysis stack)
+        run: pip install -r Paper1/Paper/reqs/requirements.txt
+
+      - name: Set up Quarto with TinyTeX
+        uses: quarto-dev/quarto-actions/setup@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tinytex: true
+
+      - name: Render the journal version to PDF (ectj class)
+        working-directory: Paper1/Paper
+        run: quarto render paper1_ectj.qmd --to pdf
+
+      # Both Paper1.yml and Paper1_ectj.yml trigger on shared inputs (preamble.tex,
+      # pl.bib, ectj.cls), so they can run concurrently and race to push their
+      # rendered PDFs. A plain auto-commit loses that race with a non-fast-forward
+      # rejection, so pull --rebase and retry until the push lands.
+      - name: Commit rendered PDF (rebase-and-retry)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- Paper1/Paper/paper1_ectj.pdf; then
+            echo "No change in paper1_ectj.pdf; nothing to commit."
+            exit 0
+          fi
+          git add Paper1/Paper/paper1_ectj.pdf
+          git commit -m 'Render paper1_ectj.pdf [auto]'
+          for i in 1 2 3 4 5; do
+            if git push origin HEAD:${GITHUB_REF_NAME}; then
+              echo "Push succeeded on attempt $i"
+              exit 0
+            fi
+            echo "Push attempt $i failed; rebasing on latest and retrying..."
+            git pull --rebase origin ${GITHUB_REF_NAME}
+          done
+          echo "Push failed after 5 attempts" >&2
+          exit 1
+
+      - name: Upload PDF artifact (for verification)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper1-ectj-pdf
+          path: Paper1/Paper/paper1_ectj.pdf
