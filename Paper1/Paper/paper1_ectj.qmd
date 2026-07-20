@@ -103,11 +103,11 @@ The proxies fall into two groups, both detailed in Section~\ref{sec:data}. The f
 # Data
 \label{sec:data}
 
-The analysis joins three public sources on calendar month and works throughout in year-over-year (YoY) percentage growth. The YoY transformation removes the strong seasonality of Hawaii tourism and employment, puts series measured in different units on a common scale, and lets each treatment effect be read directly as a percentage-point change in growth. Hawaii's Department of Business, Economic Development \& Tourism (DBEDT) supplies the treated tourism and labor series and the insulated employment sectors; the U.S. Bureau of Transportation Statistics (BTS) supplies the external air-travel proxies. The treated panel spans January 1991 to December 2020; the estimation window is described at the end of the section.
+The analysis joins three public sources on calendar month and works throughout in year-over-year (YoY) percentage growth. The YoY transformation removes the strong seasonality of Hawaii tourism and employment, puts series measured in different units on a common scale, and lets each treatment effect be read directly as a percentage-point change in growth. Every series is stored as a raw monthly level and differenced to YoY growth at estimation time, so the panel retains levels for any later recovery analysis rather than shipping pre-differenced series. Hawaii's Department of Business, Economic Development \& Tourism (DBEDT) supplies the treated tourism series and the insulated employment sectors; the U.S. Bureau of Transportation Statistics (BTS) supplies the external air-travel proxies. The estimation window is described at the end of the section.
 
 ## Treated outcomes
 
-The treated series are Hawaii's tourism and labor outcomes, from DBEDT and the Federal Reserve Economic Data (FRED) system: the visitor-volume and price measures, `Visitor Arrivals`, `Visitor Days`, `Occupancy`, `Mean Daily Rate`, and `Revenue per Available Room`, together with `Accommodation Emp` and the broader labor series `Total Leisure Emp`, `Unemp Rate`, and `LFP`. Every one is downstream of the border closure: each moves when visitors' ability to arrive changes, so each can only be a treated outcome, never a control. The five tourism series carry the headline effects, and the labor series are reported alongside them.
+The treated series are Hawaii's five tourism outcomes from DBEDT: the visitor-volume and price measures `Visitor Arrivals`, `Visitor Days`, `Occupancy`, `Mean Daily Rate`, and `Revenue per Available Room`. Each is stored as a raw monthly level (visitor counts, occupancy percentages, and dollar rates) and differenced to year-over-year growth at estimation time. Every one is downstream of the border closure: each moves when visitors' ability to arrive changes, so each can only be a treated outcome, never a control.
 
 ## Insulated-sector proxies (the macro negative controls)
 
@@ -119,7 +119,7 @@ The insulated sectors span the pandemic's general-recession factor but not its t
 
 ## Panel and estimation window
 
-The treatment indicator `Mandatory Quarantine` switches to 1 in March 2020, giving 10 post-treatment months (March--December 2020). Although the panel ships the full 1991--2020 history, the analysis truncates the pre-period to a recent window beginning January 2014 (74 pre-treatment months). Three decades of stale comovement is less relevant to the 2020 counterfactual than the recent history, and the 2014 window empirically sharpens the pre-treatment fit and yields non-degenerate GMM standard errors that the full-history-plus-detrend combination did not. The full-panel version is available by removing the truncation and enters the robustness band of Section~\ref{sec:results}.
+The treatment indicator `Mandatory Quarantine` switches to 1 in March 2020, giving 10 post-treatment months (March--December 2020); the post-window is capped at December 2020 so the extended raw panel cannot leak recovery months into the estimate. Although the panel ships raw levels from 1990 onward, the analysis truncates the pre-period to a recent window beginning January 2014 (74 pre-treatment months). Three decades of stale comovement is less relevant to the 2020 counterfactual than the recent history, and the 2014 window empirically sharpens the pre-treatment fit and yields non-degenerate GMM standard errors that the full-history-plus-detrend combination did not. The full-panel version is available by removing the truncation and enters the robustness band of Section~\ref{sec:results}.
 
 ```{python}
 #| echo: false
@@ -158,21 +158,42 @@ try:  # prefer mlsynth's own applier if the installed build exposes it
 except Exception:
     plt.rcParams.update(MLSYNTH_RC)
 
-# One canonical long panel (unit, time, y, role, group) assembled by
-# Code/Python/build_spsc_panel.py -- treated outcomes, insulated-sector donors,
-# and the Florida travel-demand donor, all as YoY % growth. We load it and fit;
-# no re-pivoting, summing, or merging happens here.
-DATA = "Data/hawaii_spsc_long.csv"
-ROBUST = "Data/robustness.csv"
-START, TREAT, TREAT_DATE = "2014-01-01", "Mandatory Quarantine", pd.Timestamp("2020-03-01")
-LONG = pd.read_csv(DATA, parse_dates=["time"])
-ROB = pd.read_csv(ROBUST, parse_dates=["time"])   # island/class subgroup panel (incidence)
+# One canonical long panel of RAW levels (unit, time, value, role, group, units)
+# assembled by Code/Python/build_raw_panel.py -- treated tourism outcomes (statewide,
+# island, and hotel-class), the insulated-sector donors (CES job counts), and the
+# open-destination travel-demand donors. Year-over-year % growth is computed here at
+# runtime, so the repository retains the raw levels rather than pre-differenced series.
+DATA = "Data/hawaii_raw_long.csv"
+START, END = "2014-01-01", "2020-12-01"        # post-window spans March--December 2020
+TREAT, TREAT_DATE = "Mandatory Quarantine", pd.Timestamp("2020-03-01")
+RAW = pd.read_csv(DATA, parse_dates=["time"])
+
+def _growth(df):
+    """YoY % growth from raw levels, calendar-aligned so a gap month cannot
+    misalign the 12-month lag. Series already expressed as growth
+    (units == 'pct_yoy', the open-destination donors) pass through unchanged."""
+    out = []
+    for u, g in df.groupby("unit", sort=False):
+        g = g.sort_values("time"); meta = g.iloc[0]
+        if meta["units"] == "pct_yoy":
+            s = g.set_index("time")["value"]
+        else:
+            lv = g.set_index("time")["value"].asfreq("MS")
+            s = (lv / lv.shift(12) - 1) * 100
+        out.append(pd.DataFrame({"unit": u, "time": s.index, "y": s.to_numpy(),
+                                 "role": meta["role"], "group": meta["group"]}))
+    return pd.concat(out, ignore_index=True).dropna(subset=["y"])
+
+GROW = _growth(RAW)
+# Main analysis panel: statewide tourism outcomes + all donors.
+LONG = GROW[GROW.group.isin(["tourism", "insulated", "travel-demand"])].copy()
+# Incidence panel: island- and hotel-class subgroups + the shared donors.
+ROB = GROW[GROW.group.isin(["island", "class", "insulated", "travel-demand"])].copy()
 
 _u = lambda role, grp: LONG[(LONG.role == role) & (LONG.group == grp)].unit.unique().tolist()
 # Explicit display order for the outcomes (visitor-volume series first).
 TOURISM = ["Visitor Arrivals", "Visitor Days", "Occupancy", "Mean Daily Rate",
-           "Revenue per Available Room", "Accommodation Emp"]
-ECON = ["Total Leisure Emp", "Unemp Rate", "LFP"]
+           "Revenue per Available Room"]
 INSULATED = _u("donor", "insulated")           # the five negative-control donors
 TRAVEL = _u("donor", "travel-demand")          # open-destination ensemble
 OPEN = ["Florida", "Tampa", "Orlando", "Phoenix"]   # display order (anchor first)
@@ -180,13 +201,13 @@ OLAB = {"Florida": "Florida (state)", "Tampa": "Tampa",
         "Orlando": "Orlando", "Phoenix": "Phoenix"}
 ANCHOR = "Florida"                             # statewide anchor for the grid figure
 assert set(OPEN) == set(TRAVEL)
-assert set(TOURISM + ECON) == set(_u("outcome", "tourism") + _u("outcome", "econ-labor"))
+assert set(TOURISM) == set(_u("outcome", "tourism"))
 DLAB = {"NatRes_Constr_Emp": "Nat. Res. & Constr.", "Wholesale_Emp": "Wholesale Trade",
         "Financial_Emp": "Financial Activities", "HealthCare_Emp": "Health Care",
         "Government_Emp": "Government"}
 
 # Wide view over the analysis window, for the descriptive premise plot only.
-wide = (LONG[LONG.time >= pd.Timestamp(START)]
+wide = (LONG[(LONG.time >= pd.Timestamp(START)) & (LONG.time <= pd.Timestamp(END))]
         .pivot_table(index="time", columns="unit", values="y")
         .reset_index().rename(columns={"time": "Date"}))
 
@@ -195,9 +216,13 @@ def to_fit_frame(outcome, donor_units, start=START):
 
     Bounds every unit to the treated outcome's own months (so the panel is
     balanced) and stamps the treatment flag on the outcome from March 2020.
+    The post-window is always capped at END; ``start=None`` widens the pre-window
+    to full history but never lets post-treatment months run past END.
     """
-    dates = set(LONG[(LONG.unit == outcome) & (LONG.time >= pd.Timestamp(start))].time
-                if start else LONG[LONG.unit == outcome].time)
+    sel = LONG[(LONG.unit == outcome) & (LONG.time <= pd.Timestamp(END))]
+    if start:
+        sel = sel[sel.time >= pd.Timestamp(start)]
+    dates = set(sel.time)
     d = LONG[LONG.unit.isin([outcome] + list(donor_units)) & LONG.time.isin(dates)].copy()
     d["treat"] = ((d.unit == outcome) & (d.time >= TREAT_DATE)).astype(int)
     return d[["unit", "time", "y", "treat"]]
@@ -270,7 +295,8 @@ def sub_fit(oc, donor_units, start=START):
     ADR, or RevPAR) from the robustness panel ROB, against the shared insulated
     (optionally +Florida) donors. Returns ATT, GMM SE, and pre-treatment RMSE."""
     donor_units = list(donor_units)
-    dates = set(ROB[(ROB.unit == oc) & (ROB.time >= pd.Timestamp(start))].time)
+    dates = set(ROB[(ROB.unit == oc) & (ROB.time >= pd.Timestamp(start))
+                    & (ROB.time <= pd.Timestamp(END))].time)
     d = ROB[ROB.unit.isin([oc] + donor_units) & ROB.time.isin(dates)].copy()
     d["treat"] = ((d.unit == oc) & (d.time >= TREAT_DATE)).astype(int)
     res = PROXIMAL({"df": d[["unit", "time", "y", "treat"]], "outcome": "y",
@@ -288,13 +314,12 @@ def sub_fit(oc, donor_units, start=START):
 # formatted strings. Labels are shortened for the y-axis.
 SHORT = {"Visitor Days": "Visitor Days", "Visitor Arrivals": "Visitor Arrivals",
          "Occupancy": "Occupancy", "Mean Daily Rate": "Mean Daily Rate",
-         "Revenue per Available Room": "RevPAR", "Accommodation Emp": "Accommodation Emp",
-         "Total Leisure Emp": "Leisure Emp", "Unemp Rate": "Unemp Rate", "LFP": "LFP"}
+         "Revenue per Available Room": "RevPAR"}
 
 # Headline proximal estimates on the insulated proxies (the macro upper bound),
 # by both specifications: SPSC (Park-Tchetgen) and base PI (Liu et al.).
 _HEAD = ["Visitor Days", "Visitor Arrivals", "Occupancy",
-         "Revenue per Available Room", "Accommodation Emp"]
+         "Mean Daily Rate", "Revenue per Available Room"]
 _spsc = {oc: spsc_fit(oc)["att"] for oc in _HEAD}
 _pi = {oc: pi_fit(oc)["att"] for oc in _HEAD}
 _pi_rmse = {oc: pi_fit(oc)["pre_rmse"] for oc in _HEAD}
@@ -319,7 +344,7 @@ for oc in _BAND:
 # and hurts the fit (ens_all, the guardrail below).
 _prewin = wide[wide["Date"] <= pd.Timestamp("2020-02-01")]
 _ENSOUT = ["Visitor Days", "Visitor Arrivals", "Occupancy", "Mean Daily Rate",
-           "Revenue per Available Room", "Accommodation Emp"]
+           "Revenue per Available Room"]
 ens = {oc: {"insulated": spsc_fit(oc)} for oc in _ENSOUT}
 for oc in _ENSOUT:
     for d in OPEN:
@@ -372,7 +397,7 @@ hd_rmse_hi = max(ens[o]["insulated"]["pre_rmse"] for o in
 #| label: fig-premise
 #| fig-cap: "The negative-control premise: treated tourism outcomes collapse while the insulated-sector donors barely dip."
 fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 4.2), sharex=True)
-for oc, c in zip(["Visitor Days", "Occupancy", "Accommodation Emp"], ("black",) + CF):
+for oc, c in zip(["Visitor Days", "Occupancy", "Revenue per Available Room"], ("black",) + CF):
     a1.plot(wide["Date"], wide[oc], lw=1.4, label=oc, color=c)
 for d, c in zip(INSULATED, CF):
     a2.plot(wide["Date"], wide[d], lw=1.2, label=DLAB[d], color=c)
@@ -394,7 +419,7 @@ plt.show()
 
 Each estimate is only as good as the bridge's pre-treatment fit, the empirical footprint of the relevance condition \eqref{eq:proxy}; @fig-spsc-grid draws the per-outcome counterfactuals over time. Relevance holds where it matters: Visitor Days, Visitor Arrivals, Occupancy, and Revenue per Available Room all reconstruct to pre-treatment RMSEs of at most `{python} f"{hd_rmse_hi:.1f}"` growth-rate points (for Visitor Days, `{python} f"{vd_prmse:.1f}"` points against a $\sim 70$-point effect), so the collapse the estimator reads off is not an artifact of a poor fit.
 
-The GMM standard errors are usable for the visitor series on this 2014 window ($\sim 3$--8 points), unlike the full-history window where de-trending a near-interpolating fit collapses them toward zero; two labor series (Unemployment Rate and Labor Force Participation) carry near-zero, relative-growth-artifact SEs and should not be read at face value. Even a well-behaved SE captures only sampling noise, not the extrapolation risk that dominates here, so I lean on the specification band below.
+The GMM standard errors are usable for the visitor series on this 2014 window ($\sim 3$--8 points), unlike the full-history window where de-trending a near-interpolating fit collapses them toward zero. Even a well-behaved SE captures only sampling noise, not the extrapolation risk that dominates here, so I lean on the specification band below.
 
 ## The insulated-only estimate: a bound
 
@@ -444,7 +469,7 @@ This is why I fit the donors \emph{singly}. Added en masse, the four near-collin
 #| label: fig-spsc-grid
 #| fig-cap: "Observed, SPSC and PI insulated counterfactuals, and SPSC + Florida, for five outcomes."
 _GRID = ["Visitor Days", "Visitor Arrivals", "Occupancy",
-         "Revenue per Available Room", "Accommodation Emp"]
+         "Mean Daily Rate", "Revenue per Available Room"]
 fig, axes = plt.subplots(3, 2, figsize=(12, 11)); axes = axes.flatten()
 for ax, oc in zip(axes, _GRID):
     p0 = spsc_paths(oc, INSULATED, conformal=True)
