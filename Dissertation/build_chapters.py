@@ -106,10 +106,8 @@ def patch_paper1(t: str) -> str:
     source paper reads its CSV from ``Paper1/Paper/``, but the dissertation
     renders from ``Dissertation/``, so the data path lives one level up.
     """
-    t = t.replace('DATA = "Data/hawaii_spsc_long.csv"',
-                  'DATA = "../Paper1/Paper/Data/hawaii_spsc_long.csv"')
-    t = t.replace('ROBUST = "Data/robustness.csv"',
-                  'ROBUST = "../Paper1/Paper/Data/robustness.csv"')
+    t = t.replace('DATA = "Data/hawaii_raw_long.csv"',
+                  'DATA = "../Paper1/Paper/Data/hawaii_raw_long.csv"')
     return t
 
 
