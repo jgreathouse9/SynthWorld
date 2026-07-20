@@ -86,6 +86,16 @@ jobs:
           python3 gen_ch3_threecity.py
           quarto render dissertation.qmd --to pdf
 
+      - name: Upload LaTeX logs and .tex on failure (for debugging)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dissertation-latex-logs
+          path: |
+            Dissertation/*.log
+            Dissertation/dissertation.tex
+          if-no-files-found: warn
+
       # The dissertation render is the slowest of the three PDF workflows and is
       # triggered by the same paper*.qmd pushes as Paper1.yml / Paper1_ectj.yml,
       # so by the time it finishes those faster renders have already pushed their
