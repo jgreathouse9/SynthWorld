@@ -16,6 +16,7 @@ bibliography:
   - pl.bib
   - delhi.bib
   - ktc.bib
+  - texas.bib
 execute:
   eval: true
   echo: false
