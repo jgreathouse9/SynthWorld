@@ -231,18 +231,18 @@ Estimated state by state against the shelter-in-place donor pool, the reopening 
 rows = "\n".join(
     f"{st} & {pd.Timestamp(EARLY[st]).strftime('%d %b')} & {FINAL[st]:,.0f} & {CASES_N[st]:,.0f} & {DFINAL[st]:,.1f} & {DEATHS_N[st]:,.0f} \\\\"
     for st in sorted(EARLY, key=lambda s: -FINAL[s]))
-print(r"\begin{table}[H]\centering")
-print(r"\caption{Synthetic-interventions estimate of the reopening effect by 30 June 2020: excess cumulative COVID-19 cases and deaths, per 100{,}000 and as raw counts, for each early-reopening state against the shelter-in-place donor pool. Pre-treatment fits are reported in the text.}")
-print(r"\label{tbl:si}")
+print(r"\begin{table}[ht]")
+print(r"\centering")
 print(r"\begin{tabular}{lrrrrr}")
 print(r"\toprule")
-print(r" & & \multicolumn{2}{c}{Excess cases} & \multicolumn{2}{c}{Excess deaths} \\")
-print(r"\cmidrule(lr){3-4}\cmidrule(lr){5-6}")
-print(r"State & Reopened & per 100k & count & per 100k & count \\")
+print(r"State & Reopened & Cases / 100k & Excess cases & Deaths / 100k & Excess deaths \\")
 print(r"\midrule"); print(rows); print(r"\midrule")
 print(rf"Total (11 states) & & & {tot_cases:,.0f} & & {tot_deaths:,.0f} \\")
 print(r"\bottomrule")
-print(r"\end{tabular}\end{table}")
+print(r"\end{tabular}")
+print(r"\caption{Synthetic-interventions estimate of the reopening effect by 30 June 2020: excess cumulative COVID-19 cases and deaths, per 100{,}000 and as raw counts, for each early-reopening state against the shelter-in-place donor pool. Pre-treatment fits are reported in the text.}")
+print(r"\label{tbl:si}")
+print(r"\end{table}")
 ```
 
 The design's identifying power, though, is in the timing, not the magnitude. @fig-si-eventtime re-centers each state's excess on its own reopening date. Aligned in event time (left), the eleven trajectories share one shape: a pre-reopening excess indistinguishable from zero (mean `{python} f"{et_pre:+.1f}"` per 100k over the four weeks before each state's reopening, the placebo the design should pass), then a ramp that builds to a mean of `{python} _pp(et_end)` excess cases per 100k some seven to eight weeks out. The flat pre-period is decisive against the obvious objection, that this is merely the Sun Belt's summer wave: even the states that reopened latest show no excess before their own reopening date, which a common calendar-time heat wave could not produce. Aligned in calendar time (right), the same trajectories are offset by their staggered reopening dates, and the shared event-time shape dissolves, exactly the pattern a reopening effect, and not a regional coincidence, implies.

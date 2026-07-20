@@ -86,6 +86,19 @@ jobs:
           python3 gen_ch3_threecity.py
           quarto render dissertation.qmd --to pdf
 
+      - name: Dump LaTeX error from dissertation.log on failure
+        if: failure()
+        working-directory: Dissertation
+        run: |
+          if [ -f dissertation.log ]; then
+            echo "========== LaTeX error lines (dissertation.log) =========="
+            grep -n -B2 -A8 -E '^(\! |l\.[0-9]|Runaway|Emergency|Overfull.*BAD|.*\.sty. not found)' dissertation.log || true
+            echo "========== last 120 lines of dissertation.log =========="
+            tail -120 dissertation.log
+          else
+            echo "no dissertation.log produced"
+          fi
+
       - name: Upload LaTeX logs and .tex on failure (for debugging)
         if: failure()
         uses: actions/upload-artifact@v4
