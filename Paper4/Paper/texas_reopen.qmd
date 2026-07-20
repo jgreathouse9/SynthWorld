@@ -92,7 +92,7 @@ The treated units are the eleven states that lifted statewide stay-at-home order
 ```{python}
 #| echo: false
 #| output: false
-#| label: setup-analysis
+#| label: setup-si
 
 import warnings; warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd
