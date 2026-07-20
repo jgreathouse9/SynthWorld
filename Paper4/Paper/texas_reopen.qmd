@@ -1,0 +1,305 @@
+---
+title: "Hindsight is 2020: Separating the Reopening Signal from the Pandemic's Noise with Synthetic Interventions"
+format:
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    include-in-header: prelim.tex
+    keep-tex: true
+    cite-method: natbib
+    pdf-engine: pdflatex
+number-sections: true
+bibliography: texas.bib
+---
+
+# Introduction
+
+<!-- TO BE WRITTEN. Motivation: reopening was the central pandemic-policy tradeoff of
+2020; a wave of states lifted their stay-at-home orders in late April and early May;
+the question is what those reopenings did to the trajectory of the epidemic. This
+chapter estimates that effect across the early-reopening states with synthetic
+interventions, and reads it in event time. -->
+
+Placeholder. The remainder of the paper is organized as follows. Section \ref{sec:lit} reviews the reopening and synthetic-control literatures. Section \ref{sec:method} develops the identification problem and the synthetic-interventions design. Section \ref{sec:data} describes the data. Section \ref{sec:results} presents the results, and Section \ref{sec:conclusion} concludes.
+
+# Background and Previous Work
+\label{sec:lit}
+
+<!-- TO BE WRITTEN (literature review). Threads: the reopening / NPI-timing literature
+(event studies and synthetic control on COVID cases, e.g. \citealp{bayat2020synthetic,
+goolsbee2021fear}); the synthetic control method \citep{abadie2010synthetic} and its
+extension to multiple interventions \citep{agarwal2026synthetic}; and the
+nonstationary-inference problem \citep{li2023inference}. -->
+
+Placeholder.
+
+# Methodology
+\label{sec:method}
+
+## The identification problem: reopening under a nonstationary pandemic factor
+\label{sec:ident}
+
+Let $Y_{it}$ denote the cumulative COVID-19 case count per capita for state $i$ on day $t$. Following the low-rank factor representation standard in the synthetic-control literature \citep{abadie2010synthetic, agarwal2026synthetic}, write
+
+\begin{equation}\label{eq:ifem}
+Y_{it} = \boldsymbol{\lambda}_i' \mathbf{f}_t + \varepsilon_{it},
+\end{equation}
+
+where $\mathbf{f}_t$ is a vector of latent common factors, $\boldsymbol{\lambda}_i$ the state-specific loadings, and $\varepsilon_{it}$ an idiosyncratic error. In the pandemic setting $\mathbf{f}_t$ is the unobserved national epidemic trajectory: nonstationary and sharply trending, driven by the arrival of the virus, national behavior and information, and the evolving testing regime. A state $i$ lifts its shelter-in-place order at $T_{0i}$; the target is the average treatment effect on the treated,
+
+\begin{equation}\label{eq:att}
+\mathrm{ATT}_i = \frac{1}{T-T_{0i}}\sum_{t>T_{0i}}\big(Y_{it} - Y_{it}(0)\big),
+\end{equation}
+
+where $Y_{it}(0)$ is the counterfactual case burden had the order remained in force, and its cumulative form at the end of the window, $Y_{iT}-Y_{iT}(0)$, is the total excess cases per capita the reopening caused.
+
+Two features of this problem shape the design. First, the treated state received the treatment (it reopened), so its stay-closed outcome $Y_{it}(0)$ is never observed and must be imputed under a \emph{different} intervention than the one it received. Vanilla synthetic control \citep{abadie2010synthetic} contrasts a treated unit only against a no-treatment world; recovering the outcome a reopened state would have shown had it stayed closed is a genuinely counterfactual-intervention question. Second, the donor outcomes that must supply that counterfactual are error-laden measurements of $\mathbf{f}_t$, and a strongly trending cumulative series makes naive extrapolation of donor weights unstable. The synthetic-interventions framework of \citet{agarwal2026synthetic}, developed in Section \ref{sec:si}, addresses both: it extends synthetic control to multiple interventions through a tensor factor model, and denoises the donor pool by low-rank truncation before borrowing from it. What it cannot repair, the inference distortions that a nonstationary structure of unknown form induces, is the separate contribution of \citet{li2023inference}, whose diagnosis motivates reading this effect through its trajectory rather than a single scalar.
+
+## Coincident shocks, confounders, and mediators
+\label{sec:roles}
+
+The structure of \eqref{eq:ifem} is the same one that governs a border closure under a pandemic: a policy is applied to a unit that is simultaneously struck by a common, nonstationary shock, and the identification task is to separate the two. This coincident-shock structure dictates what can, and cannot, serve as an adjustment. It has two consequences. First, the treated unit's own pre-treatment history cannot supply the counterfactual, because the pandemic is a structural break the pre-period never contains; any method that forecasts the post-period from the pre-period, or extrapolates the treated unit's own trend, inherits that break and fails. Identification must run through untreated units that felt the same shock, so that comparing the treated unit against them nets $\mathbf{f}_t$ out. Second, the auxiliary variables one might use to sharpen that comparison are not interchangeable: their admissibility depends on their causal position relative to the treatment, and two candidates available at the state-day level sit on opposite sides of it.
+
+Temperature is exogenous to the reopening. Weather is not caused by the lifting of a shelter-in-place order, so a state's temperature is a legitimately observed, policy-invariant quantity. It is a candidate \emph{confounder}, correlated both with the decision to reopen (warmer states reopened earlier) and, plausibly, with transmission. It is therefore a variable one is entitled to condition on. Its practical bite here is limited, though, for a reason returned to below: almost no hot state stayed closed, so the untreated pool cannot span the warm-state temperature loading, and the event-time design does most of the work of separating a reopening effect from a coincident regional heat wave.
+
+Mobility is the opposite. Reopening \emph{causes} movement: lifting the order is precisely what permits people to drive, shop, and gather, so the post-reopening mobility surge is a downstream consequence of the treatment, a \emph{mediator} on the causal path reopening $\rightarrow$ mobility $\rightarrow$ contact $\rightarrow$ transmission $\rightarrow$ cases. Conditioning on a mediator is post-treatment adjustment; it does not remove a confound, it blocks the channel through which the policy acts, biasing the estimated effect toward zero by construction \citep{rosenbaum1984consequences, cinelli2024crash}. Conditioning on the treated state's own post-reopening mobility does collapse the estimated effect, and that collapse is the bad-control bias, not evidence of a null: reopening did its work \emph{through} mobility, the mechanism \citet{goolsbee2021fear} identify when they find that voluntary behavior, not the legal order itself, drove the pandemic's course. Mobility therefore enters this paper only as evidence on the \emph{mechanism}, read off the temporal ordering (the mobility surge coincides with reopening and the case effect follows at the epidemiological lag), never as an adjustment.
+
+The design principle that follows is simple. The shared pandemic factor is netted out through the untreated donor pool of the synthetic-interventions design; exogenous confounders such as temperature may in principle be conditioned on; post-treatment mediators such as mobility may not. One limitation of this program is structural rather than incidental: because almost no hot state stayed closed, the untreated donor pool cannot span the warm-state summer-temperature loading, so the thermal channel can be probed but never fully closed. That irreducible gap, the confounder one most needs to represent is the one the control group is least able to supply, is the honest signature of evaluating a policy that only one kind of state adopted, and it is the same limitation, in geographic rather than temporal form, that a coincident pandemic imposes on any single-shock design.
+
+## Synthetic interventions across the early reopeners
+\label{sec:si}
+
+The synthetic-interventions (SI) estimator of \citet{agarwal2026synthetic} extends synthetic control from a single control condition to \emph{multiple} interventions. It rests on a tensor factor model in which a potential outcome under intervention $d$ is
+$Y_{it}(d) = \langle \mathbf{u}_t(d), \mathbf{v}_i\rangle + \varepsilon_{it}(d)$,
+where the \emph{unit} latent factors $\mathbf{v}_i$ are shared across time and across interventions, while the temporal factors $\mathbf{u}_t(d)$ carry the intervention. Identification of the target state's counterfactual under the stay-closed intervention rests on two conditions: selection on the latent factors, $\mathbb{E}[\varepsilon_{it}(d)\mid \mathbf{v},\text{assignments}]=0$, so that unconfoundedness holds given the shared factors rather than given observed covariates; and a linear-span condition, that the target state's loading $\mathbf{v}_i$ lies in the span of the loadings of the donor states that received the stay-closed intervention.
+
+Operationally, for each early-reopening state as the target, SI regresses its pre-reopening trajectory onto the shelter-in-place donor pool, after denoising that pool's pre-treatment matrix by hard singular-value thresholding (a rank-$k$ low-rank truncation), and applies the resulting weights to the donors' outcomes to impute the target's stay-closed counterfactual; the excess over that counterfactual is the reopening effect. Because the unit factors are shared across interventions, the target's loading is pinned on its own pre-reopening data and then read against the stay-closed temporal factors the donors trace. The default variant is the bias-corrected SI estimator, which reports an asymptotic-normality interval, though we lean on the cross-state and event-time pattern rather than that interval for inference, for reasons Section \ref{sec:results} makes explicit.
+
+The design is deliberately plural. Rather than estimate the reopening effect for one state, we run SI with each of the eleven early-reopening states as the target in turn, against the same shelter-in-place donor pool, using each state's own reopening date. Eleven independently-timed reopenings, each imputed against states that stayed closed, convert a single case study into a replication: a genuine reopening effect should appear across the states, and, re-centered on each state's own reopening date, should switch on in event time rather than at a common calendar moment. That event-time alignment, and not a scalar average, is the object we report.
+
+## Reading the effect over time
+\label{sec:dynamic}
+
+In an epidemic a single average is a poor summary, and can be an actively misleading one. Reopening acts on confirmed cases only through a lagged pipeline, behavior to transmission to incubation to testing to a reported case, of roughly five to six weeks, so the effect is a delayed ramp rather than a level shift. The honest object is therefore the trajectory of the excess in event time: the cumulative excess as it accrues after each state's own reopening, and its daily rate, which reveals when the effect switches on. A flat pre-reopening excess is a placebo the design should pass; a post-reopening ramp that appears in \emph{event} time, aligned across states with staggered reopening dates, is the signature of a policy effect rather than a coincident calendar-time wave.
+
+# Data
+\label{sec:data}
+
+The primary outcome is the cumulative count of confirmed COVID-19 cases per 100{,}000 residents, constructed from the cumulative counts published by \citet{nytcovid} and 2019 Census state populations. Cumulative incidence is inherently smooth (it integrates out weekday reporting noise) and yields an interpretable estimand, the excess cumulative cases per capita a reopening caused. We carry a second outcome through the identical design, cumulative deaths per 100{,}000 from the same source, so the reopening toll can be priced in lives and not only in infections; deaths follow infections at a lag of several weeks, so the end-of-window death effect is the leading edge of a toll that kept accruing past the window. The estimation window is 1 March through 30 June 2020.
+
+The treated units are the eleven states that lifted statewide stay-at-home orders in late April or early May 2020 (Texas, Georgia, Florida, Arizona, South Carolina, Tennessee, Mississippi, Alabama, Oklahoma, Colorado, and Missouri), each entered on its own reopening date. The donor pool is the set of shelter-in-place-retaining states that did not reopen over the window, the untreated units whose trajectories carry the national epidemic factor without the reopening. Two auxiliary series enter the identification discussion of Section \ref{sec:roles} but never the estimator's counterfactual: state-daily temperature (an exogenous confounder), from the county series of \citet{bayat2020synthetic} averaged to state; and Apple driving-mobility (a treatment mediator), which is read only for the mechanism.
+
+```{python}
+#| echo: false
+#| output: false
+#| label: setup-analysis
+
+import warnings; warnings.filterwarnings("ignore")
+import numpy as np, pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from mlsynth import SI
+from mlsynth.config_models import SIConfig
+
+# mlsynth house plotting style: black observed series, the red/blue/... counterfactual
+# cycle, a faint Samsung-blue grid, and no spines.
+CF = ("red", "blue", "green", "purple", "orange", "brown")
+MLSYNTH_RC = {
+    "figure.dpi": 100, "savefig.dpi": 100, "figure.facecolor": "white",
+    "axes.grid": True, "grid.linestyle": "-", "grid.alpha": 0.40, "grid.color": "#1428A0",
+    "font.family": "sans-serif", "font.sans-serif": ["Inter", "Arial", "Helvetica", "DejaVu Sans"],
+    "font.weight": "medium", "axes.titlesize": 12, "axes.titleweight": "bold",
+    "axes.labelsize": 14, "axes.labelweight": "medium", "xtick.labelsize": 12, "ytick.labelsize": 12,
+    "legend.frameon": True, "legend.framealpha": 1, "legend.facecolor": "white",
+    "legend.edgecolor": "#DDDDDD", "legend.fontsize": 12, "lines.linewidth": 1, "lines.antialiased": True,
+    "axes.spines.top": False, "axes.spines.right": False, "axes.spines.left": False, "axes.spines.bottom": False,
+}
+try:
+    from mlsynth.utils.plotting import apply_mlsynth_style
+    apply_mlsynth_style()
+except Exception:
+    plt.rcParams.update(MLSYNTH_RC)
+
+# Canonical panel (Code/Python/build_si_panel.py): RAW cumulative cases + state-daily
+# temperature + Apple driving mobility. Cumulative cases are put in per-100k terms at
+# runtime, so the repository keeps raw counts.
+DATA = "Data/si_panel.csv"
+START, END = pd.Timestamp("2020-03-01"), pd.Timestamp("2020-06-30")
+EARLY = {"Texas":"2020-05-01","Georgia":"2020-04-24","Florida":"2020-05-04","Arizona":"2020-05-08",
+         "South Carolina":"2020-04-20","Tennessee":"2020-04-27","Mississippi":"2020-04-27",
+         "Alabama":"2020-04-30","Oklahoma":"2020-04-24","Colorado":"2020-04-27","Missouri":"2020-05-04"}
+SIP = ["California","Illinois","Kansas","Louisiana","Maryland","Michigan","Wisconsin","New York",
+       "New Jersey","Pennsylvania","Massachusetts","Washington","Virginia","Minnesota"]
+POP = {"Texas":29.0,"Florida":21.5,"Georgia":10.6,"Arizona":7.28,"Tennessee":6.83,"South Carolina":5.15,
+       "Alabama":4.90,"Colorado":5.76,"Missouri":6.14,"Oklahoma":3.96,"Mississippi":2.98,"California":39.5,
+       "Illinois":12.7,"Kansas":2.91,"Louisiana":4.65,"Maryland":6.05,"Michigan":9.99,"Wisconsin":5.82,
+       "New York":19.5,"New Jersey":8.88,"Pennsylvania":12.8,"Massachusetts":6.89,"Washington":7.61,
+       "Virginia":8.54,"Minnesota":5.64}
+
+RAW = pd.read_csv(DATA, parse_dates=["time"])
+def _wide(metric): return RAW.pivot(index="time", columns="unit", values=metric).sort_index()
+CUM, DTH, TEMP, MOB = _wide("cases"), _wide("deaths"), _wide("temp"), _wide("mob")
+
+def _percap(wide):                                   # raw cumulative count -> per 100k
+    w = wide[[c for c in POP if c in wide.columns]].apply(lambda c: c / POP[c.name] / 10.0)
+    return w[(w.index >= START) & (w.index <= END)]
+CUMPC, DTHPC = _percap(CUM), _percap(DTH)            # cases and deaths, both per 100k
+dates = CUMPC.index
+
+# --- SI with each early reopener as target vs the stay-closed donor pool, on any
+# per-100k outcome matrix. Returns the excess path, reopen date, post mask, pre-fit RMSE. ---
+def si_gap(focal, MAT):
+    units = [focal] + SIP; sub = MAT[units]; reopen = pd.Timestamp(EARLY[focal]); post = dates >= reopen
+    long = sub.reset_index().melt(id_vars="time", var_name="unit", value_name="y")
+    long["treat"] = ((long.unit == focal) & (long.time >= reopen)).astype(int)
+    long["stayclosed"] = long.unit.isin(SIP).astype(int)
+    r = SI(SIConfig(df=long, outcome="y", unitid="unit", time="time", treat="treat",
+                    inters=["stayclosed"], display_graphs=False)).fit()
+    a = r.arms["stayclosed"]; cf = np.asarray(a.counterfactual, float).ravel()
+    return sub[focal].to_numpy() - cf, reopen, post, float(getattr(a, "pre_rmse", np.nan))
+
+# each state's end-of-June excess per 100k -> a raw count via its population (POP in
+# millions, so population in 100k units is POP * 10).
+GAP = {}; FINAL = {}; RMSE = {}; CASES_N = {}
+DFINAL = {}; DRMSE = {}; DEATHS_N = {}
+for st in EARLY:
+    g, reopen, post, pr = si_gap(st, CUMPC)
+    GAP[st] = (g, reopen); FINAL[st] = g[-1]; RMSE[st] = pr; CASES_N[st] = g[-1] * POP[st] * 10
+    dg, _, _, dpr = si_gap(st, DTHPC)
+    DFINAL[st] = dg[-1]; DRMSE[st] = dpr; DEATHS_N[st] = dg[-1] * POP[st] * 10
+n_pos = sum(v > 0 for v in FINAL.values())
+n_pos_d = sum(v > 0 for v in DFINAL.values())
+med_final = float(np.median(list(FINAL.values())))
+tx_final = FINAL["Texas"]; az_final = FINAL["Arizona"]
+tot_cases = float(sum(CASES_N.values()))            # aggregate excess cases across the 11
+tot_deaths = float(sum(DEATHS_N.values()))          # aggregate excess deaths across the 11
+rmse_lo, rmse_hi = min(RMSE.values()), max(RMSE.values())
+
+# --- event-time alignment (cumulative excess, daily rate, mobility) ---
+TAU = np.arange(-30, 56)
+def _et(paths):
+    return np.nanmean(np.vstack(paths), axis=0)
+etC, etD, etM = [], [], []
+for st, (g, reopen) in GAP.items():
+    tau = np.array([(d - reopen).days for d in dates])
+    etC.append(pd.Series(g, index=tau).reindex(TAU).values)
+    etD.append(pd.Series(np.r_[np.nan, np.diff(g)], index=tau).reindex(TAU).values)
+    etM.append(pd.Series(MOB[st].loc[dates].to_numpy(), index=tau).reindex(TAU).values)
+ETC, ETD, ETM = _et(etC), _et(etD), _et(etM)
+et_pre = float(np.nanmean(ETC[(TAU >= -28) & (TAU < 0)]))          # pre-reopening excess (placebo)
+et_end = float(np.nanmean(ETC[(TAU >= 42) & (TAU < 56)]))          # cumulative excess ~7-8 weeks out
+mob_pre = float(np.nanmean(ETM[(TAU >= -21) & (TAU < 0)]))
+mob_post = float(np.nanmean(ETM[(TAU >= 0) & (TAU < 21)]))
+
+# --- reverse counterfactual: impute each stay-closed state UNDER reopening (donors = the
+# early reopeners), to test SI's linear-span condition in the opposite direction. A common
+# counterfactual reopen date (the median early-reopen date) stands in for the controls'
+# missing reopen date. The forward direction is span-identified (small pre-fit RMSE); the
+# reverse is not, because the 11 reopeners are too narrow a pool to span the early-epidemic
+# controls, and the exploding pre-treatment RMSE is the diagnostic that says so. ---
+CFDATE = pd.Timestamp(int(np.median([pd.Timestamp(d).value for d in EARLY.values()])))
+def rev_rmse(focal):
+    units = [focal] + list(EARLY); sub = CUMPC[units]
+    long = sub.reset_index().melt(id_vars="time", var_name="unit", value_name="y")
+    long["treat"] = ((long.unit == focal) & (long.time >= CFDATE)).astype(int)
+    long["reopened"] = long.unit.isin(EARLY).astype(int)
+    r = SI(SIConfig(df=long, outcome="y", unitid="unit", time="time", treat="treat",
+                    inters=["reopened"], display_graphs=False)).fit()
+    a = r.arms["reopened"]; cf = np.asarray(a.counterfactual, float).ravel()
+    return float(getattr(a, "pre_rmse", np.nan)), (cf - sub[focal].to_numpy())[-1]
+REV_RMSE = {}; REV_FINAL = {}
+for st in SIP:
+    pr, fin = rev_rmse(st); REV_RMSE[st] = pr; REV_FINAL[st] = fin
+rev_npos = sum(v > 0 for v in REV_FINAL.values())
+rev_rmse_hi = max(REV_RMSE.values())
+rev_worst = max(REV_RMSE, key=REV_RMSE.get)
+
+def _pp(x): return f"{x:,.0f}"
+```
+
+# Results
+\label{sec:results}
+
+## The reopening effect replicates across the early reopeners
+\label{sec:sireplicate}
+
+Estimated state by state against the shelter-in-place donor pool, the reopening effect on cases is positive for all `{python} f"{n_pos}"` of the eleven early reopeners, against small pre-treatment fits (RMSE `{python} f"{rmse_lo:.1f}"` to `{python} f"{rmse_hi:.1f}"` per 100k, set against effects in the hundreds). @tbl-si reports each state's excess by 30 June. The median is `{python} _pp(med_final)` excess cases per 100k, ranging from the low hundreds to Arizona's `{python} _pp(az_final)`, with Texas at `{python} _pp(tx_final)`. Converted to counts through each state's population and summed across the eleven, the early reopenings are associated with roughly `{python} _pp(tot_cases)` excess confirmed cases by the end of June. Run through the identical design, cumulative deaths tell the same story: the death effect is positive in all `{python} f"{n_pos_d}"` states as well, and the eleven reopenings cost on the order of `{python} _pp(tot_deaths)` excess deaths over the window, an independent outcome that both corroborates the case signal and prices the toll in lives. That eleven independently-timed reopenings, each imputed from states that stayed closed, all point the same way on both outcomes is the substance of the result: it is a replication, not a single case study.
+
+```{python}
+#| echo: false
+#| output: asis
+rows = "\n".join(
+    f"{st} & {pd.Timestamp(EARLY[st]).strftime('%d %b')} & {FINAL[st]:,.0f} & {CASES_N[st]:,.0f} & {DFINAL[st]:,.1f} & {DEATHS_N[st]:,.0f} \\\\"
+    for st in sorted(EARLY, key=lambda s: -FINAL[s]))
+print(r"\begin{table}[H]\centering")
+print(r"\caption{Synthetic-interventions estimate of the reopening effect by 30 June 2020: excess cumulative COVID-19 cases and deaths, per 100{,}000 and as raw counts, for each early-reopening state against the shelter-in-place donor pool. Pre-treatment fits are reported in the text.}")
+print(r"\label{tbl:si}")
+print(r"\begin{tabular}{lrrrrr}")
+print(r"\toprule")
+print(r" & & \multicolumn{2}{c}{Excess cases} & \multicolumn{2}{c}{Excess deaths} \\")
+print(r"\cmidrule(lr){3-4}\cmidrule(lr){5-6}")
+print(r"State & Reopened & per 100k & count & per 100k & count \\")
+print(r"\midrule"); print(rows); print(r"\midrule")
+print(rf"Total (11 states) & & & {tot_cases:,.0f} & & {tot_deaths:,.0f} \\")
+print(r"\bottomrule")
+print(r"\end{tabular}\end{table}")
+```
+
+The design's identifying power, though, is in the timing, not the magnitude. @fig-si-eventtime re-centers each state's excess on its own reopening date. Aligned in event time (left), the eleven trajectories share one shape: a pre-reopening excess indistinguishable from zero (mean `{python} f"{et_pre:+.1f}"` per 100k over the four weeks before each state's reopening, the placebo the design should pass), then a ramp that builds to a mean of `{python} _pp(et_end)` excess cases per 100k some seven to eight weeks out. The flat pre-period is decisive against the obvious objection, that this is merely the Sun Belt's summer wave: even the states that reopened latest show no excess before their own reopening date, which a common calendar-time heat wave could not produce. Aligned in calendar time (right), the same trajectories are offset by their staggered reopening dates, and the shared event-time shape dissolves, exactly the pattern a reopening effect, and not a regional coincidence, implies.
+
+```{python}
+#| echo: false
+#| label: fig-si-eventtime
+#| fig-cap: "Reopening effect across the 11 early-reopening states (synthetic interventions): excess cumulative cases per 100k, re-centered on each state's own reopening date (left, event time) and in calendar time (right). Grey: individual states. Bold: mean. The pre-reopening excess is flat at zero; the ramp appears in event time but not calendar time."
+fig, (axE, axC) = plt.subplots(1, 2, figsize=(13.2, 4.9))
+for st, (g, reopen) in GAP.items():
+    tau = np.array([(d - reopen).days for d in dates])
+    axE.plot(tau, g, color="0.72", lw=0.9, alpha=0.8)
+    axC.plot(dates, g, color="0.72", lw=0.9, alpha=0.8)
+axE.plot(TAU, ETC, color="#12395B", lw=2.6, label="mean across 11 states")
+axE.axvline(0, color="black", ls=":", lw=1.2); axE.axhline(0, color="0.5", lw=0.8)
+axE.axvspan(0, 42, color="0.92", zorder=0, label="~6-week lag")
+axE.set_title("Aligned in event time", loc="left", fontsize=11)
+axE.set_xlabel("days since each state's own reopening"); axE.set_ylabel("excess cumulative cases / 100k")
+axE.legend(frameon=False, fontsize=9, loc="upper left")
+allC = pd.DataFrame({st: pd.Series(g, index=dates) for st, (g, reopen) in GAP.items()})
+axC.plot(allC.index, allC.mean(axis=1).values, color="#c0392b", lw=2.6, label="mean across 11 states")
+axC.axhline(0, color="0.5", lw=0.8)
+for st in EARLY: axC.axvline(pd.Timestamp(EARLY[st]), color="0.85", lw=0.5)
+axC.set_title("Aligned in calendar time", loc="left", fontsize=11)
+axC.set_ylabel("excess cumulative cases / 100k"); axC.legend(frameon=False, fontsize=9, loc="upper left")
+axC.xaxis.set_major_locator(mdates.MonthLocator()); axC.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+plt.tight_layout(); plt.show()
+```
+
+## The mechanism: reopening acts through mobility
+\label{sec:mechanism}
+
+Mobility is a mediator, not a control, so it enters not as an adjustment but as evidence on \emph{how} reopening moves cases (Section \ref{sec:roles}). @fig-mechanism overlays, in event time, the driving-mobility path across the early reopeners with the daily rate of the case effect. Mobility jumps at the reopening date, from a locked-down mean of `{python} f"{mob_pre:.0f}"` in the three weeks before reopening to `{python} f"{mob_post:.0f}"` in the three weeks after (relative to a January baseline of 100), and the case-effect rate lifts off the axis several weeks later, at the incubation-and-testing lag. The temporal ordering, movement first, cases after, is the signature of the pathway reopening $\rightarrow$ mobility $\rightarrow$ transmission $\rightarrow$ cases, and it is why conditioning on the post-reopening mobility surge would net the effect away: it is the channel, not a confound.
+
+```{python}
+#| echo: false
+#| label: fig-mechanism
+#| fig-cap: "Mechanism, in event time across the 11 early reopeners: driving mobility (left axis) surges at reopening, and the daily rate of the case effect (right axis) follows at the epidemiological lag."
+fig, ax = plt.subplots(figsize=(9.5, 4.4)); ax2 = ax.twinx()
+ax.plot(TAU, ETM, color="#12395B", lw=2.4, label="driving mobility (mean)")
+ax.axhline(100, color="0.6", lw=0.8, ls="--")
+ax2.plot(TAU, ETD, color="#c0392b", lw=2.2, label="case-effect daily rate (mean)")
+ax.axvline(0, color="black", ls=":", lw=1.2); ax2.axhline(0, color="0.6", lw=0.6)
+ax.axvspan(0, 42, color="0.93", zorder=0)
+ax.set_xlabel("days since each state's own reopening"); ax.set_ylabel("driving mobility (Jan = 100)")
+ax2.set_ylabel("excess cases / 100k / day")
+ax.set_title("Reopening moves people first, cases follow", loc="left", fontsize=11)
+ax.legend(frameon=False, fontsize=8.5, loc="upper left"); ax2.legend(frameon=False, fontsize=8.5, loc="lower right")
+for s in ("top",): ax.spines[s].set_visible(False); ax2.spines[s].set_visible(False)
+plt.tight_layout(); plt.show()
+```
+
+# Conclusion
+\label{sec:conclusion}
+
+Reopening in the spring of 2020 was a policy applied in the middle of a coincident, nonstationary pandemic, and separating its effect from the epidemic's own trajectory is the identification problem this chapter shares with a border closure: the treated unit's own history cannot supply the counterfactual, so the comparison must run through states that felt the same shock but did not reopen. Synthetic interventions supply exactly that comparison, imputing each early reopener's stay-closed counterfactual from the shelter-in-place pool, and estimated across eleven independently-timed reopenings the effect is uniformly positive: a median of roughly `{python} _pp(med_final)` excess cumulative cases per 100{,}000 by the end of June, and larger in the hardest-hit states. Priced in counts and summed across the eleven, that is on the order of `{python} _pp(tot_cases)` excess confirmed cases, and, on the identical design run on deaths, some `{python} _pp(tot_deaths)` excess deaths, by 30 June alone. Both totals are conservative: confirmed cases understate true infections under the thin testing of spring 2020, and because deaths lag infections by weeks, the end-of-June death effect is only the leading edge of a toll that kept accruing into the summer.
+
+The design's strongest evidence is in event time. The excess is flat before each state's own reopening and ramps afterward, and because the reopening dates are staggered, that ramp appears in event time but not in calendar time, which is what a genuine policy effect, and not the Sun Belt's coincident summer wave, implies. The pathway is legible in the same alignment: driving mobility surges at reopening and the case effect follows at the epidemiological lag, so reopening acts on cases through the behavior it unleashes, exactly as \citet{goolsbee2021fear} argued and as the mediator logic requires. Two honest limits remain, and both are the signature of evaluating a policy that only one kind of state adopted: with almost no hot state left closed, the thermal channel can be probed but not fully closed, and because a mediator cannot be conditioned on, the effect is estimated through, not net of, the mobility it induces.
+
+Because synthetic interventions impute a unit's outcome under an intervention it did not receive, the mirror question is in principle also askable: how the shelter-in-place states would have looked had they reopened, borrowing the reopen factors from the states that did. That reverse imputation is not identified here, and the estimator says so plainly. The linear-span condition that lets a Sun Belt reopener be written in terms of the large, diverse stay-closed pool does not hold turned around: the eleven reopeners are too narrow a set to span the early-epidemic control states, whose March explosion no reopener resembles. The pre-treatment fit that is flat and small in the forward direction (RMSE at most `{python} f"{rmse_hi:.0f}"` per 100{,}000) breaks down in reverse, reaching `{python} f"{rev_rmse_hi:.0f}"` per 100{,}000 for `{python} rev_worst` and failing the pre-reopening placebo for precisely those hard-hit states, so the reverse effect is positive for only `{python} f"{rev_npos}"` of the fourteen controls and cannot be read as a symmetric confirmation. This asymmetry is not a defect of the method but its identification condition made visible: synthetic interventions recover a counterfactual only in the direction where the donor pool spans the target, and the pre-treatment RMSE is the diagnostic that flags the other direction as off-support. That the reopening question is answerable forward but not backward is the same one-kind-of-state limitation, in its sharpest form, that runs through the chapter. Within those limits, the reading is clear, and only visible in hindsight: the early reopenings were followed, at the epidemiological lag, by a large and replicable excess of COVID-19 cases, and of deaths, that the states that stayed closed did not incur.

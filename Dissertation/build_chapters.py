@@ -29,11 +29,14 @@ SRC = {
         "Clearing the Air: How India's 2020 Lockdown Impacted Air Quality"),
     "03-mandates": (REPO / "Paper3/Paper/paper3.qmd", "p3",
         "Locking Away Prosperity? Evaluating the Labor Impacts of Vaccine Mandates"),
+    "04-texas": (REPO / "Paper4/Paper/texas_reopen.qmd", "p4",
+        "Hindsight is 2020: Separating the Reopening Signal from the Pandemic's Noise with Synthetic Interventions"),
 }
 BIBS = {  # source bib -> local copy name
     REPO / "Paper1/Paper/pl.bib": "pl.bib",
     REPO / "Paper2/Paper/delhi.bib": "delhi.bib",
     REPO / "Paper3/Paper/ktc.bib": "ktc.bib",
+    REPO / "Paper4/Paper/texas.bib": "texas.bib",
 }
 
 
@@ -107,6 +110,16 @@ def patch_paper1(t: str) -> str:
                   'DATA = "../Paper1/Paper/Data/hawaii_spsc_long.csv"')
     t = t.replace('ROBUST = "Data/robustness.csv"',
                   'ROBUST = "../Paper1/Paper/Data/robustness.csv"')
+    return t
+
+
+def patch_paper4(t: str) -> str:
+    """Dissertation-specific fixup for the Texas chapter: the source paper reads its
+    CSV from ``Paper4/Paper/``, but the dissertation renders from ``Dissertation/``,
+    so the data path lives one level up. The SI calls run against the current mlsynth
+    API directly, so no porting is needed."""
+    t = t.replace('DATA = "Data/si_panel.csv"',
+                  'DATA = "../Paper4/Paper/Data/si_panel.csv"')
     return t
 
 
@@ -418,6 +431,8 @@ def build_chapter(stem, path, tag, title):
     if tag == "p3":
         t = t.replace("uporigin.OKPANI20241065", "OKPANI20241065")
         t = t.replace("## Discussion", PAPER3_FIGURE + "## Discussion", 1)
+    if tag == "p4":
+        t = patch_paper4(t)
     body = f"# {title}\n\n" + t.lstrip("\n")
     (HERE / "chapters" / f"{stem}.qmd").write_text(body)
     return stem
