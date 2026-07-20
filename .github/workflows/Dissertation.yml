@@ -6,9 +6,11 @@ on:
       - 'Paper1/Paper/paper1.qmd'
       - 'Paper2/Paper/india.qmd'
       - 'Paper3/Paper/paper3.qmd'
+      - 'Paper4/Paper/texas_reopen.qmd'
       - 'Paper1/Paper/pl.bib'
       - 'Paper2/Paper/delhi.bib'
       - 'Paper3/Paper/ktc.bib'
+      - 'Paper4/Paper/texas.bib'
       - 'Dissertation/**'
       - '.github/workflows/Dissertation.yml'
   workflow_dispatch:

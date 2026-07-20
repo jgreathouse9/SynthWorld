@@ -83,30 +83,12 @@ jobs:
 
           (cd "$dir" && quarto render "$(basename "$qmd_file")" --to pdf)
 
-      - name: Manually compile LaTeX with BibTeX (to resolve citations)
-        run: |
-          qmd_file="${{ steps.select_qmd.outputs.target_qmd }}"
-          dir=$(dirname "$qmd_file")
-          base=$(basename "$qmd_file" .qmd)
-
-          cd "$dir"
-
-          # Compile 1st time to generate .aux
-          pdflatex "$base.tex"
-
-          # Run bibtex to generate .bbl
-          bibtex "$base"
-
-          # Compile 2 more times to resolve citations
-          pdflatex "$base.tex"
-          pdflatex "$base.tex"
-
-      - name: Clean up auxiliary files (keep logs)
-        run: |
-          qmd_file="${{ steps.select_qmd.outputs.target_qmd }}"
-          dir=$(dirname "$qmd_file")
-          rm -f "$dir"/*.aux "$dir"/*.bbl "$dir"/*.blg
-          # rm -f "$dir"/*.log  # optionally delete .log
+      # Quarto's `render --to pdf` runs the full latexmk pipeline (pdflatex +
+      # bibtex/biber) and resolves citations on its own, exactly as Paper1.yml and
+      # Paper1_ectj.yml do. The previous manual pdflatex/bibtex pass re-ran bibtex
+      # on the keep-tex .tex and aborted with "Illegal, another \bibstyle command"
+      # because the .aux carried both the document's \bibstyle and natbib's
+      # plainnat; it is redundant with the Quarto render and has been removed.
 
       - name: Upload LaTeX log files for debugging
         if: failure() || always()
