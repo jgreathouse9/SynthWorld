@@ -27,3 +27,5 @@ execute:
 {{< include chapters/02-india.qmd >}}
 
 {{< include chapters/03-mandates.qmd >}}
+
+{{< include chapters/04-texas.qmd >}}

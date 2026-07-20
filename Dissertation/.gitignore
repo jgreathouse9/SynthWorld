@@ -3,6 +3,7 @@ chapters/*.qmd
 pl.bib
 delhi.bib
 ktc.bib
+texas.bib
 ch3_threecity.png
 # render artifacts
 dissertation.tex
