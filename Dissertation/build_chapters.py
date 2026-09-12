@@ -240,17 +240,18 @@ def _psig(nm):
     v = _PVAL.get(nm)
     if v is None or v != v:
         return ""
-    return "$p < 0.001$" if v < 0.001 else f"$p = {v:.3f}$"
+    return "below 0.001" if v < 0.001 else f"of {v:.3f}"
 ```
 
 Inference follows the conformal permutation procedure of @SHC: the pre-treatment
 residuals are resampled to build a null distribution for the post-treatment gap
 (1{,}000 resamples), and an Andrews--Genton conformal band gives a 90\%
 prediction band for the counterfactual, shaded in @fig-india-national and
-@fig-india-cities. The national effect is significant at `{python} _psig('India')`,
-with Delhi (`{python} _psig('Delhi')`), Mumbai (`{python} _psig('Mumbai')`), and
-Kolkata (`{python} _psig('Kolkata')`) also below conventional thresholds and
-Bangalore, the smallest effect, at `{python} _psig('Bangalore')`. The
+@fig-india-cities. The national effect has a permutation p-value
+`{python} _psig('India')`; the Delhi (`{python} _psig('Delhi')`), Mumbai
+(`{python} _psig('Mumbai')`), and Kolkata (`{python} _psig('Kolkata')`) effects
+clear conventional thresholds as well, and Bangalore, the smallest effect, has a
+p-value `{python} _psig('Bangalore')`. The
 pre-treatment root-mean-squared error is the relevance diagnostic: `{python} _pp(_RMSE['India'])`
 pp nationally and `{python} _pp(_RMSE['Delhi'])` pp for Delhi, comfortably below
 those units' effects. For Mumbai (`{python} _pp(_RMSE['Mumbai'])` pp), Kolkata
