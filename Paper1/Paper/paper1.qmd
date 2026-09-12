@@ -713,6 +713,38 @@ At the same time, the analysis is candid about the limit of what the shipped dat
 
 Section~\ref{sec:florida} takes the further step of closing the two-factor gap with external travel-demand negative controls (inbound air travel to Florida and to a set of other exposed-but-open leisure markets that did \emph{not} lock down), and the result is instructive about both the promise and the care the approach demands. For Visitor Days the open-destination donors do what the design promises, and they do it \emph{in agreement}: fit one at a time, all four independently pull the estimate off the insulated-only bound into a policy-centered band, each improving the pre-treatment fit. Because the donors are chosen independently (different cities, two different states), their convergence is far stronger evidence that the missing factor is real and separable than any single proxy could be. A well-chosen ensemble also reaches further than one volume series: Phoenix, whose resort room rates track leisure demand, pulls the daily-room-rate series that Florida (a volume proxy) leaves essentially untouched. But the ensemble does not mechanically dissolve every bound, and the search must stay disciplined: near-collinear open destinations added \emph{en masse} induce large offsetting weights and hurt the fit, so the donors are best read as a corroborating convergence band; and Puerto Rico, tempting as a fellow island, fails as a control because it imposed its own stay-at-home order in mid-March 2020 and is a contaminated, treated-like unit that, if anything, bounds the effect from the other side.
 
+```{python}
+#| echo: false
+#| output: false
+# Translate the Visitor Days growth-rate effect into visitor-days and dollars for
+# the ledger: value each period's shortfall at the 2019 average spend per day.
+_vdlev = RAW[RAW.unit == "Visitor Days"].set_index("time")["value"]
+_rate = 17.75e9 / _vdlev[(_vdlev.index >= "2019-01-01") & (_vdlev.index <= "2019-12-01")].sum()
+def _vd_loss(_don):
+    _p = spsc_paths("Visitor Days", _don)
+    _t = pd.to_datetime(_p["t"]); _cf = _p["cf"] / 100.0; _y = _p["y"] / 100.0
+    _tc = _t[-len(_cf):]; _yc = _y[-len(_cf):]; _post = _tc >= TREAT_DATE
+    _lost = _cft = 0.0
+    for _ti, _go, _gc in zip(_tc[_post], _yc[_post], _cf[_post]):
+        _b = _vdlev[pd.Timestamp(_ti.year - 1, _ti.month, 1)]
+        _lost += _b * (_gc - _go); _cft += _b * (1 + _gc)
+    return _lost, _cft
+_lost_ins, _cfd_ins = _vd_loss(INSULATED)
+_lost_fl,  _cfd_fl  = _vd_loss(INSULATED + ["Florida"])
+```
+
+The opening states the stakes in dollars and jobs, and the estimand is a growth rate, so I close that gap here. Writing $D^{2019}_t$ for 2019 visitor-days in calendar month $t$, $\widehat{g}^{\,0}_t$ for the SPSC counterfactual year-over-year growth, and $g_t$ for the observed growth, the 2020 counterfactual and observed levels are $\widehat{D}^{\,0}_t = D^{2019}_t(1+\widehat{g}^{\,0}_t)$ and $D_t = D^{2019}_t(1+g_t)$. The post-window visitor-day shortfall telescopes to
+\begin{equation}
+\widehat{\Delta D}
+\;=\; \sum_{t \in \mathcal{T}_2}\bigl(\widehat{D}^{\,0}_t - D_t\bigr)
+\;=\; \sum_{t \in \mathcal{T}_2} D^{2019}_t\,\bigl(\widehat{g}^{\,0}_t - g_t\bigr),
+\end{equation}
+the 2019 monthly level weighting each period's growth-rate gap. Valued at the 2019 average spend per visitor-day $\bar{s} = \$17.75\text{B} / D^{2019}$, the forgone visitor spending is
+\begin{equation}
+\widehat{\Delta S} \;=\; \bar{s}\,\widehat{\Delta D}.
+\end{equation}
+With $\bar{s}$ at about \$`{python} f"{_rate:.0f}"` per visitor-day, the insulated-bound fit implies a shortfall of about `{python} f"{_lost_ins/1e6:.0f}"` million visitor-days over March--December 2020, against a counterfactual of `{python} f"{_cfd_ins/1e6:.0f}"` million, worth roughly \$`{python} f"{_rate*_lost_ins/1e9:.0f}"` billion in lost visitor spending; the Florida-adjusted point gives about \$`{python} f"{_rate*_lost_fl/1e9:.1f}"` billion. Because the insulated estimate is an upper bound in magnitude on the policy effect (Section~\ref{sec:spsc}), this figure bounds from above the spending loss attributable to the quarantine, set against the \$17.75 billion in annual visitor spending the opening put at stake. The translation assumes spending tracks visitor-days at the 2019 average, so it should be read as an order-of-magnitude gloss on the growth-rate estimate.
+
 These estimates are one side of a ledger. They price the short-run economic cost of the border closure through the end of 2020; they do not, on their own, value the public-health benefit (lives saved, hospital strain averted) the closure was meant to buy. A bounded cost, though, is exactly the input a cost-benefit calculation needs, and the surrounding literature supplies the other side. Work on early containment finds that acting even days sooner averts a large share of deaths: \citet{bayat2020syntheticcontrolsyntheticinterventions} estimate that locking down ten days earlier could have cut New York deaths by more than 80\%. Evidence on comparably aggressive closures finds the economic damage sharp but short-lived \citep{hubeipda}. Set side by side, the calculus for a decisive closure is a large but transitory economic loss weighed against a benefit measured in lives, and this paper supplies the first credible, bounded estimate of that loss for the U.S. case. The incidence analysis of Section~\ref{sec:incidence} adds that the loss fell unevenly: hardest on the upper tiers of the lodging market, and through lost volume, with room rates largely holding. What the paper also provides is a template for pricing such policies at all: when the intervention and the crisis it responds to are one and the same event in time, no comparison unit is clean, and the analyst's task is to find a variable that sees the crisis but not the policy.
 
 # Conclusion
