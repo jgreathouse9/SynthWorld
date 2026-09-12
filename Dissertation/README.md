@@ -45,7 +45,6 @@ Generated files (`chapters/*.qmd`, `pl.bib`, `delhi.bib`, `ktc.bib`,
 - Committee: Coupet (chair), Andrew Heiss, Lindsay Rose Bullinger.
   `Frontmatter/dedication.tex`, `acknowledgments.tex`, `index-words.tex` are
   placeholders.
-- `Jones2021` is cited in Chapter 3 but is in no `.bib` — add the entry.
 - The fixes `build_chapters.py` applies (the missing braces in `delhi.bib` /
   `ktc.bib`, the four added references, the `uporigin.OKPANI20241065` typo, the
   Paper 1 SHC API) are bugs in the source too: your standalone Paper 1 / Paper 2
