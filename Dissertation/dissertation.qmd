@@ -16,7 +16,6 @@ bibliography:
   - pl.bib
   - delhi.bib
   - ktc.bib
-  - texas.bib
 execute:
   eval: true
   echo: false
@@ -28,5 +27,3 @@ execute:
 {{< include chapters/02-india.qmd >}}
 
 {{< include chapters/03-mandates.qmd >}}
-
-{{< include chapters/04-texas.qmd >}}

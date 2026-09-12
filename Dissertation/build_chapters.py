@@ -29,14 +29,11 @@ SRC = {
         "Clearing the Air: How India's 2020 Lockdown Impacted Air Quality"),
     "03-mandates": (REPO / "Paper3/Paper/paper3.qmd", "p3",
         "Locking Away Prosperity? Evaluating the Labor Impacts of Vaccine Mandates"),
-    "04-texas": (REPO / "Paper4/Paper/texas_reopen.qmd", "p4",
-        "Hindsight is 2020: Separating the Reopening Signal from the Pandemic's Noise with Synthetic Interventions"),
 }
 BIBS = {  # source bib -> local copy name
     REPO / "Paper1/Paper/pl.bib": "pl.bib",
     REPO / "Paper2/Paper/delhi.bib": "delhi.bib",
     REPO / "Paper3/Paper/ktc.bib": "ktc.bib",
-    REPO / "Paper4/Paper/texas.bib": "texas.bib",
 }
 
 
@@ -111,28 +108,20 @@ def patch_paper1(t: str) -> str:
     return t
 
 
-def patch_paper4(t: str) -> str:
-    """Dissertation-specific fixup for the Texas chapter: the source paper reads its
-    CSV from ``Paper4/Paper/``, but the dissertation renders from ``Dissertation/``,
-    so the data path lives one level up. The SI calls run against the current mlsynth
-    API directly, so no porting is needed."""
-    t = t.replace('DATA = "Data/si_panel.csv"',
-                  'DATA = "../Paper4/Paper/Data/si_panel.csv"')
-    return t
-
-
-
 INDIA_RESULTS = r'''
 
 ## Results
 \label{p2-sec:results}
 
 @fig-india-national presents the Synthetic Historical Control estimate for the
-all-India population-weighted PM2.5 series, expressed as a year-over-year growth
-rate. The observed series falls sharply below its synthetic-historical
-counterfactual following the March 2020 lockdown, indicating a pronounced
-short-run reduction in particulate pollution. @fig-india-cities repeats the
-exercise for the four megacities (Delhi, Mumbai, Bangalore, and Kolkata).
+all-India population-weighted PM2.5 series. Throughout, the outcome is the
+year-over-year growth rate of PM2.5, so every reported effect is a change in that
+growth rate, in percentage points, not a change in the concentration level
+(Section \ref{p2-sec:data}). The observed series falls sharply below its
+synthetic-historical counterfactual following the March 2020 lockdown, indicating
+a pronounced short-run reduction in the growth of particulate pollution.
+@fig-india-cities repeats the exercise for the four megacities (Delhi, Mumbai,
+Bangalore, and Kolkata).
 
 ```{python}
 #| echo: false
@@ -238,7 +227,7 @@ def _pp(x):
 Monthly PM2.5 growth rates are inherently noisy: meteorology, episodic events
 (festivals, crop-residue burning), and measurement error all inject
 high-frequency variation that can exaggerate or mask any single month's
-estimated effect---the September 2020 rebound visible in @fig-india-national is
+estimated effect; the September 2020 rebound visible in @fig-india-national is
 one such idiosyncratic spike. To confirm that the headline results are not an
 artifact of this monthly noise, I re-estimate every model on quarterly data:
 the population-weighted PM2.5 series is averaged into calendar quarters before
@@ -300,11 +289,11 @@ monthly frequency; the city estimates likewise track their monthly counterparts
 to within about two percentage points (Delhi `{python} _pp(_ATTQ['Delhi'])`,
 Mumbai `{python} _pp(_ATTQ['Mumbai'])`, Bangalore `{python} _pp(_ATTQ['Bangalore'])`,
 and Kolkata `{python} _pp(_ATTQ['Kolkata'])` pp). The cross-city ordering is
-preserved---Kolkata largest, Bangalore smallest---and every effect remains a
-substantial reduction. Because the point estimates are essentially invariant to
-whether the data are analyzed monthly or quarterly, the measured lockdown effect
-reflects a genuine, sustained shift in particulate pollution rather than a
-handful of anomalous months.
+preserved (Kolkata largest, Bangalore smallest), and every effect remains a
+substantial reduction. Because the point estimates change little whether the data
+are analyzed monthly or quarterly, the measured effect is not driven primarily by
+a small number of high-frequency monthly observations; aggregating to quarters
+smooths month-to-month noise and leaves the estimates substantially unchanged.
 
 ## Discussion
 \label{p2-sec:discussion}
@@ -319,53 +308,56 @@ is a `{python} _pp(_ATT['India'])` pp reduction: the synthetic-historical
 counterfactual implies all-India PM2.5 would have *grown* by roughly
 `{python} f"{_CFM['India']:.1f}"`\% year over year on average between March and
 December 2020, yet the observed series fell instead. The wedge between the two
-is the causal signature of the shutdown, and it dwarfs the ordinary
+is the causal effect of the shutdown, and it is far larger than the ordinary
 year-to-year movement of the pre-treatment series.
 
-The effect is concentrated exactly where the policy was strictest. Reductions
+The effect is concentrated where the policy was strictest. Reductions
 are deepest during the Phase 1--2 window of April--June 2020, when mobility,
 industry, and construction were halted nationwide (Section \ref{p2-sec:policy});
 the largest single-month national gap occurs in `{python} _PKM['India']`, about
 `{python} _pp(_PKV['India'])` pp below counterfactual. From mid-summer the
 effect attenuates as the economy reopened, and a brief positive deviation
-around September 2020 appears in several series. This profile---a deep trough
-under the strictest restrictions followed by mean reversion---is the signature
-of a temporary non-pharmaceutical intervention rather than a durable shift in
-the emissions regime. It also underscores a strength of SHC in this setting:
+around September 2020 appears in several series. This profile, a deep trough
+under the strictest restrictions followed by mean reversion, is what a temporary
+non-pharmaceutical intervention produces, not a durable shift in the emissions
+regime. The pattern is also consistent with a strength of SHC in this setting:
 recurring meteorological drivers (Section \ref{p2-sec:shc}) are absorbed into
 the historical donor segments, so the estimated effect is not an artifact of a
 single anomalous season.
 
-City-level estimates reveal meaningful heterogeneity (@fig-india-cities). The
+City-level estimates show meaningful heterogeneity (@fig-india-cities). The
 reduction is `{python} _pp(_ATT['Delhi'])` pp in Delhi,
 `{python} _pp(_ATT['Mumbai'])` pp in Mumbai, `{python} _pp(_ATT['Bangalore'])`
 pp in Bangalore, and `{python} _pp(_ATT['Kolkata'])` pp in Kolkata. Kolkata's
 effect is both the largest and the most persistent: its counterfactual was on a
 steep upward path (averaging about `{python} f"{_CFM['Kolkata']:.1f}"`\% YoY
 growth), so the shutdown opened an especially wide gap that endured through the
-autumn. Delhi shows the textbook pattern of a steep spring collapse followed by
-a rebound late in the year, when post-monsoon crop-residue burning and winter
-temperature inversions---drivers outside the lockdown's reach---reassert
-themselves. Bangalore, with a lighter industrial base and a cleaner baseline,
-shows the smallest reduction, consistent with its pollution being comparatively
-less sensitive to the halt in heavy industry and construction.
+autumn. Delhi shows a steep spring collapse followed by a rebound late in the
+year, when post-monsoon crop-residue burning and winter temperature inversions,
+drivers outside the lockdown's reach, reassert themselves. Bangalore, with a
+lighter industrial base and a cleaner baseline, shows the smallest reduction,
+consistent with its pollution being less sensitive to the halt in heavy industry
+and construction. These cross-city differences are descriptive: the historical
+fits differ across cities, and I do not test whether one city's effect is
+statistically larger than another's, so the ordering should be read as
+heterogeneity, not as a formal ranking.
 
 These causal estimates are broadly consistent with, but conceptually distinct
 from, the descriptive 31--43\% concentration declines reported in the lockdown
-literature \citep{nigam2021covid,SALEEM2024114255}: rather than comparing raw
+literature \citep{nigam2021covid,SALEEM2024114255}: instead of comparing raw
 before-and-after levels, SHC benchmarks the observed series against what its own
 history implies should have happened. Several caveats temper interpretation.
 The estimates are for a transitory shock and speak to short-run responsiveness,
 not to a sustainable abatement path. The outcome is a growth rate, so a
-negative ATT denotes slower growth---here, outright decline---relative to
-counterfactual rather than a level reduction per se. The figures report the
+negative ATT denotes slower growth, here outright decline, measured against the
+counterfactual and not a reduction in the level itself. The figures report the
 convex SHC estimator; the augmented variant of Section \ref{p2-sec:ashc} is
-available where pre-treatment fit is poor, and the September rebound is a
-reminder that the design recovers net effects, including any offsetting seasonal
-forces---though aggregating to quarters (Section \ref{p2-sec:robustness})
-averages out this high-frequency variation and leaves the point estimates
-essentially unchanged. Finally, formal uncertainty quantification is not
-reported alongside these point estimates and is a natural next step.
+available where pre-treatment fit is poor, and the September rebound shows that
+the design recovers net effects, including any offsetting seasonal forces.
+Aggregating to quarters (Section \ref{p2-sec:robustness}) averages out this
+high-frequency variation and leaves the point estimates substantially unchanged.
+Finally, formal uncertainty quantification is not reported alongside these point
+estimates and is a natural next step.
 
 ## Conclusion
 \label{p2-sec:conclusion}
@@ -380,24 +372,29 @@ from `{python} _pp(_ATT['Bangalore'])` pp in Bangalore to
 pollution path fell below a counterfactual that, on its own historical
 momentum, would have continued to rise.
 
-Two implications follow. First, the speed and size of the response confirm that
-a large share of India's particulate burden is anthropogenic and acutely
-sensitive to economic activity---transport, industry, and construction---rather
-than fixed by geography or climate alone. Second, the rapid rebound once
-restrictions eased shows that one-off shocks do not deliver lasting gains:
-realizing the air-quality improvements glimpsed in 2020 would require sustained,
-structural emission controls of the sort envisioned by the National Clean Air
-Programme (Section \ref{p2-sec:policy}), not episodic shutdowns.
+Two implications follow. First, the speed and size of the response indicate that
+a large share of India's particulate burden is anthropogenic and responsive to
+economic activity such as transport, industry, and construction, not fixed by
+geography or climate alone; the design recovers the net effect of the shutdown
+and does not separately identify the contribution of each sector. Second, the
+rapid rebound once restrictions eased shows that one-off shocks do not deliver
+lasting gains: realizing the air-quality improvements seen in 2020 would require
+sustained, structural emission controls of the sort envisioned by the National
+Clean Air Programme (Section \ref{p2-sec:policy}), not episodic shutdowns.
 
 The analysis also points to clear avenues for future work: attaching formal
 inference (for example, conformal prediction intervals) to the SHC point
 estimates, deploying the Augmented SHC of Section \ref{p2-sec:ashc} where
 pre-treatment fit is weakest, extending the outcome set beyond PM2.5 to
 co-pollutants such as NO\textsubscript{2}, and tracing how quickly pollution
-returns to its pre-pandemic trajectory. Taken together, the results demonstrate
-both the public-health stakes of India's air pollution and the practical value
-of historical-control methods for evaluating large-scale interventions where no
-untreated comparison unit exists.
+returns to its pre-pandemic trajectory. Taken together, the results establish a
+large short-run reduction in the growth of particulate pollution and show the
+practical value of historical-control methods for evaluating large-scale
+interventions for which a contemporaneous untreated comparison unit is hard to
+assemble. The health consequences of pollution at these levels are well
+documented (Section \ref{p2-sec:policy}); converting the estimated air-quality
+change into health outcomes is beyond what this chapter estimates and is left to
+that literature.
 '''
 
 PAPER3_FIGURE = (
@@ -429,8 +426,6 @@ def build_chapter(stem, path, tag, title):
     if tag == "p3":
         t = t.replace("uporigin.OKPANI20241065", "OKPANI20241065")
         t = t.replace("## Discussion", PAPER3_FIGURE + "## Discussion", 1)
-    if tag == "p4":
-        t = patch_paper4(t)
     body = f"# {title}\n\n" + t.lstrip("\n")
     (HERE / "chapters" / f"{stem}.qmd").write_text(body)
     return stem
