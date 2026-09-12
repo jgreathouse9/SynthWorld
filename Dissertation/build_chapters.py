@@ -421,6 +421,14 @@ shows that one-off shocks do not deliver lasting gains: realizing the
 air-quality improvements seen in 2020 would require the sustained, structural
 emission controls envisioned by the National Clean Air Programme (Section
 \ref{p2-sec:policy}), whereas the 2020 shutdown bought only a temporary reprieve.
+For a programme like the NCAP, which targets a 20--30\% cut in particulate
+concentrations, the lockdown also marks a rough ceiling on what compressing
+economic activity alone can achieve: halting transport, industry, and
+construction outright opened a national gap of about
+`{python} _pp(_PKV['India'])` pp at its April--June deepest, so meeting those
+targets durably will take measures that lower emissions per unit of activity,
+such as cleaner fuels, vehicle and industrial standards, and dust control,
+working in the background while the economy keeps running.
 
 The analysis also points to clear avenues for future work: probing sensitivity
 to the evaluation-window length and the choice of post-treatment endpoint,
