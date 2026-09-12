@@ -326,72 +326,123 @@ the \texttt{mlsynth} package for Python.
 # Results
 \label{sec:results}
 
-Table~\ref{tab:main} reports the aggregate ATT estimates across the
-three treated cities (NYC, SF, LA), in units of percentage-point
-year-over-year growth in full-service restaurant employment. Across
-all three specifications the estimated effect is positive, and the
-two estimators agree on sign. SDID yields an ATT of
-$+3.47$ percentage points with a placebo-based standard error of
-$0.71$, a 95\% confidence interval of $[+2.07, +4.86]$, and a
-two-sided p-value of $0.002$. PPSCM yields a smaller point estimate
-of $+1.93$ percentage points with a jackknife standard error of
-$1.13$ and a 95\% confidence interval of $[-0.29, +4.14]$ that
-includes zero at conventional levels. Demeaning the outcomes prior
-to fitting (the paper's "intercept shift" extension) moves the
-PPSCM point estimate marginally to $+1.82$ percentage points and
-leaves the CI essentially unchanged at $[-0.46, +4.11]$, which I
-read as a passed robustness check on the demeaning toggle.
+Table~\ref{tab:main} reports the pooled ATT estimates across the three treated
+cities (New York City, San Francisco, and Los Angeles), in percentage points of
+year-over-year growth in full-service restaurant employment. Both estimators are
+positive and agree on sign; every number in this section is computed from the
+current fit.
 
-\begin{table}[h]
+```{python}
+#| echo: false
+#| output: asis
+import numpy as np, pandas as pd, pickle, warnings
+warnings.filterwarnings("ignore")
+from mlsynth import SDID, PPSCM
+_csa = pickle.load(open("../Data/employment_growth_data.pkl", "rb"))["CSA"].copy()
+_dmap = {d: i for i, d in enumerate(sorted(_csa["Date"].unique()))}
+_csa["t"] = _csa["Date"].map(_dmap).astype(int)
+_NYC="NYC Area"; _SF="San Jose-San Francisco-Oakland, CA CSA"
+_NOLA="New Orleans-Metairie-Slidell, LA-MS CSA"; _LA="Los Angeles-Long Beach, CA CSA"
+_NYNK="New York-Newark, NY-NJ-CT-PA CSA"
+_MAND={_NYC:"2021-08-01",_SF:"2021-08-01",_LA:"2021-11-01"}
+_SHORT={_NYC:"New York City",_SF:"San Francisco",_LA:"Los Angeles"}
+def _mk(df):
+    d=df.copy(); d["treated"]=0
+    for u,m in _MAND.items(): d.loc[(d["CSA"]==u)&(d["Date"]>=pd.Timestamp(m)),"treated"]=1
+    return d
+_POOL=_csa[~_csa["CSA"].isin([_NOLA,_NYNK])].copy()
+_d3=_mk(_POOL)
+_rs=SDID(dict(df=_d3,outcome="YoY_Emp",treat="treated",unitid="CSA",time="Date",
+             display_graphs=False,save=False,B=500)).fit()
+sdid_att=float(_rs.effects.att); sdid_se=float(_rs.inference.standard_error)
+sdid_lo,sdid_hi=float(_rs.inference.ci_lower),float(_rs.inference.ci_upper); sdid_p=float(_rs.inference.p_value)
+_rp=PPSCM(dict(df=_d3,outcome="YoY_Emp",treat="treated",unitid="CSA",time="t",
+              display_graphs=False,save=False,run_inference=False)).fit()
+ppscm_att=float(_rp.effects.att)
+pc={_SHORT[k]: float(_rp.per_unit[k].att) for k in _rp.per_unit}
+_loo={}
+for _drop in (_NYC,_SF,_LA):
+    _r=PPSCM(dict(df=_mk(_POOL[_POOL["CSA"]!=_drop]),outcome="YoY_Emp",treat="treated",
+                  unitid="CSA",time="t",display_graphs=False,save=False,run_inference=False)).fit()
+    _loo[_SHORT[_drop]]=float(_r.effects.att)
+_lv=np.array(list(_loo.values())); _n=_lv.size
+ppscm_se=float(np.sqrt((_n-1)/_n*np.sum((_lv-_lv.mean())**2)))
+ppscm_lo,ppscm_hi=ppscm_att-1.96*ppscm_se, ppscm_att+1.96*ppscm_se
+_g=lambda x: f"{x:+.1f}"
+print(r"""\begin{table}[h]
 \centering
-\caption{Estimated effect of city-level vaccine mandates on
-year-over-year full-service restaurant employment growth. ATT and
-confidence intervals are reported in percentage points.
-$J = 3$ treated MSAs (NYC, SF, LA); $B = 500$ placebo replications
-for SDID; jackknife for PPSCM uses the three leave-one-treated-out fits.}
+\caption{Estimated effect of city-level vaccine mandates on year-over-year full-service restaurant employment growth, in percentage points. $J=3$ treated CSAs (New York City, San Francisco, Los Angeles); SDID inference by $B=500$ placebo replications, PPSCM by leave-one-treated-out jackknife over the three cities.}
 \label{tab:main}
 \begin{tabular}{lcccc}
-\toprule
-Estimator                  & ATT (pp)  & SE      & 95\% CI                 & Inference \\
-\midrule
-SDID                       & $+3.47$   & $0.71$  & $[+2.07,\; +4.86]$      & Placebo ($p = 0.002$) \\
-PPSCM                      & $+1.93$   & $1.13$  & $[-0.29,\; +4.14]$      & Jackknife \\
-PPSCM (demeaned)           & $+1.82$   & $1.16$  & $[-0.46,\; +4.11]$      & Jackknife \\
-\bottomrule
+\hline
+Estimator & ATT (pp) & SE & 95\%% CI & Inference \\
+\hline
+SDID (pooled)  & $%+.1f$ & $%.2f$ & $[%+.1f,\; %+.1f]$ & Placebo ($p=%.3f$) \\
+PPSCM (pooled) & $%+.1f$ & $%.2f$ & $[%+.1f,\; %+.1f]$ & Jackknife \\
+\hline
 \end{tabular}
-\end{table}
+\end{table}""" % (sdid_att,sdid_se,sdid_lo,sdid_hi,sdid_p, ppscm_att,ppscm_se,ppscm_lo,ppscm_hi))
+```
 
-Three features of the table merit comment. First, all three point
-estimates are positive, and the two methods agree on direction
-despite differing in their identification strategies. There is no
-specification in which the estimated effect is negative. Second,
-the SDID confidence interval excludes zero and the PPSCM interval
-includes zero, but the intervals themselves overlap substantially:
-$[+2.07, +4.86]$ for SDID and $[-0.29, +4.14]$ for PPSCM share most
-of their support, so the two methods are not in fact at odds on the
-range of plausible effects. Third, the SDID estimate is roughly
-$1.5$ percentage points larger than the PPSCM estimate, which is
-consistent with the way the two methods treat pre-treatment
-heterogeneity: SDID's time weights $\widehat{\boldsymbol{\lambda}}$
-implicitly down-weight pre-treatment months in which donor and
-treated outcomes diverged most (including the depths of the 2020
-trough), whereas PPSCM weights all pre-treatment months equally
-within the chosen pre-window. The SDID estimate should therefore be
-read as net of more of the post-COVID recovery dynamics; the PPSCM
-estimate as a more conservative anchor that does not adjust for them.
+SDID puts the pooled effect at `{python} _g(sdid_att)` percentage points, with a
+placebo standard error of `{python} f"{sdid_se:.2f}"`, a 95\% confidence interval
+of [`{python} _g(sdid_lo)`, `{python} _g(sdid_hi)`], and a placebo p-value of
+`{python} f"{sdid_p:.3f}"`. PPSCM puts it at `{python} _g(ppscm_att)` percentage
+points; its leave-one-treated-out jackknife rests on three cities, so it is wide,
+with a standard error of `{python} f"{ppscm_se:.2f}"` and a 95\% confidence
+interval of [`{python} _g(ppscm_lo)`, `{python} _g(ppscm_hi)`] that includes zero.
 
-Inference requires particular care here. With $J = 3$ treated units
-the PPSCM jackknife rests on a three-observation sample variance
-estimate, and even a true effect of $\sim 2$ percentage points may
-fail to clear a conventional Wald threshold given that small a
-degrees-of-freedom denominator. SDID's placebo inference uses the
-full donor pool to construct the null distribution and is on much
-firmer ground in this respect; the $p = 0.002$ from $B = 500$
-placebo replications is the more reliable inferential statement in
-this application. The relevant interpretation of the PPSCM result is
-therefore that the estimate is too imprecise to distinguish from
-zero with three jackknife points.
+The partially pooled model also yields an effect for each city. These are
+`{python} _g(pc['New York City'])` percentage points for New York City,
+`{python} _g(pc['San Francisco'])` for San Francisco, and
+`{python} _g(pc['Los Angeles'])` for Los Angeles, so the pooled positive is
+carried by New York City: dropping it from the pool sends the pooled PPSCM
+estimate to `{python} _g(_loo['New York City'])` points, which is why the
+jackknife interval is so wide. @fig-ch3-percity shows each city's observed path
+against its synthetic control, with the synthetic tracking the city through the
+pre-mandate period.
 
+Two readings follow. First, both methods are positive and agree on direction
+despite their different identification strategies, and no specification turns the
+effect negative. The gap between them, about
+`{python} f"{abs(sdid_att-ppscm_att):.1f}"` percentage points, is consistent with
+the way the two methods treat pre-treatment heterogeneity: SDID's time weights
+$\widehat{\boldsymbol{\lambda}}$ down-weight pre-treatment months in which donor
+and treated outcomes diverged most (including the depths of the 2020 trough),
+while PPSCM weights all pre-treatment months equally within the chosen
+pre-window. Second, inference rests on SDID. With three treated units the PPSCM
+jackknife has a three-observation variance and cannot separate its estimate from
+zero, while SDID's placebo distribution uses the full donor pool and delivers the
+`{python} f"{sdid_p:.3f}"` p-value. The channel feared by critics, mandates
+driving employment down in proof-of-vaccination indoor dining, appears in neither
+estimate.
+
+
+```{python}
+#| echo: false
+#| label: fig-ch3-percity
+#| fig-cap: "Per-city synthetic-control fit: observed (black) and synthetic (dashed) year-over-year full-service restaurant employment growth for each treated city, with the mandate month marked (dotted). The synthetic tracks each city through the pre-mandate period; these panels are single-city SDID fits, and the partially pooled per-city effects are reported in the text."
+import matplotlib.pyplot as plt
+_dates = sorted(_csa["Date"].unique())
+fig, axes = plt.subplots(1, 3, figsize=(12, 3.4))
+for ax, (full, short) in zip(axes, _SHORT.items()):
+    _others = [c for c in (_NYC, _SF, _LA) if c != full]
+    _r = SDID(dict(df=_mk(_POOL[~_POOL["CSA"].isin(_others)]), outcome="YoY_Emp",
+                   treat="treated", unitid="CSA", time="Date",
+                   display_graphs=False, save=False, B=1)).fit()
+    _obs = np.asarray(_r.time_series.observed_outcome, float).ravel()
+    _cf = np.asarray(_r.time_series.counterfactual_outcome, float).ravel()
+    _T = min(len(_obs), len(_cf)); _x = pd.to_datetime(_dates[:_T])
+    ax.plot(_x, _obs[:_T], color="black", lw=1.2, label="Observed")
+    ax.plot(_x, _cf[:_T], color="C0", ls="--", lw=1.3, label="Synthetic")
+    ax.axvline(pd.Timestamp(_MAND[full]), color="grey", ls=":", lw=1)
+    ax.axhline(0, color="grey", lw=0.5)
+    ax.set_xlim(pd.Timestamp("2018-01-01"), _x.max())
+    ax.set_title(short, fontsize=9); ax.tick_params(labelsize=7)
+axes[0].set_ylabel("YoY restaurant emp. growth", fontsize=8)
+axes[0].legend(fontsize=7, loc="lower left")
+fig.tight_layout(); plt.show()
+```
 
 # Discussion
 \label{sec:discussion}
@@ -399,8 +450,8 @@ zero with three jackknife points.
 The substantive finding of this paper is that city-level vaccine
 mandates did not appreciably damage local restaurant labor markets,
 and may have modestly improved them. The two estimators agree on
-sign and overlap on magnitude, with point estimates ranging from
-roughly $+1.8$ to $+3.5$ percentage points of year-over-year
+sign, with pooled point estimates of `{python} _g(ppscm_att)` percentage points
+(PPSCM) and `{python} _g(sdid_att)` percentage points (SDID) of year-over-year
 employment growth. Read against the policy debate at the time of
 adoption, the implication is clear: the channel feared by critics
 (mandates alienating customers and aggravating staffing
@@ -414,10 +465,10 @@ otherwise-similar comparison MSAs.
 
 Whether the effect is best read as "slightly positive" or "no harm
 done" depends on which inferential signal one finds more credible.
-SDID's tightly identified $+3.47$ percentage-point estimate, with a
-placebo p-value of $0.002$, supports the slightly-positive reading.
-PPSCM's $+1.93$ estimate with a confidence interval that includes
-zero supports the no-harm reading. Both are policy-relevant
+SDID's tightly identified `{python} _g(sdid_att)` percentage-point estimate, with
+a placebo p-value of `{python} f"{sdid_p:.3f}"`, supports the slightly-positive
+reading. PPSCM's `{python} _g(ppscm_att)` estimate with a confidence interval
+that includes zero supports the no-harm reading. Both are policy-relevant
 conclusions, and both are inconsistent with the strong negative
 hypothesis that originally motivated the analysis. The triangulation
 across methods is not just rhetorical: SDID and PPSCM make distinct

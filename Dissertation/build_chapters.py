@@ -464,6 +464,8 @@ def build_chapter(stem, path, tag, title):
         t = t.rstrip() + "\n" + INDIA_RESULTS
     if tag == "p3":
         t = t.replace("uporigin.OKPANI20241065", "OKPANI20241065")
+        t = t.replace('"../Data/employment_growth_data.pkl"',
+                      '"../Paper3/Data/employment_growth_data.pkl"')
         t = t.replace("## Discussion", PAPER3_FIGURE + "## Discussion", 1)
     body = f"# {title}\n\n" + t.lstrip("\n")
     (HERE / "chapters" / f"{stem}.qmd").write_text(body)
