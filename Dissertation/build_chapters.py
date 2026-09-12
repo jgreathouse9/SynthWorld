@@ -399,6 +399,47 @@ still lacks the cross-sectional placebo distribution that many synthetic-control
 applications use, so the permutation test runs over the treated unit's own
 pre-treatment residuals.
 
+```{python}
+#| echo: false
+#| output: false
+# Back-of-envelope health co-benefit: recover the implied level reduction in
+# national PM2.5 (ug/m3) from the growth-rate fit, then apply a short-term
+# exposure-response coefficient, in the spirit of Cole et al. (2020).
+_lvser = pd.Series(_popwt(_df), index=_dates)
+_pn = _panel(_df, "India")
+_rn = SHC({"df": _pn, "outcome": "y", "treat": "treated", "unitid": "unit",
+           "time": "time", "m": 24, "display_graphs": False}).fit()
+_cfn = np.asarray(_rn.counterfactual, float).ravel()
+_tn = _pn["time"].to_numpy()[-len(_cfn):]; _yn = _pn["y"].to_numpy()[-len(_cfn):]
+_pm = _tn >= np.datetime64(LOCK)
+_reds, _reds_aj = [], []
+for _ti, _go, _gc in zip(pd.to_datetime(_tn[_pm]), _yn[_pm], _cfn[_pm]):
+    _b = _lvser[pd.Timestamp(_ti.year - 1, _ti.month, 1)]
+    _d = _b * (_gc - _go); _reds.append(_d)
+    if _ti.month in (4, 5, 6): _reds_aj.append(_d)
+_dred_avg = float(np.mean(_reds)); _dred_aj = float(np.mean(_reds_aj))
+_mort_lo = 1.42 * _dred_avg / 10.0; _mort_hi = 3.57 * _dred_avg / 10.0   # % fewer daily deaths
+_base_deaths = (7.3/1000) * 1.38e9 / 365 * 306                           # India deaths, Mar--Dec
+_deaths_lo = _base_deaths * (_mort_lo/100); _deaths_hi = _base_deaths * (_mort_hi/100)
+```
+
+To read the effect in health terms, the growth-rate reduction implies the
+population-weighted national PM2.5 concentration sat about
+`{python} f"{_dred_avg:.1f}"` $\mu$g/m$^3$ below its counterfactual over
+March--December 2020, and about `{python} f"{_dred_aj:.1f}"` $\mu$g/m$^3$ lower
+through the April--June trough, off a 2019 mean near 53 $\mu$g/m$^3$. A
+short-term exposure-response of 1.42--3.57\% per 10 $\mu$g/m$^3$
+\citep{debont2024daily} maps a reduction of that size to roughly
+`{python} f"{_mort_lo:.1f}"`--`{python} f"{_mort_hi:.1f}"`\% fewer daily deaths
+while it held; against India's roughly 28,000 deaths per day, that is on the
+order of `{python} f"{round(_deaths_lo,-4):,.0f}"` to
+`{python} f"{round(_deaths_hi,-4):,.0f}"` fewer deaths over the window. This is a
+back-of-envelope figure in the spirit of \citet{cole2020impact}: it treats the
+drop as a uniform national change in exposure, leans on a short-term coefficient
+that captures mortality displacement alongside averted deaths, and speaks only
+to the transitory 2020 episode, so it is best read as an order of magnitude on
+the public-health stakes.
+
 ## Conclusion
 \label{p2-sec:conclusion}
 
@@ -439,8 +480,9 @@ large short-run reduction in the growth of particulate pollution and show the
 practical value of historical-control methods for evaluating large-scale
 interventions for which a contemporaneous untreated comparison unit is hard to
 assemble. The health consequences of pollution at these levels are well
-documented (Section \ref{p2-sec:policy}); converting the estimated air-quality
-change into health outcomes is beyond what this chapter estimates and is left to
+documented (Section \ref{p2-sec:policy}); the back-of-envelope in Section
+\ref{p2-sec:discussion} turns this episode's air-quality gain into an
+illustrative mortality range, and a rigorous health-impact assessment is left to
 that literature.
 '''
 
