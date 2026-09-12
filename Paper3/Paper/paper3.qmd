@@ -15,11 +15,11 @@ bibliography: ktc.bib
 
 # Introduction
 
-The COVID-19 pandemic triggered a global wave of non-pharmaceutical interventions (NPIs) as governments acted swiftly to limit viral transmission. Much early research focused on the public health rationale for these policies—especially the importance of early action to contain exponential spread. For instance, \citet{pamscmcali} and \citet{yang2021does} use synthetic control methods to evaluate lockdowns in California and Wuhan, emphasizing the critical role of timing. Similarly, \citet{bayat2020syntheticcontrolsyntheticinterventions} estimate that New York City could have reduced COVID-19 deaths by over 80\% had its first lockdown occurred just ten days earlier. Subsequent work examined the economic consequences of such interventions. While NPIs helped flatten the curve, they also raised concerns about business closures, layoffs, and lasting economic scarring. Studies like \citet{gibson2023synthetic} and \citet{lee2022pandemic} document labor market costs of lockdowns, while \citet{hubeipda} show that although strict NPIs incur short-term economic losses, those effects may be temporary. 
+The COVID-19 pandemic triggered a global wave of non-pharmaceutical interventions (NPIs) as governments acted swiftly to limit viral transmission. Much early research focused on the public health rationale for these policies, especially the importance of early action to contain exponential spread. For instance, \citet{pamscmcali} and \citet{yang2021does} use synthetic control methods to evaluate lockdowns in California and Wuhan, emphasizing the critical role of timing. Similarly, \citet{bayat2020syntheticcontrolsyntheticinterventions} estimate that New York City could have reduced COVID-19 deaths by over 80\% had its first lockdown occurred just ten days earlier. Subsequent work examined the economic consequences of such interventions. While NPIs helped flatten the curve, they also raised concerns about business closures, layoffs, and lasting economic scarring. Studies like \citet{gibson2023synthetic} and \citet{lee2022pandemic} document labor market costs of lockdowns, while \citet{hubeipda} show that although strict NPIs incur short-term economic losses, those effects may be temporary. 
 
 By 2021, as vaccines became widely available, cities such as New York City (NYC), New Orleans (NOLA), Los Angeles (LA), and San Francisco (SF) turned to vaccine mandates as a less restrictive (but still controversial) tool for curbing transmission.\footnote{Henceforth, I refer to these simply as the treated units}. Unlike lockdowns, mandates aimed to sustain economic activity in industry while reducing health risks in high-contact settings. Nevertheless, critics argued that requiring proof of vaccination for indoor dining and entertainment could slow employment recovery in restaurants by alienating customers or exacerbating staffing shortages \citep{restaurantdive2021b}. Supporters countered that mandates would improve public safety and restore consumer confidence, potentially boosting demand and employment \citep{thecounter2021}.
 
-Each city’s mandate differed in timing and design. NYC’s *Key to NYC* program, announced in August 2021 and enforced beginning September, was the first large-scale vaccine mandate for indoor commerce in the United States \citep{nyeater2021}. San Francisco followed with an even stricter rule requiring full vaccination for customers and employees, effective later that same month \citep{sfeater2021}. New Orleans adopted a hybrid approach, permitting either proof of vaccination or a recent negative test \citep{nolaeater2021}, while Los Angeles—by far the largest jurisdiction—implemented its policy in November \citep{latimes2021}. These mandates created a small but consequential set of urban outliers in the national policy landscape, with important implications for labor markets in the leisure and hospitality sector. Precisely, the estimated effects of city-level vaccine mandates on restaurant employment suggest several potential lessons for policymakers and business stakeholders. If the mandates support employment growth, policymakers could view them as a viable tool for balancing public health and economic activity. Cities considering similar interventions might adopt comparable policies with confidence that labor markets will not be severely disrupted. Businesses could plan for future public health policies with reduced concern for employment losses in high-contact sectors. If the mandates depress employment, policymakers should weigh the trade-offs more carefully before implementing mandates, especially in sectors sensitive to consumer demand and staffing shortages. Alternative interventions, such as targeted incentives for vaccination, improved workplace safety measures, or temporary subsidies, might be preferable to blunt employment impacts of mandates. Businesses may need mitigation strategies, including flexible staffing or remote services, to reduce vulnerability to future mandates. If the effects are heterogeneous across cities, differences in local conditions such as compliance rates, labor market tightness, or enforcement intensity should guide tailored policy decisions rather than blanket mandates. Comparative case studies could help identify which contextual factors drive positive versus negative outcomes.
+Each city’s mandate differed in timing and design. NYC’s *Key to NYC* program, announced in August 2021 and enforced beginning September, was the first large-scale vaccine mandate for indoor commerce in the United States \citep{nyeater2021}. San Francisco followed with an even stricter rule requiring full vaccination for customers and employees, effective later that same month \citep{sfeater2021}. New Orleans adopted a hybrid approach, permitting either proof of vaccination or a recent negative test \citep{nolaeater2021}, while Los Angeles (by far the largest jurisdiction) implemented its policy in November \citep{latimes2021}. These mandates created a small but consequential set of urban outliers in the national policy landscape, with important implications for labor markets in the leisure and hospitality sector. Precisely, the estimated effects of city-level vaccine mandates on restaurant employment suggest several potential lessons for policymakers and business stakeholders. If the mandates support employment growth, policymakers could view them as a viable tool for balancing public health and economic activity. Cities considering similar interventions might adopt comparable policies with confidence that labor markets will not be severely disrupted. Businesses could plan for future public health policies with reduced concern for employment losses in high-contact sectors. If the mandates depress employment, policymakers should weigh the trade-offs more carefully before implementing mandates, especially in sectors sensitive to consumer demand and staffing shortages. Alternative interventions, such as targeted incentives for vaccination, improved workplace safety measures, or temporary subsidies, might be preferable to blunt employment impacts of mandates. Businesses may need mitigation strategies, including flexible staffing or remote services, to reduce vulnerability to future mandates. If the effects are heterogeneous across cities, differences in local conditions such as compliance rates, labor market tightness, or enforcement intensity should guide tailored policy decisions over blanket mandates. Comparative case studies could help identify which contextual factors drive positive versus negative outcomes.
 
 This paper evaluates the causal effects of these city-level vaccine mandates on restaurant employment. While prior research has analyzed mandates’ impacts on vaccination rates and health outcomes \citep{CohnKTC, vaccmandatelotto, lang2023ohio}, relatively little is known about their labor market consequences, especially in industries dependent on face-to-face interaction. This study helps fill that gap. Because randomized experiments are infeasible, the analysis adopts a synthetic control approach to estimate the counterfactual trajectory of restaurant employment absent the mandates. Using MSA-level monthly data from the Federal Reserve Bank of St. Louis, I construct synthetic controls for each mandate city’s year-over-year growth in full-service restaurant employment. The donor pool consists of metropolitan areas that did not implement similar mandates during the same period.\footnote{For example, 'SMU11000007072251101SA' (Washington, DC) or 'SMU08197407072251101SA' (Denver MSA).}
 
@@ -61,17 +61,17 @@ NPIs had aimed to reduce transmission by limiting contact or promoting respirato
 
 ## The First Vaccine Policies
 
-The arrival of vaccines in late 2020 ushered in a new phase of pandemic governance, giving jurisdictions a wider array of policy options to employ. Now, instead of lockdowns, governments finally had pharmaceutical interventions in their toolkit. Unlike non-pharmaceutical interventions, which sought to reduce transmission primarily by altering citizens behavior and limiting contact (and therefore the spread of the virus), vaccine-based interventions operate directly on biological susceptibility. NPIs such as lockdowns, mask mandates, and border closures work by creating external barriers to viral spread, often imposing economic or social costs in the process. Vaccine mandates, by contrast, rely on an individual’s immune response to prevent infection or reduce severity, aiming to achieve population-level protection without requiring broad restrictions on mobility or commerce. In principle, this allows policymakers to target public health objectives more directly, potentially mitigating the trade-offs between controlling the virus and maintaining economic activity. Nevertheless, vaccine-based mandates introduce new challenges, including compliance, equity, and political acceptability, which differ in character from those associated with NPIs. \par 
+The arrival of vaccines in late 2020 ushered in a new phase of pandemic governance, giving jurisdictions a wider array of policy options to employ. Now, beyond lockdowns, governments finally had pharmaceutical interventions in their toolkit. Unlike non-pharmaceutical interventions, which sought to reduce transmission primarily by altering citizens behavior and limiting contact (and therefore the spread of the virus), vaccine-based interventions operate directly on biological susceptibility. NPIs such as lockdowns, mask mandates, and border closures work by creating external barriers to viral spread, often imposing economic or social costs in the process. Vaccine mandates, by contrast, rely on an individual’s immune response to prevent infection or reduce severity, aiming to achieve population-level protection without requiring broad restrictions on mobility or commerce. In principle, this allows policymakers to target public health objectives more directly, potentially mitigating the trade-offs between controlling the virus and maintaining economic activity. Nevertheless, vaccine-based mandates introduce new challenges, including compliance, equity, and political acceptability, which differ in character from those associated with NPIs. \par 
 
-For the first few months, it worked: when vaccines were released, initial uptake was high, particularly among older adults and (often mandated for) healthcare workers \citep{uporigin.OKPANI20241065}. However, as eligibility expanded in early 2021, demand slowed amid misinformation, mistrust, and logistical barriers. In response, policymakers deployed incentive-based strategies to encourage vaccination \citep{barber2022conditional, robertson2021vaccine}. These included direct cash payments, vaccine lotteries (e.g., Ohio’s “Vax-a-Million” from May to June \citep{fullervam}), and smaller symbolic giveaways. One paper dubbed this the era of "donuts, drugs, booze, and guns," reflecting the extraordinary lengths to which governments went to boost uptake through rewards rather than requirements \citep{Tinarin1737}.
+For the first few months, it worked: when vaccines were released, initial uptake was high, particularly among older adults and (often mandated for) healthcare workers \citep{uporigin.OKPANI20241065}. However, as eligibility expanded in early 2021, demand slowed amid misinformation, mistrust, and logistical barriers. In response, policymakers deployed incentive-based strategies to encourage vaccination \citep{barber2022conditional, robertson2021vaccine}. These included direct cash payments, vaccine lotteries (e.g., Ohio’s “Vax-a-Million” from May to June \citep{fullervam}), and smaller symbolic giveaways. One paper dubbed this the era of "donuts, drugs, booze, and guns," reflecting the extraordinary lengths to which governments went to boost uptake through rewards while stopping short of requirements \citep{Tinarin1737}.
 
-Despite their creativity, most incentives had modest or short-lived effects \citep{SABAN2021106763, lottoohio, KHAZANOV2023107538}. Many were poorly targeted, administratively complex, or insufficient to overcome deeper resistance. The emergence of the highly transmissible Delta variant in mid-2021 raised the stakes. Initially identified in India, Delta reached the United States by May and accounted for the majority of new cases by June. Unlike in 2020, officials now had vaccines at scale—but not enough vaccinated people. Given a new more contagious strain, soft mandates emerged, targeting workers in high-risk occupations such as healthcare and education. These policies were not general mandates but did make vaccination a condition of continued employment \citep{healthvaccwork}. Over the summer, local governments and organizations expanded this approach \citep{healthvaccwork,deltaaljazeera}.
+Despite their creativity, most incentives had modest or short-lived effects \citep{SABAN2021106763, lottoohio, KHAZANOV2023107538}. Many were poorly targeted, administratively complex, or insufficient to overcome deeper resistance. The emergence of the highly transmissible Delta variant in mid-2021 raised the stakes. Initially identified in India, Delta reached the United States by May and accounted for the majority of new cases by June. Unlike in 2020, officials now had vaccines at scale, but not enough vaccinated people. Given a new more contagious strain, soft mandates emerged, targeting workers in high-risk occupations such as healthcare and education. These policies stopped short of general mandates while making vaccination a condition of continued employment \citep{healthvaccwork}. Over the summer, local governments and organizations expanded this approach \citep{healthvaccwork,deltaaljazeera}.
 
 ## City-Level Vaccine Mandates
 
 The summer 2021 Delta surge spurred several major U.S. cities to enact vaccine verification requirements for indoor restaurants and leisure venues. Each city’s approach differed slightly in timing and scope, but all shared the common goal of linking access to indoor leisure activities with proof of vaccination. Together, the treated units formed the clearest urban experiments in the use of vaccine mandates to manage both public health risks and consumer confidence in the hospitality sector.
 
-New York City’s "Key to NYC" program was the first such mandate in the United States. Announced on August 3, 2021, formalized on August 16, and enforced beginning September 13, it required proof of at least one vaccine dose to enter indoor dining, fitness centers, and entertainment venues \citep{nycproof}. Importantly, the rule applied not only to patrons but also to employees of covered establishments. This dual requirement meant that the policy had the potential to affect restaurant employment through both the supply side, if workers resisted vaccination or exited the industry, and the demand side, if consumer traffic shifted in response to the mandate. The city threatened fines for noncompliance and required businesses to post signage and maintain written protocols, though the intensity of inspections varied. Large chains tended to comply quickly \citep{complyquick}, while smaller establishments voiced concern about administrative burdens and customer pushback. Several lawsuits challenged the mandate, but city officials argued that rising vaccination rates demonstrated its effectiveness \citep{restsuit}. San Francisco followed closely, enacting its mandate on August 20, 2021. Unlike New York, the city required full vaccination rather than just one dose, and did not allow a testing alternative \citep{sfvacc,sfeater2021}. This made San Francisco’s policy the strictest among the four cities. The requirement extended to both customers and employees in indoor restaurants, bars, and entertainment venues. Enforcement included spot checks and the threat of fines, with compliance reported to be widespread among larger businesses in the city’s dense urban core. As in New York, officials promoted the policy as a tool for stabilizing consumer confidence in public spaces, even as smaller businesses expressed anxiety about turning customers away.
+New York City’s "Key to NYC" program was the first such mandate in the United States. Announced on August 3, 2021, formalized on August 16, and enforced beginning September 13, it required proof of at least one vaccine dose to enter indoor dining, fitness centers, and entertainment venues \citep{nycproof}. The rule applied not only to patrons but also to employees of covered establishments. This dual requirement meant that the policy had the potential to affect restaurant employment through both the supply side, if workers resisted vaccination or exited the industry, and the demand side, if consumer traffic shifted in response to the mandate. The city threatened fines for noncompliance and required businesses to post signage and maintain written protocols, though the intensity of inspections varied. Large chains tended to comply quickly \citep{complyquick}, while smaller establishments voiced concern about administrative burdens and customer pushback. Several lawsuits challenged the mandate, but city officials argued that rising vaccination rates demonstrated its effectiveness \citep{restsuit}. San Francisco followed closely, enacting its mandate on August 20, 2021. Unlike New York, the city required full vaccination beyond just one dose, and did not allow a testing alternative \citep{sfvacc,sfeater2021}. This made San Francisco’s policy the strictest among the four cities. The requirement extended to both customers and employees in indoor restaurants, bars, and entertainment venues. Enforcement included spot checks and the threat of fines, with compliance reported to be widespread among larger businesses in the city’s dense urban core. As in New York, officials promoted the policy as a tool for stabilizing consumer confidence in public spaces, even as smaller businesses expressed anxiety about turning customers away.
 
 New Orleans became the first major city in the South to adopt a mandate, announcing its policy on August 16, 2021. The city’s approach was a hybrid model: individuals could gain entry to indoor restaurants and venues either by showing proof of at least one vaccine dose or by presenting a recent negative COVID test \citep{noladeets}. This flexibility reflected local political and cultural dynamics but also introduced more administrative complexity for restaurants. Enforcement began within weeks \citep{nolaenf, nolaenf2}, with inspections carried out by city officials. Restaurant owners reported mixed reactions, with some noting relief that the policy might make indoor dining safer, while others expressed concern about deterring unvaccinated tourists and residents \citep{nolaenfreact}. Los Angeles entered the field later, passing its ordinance in October 2021 with enforcement beginning November 4. The policy was sweeping in scope, covering indoor restaurants, gyms, theaters, salons, and other leisure establishments. By the time it came into effect, public debate had already been shaped by the experience of New York and San Francisco, and Los Angeles became the largest jurisdiction in the nation to implement a vaccine passport \citep{laproof}.
 
@@ -85,7 +85,7 @@ Per the above, vaccine mandates could influence employment in full-service resta
 # Dataset
 \label{sec:data}
 
-We use monthly MSA-level employment series from the Federal Reserve Bank of St. Louis (FRED) and, by extension, the Bureau of Labor Statistics, spanning January 1991 through December 2022, yielding $T=384$ monthly observations per unit. Let $\mathcal{J} = \{1, \dots, J\}$ denote the set of treated units, corresponding to New York City, San Francisco, New Orleans, and Los Angeles. For treated unit $j \in \mathcal{J}$, the pre-treatment period is defined as 
+We use monthly MSA-level employment series from the Federal Reserve Bank of St. Louis (FRED) and, by extension, the Bureau of Labor Statistics, spanning January 1991 through December 2022, yielding $T=384$ monthly observations per unit. Let $\mathcal{J} = \{1, \dots, J\}$ denote the set of treated units, corresponding to New York City, San Francisco, and Los Angeles, so $J = 3$. New Orleans adopted a mandate on the same timeline, but its full-service restaurant employment series is not available for the full sample, so it is dropped from the analysis and appears in neither the treated set nor the donor pool. For treated unit $j \in \mathcal{J}$, the pre-treatment period is defined as
 
 $$
 \mathcal{T}_1^{(j)} = \{ t \in \mathbb{N} : t \leq T_0^{(j)} \},
@@ -97,7 +97,7 @@ $$
 \mathcal{T}_2^{(j)} = \{ t \in \mathbb{N} : t > T_0^{(j)} \}.
 $$
 
-Our analysis focuses on two related outcome sets: (1) full-service restaurant employment for the treated cities and 30 additional MSAs, and (2) broader leisure industry employment at the MSA level for approximately 255 MSAs from 1991 to December 2022.  
+The outcome is full-service restaurant employment for the treated cities, benchmarked against a donor pool of metropolitan areas that did not enact comparable mandates over the same period.
 
 Let $e_{jt}$ denote employment in unit $j$ at month $t$, and define the year-over-year growth rate in percentage points as
 
@@ -147,8 +147,8 @@ The four city-level mandates form a staggered-adoption panel with three
 treated units (after dropping New Orleans for data availability) and a
 donor pool of metropolitan areas that did not enact comparable indoor
 vaccine-verification policies. Treatment timing differs across cities,
-and the cities themselves --- large, coastal, tourism-dependent
-metropolitan economies --- often lie near or outside the convex hull
+and the cities themselves (large, coastal, tourism-dependent
+metropolitan economies) often lie near or outside the convex hull
 of the donor pool. Classical synthetic control \citep{Abadie2010},
 which fits a separate convex combination of donors to each treated
 unit, fails on both counts: it tolerates only one adoption date at a
@@ -240,8 +240,8 @@ $B = 500$ placebo replications.
 \label{sec:method:ppscm}
 
 Partially pooled SCM \citep{BenMichael2022} addresses the same
-staggered-adoption problem from a different angle. Rather than
-augmenting SCM with time weights and fixed effects, it generalizes
+staggered-adoption problem from a different angle. Where SDID
+augments SCM with time weights and fixed effects, PPSCM generalizes
 SCM by jointly estimating a weight matrix
 $\boldsymbol{\Gamma} \in \mathbb{R}^{N_0 \times J}$ across all treated
 units and balancing two distinct pre-treatment imbalance criteria.
@@ -287,7 +287,7 @@ the convex frontier of the two imbalances. I select $\nu$
 data-adaptively as the value that minimizes the sum
 $\widetilde q_{\text{sep}}(\boldsymbol{\Gamma}_\nu)
  + \widetilde q_{\text{pool}}(\boldsymbol{\Gamma}_\nu)$ over a
-21-point grid on $[0, 1]$ --- the balance-frontier knee that
+21-point grid on $[0, 1]$, the balance-frontier knee that
 \citet{BenMichael2022} recommend in the absence of error-bound
 parameters. The Frobenius-norm penalty $\lambda \|\Gamma\|_F^{2}$
 stabilizes the weights and is set to a small numerical value to
@@ -303,12 +303,12 @@ remaining $J - 1$ cities, and the sample standard deviation of the
 leave-one-out ATTs serves as the standard error. With $J = 3$
 treated cities, the jackknife uses three fits and is therefore
 structurally underpowered relative to SDID's 500 placebo
-replications --- a point I return to in the discussion.
+replications, a point I return to in the discussion.
 
 \subsection{Triangulation Strategy}
 \label{sec:method:triang}
 
-The two estimators are complementary rather than substitutable. SDID
+The two estimators are complementary; each answers a different question. SDID
 relaxes parallel trends via time weights and two-way fixed effects;
 PPSCM relaxes the convex-hull restriction of classical SCM via
 controlled information-sharing across treated units. They make
@@ -337,11 +337,10 @@ two-sided p-value of $0.002$. PPSCM yields a smaller point estimate
 of $+1.93$ percentage points with a jackknife standard error of
 $1.13$ and a 95\% confidence interval of $[-0.29, +4.14]$ that
 includes zero at conventional levels. Demeaning the outcomes prior
-to fitting --- the paper's "intercept shift" extension --- moves the
+to fitting (the paper's "intercept shift" extension) moves the
 PPSCM point estimate marginally to $+1.82$ percentage points and
 leaves the CI essentially unchanged at $[-0.46, +4.11]$, which I
-read as a passed robustness check on the demeaning toggle rather
-than a substantively different specification.
+read as a passed robustness check on the demeaning toggle.
 
 \begin{table}[h]
 \centering
@@ -375,13 +374,13 @@ $1.5$ percentage points larger than the PPSCM estimate, which is
 consistent with the way the two methods treat pre-treatment
 heterogeneity: SDID's time weights $\widehat{\boldsymbol{\lambda}}$
 implicitly down-weight pre-treatment months in which donor and
-treated outcomes diverged most --- including the depths of the 2020
-trough --- whereas PPSCM weights all pre-treatment months equally
+treated outcomes diverged most (including the depths of the 2020
+trough), whereas PPSCM weights all pre-treatment months equally
 within the chosen pre-window. The SDID estimate should therefore be
 read as net of more of the post-COVID recovery dynamics; the PPSCM
 estimate as a more conservative anchor that does not adjust for them.
 
-Inference deserves particular care here. With $J = 3$ treated units
+Inference requires particular care here. With $J = 3$ treated units
 the PPSCM jackknife rests on a three-observation sample variance
 estimate, and even a true effect of $\sim 2$ percentage points may
 fail to clear a conventional Wald threshold given that small a
@@ -390,8 +389,8 @@ full donor pool to construct the null distribution and is on much
 firmer ground in this respect; the $p = 0.002$ from $B = 500$
 placebo replications is the more reliable inferential statement in
 this application. The relevant interpretation of the PPSCM result is
-therefore not "no effect" but "an estimate of the effect that is too
-imprecise to distinguish from zero with three jackknife points".
+therefore that the estimate is too imprecise to distinguish from
+zero with three jackknife points.
 
 
 # Discussion
@@ -404,9 +403,9 @@ sign and overlap on magnitude, with point estimates ranging from
 roughly $+1.8$ to $+3.5$ percentage points of year-over-year
 employment growth. Read against the policy debate at the time of
 adoption, the implication is clear: the channel feared by critics
---- mandates alienating customers and aggravating staffing
+(mandates alienating customers and aggravating staffing
 shortages, with consequent employment losses in
-proof-of-vaccination-restricted indoor dining --- is not present in
+proof-of-vaccination-restricted indoor dining) is not present in
 the data. If anything, the data are more consistent with the
 opposite channel of \citet{Jones2021}, in which the mandates
 restored consumer confidence in indoor commerce sufficiently to
@@ -422,8 +421,8 @@ zero supports the no-harm reading. Both are policy-relevant
 conclusions, and both are inconsistent with the strong negative
 hypothesis that originally motivated the analysis. The triangulation
 across methods is not just rhetorical: SDID and PPSCM make distinct
-identifying assumptions --- two-way fixed effects with time
-re-weighting versus pooled donor weights with no time component ---
+identifying assumptions (two-way fixed effects with time
+re-weighting versus pooled donor weights with no time component),
 and the fact that they agree on direction makes the result more
 robust to misspecification of either method individually than would
 a single estimator with no triangulation.
@@ -439,9 +438,9 @@ both estimators assume that the donor MSAs did not experience
 contemporaneous shocks that mimicked the treatment effect. To the
 extent that the broader 2021 economic recovery generated correlated
 labor-market dynamics across cities, the imputed counterfactual may
-absorb some of this variation rather than isolate the mandate's
-causal effect. Third, the outcome studied --- year-over-year
-employment growth in full-service restaurants --- captures one
+absorb some of this variation, so it may not fully isolate the
+mandate's causal effect. Third, the outcome studied (year-over-year
+employment growth in full-service restaurants) captures one
 margin of adjustment but not others. Hours worked, wages, vacancy
 rates, and the composition of employment between part-time and
 full-time positions are not estimated here, and shifts along those
@@ -464,9 +463,9 @@ This paper estimates the causal effect of city-level indoor vaccine
 mandates on year-over-year growth in full-service restaurant
 employment in the three U.S. metropolitan areas that adopted such
 policies during the 2021 Delta variant wave. Using synthetic
-difference-in-differences and partially pooled synthetic control ---
-two staggered-adoption estimators with distinct identification
-strategies --- I find no evidence that the mandates depressed
+difference-in-differences and partially pooled synthetic control
+(two staggered-adoption estimators with distinct identification
+strategies), I find no evidence that the mandates depressed
 restaurant employment growth, and some evidence consistent with a
 modest positive effect on the order of two to three-and-a-half
 percentage points. The SDID estimate is statistically significant
@@ -476,9 +475,9 @@ available for jackknife inference over three treated cities; the
 two methods agree on sign and overlap substantially on magnitude.
 
 For policymakers, the result has a clear takeaway. The most
-common objection to indoor vaccine mandates --- that they would
+common objection to indoor vaccine mandates (that they would
 suppress employment in the leisure and hospitality sector by
-deterring patrons or aggravating staffing shortages --- is not
+deterring patrons or aggravating staffing shortages) is not
 borne out in the labor-market data from the cities that actually
 implemented such policies. Whether the public-health benefits of
 the mandates were sufficient to justify their adoption is a

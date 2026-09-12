@@ -115,9 +115,8 @@ INDIA_RESULTS = r'''
 
 @fig-india-national presents the Synthetic Historical Control estimate for the
 all-India population-weighted PM2.5 series. Throughout, the outcome is the
-year-over-year growth rate of PM2.5, so every reported effect is a change in that
-growth rate, in percentage points, not a change in the concentration level
-(Section \ref{p2-sec:data}). The observed series falls sharply below its
+year-over-year growth rate of PM2.5, so every reported effect is a percentage-point
+change in that growth rate (Section \ref{p2-sec:data}). The observed series falls sharply below its
 synthetic-historical counterfactual following the March 2020 lockdown, indicating
 a pronounced short-run reduction in the growth of particulate pollution.
 @fig-india-cities repeats the exercise for the four megacities (Delhi, Mumbai,
@@ -126,7 +125,7 @@ Bangalore, and Kolkata).
 ```{python}
 #| echo: false
 #| label: fig-india-national
-#| fig-cap: "Synthetic Historical Control: all-India year-over-year PM2.5 growth, observed versus counterfactual. The dashed line marks the March 2020 national lockdown."
+#| fig-cap: "Synthetic Historical Control: all-India year-over-year PM2.5 growth, observed versus counterfactual. The dotted line marks the March 2020 national lockdown; the shaded region is the 90% Andrews--Genton conformal prediction band."
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 from mlsynth import SHC
@@ -160,16 +159,28 @@ def _panel(rows, name):
     p["treated"] = (p["time"] >= LOCK).astype(int)
     return p
 
+def _ptext(pval):
+    if pval is None:
+        return ""
+    return ", p < 0.001" if pval < 0.001 else f", p = {pval:.3f}"
+
 def _fit_plot(ax, panel, title):
     res = SHC({"df": panel, "outcome": "y", "treat": "treated", "unitid": "unit",
-               "time": "time", "m": 24, "use_augmented": False,
-               "display_graphs": False}).fit()
+               "time": "time", "m": 24, "display_graphs": False}).fit()
     cf = np.asarray(res.counterfactual, float).ravel()
     t = panel["time"]; tcf = t.iloc[-len(cf):]
+    det = res.inference.details
+    lo = np.asarray(getattr(det, "conformal_lower", []), float).ravel()
+    hi = np.asarray(getattr(det, "conformal_upper", []), float).ravel()
+    post = tcf.values >= np.datetime64(LOCK)
+    if lo.size and lo.size == int(post.sum()):
+        ax.fill_between(tcf.values[post], lo, hi, color="C3", alpha=0.15, lw=0,
+                        label="90% conformal band")
     ax.plot(t, panel["y"], color="black", lw=1.1, label="Observed")
     ax.plot(tcf, cf, color="C3", ls="--", lw=1.4, label="SHC counterfactual")
     ax.axvline(LOCK, color="grey", ls=":", lw=1); ax.axhline(0, color="grey", lw=0.5)
-    ax.set_title(f"{title}: ATT = {100*res.effects.att:+.1f} pp", fontsize=10)
+    ax.set_title(f"{title}: ATT = {100*res.effects.att:+.1f} pp"
+                 f"{_ptext(getattr(det, 'p_value', None))}", fontsize=10)
     ax.set_ylabel("YoY PM2.5 growth", fontsize=8); ax.legend(fontsize=7)
 
 fig, ax = plt.subplots(figsize=(9, 3.6))
@@ -180,7 +191,7 @@ fig.tight_layout(); plt.show()
 ```{python}
 #| echo: false
 #| label: fig-india-cities
-#| fig-cap: "Synthetic Historical Control for the four megacities: observed versus counterfactual year-over-year PM2.5 growth."
+#| fig-cap: "Synthetic Historical Control for the four megacities: observed versus counterfactual year-over-year PM2.5 growth, with 90% conformal prediction bands (shaded)."
 _CITY = {"Delhi": ["new delhi"], "Mumbai": ["mumbai", "mumbai suburban"],
          "Bangalore": ["bangalore"], "Kolkata": ["kolkata"]}
 fig, axes = plt.subplots(2, 2, figsize=(10, 6.4)); axes = axes.flatten()
@@ -199,27 +210,54 @@ import numpy as np
 def _shc_stats(rows, name):
     p = _panel(rows, name)
     res = SHC({"df": p, "outcome": "y", "treat": "treated", "unitid": "unit",
-               "time": "time", "m": 24, "use_augmented": False,
-               "display_graphs": False}).fit()
+               "time": "time", "m": 24, "display_graphs": False}).fit()
     cf = np.asarray(res.counterfactual, float).ravel()
     tcf = p["time"].iloc[-len(cf):]
     obs = p["y"].to_numpy()[-len(cf):]
     eff = obs - cf
     post = tcf.values >= np.datetime64(LOCK)
     i = int(np.argmin(eff[post]))
-    return (100 * res.effects.att, 100 * cf[post].mean(),
-            pd.Timestamp(tcf.values[post][i]).strftime("%B %Y"),
-            100 * eff[post][i])
+    det = res.inference.details
+    pval = getattr(det, "p_value", None)
+    pre_rmse = getattr(res, "pre_rmse", None)
+    return {"att": 100 * res.effects.att, "cfm": 100 * cf[post].mean(),
+            "pkm": pd.Timestamp(tcf.values[post][i]).strftime("%B %Y"),
+            "pkv": 100 * eff[post][i],
+            "pval": (float(pval) if pval is not None else float("nan")),
+            "rmse": (100 * float(pre_rmse) if pre_rmse is not None else float("nan"))}
 
 _sel = lambda d: _df[_df["district_name"].astype(str).str.lower().isin(d)]
 _UNITS = {"India": _df, "Delhi": _sel(_CITY["Delhi"]), "Mumbai": _sel(_CITY["Mumbai"]),
           "Bangalore": _sel(_CITY["Bangalore"]), "Kolkata": _sel(_CITY["Kolkata"])}
-_ATT, _CFM, _PKM, _PKV = {}, {}, {}, {}
+_ATT, _CFM, _PKM, _PKV, _PVAL, _RMSE = {}, {}, {}, {}, {}, {}
 for _nm, _rw in _UNITS.items():
-    _ATT[_nm], _CFM[_nm], _PKM[_nm], _PKV[_nm] = _shc_stats(_rw, _nm)
+    _s = _shc_stats(_rw, _nm)
+    _ATT[_nm], _CFM[_nm], _PKM[_nm], _PKV[_nm] = _s["att"], _s["cfm"], _s["pkm"], _s["pkv"]
+    _PVAL[_nm], _RMSE[_nm] = _s["pval"], _s["rmse"]
 def _pp(x):
     return f"{abs(x):.1f}"
+def _psig(nm):
+    v = _PVAL.get(nm)
+    if v is None or v != v:
+        return ""
+    return "$p < 0.001$" if v < 0.001 else f"$p = {v:.3f}$"
 ```
+
+Inference follows the conformal permutation procedure of @SHC: the pre-treatment
+residuals are resampled to build a null distribution for the post-treatment gap
+(1{,}000 resamples), and an Andrews--Genton conformal band gives a 90\%
+prediction band for the counterfactual, shaded in @fig-india-national and
+@fig-india-cities. The national effect is significant at `{python} _psig('India')`,
+with Delhi (`{python} _psig('Delhi')`), Mumbai (`{python} _psig('Mumbai')`), and
+Kolkata (`{python} _psig('Kolkata')`) also below conventional thresholds and
+Bangalore, the smallest effect, at `{python} _psig('Bangalore')`. The
+pre-treatment root-mean-squared error is the relevance diagnostic: `{python} _pp(_RMSE['India'])`
+pp nationally and `{python} _pp(_RMSE['Delhi'])` pp for Delhi, comfortably below
+those units' effects. For Mumbai (`{python} _pp(_RMSE['Mumbai'])` pp), Kolkata
+(`{python} _pp(_RMSE['Kolkata'])` pp), and Bangalore (`{python} _pp(_RMSE['Bangalore'])`
+pp) the pre-treatment fit is coarser, of the same order as the estimated effect,
+so those city estimates carry more caution and anchor the discussion less than
+the national and Delhi results.
 
 ## Robustness: Quarterly Aggregation
 \label{p2-sec:robustness}
@@ -254,7 +292,7 @@ def _panelq(rows, name):
 _ATTQ = {}
 for _nm, _rw in _UNITS.items():
     _rq = SHC({"df": _panelq(_rw, _nm), "outcome": "y", "treat": "treated",
-               "unitid": "unit", "time": "time", "m": 8, "use_augmented": False,
+               "unitid": "unit", "time": "time", "m": 8,
                "display_graphs": False}).fit()
     _ATTQ[_nm] = 100 * _rq.effects.att
 ```
@@ -318,9 +356,9 @@ the largest single-month national gap occurs in `{python} _PKM['India']`, about
 `{python} _pp(_PKV['India'])` pp below counterfactual. From mid-summer the
 effect attenuates as the economy reopened, and a brief positive deviation
 around September 2020 appears in several series. This profile, a deep trough
-under the strictest restrictions followed by mean reversion, is what a temporary
-non-pharmaceutical intervention produces, not a durable shift in the emissions
-regime. The pattern is also consistent with a strength of SHC in this setting:
+under the strictest restrictions followed by mean reversion, is the mark of a
+temporary non-pharmaceutical intervention whose force faded as the economy
+reopened. The pattern is also consistent with a strength of SHC in this setting:
 recurring meteorological drivers (Section \ref{p2-sec:shc}) are absorbed into
 the historical donor segments, so the estimated effect is not an artifact of a
 single anomalous season.
@@ -339,25 +377,26 @@ lighter industrial base and a cleaner baseline, shows the smallest reduction,
 consistent with its pollution being less sensitive to the halt in heavy industry
 and construction. These cross-city differences are descriptive: the historical
 fits differ across cities, and I do not test whether one city's effect is
-statistically larger than another's, so the ordering should be read as
-heterogeneity, not as a formal ranking.
+statistically larger than another's, so the ordering is best read as descriptive
+heterogeneity across cities.
 
 These causal estimates are broadly consistent with, but conceptually distinct
 from, the descriptive 31--43\% concentration declines reported in the lockdown
-literature \citep{nigam2021covid,SALEEM2024114255}: instead of comparing raw
-before-and-after levels, SHC benchmarks the observed series against what its own
-history implies should have happened. Several caveats temper interpretation.
-The estimates are for a transitory shock and speak to short-run responsiveness,
-not to a sustainable abatement path. The outcome is a growth rate, so a
-negative ATT denotes slower growth, here outright decline, measured against the
-counterfactual and not a reduction in the level itself. The figures report the
-convex SHC estimator; the augmented variant of Section \ref{p2-sec:ashc} is
-available where pre-treatment fit is poor, and the September rebound shows that
-the design recovers net effects, including any offsetting seasonal forces.
-Aggregating to quarters (Section \ref{p2-sec:robustness}) averages out this
+literature \citep{nigam2021covid,SALEEM2024114255}: SHC improves on a raw
+before-and-after comparison by benchmarking the observed series against what its
+own history implies should have happened. Several caveats temper interpretation.
+The estimates are for a transitory shock and speak to short-run responsiveness;
+they carry no implication for a sustainable abatement path. The outcome is a
+growth rate, so a negative ATT denotes slower growth, here outright decline,
+measured against the counterfactual. The September rebound
+shows that the design recovers net effects, including any offsetting seasonal
+forces. Aggregating to quarters (Section \ref{p2-sec:robustness}) averages out this
 high-frequency variation and leaves the point estimates substantially unchanged.
-Finally, formal uncertainty quantification is not reported alongside these point
-estimates and is a natural next step.
+Uncertainty is quantified by the conformal permutation test of Section
+\ref{p2-sec:results}; with a single treated unit and no donor pool, the design
+still lacks the cross-sectional placebo distribution that many synthetic-control
+applications use, so the permutation test runs over the treated unit's own
+pre-treatment residuals.
 
 ## Conclusion
 \label{p2-sec:conclusion}
@@ -374,20 +413,19 @@ momentum, would have continued to rise.
 
 Two implications follow. First, the speed and size of the response indicate that
 a large share of India's particulate burden is anthropogenic and responsive to
-economic activity such as transport, industry, and construction, not fixed by
-geography or climate alone; the design recovers the net effect of the shutdown
-and does not separately identify the contribution of each sector. Second, the
-rapid rebound once restrictions eased shows that one-off shocks do not deliver
-lasting gains: realizing the air-quality improvements seen in 2020 would require
-sustained, structural emission controls of the sort envisioned by the National
-Clean Air Programme (Section \ref{p2-sec:policy}), not episodic shutdowns.
+economic activity such as transport, industry, and construction; the design
+recovers the net effect of the shutdown and does not separately identify the
+contribution of each sector. Second, the rapid rebound once restrictions eased
+shows that one-off shocks do not deliver lasting gains: realizing the
+air-quality improvements seen in 2020 would require the sustained, structural
+emission controls envisioned by the National Clean Air Programme (Section
+\ref{p2-sec:policy}), whereas the 2020 shutdown bought only a temporary reprieve.
 
-The analysis also points to clear avenues for future work: attaching formal
-inference (for example, conformal prediction intervals) to the SHC point
-estimates, deploying the Augmented SHC of Section \ref{p2-sec:ashc} where
-pre-treatment fit is weakest, extending the outcome set beyond PM2.5 to
-co-pollutants such as NO\textsubscript{2}, and tracing how quickly pollution
-returns to its pre-pandemic trajectory. Taken together, the results establish a
+The analysis also points to clear avenues for future work: probing sensitivity
+to the evaluation-window length and the choice of post-treatment endpoint,
+extending the outcome set beyond PM2.5 to co-pollutants such as
+NO\textsubscript{2}, and tracing how quickly pollution returns to its
+pre-pandemic trajectory. Taken together, the results establish a
 large short-run reduction in the growth of particulate pollution and show the
 practical value of historical-control methods for evaluating large-scale
 interventions for which a contemporaneous untreated comparison unit is hard to

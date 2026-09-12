@@ -16,9 +16,9 @@ bibliography: delhi.bib
 
 The COVID-19 pandemic prompted governments worldwide to implement non-pharmaceutical interventions (NPIs), such as mass lockdowns, to curb virus spread and protect public health systems. India’s nationwide lockdown, beginning on March 25, 2020, was among the strictest globally since the Wuhan lockdown in China, halting mobility, industry, and construction for 1.3 billion people. Early research focused on virus outcomes \citep{yang2021does, bayat2020syntheticcontrolsyntheticinterventions} and economic impacts \citep{gong2024economic,WU2023151}, but lockdowns also likely influenced air quality, a critical public health factor. Popular media reported improved air quality during lockdowns, later confirmed by studies documenting reductions in pollutants such as PM2.5 \citep{watts2020airpollution, venter2020covid, kumari2021revisiting}. Given that India has some of the most polluted cities in the world, understanding how large-scale interventions affect pollution levels is of great interest. However, many studies are descriptive and do not estimate counterfactual scenarios (what air quality would have been without lockdowns), limiting their policy relevance, or rely on strict assumptions for identification \citep{milman2025congestion}.
 
-This study quantifies the causal impact of India’s 2020 national lockdown on PM2.5 levels nationally and in major cities using the Synthetic Historical Control (SHC) method \citep{SHC}. A contemporaneous pool of untreated units, which synthetic control normally requires, is difficult to assemble here because the pandemic affected countries worldwide. SHC avoids this requirement: it constructs the counterfactual from the treated unit’s own pre-lockdown history instead of from unexposed control units. Identification therefore does not turn on measuring every confounder, but it does rely on the stability and reconstructability of the treated unit’s historical outcome process (Section \ref{sec:shc}). I also develop a methodological extension, Augmented SHC (ASHC), that accommodates imperfect pre-treatment fit; the headline estimates use the convex SHC estimator, and ASHC serves as a robustness tool where pre-treatment fit is weak. In addition to the national analysis, this study examines Delhi, Mumbai, Bangalore, and Kolkata, megacities consistently among the world’s most polluted and major hubs of finance and commerce. The outcome throughout is the year-over-year growth rate of PM2.5, so the estimated effects are changes in that growth rate, not in pollution levels (Section \ref{sec:data}). Embedding these cases in a unified causal framework moves beyond simple pre–post comparisons and addresses a key policy question: what happens to air pollution when a country of India’s scale implements a nationwide shutdown? These findings can inform sustainable air quality management in India and provide lessons for urban planning and climate change mitigation globally.
+This study quantifies the causal impact of India’s 2020 national lockdown on PM2.5 levels nationally and in major cities using the Synthetic Historical Control (SHC) method \citep{SHC}. A contemporaneous pool of untreated units, which synthetic control normally requires, is difficult to assemble here because the pandemic affected countries worldwide. SHC avoids this requirement by constructing the counterfactual from the treated unit’s own pre-lockdown history. Identification therefore turns on the stability and reconstructability of the treated unit’s historical outcome process, which relaxes the need to measure every confounder (Section \ref{sec:shc}). In addition to the national analysis, this study examines Delhi, Mumbai, Bangalore, and Kolkata, megacities consistently among the world’s most polluted and major hubs of finance and commerce. The outcome throughout is the year-over-year growth rate of PM2.5, so the estimated effects are percentage-point changes in that growth rate (Section \ref{sec:data}). Embedding these cases in a unified causal framework moves beyond simple pre–post comparisons and addresses a key policy question: what happens to air pollution when a country of India’s scale implements a nationwide shutdown? These findings can inform sustainable air quality management in India and provide lessons for urban planning and climate change mitigation globally.
 
-The rest of the paper is organized as follows. Section \ref{sec:policy} provides background on air pollution in India, highlighting its health and economic costs. Section \ref{sec:lit} summarizes existing literature and methodological gaps. Section \ref{sec:method} outlines the empirical strategy, including SHC and the augmented version proposed here. Section \ref{sec:data} details data collection and processing.
+The rest of the chapter is organized as follows. Section \ref{sec:policy} provides background on air pollution in India and its health and economic costs. Section \ref{sec:lit} reviews the existing literature and the methodological gap this chapter fills. Section \ref{sec:method} sets out the empirical strategy: the SHC estimator with its identifying assumptions (Section \ref{sec:shc}) and the choice of smoothing bandwidth (Section \ref{sec:hyperparams}). Section \ref{sec:data} describes the data and their construction. The remaining sections report the national and city-level results, a quarterly-aggregation robustness check, and a discussion of the findings and their policy implications.
 
 # Background and Previous Work
 
@@ -60,18 +60,18 @@ To contextualize our approach, we review existing studies on lockdown-related ai
 
 ### Gaps and Contribution of This Study
 
-A central gap is the lack of causal designs for national-scale interventions. Many studies use simple pre–post t-tests \citep{Goel2021}, graphical analyses \citep{kumari2020impact,benchrif2021aerosol}, year-over-year comparisons \citep{le2020temporary}, or OLS regressions \citep{PAL2022101368}. These methods cannot fully account for confounding trends or temporal patterns, reducing confidence in policy-relevant estimates. SCM improves on this by constructing a counterfactual from untreated donor units as a weighted average \citep{BenMichael2021}. For a nationwide policy, though, a credible contemporaneous donor pool is hard to assemble: the pandemic affected countries worldwide, so candidate controls are themselves treated or otherwise contaminated. Causal machine learning approaches \citep{heffernan2025causal} face another difficulty, relying on strong ignorability assumptions that may not hold for air pollution data with unmeasured year-specific factors. SHC takes a different route. It reconstructs the counterfactual from the treated unit’s own pre-lockdown history, so it needs neither a contemporaneous donor pool nor a complete set of measured covariates. This does not remove the identification burden; it shifts it onto the stability and reconstructability of that historical outcome process, the assumptions I set out in Section \ref{sec:shc}. As a methodological contribution, I also propose an Augmented SHC (ASHC) extension that permits limited extrapolation to improve pre-treatment fit while maintaining stability; the empirical estimates below use the convex SHC estimator, and ASHC is held for cases of poor fit. Empirically, this chapter provides what is, to my knowledge, the first application of SHC to estimate the air-quality consequences of the 2020 lockdown in a country of India’s scale, at both the national and city levels.
+A central gap is the lack of causal designs for national-scale interventions. Many studies use simple pre–post t-tests \citep{Goel2021}, graphical analyses \citep{kumari2020impact,benchrif2021aerosol}, year-over-year comparisons \citep{le2020temporary}, or OLS regressions \citep{PAL2022101368}. These methods cannot fully account for confounding trends or temporal patterns, reducing confidence in policy-relevant estimates. SCM improves on this by constructing a counterfactual from untreated donor units as a weighted average \citep{BenMichael2021}. For a nationwide policy, though, a credible contemporaneous donor pool is hard to assemble: the pandemic affected countries worldwide, so candidate controls are themselves treated or otherwise contaminated. Causal machine learning approaches \citep{heffernan2025causal} face another difficulty, relying on strong ignorability assumptions that may not hold for air pollution data with unmeasured year-specific factors. SHC takes a different route. It reconstructs the counterfactual from the treated unit’s own pre-lockdown history, so it needs neither a contemporaneous donor pool nor a complete set of measured covariates. This does not remove the identification burden; it shifts it onto the stability and reconstructability of that historical outcome process, the assumptions I set out in Section \ref{sec:shc}. This chapter provides what is, to my knowledge, the first application of SHC to estimate the air-quality consequences of the 2020 lockdown in a country of India’s scale, at both the national and city levels.
 
  
  # Methodology
 \label{sec:method}
 
-Below I describe the Synthetic Historical Control (SHC) methodology from \citet{SHC}. I then extend this framework to settings where pre-treatment fit is poor, yielding the Augmented Synthetic Historical Control (ASHC). The ASHCM is applied separately to the national average of PM2.5 for India, as well as Delhi, Mumbai, Bangalore, and Kolkata.
+Below I describe the Synthetic Historical Control (SHC) methodology from \citet{SHC}. SHC is applied separately to the national average of PM2.5 for India, as well as Delhi, Mumbai, Bangalore, and Kolkata.
 
 ## The Synthetic Historical Control Method
 \label{sec:shc}
 
-SHC estimates the causal effect of an intervention by constructing counterfactual outcomes from historical segments of the treated unit itself, not from contemporaneous control units. This makes it well-suited for national-scale interventions such as India’s 2020 lockdown, where assembling a credible contemporaneous donor pool of untreated countries is difficult because the pandemic affected countries worldwide. Before presenting the estimator, I state the assumptions SHC relies on.
+SHC estimates the causal effect of an intervention by constructing counterfactual outcomes from historical segments of the treated unit’s own past. This makes it well-suited for national-scale interventions such as India’s 2020 lockdown, where assembling a credible contemporaneous donor pool of untreated countries is difficult because the pandemic affected countries worldwide. Before presenting the estimator, I state the assumptions SHC relies on.
 
 ### Assumptions
 
@@ -104,7 +104,7 @@ and there exists
 \end{assumption}
 
 \noindent
-Smoothness ensures that the latent process can be approximated by a finite expansion. The matching condition requires that some convex combination of historical donor segments can reproduce the evaluation period. This parallels the “existence of weights” assumption in the SCM literature \citep{Abadie2010,Amjad2018}. Recurring influences such as meteorology enter the counterfactual only to the extent that they are stable and are represented by the historical donor segments; their past presence in the series is necessary for this, not sufficient on its own.
+Smoothness ensures that the latent process can be approximated by a finite expansion. The matching condition requires that some convex combination of historical donor segments can reproduce the evaluation period. This parallels the “existence of weights” assumption in the SCM literature \citep{Abadie2010,Amjad2018}. Recurring influences such as meteorology enter the counterfactual only to the extent that they are stable and are represented by the historical donor segments; their past presence in the series is required for this, and on its own it leaves the match still to be earned.
 
 \begin{assumption}[Feasibility and Stability]
 \label{assump:estimation}
@@ -117,7 +117,7 @@ Smoothness ensures that the latent process can be approximated by a finite expan
 \end{assumption}
 
 \noindent
-Sparsity means that only a small number of donor segments are relevant. Positive definiteness prevents collinearity and keeps the weights stable. In plain terms, SHC rests on three conditions. First, the random “noise” in pollution measurements behaves well: it averages out and does not swamp the real signal. Second, the history of pollution before the lockdown is smooth and informative enough that past patterns can be combined to mimic what would have happened absent the lockdown. Recurring influences such as weather are carried along only to the extent that they leave a stable, repeating footprint in that history; the method does not measure or adjust for them directly. Third, the pieces of history used to form the counterfactual are not redundant, so the weights placed on them are stable and not erratic. These conditions let SHC reconstruct the final pre-treatment window. Using that reconstruction as the post-treatment counterfactual takes one further, substantive assumption: that the historical relationship the weights capture is stable enough to carry forward into the post-treatment period. Good pre-treatment fit is necessary for this, not sufficient; identification rests on that stability, and it is the assumption I scrutinize most closely in what follows.
+Sparsity means that only a small number of donor segments are relevant. Positive definiteness prevents collinearity and keeps the weights stable. In plain terms, SHC rests on three conditions. First, the random “noise” in pollution measurements behaves well: it averages out and does not swamp the real signal. Second, the history of pollution before the lockdown is smooth and informative enough that past patterns can be combined to mimic what would have happened absent the lockdown. Recurring influences such as weather are carried along only to the extent that they leave a stable, repeating footprint in that history; the method does not measure or adjust for them directly. Third, the pieces of history used to form the counterfactual are not redundant, so the weights placed on them stay stable across the sample. These conditions let SHC reconstruct the final pre-treatment window. Using that reconstruction as the post-treatment counterfactual takes one further, substantive assumption: that the historical relationship the weights capture is stable enough to carry forward into the post-treatment period. Good pre-treatment fit is a precondition here; what ultimately identifies the effect is that stability, and it is the assumption I scrutinize most closely in what follows.
 
 ### Estimator 
 
@@ -135,7 +135,7 @@ with the average treatment effect on the treated (ATT) defined as
 \begin{equation}
 \widehat{\text{ATT}} = \frac{1}{n}\sum_{t \in \mathcal{T}_2} \widehat{\alpha}_t.
 \end{equation}
-With a single treated unit and a time-series intervention, this ATT is the average post-treatment effect for the treated unit, the mean gap between its observed path and its counterfactual over $\mathcal{T}_2$, and not an average over a cross-section of treated units as in panel designs. I keep the ATT label for continuity with the SHC and SCM literature.
+With a single treated unit and a time-series intervention, this ATT is the average post-treatment effect for that one unit: the mean gap between its observed path and its counterfactual over $\mathcal{T}_2$. I keep the ATT label for continuity with the SHC and SCM literature, where it carries this time-series meaning.
 
 The implementation of SHC begins by smoothing the pre-treatment outcome series $\mathbf{y}_{\text{pre}}$ using local linear regression with a Gaussian kernel, yielding a smooth trajectory $\widetilde{\mathbf{y}}$ \citep{fan1992variable}. From this smoothed series, we construct the donor matrix by extracting $N$ overlapping segments, each of length $m$. 
 
@@ -183,91 +183,20 @@ In practice, only a few donor segments contribute meaningfully to the reconstruc
 
 A further advantage of SHC in this setting is that it naturally accommodates nonlinear dynamics in the pre-treatment pollution series. Because SHC begins with a local linear smoother, short-term fluctuations and seasonal nonlinearities (many of which are driven by meteorology such as temperature inversions, wind, or rainfall) are already captured in the donor segments. In contrast, standard interrupted time series designs often require explicitly specifying and fitting complex parametric models such as SARIMA to handle the same effects. The primary tuning choice is therefore the bandwidth of the kernel smoother, while the identifying content sits in the smoothness, matching, and stability conditions stated above. This makes the method flexible enough to capture weather-driven variation while remaining relatively simple to implement in practice.
 
-## The Augmented Synthetic Historical Control Method
-\label{sec:ashc}
-
-The augmented synthetic historical control (ASHC) method extends SHC by permitting limited extrapolation beyond the convex hull of historical segments, while stabilizing the solution through a proximity penalty. This modification is motivated by cases where the simplex constraint of SHC is too restrictive to achieve adequate pre-treatment fit. By allowing negative weights under an affine constraint and penalizing deviations from the SHC solution, ASHC balances improved fit with regularization. Let $\mathbf{w}^{\text{SHC}}$ denote the SHC weight vector. The ASHC estimator solves
-\begin{equation}
-\mathbf{w}^{\text{ASHC}} 
-= \arg\min_{\mathbf{w} \in \mathbb{R}^N} \underbrace{\left\| \mathbf{y}_{\text{eval}} - \widetilde{\mathbf{Y}}_{\text{pre}} \mathbf{w} \right\|_2^2}_{\text{Fit Term}} + \underbrace{\varsigma \left\| \mathbf{C}_0^\top \mathbf{w} \right\|_2^2}_{\text{Low-variance term}} + \underbrace{\lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2}_{\text{Proximity term}}, \qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1.
-\end{equation}
-The first two terms are unchanged from the original SHC method. The third term in the ASHC objective,
-$$
-\lambda \left\| \mathbf{w} - \mathbf{w}^{\text{SHC}} \right\|_2^2,
-$$
-is a proximity penalty. This term discourages the ASHC solution from deviating too far from the original SHC weights. The penalty does two things. It regularizes the affine extension of SHC by shrinking the solution toward the convex combination used in SHC, and it keeps the extra flexibility from negative weights in check, so that flexibility is used only when it substantially reduces pre-treatment error. The tuning parameter $\lambda \geq 0$ controls the degree of shrinkage: when $\lambda$ is very large, the ASHC solution converges to $\mathbf{w}^{\text{SHC}}$, while when $\lambda=0$ the penalty vanishes and the estimator reduces to an unpenalized affine extension of SHC. Thus, the proximity penalty creates a continuum between SHC and its affine relaxation, allowing researchers to balance interpretability and stability against the potential gains in fit from extrapolation. The ASHC counterfactual is obtained as  $\widehat{\mathbf{y}}_{\text{post}}^{0,\text{ASHC}} 
-= \widetilde{\mathbf{Y}}_{\text{post}} \, \mathbf{w}^{\text{ASHC}},$ with treatment effects estimated analogously to SHC.
-
-## Bandwidth and Regularization Parameter Selection
+## Bandwidth Selection
 \label{sec:hyperparams}
 
-The performance of SHC depends critically on two hyperparameters: the smoothing bandwidth $h$ and the proximity penalty parameter $\lambda$. Both are chosen via cross-validation. First I discuss the bandwidth for the kernel smoothing. Let $\mathbf{y}_{\text{pre}} = (y_1,\dots,y_{T_0})^\top$ denote the pre-treatment series. For a candidate bandwidth $h > 0$, define the local linear smoother estimate $\widehat{y}_i^{(-i)}(h)$ as the fitted intercept obtained by regressing $\{y_j : j \neq i\}$ on $\{j - i : j \neq i\}$ with kernel weights
+The performance of SHC depends on the smoothing bandwidth $h$, which is chosen by cross-validation. Let $\mathbf{y}_{\text{pre}} = (y_1,\dots,y_{T_0})^\top$ denote the pre-treatment series. For a candidate bandwidth $h > 0$, define the local linear smoother estimate $\widehat{y}_i^{(-i)}(h)$ as the fitted intercept obtained by regressing $\{y_j : j \neq i\}$ on $\{j - i : j \neq i\}$ with kernel weights
 $$
 K_h(j - i) \;=\; \exp\!\left(-\tfrac{1}{2}\left(\tfrac{j-i}{h}\right)^2\right),
 $$
 normalized so that $\sum_{j \neq i} K_h(j - i) = 1$. Formally, for each $i \in \{1,\dots,T_0\}$,
 $$
-\widehat{\beta}(h)^{(-i)} 
+\widehat{\beta}(h)^{(-i)}
 = \arg\min_{\beta_0,\beta_1}
 \sum_{j \neq i} K_h(j-i)\,\Big(y_j - \beta_0 - \beta_1 (j-i)\Big)^2,
 $$
-and the leave-one-out prediction is $\widehat{y}_i^{(-i)}(h) \;=\; \widehat{\beta}_0(h)^{(-i)}$. The LOOCV error is $\text{CV}(h) \;=\; \frac{1}{T_0}\sum_{i=1}^{T_0} \Big(y_i - \widehat{y}_i^{(-i)}(h)\Big)^2.$ The optimal bandwidth is then chosen as $h^\ast = \arg\min_{h \in \mathcal{H}} \text{CV}(h),$ where $\mathcal{H}$ is a prespecified candidate grid. This is chosen before the SHC estimates weights for any of the time periods, and this carries over to the ASHC method.
-
-Next we discuss $\lambda$, exclusive to the ASHC. Recall the ASHC objective
-\begin{equation}
-Q(\mathbf{w};\lambda)
-= \left\|\mathbf{y}_{\text{train}} - \widetilde{\mathbf{Y}}_{\text{train}}\mathbf{w}\right\|_2^2
-+ \varsigma \left\|\mathbf{C}_0^\top\mathbf{w}\right\|_2^2
-+ \lambda \left\|\mathbf{w} - \mathbf{w}^{\text{SHC}}\right\|_2^2,
-\qquad \text{subject to } \mathbf{1}^\top \mathbf{w} = 1.
-\end{equation}
-
-Let the evaluation window $\mathcal{T}_{\text{eval}}$ be split into a training set 
-$\mathcal{T}_{\text{train}}$ and a validation set $\mathcal{T}_{\text{val}}$, with corresponding 
-subvectors $\mathbf{y}_{\text{train}}, \mathbf{y}_{\text{val}}$ and donor matrices 
-$\widetilde{\mathbf{Y}}_{\text{train}}, \widetilde{\mathbf{Y}}_{\text{val}}$.  
-
-We construct a logarithmically spaced grid of candidate values
-\begin{equation}
-\Lambda 
-= \left\{ \lambda_j \;:\; 
-\lambda_j \;=\; \lambda_{\max}\,\rho^{\,j},\;\; j=0,1,\dots,n_\lambda-1 \right\},
-\end{equation}
-where
-\begin{equation}
-\lambda_{\max} \;=\; \sigma_{\max}^2, 
-\qquad
-\lambda_{\min} \;=\; \lambda_{\max} \cdot \kappa,
-\qquad
-\rho \;=\; \left(\frac{\lambda_{\min}}{\lambda_{\max}}\right)^{\frac{1}{n_\lambda-1}}.
-\end{equation}
-Here $\sigma_{\max}$ denotes the largest singular value of 
-$\widetilde{\mathbf{Y}}_{\text{train}}$, and $\kappa > 0$ is a user-chosen constant 
-controlling the lower bound of the grid.\footnote{In practice, we set 
-$\kappa = 10^{-8}$, ensuring that the grid spans from strong shrinkage 
-($\lambda_{\max}$) to nearly unpenalized fits ($\lambda_{\min}$).} 
-Thus $\Lambda$ spans values from 
-$\lambda_{\max}$ (very strong shrinkage toward $\mathbf{w}^{\text{SHC}}$) 
-down to $\lambda_{\min}$ (minimal shrinkage).
-
-For each $\lambda \in \Lambda$, the estimator is
-\begin{equation}
-\widehat{\mathbf{w}}(\lambda) 
-= \arg\min_{\mathbf{w} \in \mathbb{R}^N} Q(\mathbf{w};\lambda),
-\end{equation}
-and the validation error is
-\begin{equation}
-\text{Val}(\lambda) 
-= \frac{1}{|\mathcal{T}_{\text{val}}|}
-\;\big\|\mathbf{y}_{\text{val}} - \widetilde{\mathbf{Y}}_{\text{val}}\,\widehat{\mathbf{w}}(\lambda)\big\|_2^2.
-\end{equation}
-
-The optimal penalty parameter is selected as
-\begin{equation}
-\lambda^\ast 
-= \arg\min_{\lambda \in \Lambda} \text{Val}(\lambda).
-\end{equation}
-Together, $h^\ast$ and $\lambda^\ast$ balance the dual bias–variance tradeoffs of ASHC: smoothing bias versus noise, and extrapolation bias versus instability.
+and the leave-one-out prediction is $\widehat{y}_i^{(-i)}(h) \;=\; \widehat{\beta}_0(h)^{(-i)}$. The LOOCV error is $\text{CV}(h) \;=\; \frac{1}{T_0}\sum_{i=1}^{T_0} \Big(y_i - \widehat{y}_i^{(-i)}(h)\Big)^2.$ The optimal bandwidth is chosen as $h^\ast = \arg\min_{h \in \mathcal{H}} \text{CV}(h),$ where $\mathcal{H}$ is a prespecified candidate grid, and is fixed before SHC estimates any weights. This choice trades smoothing bias against noise in the local linear smoother.
  
 
 # Data
@@ -298,7 +227,7 @@ $$
 \mathbf{y}_c = \frac{\sum_{i \in S_c} p_i \, \mathbf{Y}_{i,\cdot}}{\sum_{i \in S_c} p_i} \in \mathbb{R}^{T},
 $$
 
-where $S_c$ is the set of subdistricts belonging to district $c$. My final outcome is the year-over-year (YoY) growth rate of PM2.5, not the level. Working on the growth-rate scale removes the strong twelve-month seasonality of Indian pollution and the slow-moving level trend, both of which would otherwise dominate a historical-control comparison. For any series $\bar{\mathbf{y}}$, the monthly YoY growth from month $t$ relative to the same month a year earlier is
+where $S_c$ is the set of subdistricts belonging to district $c$. My final outcome is the year-over-year (YoY) growth rate of PM2.5. Working on the growth-rate scale removes the strong twelve-month seasonality of Indian pollution and the slow-moving level trend, both of which would otherwise dominate a historical-control comparison. For any series $\bar{\mathbf{y}}$, the monthly YoY growth from month $t$ relative to the same month a year earlier is
 
 $$
 g_t = \frac{\bar{y}_t - \bar{y}_{t-12}}{\bar{y}_{t-12}}, \quad t = 13, \dots, T,
@@ -310,7 +239,7 @@ $$
 \mathbf{g}_c = [g_{13}, \dots, g_T] \: \forall \, c.
 $$
 
-Because every estimate is formed on this scale, the treatment effect is a change in the YoY growth rate of PM2.5, measured in percentage points, not a change in the PM2.5 concentration level. The YoY transform is defined from month 13 onward (January 1999), and the lockdown analysis uses this series through December 2020.
+Because every estimate is formed on this scale, the treatment effect is a percentage-point change in the year-over-year growth rate of PM2.5. The YoY transform is defined from month 13 onward (January 1999), and the lockdown analysis uses this series through December 2020.
 
 
 
